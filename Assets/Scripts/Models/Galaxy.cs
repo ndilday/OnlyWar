@@ -8,15 +8,27 @@ namespace Iam.Scripts.Models
     {
         const int GALAXY_WIDTH = 30;
         public List<Planet> Planets;
+        public List<Fleet> Fleets;
 
         public Galaxy()
         {
             Planets = new List<Planet>();
+            Fleets = new List<Fleet>();
         }
 
         public Planet GetPlanet(int planetId)
         {
             return Planets[planetId];
+        }
+
+        public Planet GetPlanetByPosition(Vector2 worldPosition)
+        {
+            return null;
+        }
+
+        public Fleet GetFleetByPosition(Vector2 worldPosition)
+        {
+            return null;
         }
 
         public void GenerateGalaxy(int seed)
@@ -43,6 +55,18 @@ namespace Iam.Scripts.Models
                     }
                 }
             }
+            AddFleet();
+        }
+
+        public void AddFleet()
+        {
+            int startingPlanet = Planets.Count / 2;
+            Fleet fleet = new Fleet();
+            fleet.Planet = Planets[startingPlanet];
+            fleet.Destination = null;
+            fleet.Position = fleet.Planet.Position;
+            Planets[startingPlanet].LocalFleet = fleet;
+            Fleets.Add(fleet);
         }
     }
 }

@@ -1804,6 +1804,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1066516929}
   - component: {fileID: 1066516928}
+  - component: {fileID: 1066516930}
   m_Layer: 0
   m_Name: GalaxyManager
   m_TagString: Untagged
@@ -1838,6 +1839,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1066516930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066516927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3011ca0927ab74b8ea3145c82289b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1302839297
 GameObject:
   m_ObjectHideFlags: 0
@@ -2146,6 +2159,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1431980243}
   - component: {fileID: 1431980242}
+  - component: {fileID: 1431980244}
   m_Layer: 0
   m_Name: GalaxyMap
   m_TagString: Untagged
@@ -2165,7 +2179,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0f10a6496e5ed4aa8fe03cd0d768ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnFleetPathDraw:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1431980244}
+        m_TargetAssemblyTypeName: FleetLineManager, Assembly-CSharp
+        m_MethodName: CreateLine
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnFleetPathRemove:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1431980244}
+        m_TargetAssemblyTypeName: FleetLineManager, Assembly-CSharp
+        m_MethodName: RemoveLine
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   StarPrefab: {fileID: 7371614497204678522, guid: ef45c0f00b253c7458059a55ca91a6a5,
+    type: 3}
+  FleetPrefab: {fileID: 8249821652099483435, guid: 9aa88a9009d4cd8458373a02deb34faa,
     type: 3}
   StarLayerMask:
     serializedVersion: 2
@@ -2173,6 +2219,7 @@ MonoBehaviour:
   FleetLayerMask:
     serializedVersion: 2
     m_Bits: 512
+  GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
 --- !u!4 &1431980243
 Transform:
   m_ObjectHideFlags: 0
@@ -2187,6 +2234,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1431980244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431980241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63aa969a84d3ec74e996eb732fca5f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FleetLinePrefab: {fileID: 6631610895554928066, guid: f7cede223a2a42240a57d66ef22294a4,
+    type: 3}
 --- !u!1 &1468635323
 GameObject:
   m_ObjectHideFlags: 0

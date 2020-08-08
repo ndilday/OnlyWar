@@ -19,6 +19,7 @@ namespace Iam.Scripts.Models
         public PlanetGraphic PlanetGraphic;
         public Color TextColor;
         public Color PlanetColor;
+        public Fleet LocalFleet;
         // how to represent forces on planet?
     }
 }

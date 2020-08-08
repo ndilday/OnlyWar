@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4499202298109840615}
   - component: {fileID: 4332146097140023943}
   m_Layer: 8
-  m_Name: Circle
+  m_Name: StarSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
