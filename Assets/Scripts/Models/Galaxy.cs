@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Iam.Scripts.Models
@@ -23,12 +24,12 @@ namespace Iam.Scripts.Models
 
         public Planet GetPlanetByPosition(Vector2 worldPosition)
         {
-            return null;
+            return Planets.Where(p => p.Position != null && p.Position == worldPosition).SingleOrDefault();
         }
 
         public Fleet GetFleetByPosition(Vector2 worldPosition)
         {
-            return null;
+            return Fleets.Where(f => f.Position != null && f.Position == worldPosition).SingleOrDefault();
         }
 
         public void GenerateGalaxy(int seed)
