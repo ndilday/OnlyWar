@@ -25,7 +25,7 @@ namespace Iam.Scripts
         }
 
         // Update is called once per frame
-        void FixedUpdate()
+        void Update()
         {
             HandleMouseMove();
             if (Input.GetMouseButtonUp(0))
@@ -60,7 +60,7 @@ namespace Iam.Scripts
                             {
                                 // draw a path from the fleet to the planet we're hovering over
                                 // TODO: Are we worried about the efficiency of deleting and redrawing the same line over and over when the mouse is sitting on a planet?
-                                Map.DrawFleetPath((int)_selectedFleetId, hitInfo.collider.transform.position, Color.cyan);
+                                Map.DrawFleetPath((int)_selectedFleetId, planet.Position);
                             }
                         }
                     }
@@ -120,13 +120,28 @@ namespace Iam.Scripts
                     // if we have a selected fleet that is not en route, the click becomes their new target system
                     if (_selectedFleetId != null && _galaxy.Fleets[(int)_selectedFleetId].Planet != null)
                     {
+                        Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
                         // this is the selected fleet's new target system
                         int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
-                        // redraw the path in a different color to represent a set course
-                        Map.DrawFleetPath((int)_selectedFleetId, hitInfo.collider.transform.position, Color.yellow);
-                        // update fleet model
-                        _galaxy.Fleets[(int)_selectedFleetId].Destination = _galaxy.Planets[(int)destinationPlanetId];
-                        
+                        if (destinationPlanetId != null)
+                        {
+                            Planet planet = _galaxy.Planets[(int)destinationPlanetId];
+                            if (fleet.Planet == planet && fleet.Destination != null)
+                            {
+                                // click is on the fleet's current location, remove fleet destination
+                                Map.RemoveFleetDestination((int)_selectedFleetId);
+                                fleet.Destination = null;
+                            }
+                            else
+                            {
+                                // if we're worried about efficiency, we could remove the extra fleet draw in cases where they've clicked on their current destination
+                                // redraw the path in a different color to represent a set course
+                                Map.RemoveFleetPath((int)_selectedFleetId);
+                                Map.DrawFleetDestination((int)_selectedFleetId, planet.Position);
+                                // update fleet model
+                                _galaxy.Fleets[(int)_selectedFleetId].Destination = _galaxy.Planets[(int)destinationPlanetId];
+                            }
+                        }
                     }
                 }
             }
@@ -155,7 +170,7 @@ namespace Iam.Scripts
                 Fleet fleet = _galaxy.Fleets[i];
                 if (fleet.Destination != null)
                 {
-                    Map.RemoveFleetPath(i);
+                    Map.RemoveFleetDestination(i);
                     Map.RemoveFleet(i);
 
                     // if the fleet has a destination, we need to move the fleet
@@ -177,7 +192,7 @@ namespace Iam.Scripts
                         path.Normalize();
                         fleet.Position += path;
                         Map.DrawFleetAtLocation(i, fleet.Position, false);
-                        Map.DrawFleetPath(i, fleet.Destination.Position, Color.magenta);
+                        Map.DrawFleetDestination(i, fleet.Destination.Position);
                     }
                 }
             }

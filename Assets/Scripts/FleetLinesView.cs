@@ -5,23 +5,24 @@ using UnityEngine;
 
 public class FleetLinesView : MonoBehaviour
 {
+    public Color LineColor;
     public GameObject FleetLinePrefab;
     Dictionary<int, GameObject> _lines = new Dictionary<int, GameObject>();
 
-    public void OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint, Color color)
+    public void OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint)
     {
-        CreateLine(index, startPoint, endPoint, color);
+        CreateLine(index, startPoint, endPoint);
     }
 
-    private void CreateLine(int index, Vector2 startPoint, Vector2 endPoint, Color color)
+    private void CreateLine(int index, Vector2 startPoint, Vector2 endPoint)
     {
         RemoveLine(index);
         GameObject newLine = Instantiate(FleetLinePrefab);
         LineRenderer lRend = newLine.GetComponent<LineRenderer>();
         lRend.SetPosition(0, startPoint);
         lRend.SetPosition(1, endPoint);
-        lRend.startColor = color;
-        lRend.endColor = color;
+        lRend.startColor = LineColor;
+        lRend.endColor = LineColor;
         _lines[index] = newLine;
     }
 

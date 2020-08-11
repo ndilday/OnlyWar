@@ -865,6 +865,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 468661676}
   m_CullTransparentMesh: 0
+--- !u!1 &483913984
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 483913986}
+  - component: {fileID: 483913985}
+  m_Layer: 0
+  m_Name: FleetDestinationView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &483913985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 483913984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63aa969a84d3ec74e996eb732fca5f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LineColor: {r: 1, g: 0, b: 1, a: 1}
+  FleetLinePrefab: {fileID: 6631610895554928066, guid: f7cede223a2a42240a57d66ef22294a4,
+    type: 3}
+--- !u!4 &483913986
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 483913984}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 451.5, y: 260.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &485733952
 GameObject:
   m_ObjectHideFlags: 0
@@ -1454,8 +1500,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 854813794}
+  - component: {fileID: 854813795}
   m_Layer: 5
-  m_Name: UIOverlay
+  m_Name: UIOverlayView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1477,6 +1524,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &854813795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854813793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a75eb5db99be4de4e9eac337e0e9c966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BottomUI: {fileID: 1317438044}
 --- !u!1 &874288829
 GameObject:
   m_ObjectHideFlags: 0
@@ -1558,7 +1618,31 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 874288832}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066516928}
+        m_TargetAssemblyTypeName: Iam.Scripts.UniverseManager, Assembly-CSharp
+        m_MethodName: OnEndTurnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: OnEndTurnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &874288832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1806,7 +1890,7 @@ GameObject:
   - component: {fileID: 1066516928}
   - component: {fileID: 1066516930}
   m_Layer: 0
-  m_Name: GalaxyManager
+  m_Name: GalaxyController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1824,6 +1908,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6da4f611276c8441893d7f23518e053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TurnStart:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 854813795}
+        m_TargetAssemblyTypeName: UIController, Assembly-CSharp
+        m_MethodName: OnTurnStart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   Map: {fileID: 1431980242}
 --- !u!4 &1066516929
 Transform:
@@ -2159,9 +2258,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1431980243}
   - component: {fileID: 1431980242}
-  - component: {fileID: 1431980244}
   m_Layer: 0
-  m_Name: GalaxyMap
+  m_Name: GalaxyMapView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2179,12 +2277,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0f10a6496e5ed4aa8fe03cd0d768ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnFleetPathDraw:
+  FleetPathDraw:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1431980244}
-        m_TargetAssemblyTypeName: FleetLineManager, Assembly-CSharp
-        m_MethodName: CreateLine
+      - m_Target: {fileID: 1655719299}
+        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
+        m_MethodName: OnFleetLineDraw
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2194,12 +2292,42 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  OnFleetPathRemove:
+  FleetPathRemove:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1431980244}
-        m_TargetAssemblyTypeName: FleetLineManager, Assembly-CSharp
-        m_MethodName: RemoveLine
+      - m_Target: {fileID: 1655719299}
+        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
+        m_MethodName: OnFleetLineRemove
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  FleetDestinationDraw:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 483913985}
+        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
+        m_MethodName: OnFleetLineDraw
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  FleetDestinationRemove:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 483913985}
+        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
+        m_MethodName: OnFleetLineRemove
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2234,20 +2362,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1431980244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1431980241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63aa969a84d3ec74e996eb732fca5f44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  FleetLinePrefab: {fileID: 6631610895554928066, guid: f7cede223a2a42240a57d66ef22294a4,
-    type: 3}
 --- !u!1 &1468635323
 GameObject:
   m_ObjectHideFlags: 0
@@ -2646,6 +2760,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1638306673}
   m_CullTransparentMesh: 0
+--- !u!1 &1655719298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1655719300}
+  - component: {fileID: 1655719299}
+  m_Layer: 0
+  m_Name: FleetPathView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1655719299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655719298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63aa969a84d3ec74e996eb732fca5f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LineColor: {r: 0, g: 1, b: 1, a: 1}
+  FleetLinePrefab: {fileID: 6631610895554928066, guid: f7cede223a2a42240a57d66ef22294a4,
+    type: 3}
+--- !u!4 &1655719300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655719298}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 451.5, y: 260.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1829946861
 GameObject:
   m_ObjectHideFlags: 0

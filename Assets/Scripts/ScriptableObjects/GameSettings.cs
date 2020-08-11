@@ -10,5 +10,5 @@ public class GameSettings : ScriptableObject
     public bool debugMode;
 
     [Header("Map Scale")]
-    public float MapScale;
+    public Vector2 MapScale;
 }
