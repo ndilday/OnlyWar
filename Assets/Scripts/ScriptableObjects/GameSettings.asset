@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   debugMode: 0
-  MapScale: {x: 0, y: 0}
+  MapScale: {x: 15, y: 15}
