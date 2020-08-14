@@ -7,6 +7,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1252308097993851361, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.r
+      value: 0.9607843
+      objectReference: {fileID: 0}
     - target: {fileID: 3979462115132398306, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -111,6 +116,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_Text
+      value: HQ Squad
       objectReference: {fileID: 0}
     - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
