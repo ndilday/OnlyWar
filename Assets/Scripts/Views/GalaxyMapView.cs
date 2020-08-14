@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Views
 {
     public class GalaxyMapView : MonoBehaviour
     {

@@ -53,6 +53,7 @@ namespace Iam.Scripts.Models
             _tacticalSquad = CreateTacticalSquad();
             _assaultSquad = CreateAssaultSquad();
             _devestatorSquad = CreateDevestatorSquad();
+            _scoutSquad = CreateScoutSquad();
             Chapter = CreateChapter();
         }
 
@@ -117,6 +118,22 @@ namespace Iam.Scripts.Models
             devestatorSquad.Members.Add(TempSpecialtyRanks.DevestatorMarine);
             devestatorSquad.Members.Add(TempSpecialtyRanks.DevestatorMarine);
             devestatorSquad.Members.Add(TempSpecialtyRanks.DevestatorMarine);
+            return devestatorSquad;
+        }
+
+        private UnitTemplate CreateScoutSquad()
+        {
+            UnitTemplate devestatorSquad = new UnitTemplate(15, "Scout Squad");
+            devestatorSquad.Members.Add(TempSpecialtyRanks.ScoutSergeant);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
+            devestatorSquad.Members.Add(TempSpecialtyRanks.Scout);
             return devestatorSquad;
         }
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 using Iam.Scripts.Models;
+using Iam.Scripts.Views;
 
 namespace Iam.Scripts
 {
@@ -11,6 +12,7 @@ namespace Iam.Scripts
     public class GalaxyController : MonoBehaviour
     {
         public UnityEvent TurnStart;
+        public UnityEvent ViewClose;
 
         public GalaxyMapView Map;
 
@@ -27,10 +29,19 @@ namespace Iam.Scripts
         // Update is called once per frame
         void Update()
         {
+            HandleKeyboardInput();
             HandleMouseMove();
             if (Input.GetMouseButtonUp(0))
             {
                 HandleMouseLeftClick();
+            }
+        }
+
+        private void HandleKeyboardInput()
+        {
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                ViewClose.Invoke();
             }
         }
 
