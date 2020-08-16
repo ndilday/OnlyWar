@@ -172,6 +172,9 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateVeteranCompany()
         {
             UnitTemplate vetCompany = new UnitTemplate(6, "Veteran Company");
+            vetCompany.Members.Add(TempSpecialtyRanks.VeteranCaptain);
+            vetCompany.Members.Add(TempSpecialtyRanks.VeteranChampion);
+            vetCompany.Members.Add(TempSpecialtyRanks.VeteranAncient);
             vetCompany.ChildUnits.Add(VeteranSquadTemplate);
             vetCompany.ChildUnits.Add(VeteranSquadTemplate);
             vetCompany.ChildUnits.Add(VeteranSquadTemplate);
@@ -188,6 +191,9 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateBattleCompany()
         {
             UnitTemplate battleCompany = new UnitTemplate(7, "Battle Company");
+            battleCompany.Members.Add(TempSpecialtyRanks.Captain);
+            battleCompany.Members.Add(TempSpecialtyRanks.Champion);
+            battleCompany.Members.Add(TempSpecialtyRanks.Ancient);
             battleCompany.ChildUnits.Add(TacticalSquadTemplate);
             battleCompany.ChildUnits.Add(TacticalSquadTemplate);
             battleCompany.ChildUnits.Add(TacticalSquadTemplate);
@@ -204,6 +210,9 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateTacticalCompany()
         {
             UnitTemplate company = new UnitTemplate(8, "Tactical Company");
+            company.Members.Add(TempSpecialtyRanks.Captain);
+            company.Members.Add(TempSpecialtyRanks.Champion);
+            company.Members.Add(TempSpecialtyRanks.Ancient);
             company.ChildUnits.Add(TacticalSquadTemplate);
             company.ChildUnits.Add(TacticalSquadTemplate);
             company.ChildUnits.Add(TacticalSquadTemplate);
@@ -220,6 +229,9 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateAssaultCompany()
         {
             UnitTemplate company = new UnitTemplate(9, "Tactical Company");
+            company.Members.Add(TempSpecialtyRanks.Captain);
+            company.Members.Add(TempSpecialtyRanks.Champion);
+            company.Members.Add(TempSpecialtyRanks.Ancient);
             company.ChildUnits.Add(AssaultSquadTemplate);
             company.ChildUnits.Add(AssaultSquadTemplate);
             company.ChildUnits.Add(AssaultSquadTemplate);
@@ -236,6 +248,9 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateDevestatorCompany()
         {
             UnitTemplate company = new UnitTemplate(10, "Devestator Company");
+            company.Members.Add(TempSpecialtyRanks.Captain);
+            company.Members.Add(TempSpecialtyRanks.Champion);
+            company.Members.Add(TempSpecialtyRanks.Ancient);
             company.ChildUnits.Add(DevestatorSquadTemplate);
             company.ChildUnits.Add(DevestatorSquadTemplate);
             company.ChildUnits.Add(DevestatorSquadTemplate);
@@ -252,6 +267,7 @@ namespace Iam.Scripts.Models
         private UnitTemplate CreateScoutCompany()
         {
             UnitTemplate company = new UnitTemplate(11, "Scout Company");
+            company.Members.Add(TempSpecialtyRanks.Captain);
             company.ChildUnits.Add(ScoutSquadTemplate);
             company.ChildUnits.Add(ScoutSquadTemplate);
             company.ChildUnits.Add(ScoutSquadTemplate);

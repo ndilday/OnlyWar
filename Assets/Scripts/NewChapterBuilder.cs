@@ -189,7 +189,8 @@ namespace Iam.Scripts
             var veteranLeaders = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipScore).Take(20).ToList();
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0)
+                if (company.ChildUnits != null && company.ChildUnits.Count > 0
+                    && company.UnitTemplate.Members.Contains(TempSpecialtyRanks.Captain) )
                 {
                     // is a true company, needs a captain
                     AssignSoldier(unassignedSoldierMap, veteranLeaders, company, TempSpecialtyRanks.Captain, year);
@@ -305,7 +306,8 @@ namespace Iam.Scripts
             AssignSoldier(unassignedSoldierMap, champions, chapter, TempSpecialtyRanks.ChapterChampion, year);
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0)
+                if (company.ChildUnits != null && company.ChildUnits.Count > 0
+                    && company.UnitTemplate.Members.Contains(TempSpecialtyRanks.Champion) )
                 {
                     // is a true company, needs a champion
                     AssignSoldier(unassignedSoldierMap, champions, company, TempSpecialtyRanks.Champion, year);
@@ -320,7 +322,8 @@ namespace Iam.Scripts
             AssignSoldier(unassignedSoldierMap, ancients, chapter, TempSpecialtyRanks.ChapterAncient, year);
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0)
+                if (company.ChildUnits != null && company.ChildUnits.Count > 0
+                    && company.UnitTemplate.Members.Contains(TempSpecialtyRanks.Ancient) )
                 {
                     // is a true company, needs a champion
                     AssignSoldier(unassignedSoldierMap, ancients, company, TempSpecialtyRanks.Ancient, year);
