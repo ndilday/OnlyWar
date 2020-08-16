@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 0
   MapScale: {x: 15, y: 15}
+  Year: 664
+  Week: 1

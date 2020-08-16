@@ -13,5 +13,9 @@ public class GameSettings : ScriptableObject
     public Vector2 MapScale;
 
     [Header("Chapter Definitions")]
-    public UnitTemplate ChapterTemplate = TempChapterOrganization.Instance.Chapter;
+    public UnitTemplate ChapterTemplate = TempUnitTemplates.Instance.ChapterTemplate;
+
+    [Header("Date")]
+    public int Year;
+    public int Week;
 }

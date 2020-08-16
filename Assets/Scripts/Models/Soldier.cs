@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,9 +34,43 @@ namespace Iam.Scripts.Models
     {
         public int Id;
         public SpecialtyRank Rank;
-        public string Name;
+        public string FirstName;
+        public string LastName;
         public Unit AssignedUnit;
         public List<Equippable> Equipment;
-        public Dictionary<int, float> SkillMap;
+        //public Dictionary<int, float> SkillMap;
+        // skills
+        public float Melee;
+        public float Ranged;
+        public float Strength;
+        public float Dexterity;
+        public float Perception;
+        public float Intelligence;
+        public float Ego;
+        public float Presence;
+        public float Body;
+        
+        public float Speed;
+        
+        public float Piety;
+        public float PsychicAbility;
+        public float Piloting;
+        public float TechRepair;
+        public float Medicine;
+        public List<string> SoldierHistory;
+
+        public float MeleeScore;
+        public float RangedScore;
+        public float LeadershipScore;
+        public float MedicalScore;
+        public float TechScore;
+        public float PietyScore;
+        public float AncientScore;
+
+        public Soldier()
+        {
+            Equipment = new List<Equippable>();
+            SoldierHistory = new List<string>();
+        }
     }
 }
