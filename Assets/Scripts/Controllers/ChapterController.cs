@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Views;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Controllers
 {
     public class ChapterController : MonoBehaviour
     {

@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 using Iam.Scripts.Models;
 using Iam.Scripts.Views;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Controllers
 {
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
     public class GalaxyController : MonoBehaviour

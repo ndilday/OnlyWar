@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Iam.Scripts.Models
 {
@@ -30,6 +27,26 @@ namespace Iam.Scripts.Models
         }
     }
 
+    public class HitLocation
+    {
+        public int Id;
+        public string Name;
+        public int NaturalArmor;
+        public float DamageMultiplier;
+    }
+
+    public class Body
+    {
+        public HitLocation Brain;
+        public HitLocation Eye;
+        public HitLocation LeftArm;
+        public HitLocation RightArm;
+        public HitLocation Torso;
+        public HitLocation Groin;
+        public HitLocation LeftLeg;
+        public HitLocation RightLeg;
+    }
+
     public class Soldier
     {
         public int Id;
@@ -38,6 +55,8 @@ namespace Iam.Scripts.Models
         public string LastName;
         public Unit AssignedUnit;
         public List<Equippable> Equipment;
+        public List<Weapon> Weapons;
+        public Armor Armor;
         //public Dictionary<int, float> SkillMap;
         // skills
         public float Melee;
@@ -48,7 +67,7 @@ namespace Iam.Scripts.Models
         public float Intelligence;
         public float Ego;
         public float Presence;
-        public float Body;
+        public float Constitution;
         
         public float Speed;
         
@@ -67,6 +86,7 @@ namespace Iam.Scripts.Models
         public float PietyScore;
         public float AncientScore;
 
+        public Body Body;
         public Soldier()
         {
             Equipment = new List<Equippable>();

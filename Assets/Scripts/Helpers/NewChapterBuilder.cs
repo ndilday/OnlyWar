@@ -1,10 +1,9 @@
 ﻿
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Iam.Scripts.Models;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Helpers
 {
     public static class NewChapterBuilder
     {

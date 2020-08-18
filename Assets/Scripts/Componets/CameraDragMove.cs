@@ -1,7 +1,6 @@
-﻿using System.Net.NetworkInformation;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Componets
 {
     public class CameraDragMove : MonoBehaviour
     {

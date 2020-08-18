@@ -1,8 +1,7 @@
 ﻿using System;
-using UnityEngine;
 using Iam.Scripts.Models;
 
-namespace Iam.Scripts
+namespace Iam.Scripts.Helpers
 {
     class SoldierFactory
     {
@@ -15,7 +14,7 @@ namespace Iam.Scripts
             // let's assume, for now, something HERO system-ish
             soldier.Strength = 20 + (float)(NextGaussianDouble());
             soldier.Dexterity = 20 + (float)(NextGaussianDouble());
-            soldier.Body = 20 + (float)(NextGaussianDouble());
+            soldier.Constitution = 20 + (float)(NextGaussianDouble());
             soldier.Ego = 20 + (float)(NextGaussianDouble());
             soldier.Presence = 20 + (float)(NextGaussianDouble());
             soldier.Perception = 20 + (float)(NextGaussianDouble());
@@ -30,6 +29,8 @@ namespace Iam.Scripts
             soldier.Piloting = 15 + (float)(NextGaussianDouble());
             soldier.Medicine = 10 + (float)(NextGaussianDouble());
             soldier.TechRepair = 10 + (float)(NextGaussianDouble());
+
+            soldier.Body = new Body();
 
             double psychic = NextGaussianDouble();
             if (psychic > 2.5)
@@ -88,7 +89,7 @@ namespace Iam.Scripts
             else if (soldier.LeadershipScore > 110) soldier.SoldierHistory.Add(yearString + ": Awarded Silver Voice of the Emperor badge during training");
             else if (soldier.LeadershipScore > 100) soldier.SoldierHistory.Add(yearString + ": Awarded Bronze Voice of the Emperor badge during training");
             // Ancient Score = EGO * BOD
-            soldier.AncientScore = soldier.Ego * soldier.Body / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
+            soldier.AncientScore = soldier.Ego * soldier.Constitution / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
             if (soldier.AncientScore > 120) soldier.SoldierHistory.Add(yearString + ": Awarded Gold Banner of the Emperor badge during training");
             else if (soldier.AncientScore > 110) soldier.SoldierHistory.Add(yearString + ": Awarded Silver Banner of the Emperor badge during training");
             else if (soldier.AncientScore > 100) soldier.SoldierHistory.Add(yearString + ": Awarded Bronze Banner of the Emperor badge during training");
