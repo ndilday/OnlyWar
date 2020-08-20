@@ -21,6 +21,8 @@ namespace Iam.Scripts.Helpers
             GridHeight = gridHeight;
             _playerForce = new Dictionary<Tuple<int, int>, BattleSquad>();
             _opposingForce = new Dictionary<Tuple<int, int>, BattleSquad>();
+            _playerSquadLocationMap = new Dictionary<BattleSquad, Tuple<int, int>>();
+            _opposingSquadLocationMap = new Dictionary<BattleSquad, Tuple<int, int>>();
         }
 
         public bool PlacePlayerSquad(BattleSquad squad, int x, int y)

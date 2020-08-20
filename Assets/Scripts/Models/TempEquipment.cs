@@ -34,13 +34,13 @@ namespace Iam.Scripts.Models
                 },
                 Medium = new RangeBand
                 {
-                    Accuracy = -1,
+                    Accuracy = 0,
                     Range = 200,
                     Strength = 4
                 },
                 Long = new RangeBand
                 {
-                    Accuracy = -2,
+                    Accuracy = 0,
                     Range = 400,
                     Strength = 2
                 }

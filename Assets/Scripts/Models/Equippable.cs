@@ -13,14 +13,6 @@ namespace Iam.Scripts.Models
         public int Id;
         public string Name;
         public EquipLocation Location;
-
-        public Equippable GenerateInstance()
-        {
-            return new Equippable
-            {
-                Template = this
-            };
-        }
     }
 
     public class ArmorTemplate : EquippableTemplate

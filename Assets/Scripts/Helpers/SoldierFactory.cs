@@ -12,30 +12,30 @@ namespace Iam.Scripts.Helpers
             soldier.FirstName = TempNameGenerator.GetName();
             soldier.LastName = TempNameGenerator.GetName();
             // let's assume, for now, something HERO system-ish
-            soldier.Strength = 20 + (float)(NextGaussianDouble());
-            soldier.Dexterity = 20 + (float)(NextGaussianDouble());
-            soldier.Constitution = 20 + (float)(NextGaussianDouble());
-            soldier.Ego = 20 + (float)(NextGaussianDouble());
-            soldier.Presence = 20 + (float)(NextGaussianDouble());
-            soldier.Perception = 20 + (float)(NextGaussianDouble());
-            soldier.Intelligence = 10 + (float)(NextGaussianDouble() * 2);
+            soldier.Strength = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Dexterity = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Constitution = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Ego = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Presence = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Perception = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Intelligence = 10 + (float)(Gaussian.NextGaussianDouble() * 2);
 
-            soldier.Melee = 20 + (float)(NextGaussianDouble());
-            soldier.Ranged = 20 + (float)(NextGaussianDouble());
-            soldier.Speed = 20 + (float)(NextGaussianDouble());
+            soldier.Melee = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Ranged = 20 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Speed = 20 + (float)(Gaussian.NextGaussianDouble());
 
-            soldier.Piety = 10 + (float)(NextGaussianDouble() * 2);
+            soldier.Piety = 10 + (float)(Gaussian.NextGaussianDouble() * 2);
 
-            soldier.Piloting = 15 + (float)(NextGaussianDouble());
-            soldier.Medicine = 10 + (float)(NextGaussianDouble());
-            soldier.TechRepair = 10 + (float)(NextGaussianDouble());
+            soldier.Piloting = 15 + (float)(Gaussian.NextGaussianDouble());
+            soldier.Medicine = 10 + (float)(Gaussian.NextGaussianDouble());
+            soldier.TechRepair = 10 + (float)(Gaussian.NextGaussianDouble());
 
             soldier.Body = new Body();
 
-            double psychic = NextGaussianDouble();
+            double psychic = Gaussian.NextGaussianDouble();
             if (psychic > 2.5)
             {
-                soldier.PsychicAbility = 10 + (float)(NextGaussianDouble());
+                soldier.PsychicAbility = 10 + (float)(Gaussian.NextGaussianDouble());
                 soldier.SoldierHistory.Add(yearString + ": psychic ability detected, acolyte training initiated");
             }
             else
@@ -56,12 +56,6 @@ namespace Iam.Scripts.Helpers
                 soldierArray[i] = GenerateNewSoldier(i, yearString);
             }
             return soldierArray;
-        }
-        private static double NextGaussianDouble()
-        {
-            double u1 = 1.0 - UnityEngine.Random.value; //uniform(0,1] random doubles
-            double u2 = 1.0 - UnityEngine.Random.value;
-            return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
         }
 
         public void EvaluateSoldier(Soldier soldier, string yearString)

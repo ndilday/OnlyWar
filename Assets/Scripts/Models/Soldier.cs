@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Iam.Scripts.Models
 {
@@ -25,26 +26,6 @@ namespace Iam.Scripts.Models
             Name = name;
             AllowedEquipment = new List<Equippable>();
         }
-    }
-
-    public class HitLocation
-    {
-        public int Id;
-        public string Name;
-        public int NaturalArmor;
-        public float DamageMultiplier;
-    }
-
-    public class Body
-    {
-        public HitLocation Brain;
-        public HitLocation Eye;
-        public HitLocation LeftArm;
-        public HitLocation RightArm;
-        public HitLocation Torso;
-        public HitLocation Groin;
-        public HitLocation LeftLeg;
-        public HitLocation RightLeg;
     }
 
     public class Soldier
@@ -78,6 +59,7 @@ namespace Iam.Scripts.Models
         public float Medicine;
         public List<string> SoldierHistory;
 
+        // TODO: break out weapon specializations
         public float MeleeScore;
         public float RangedScore;
         public float LeadershipScore;
@@ -87,10 +69,14 @@ namespace Iam.Scripts.Models
         public float AncientScore;
 
         public Body Body;
+        public bool IsUnconscious;
         public Soldier()
         {
             Equipment = new List<Equippable>();
+            Weapons = new List<Weapon>();
             SoldierHistory = new List<string>();
+            Body = new Body();
+            IsUnconscious = false;
         }
     }
 }
