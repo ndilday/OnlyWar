@@ -10,6 +10,7 @@ public class GameSettings : ScriptableObject
     public bool debugMode;
 
     [Header("Map Scale")]
+    public int GalaxySize;
     public Vector2 MapScale;
 
     [Header("Chapter Definitions")]

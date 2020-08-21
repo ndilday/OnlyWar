@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
+using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Views;
 
@@ -11,6 +12,7 @@ namespace Iam.Scripts.Controllers
     {
         public UnityEvent TurnStart;
         public UnityEvent ViewClose;
+        public GameSettings GameSettings;
 
         public GalaxyMapView Map;
 
@@ -20,7 +22,7 @@ namespace Iam.Scripts.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            _galaxy = new Galaxy();
+            _galaxy = new Galaxy(GameSettings.GalaxySize);
             Generate();
         }
 
@@ -163,7 +165,8 @@ namespace Iam.Scripts.Controllers
             // populate visuals on map
             for (int i = 0; i < _galaxy.Planets.Count; i++)
             {
-                Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name);
+                Color color = _galaxy.Planets[i].ControllingFaction != null ? _galaxy.Planets[i].ControllingFaction.Color : Color.white;
+                Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
             }
             for (int i = 0; i < _galaxy.Fleets.Count; i++)
             {

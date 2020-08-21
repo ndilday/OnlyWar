@@ -4,27 +4,6 @@ using UnityEngine;
 
 namespace Iam.Scripts.Models
 {
-    public enum PlanetType
-    {
-        Agri,
-        Daemon,
-        Dead,
-        Death,
-        Desert,
-        Feral,
-        Feudal,
-        Forge,
-        Fortress,
-        Frontier,
-        Hive,
-        Ice,
-        Mining,
-        Penal,
-        Pleasure,
-        Ocean,
-        Shrine
-    }
-
     public static class TempPlanetList
     {
         public struct PlanetData

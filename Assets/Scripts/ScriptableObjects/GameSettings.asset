@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   debugMode: 0
+  GalaxySize: 30
   MapScale: {x: 15, y: 15}
   Year: 664
   Week: 1

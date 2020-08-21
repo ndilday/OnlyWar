@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Iam.Scripts.Models;
+using Assets.Scripts.Models;
 
-namespace Iam.Scripts.Models
+namespace Iam.Scripts.Helpers
 {
     public class Galaxy
     {
-        const int GALAXY_WIDTH = 30;
+        private int _galaxySize;
         public List<Planet> Planets;
         public List<Fleet> Fleets;
 
-        public Galaxy()
+        public Galaxy(int galaxySize)
         {
+            _galaxySize = galaxySize;
             Planets = new List<Planet>();
             Fleets = new List<Fleet>();
         }
@@ -34,9 +37,9 @@ namespace Iam.Scripts.Models
         public void GenerateGalaxy(int seed)
         {
             Random.InitState(seed);
-            for(int i = 0; i < GALAXY_WIDTH; i++)
+            for(int i = 0; i < _galaxySize; i++)
             {
-                for (int j = 0; j < GALAXY_WIDTH; j++)
+                for (int j = 0; j < _galaxySize; j++)
                 {
                     if (Random.Range(0.0f, 1.0f) <= 0.05f)
                     {
@@ -50,6 +53,10 @@ namespace Iam.Scripts.Models
                         {
                             p.Name = i.ToString() + j.ToString();
                             p.PlanetType = PlanetType.Death;
+                        }
+                        if(Random.Range(0.0f, 1.0f) <= 0.1f)
+                        {
+                            p.ControllingFaction = TempFactions.Instance.Tyranids;
                         }
                         Planets.Add(p);
                     }
@@ -66,6 +73,7 @@ namespace Iam.Scripts.Models
             fleet.Destination = null;
             fleet.Position = fleet.Planet.Position;
             Planets[startingPlanet].LocalFleet = fleet;
+            Planets[startingPlanet].ControllingFaction = TempFactions.Instance.SpaceMarines;
             Fleets.Add(fleet);
         }
     }

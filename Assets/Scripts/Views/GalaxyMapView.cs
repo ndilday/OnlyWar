@@ -26,13 +26,16 @@ namespace Iam.Scripts.Views
             _fleetViewMap = new Dictionary<int, Transform>();
         }
 
-        public void DrawPlanet(int planetId, Vector2 position, string planetName)
+        public void DrawPlanet(int planetId, Vector2 position, string planetName, Color planetColor)
         {
             GameObject star = Instantiate(StarPrefab,
                                 Vector2.Scale(position, GameSettings.MapScale),
                                 Quaternion.identity,
                                 this.transform);
+            SpriteRenderer planetRenderer = star.GetComponentInChildren<SpriteRenderer>();
             TextMesh textMesh = star.GetComponentInChildren<TextMesh>();
+            planetRenderer.color = planetColor;
+            textMesh.color = planetColor;
             textMesh.text = planetName;
             _planetViewMap[planetId] = star.transform;
             // add color shading of star based on planet type

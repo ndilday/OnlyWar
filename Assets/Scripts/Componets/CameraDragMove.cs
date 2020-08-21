@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Drawing;
+using UnityEngine;
 
 namespace Iam.Scripts.Componets
 {
@@ -6,12 +8,12 @@ namespace Iam.Scripts.Componets
     {
         private bool _drag = false;
         private Vector3 _origin;
+        public GameSettings GameSettings;
 
         // Start is called before the first frame update
         void Start()
         {
-            // at the start, adjust the map zoom level to be 1:1 pixel
-            Camera.main.orthographicSize = Screen.height / 16;
+            //Camera.main.orthographicSize = Screen.height / 8;
         }
 
         void LateUpdate()
@@ -36,55 +38,53 @@ namespace Iam.Scripts.Componets
             }
             if (Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.KeypadPlus))
             {
-                Camera.main.orthographicSize /= 1.5f;
+                float newSize = Mathf.Clamp(Camera.main.orthographicSize / 2f, 20, 320);
+                Camera.main.orthographicSize = newSize;
             }
             if (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus))
             {
-                Camera.main.orthographicSize *= 1.5f;
+                float newSize = Mathf.Clamp(Camera.main.orthographicSize * 2f, 20, 320);
+                Camera.main.orthographicSize = newSize;
             }
             if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
             {
-                float height = Camera.main.orthographicSize * 2.0f;
-                difference = new Vector3(0, height / 5.0f, 0);
+                difference = new Vector3(0, Camera.main.orthographicSize / 2.5f, 0);
                 MoveCamera(Camera.main.transform.position, difference);
             }
             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
             {
-                float height = Camera.main.orthographicSize * 2.0f;
-                difference = new Vector3(0, -height / 5.0f, 0);
+                difference = new Vector3(0, -Camera.main.orthographicSize / 2.5f, 0);
                 MoveCamera(Camera.main.transform.position, difference);
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
             {
-                float height = Camera.main.orthographicSize * 2;
-                float width = height * Screen.width / Screen.height;
-                difference = new Vector3(width / 5.0f, 0, 0);
+                float width = Camera.main.orthographicSize * Screen.width / Screen.height;
+                difference = new Vector3(width / 2.5f, 0, 0);
                 MoveCamera(Camera.main.transform.position, difference);
             }
             if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
             {
-                float height = Camera.main.orthographicSize * 2;
-                float width = height * Screen.width / Screen.height;
-                difference = new Vector3(-width / 5.0f, 0, 0);
+                float width = Camera.main.orthographicSize * Screen.width / Screen.height;
+                difference = new Vector3(-width / 2.5f, 0, 0);
                 MoveCamera(Camera.main.transform.position, difference);
             }
         }
 
         private void MoveCamera(Vector3 origin, Vector3 difference)
         {
-            float ratio = Camera.main.orthographicSize * 2.0f / Screen.height;
+            float screenHeightInUnits = Camera.main.orthographicSize * 2.0f;
+            float unitsPerPixel = screenHeightInUnits / Screen.height;
             Vector3 newPosition = origin - difference;
-            float height = Camera.main.orthographicSize;
-            float width = height * Screen.width / Screen.height;
+            float screenWidthInUnits = screenHeightInUnits * Screen.width / Screen.height;
+            float mapTop = GameSettings.GalaxySize * GameSettings.MapScale.y;
+            float mapRight = GameSettings.GalaxySize * GameSettings.MapScale.x;
             // assume for now that the world is 450x450
-            float minX = width - (40.0f*ratio);
-            float maxX = 300.0f + (10.0f*ratio) - width;
-            float minY = height - (100.0f*ratio);
-            float maxY = 300.0f + (50.0f*ratio) - height;
-            if (newPosition.x > maxX) newPosition.x = maxX;
-            if (newPosition.x < minX) newPosition.x = minX;
-            if (newPosition.y > maxY) newPosition.y = maxY;
-            if (newPosition.y < minY) newPosition.y = minY;
+            float minX = (screenWidthInUnits / 2.0f) - (40.0f*unitsPerPixel);
+            float maxX = mapRight + (40.0f * unitsPerPixel) - (screenWidthInUnits / 2.0f);
+            float minY = (screenHeightInUnits / 2.0f) - (90.0f * unitsPerPixel);
+            float maxY = mapTop + (100.0f * unitsPerPixel) - (screenHeightInUnits / 2.0f);
+            newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
+            newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
             Camera.main.transform.position = newPosition;
         }
     }
