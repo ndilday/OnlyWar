@@ -20,33 +20,14 @@ namespace Iam.Scripts.Models
         public int ArmorProvided;
     }
 
-    public class WeaponTemplate: EquippableTemplate
+    public class RangedWeaponTemplate: EquippableTemplate
     {
+        public float Accuracy;
         public int ArmorPiercing;
-        public RangeBands RangeBands;
+        public float BaseStrength;
+        public float MaximumDistance;
         public int RateOfFire;
         public float PenetrationMultiplier;
-    }
-
-    public class RangeBand
-    {
-        public int Range;
-        public int Accuracy;
-        public int Strength;
-    }
-
-    public class RangeBands
-    {
-        public RangeBand Close;
-        public RangeBand Medium;
-        public RangeBand Long;
-        public RangeBand GetRangeForDistance(float distance)
-        {
-            if (distance <= Close.Range) return Close;
-            else if (distance <= Medium.Range) return Medium;
-            else if (distance <= Long.Range) return Long;
-            else return null;
-        }
     }
 
     public class Equippable
@@ -61,6 +42,6 @@ namespace Iam.Scripts.Models
 
     public class Weapon
     {
-        public WeaponTemplate Template;
+        public RangedWeaponTemplate Template;
     }
 }

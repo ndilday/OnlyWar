@@ -7,6 +7,8 @@ namespace Iam.Scripts.Views
     public class BattleView : MonoBehaviour
     {
         public Text BattleLog;
+        public Text TempPlayerWoundTrack;
+        public Text TempOpposingWoundTrack;
         public GameObject NextStepButton;
         public ScrollRect ScrollRect;
 
@@ -32,6 +34,16 @@ namespace Iam.Scripts.Views
         {
             BattleLog.text += text + "\n";
             _scrollToBottom = true;
+        }
+
+        public void OverwritePlayerWoundTrack(string text)
+        {
+            TempPlayerWoundTrack.text = text;
+        }
+
+        public void OverwriteOpposingWoundTrack(string text)
+        {
+            TempOpposingWoundTrack.text = text;
         }
     }
 }

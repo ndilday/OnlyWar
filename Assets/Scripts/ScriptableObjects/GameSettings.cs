@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System;
-using Iam.Scripts.Models;
+using Iam.Scripts.Models.Units;
 
 [Serializable]
 [CreateAssetMenu(fileName = "GameSettings", menuName = "ScriptableObjects/GameSettings", order = 1)]

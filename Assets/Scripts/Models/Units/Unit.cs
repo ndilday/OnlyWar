@@ -1,17 +1,18 @@
-﻿using System.Collections;
+﻿using Iam.Scripts.Models.Soldiers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.AI;
 
-namespace Iam.Scripts.Models
+namespace Iam.Scripts.Models.Units
 {
 
     public class UnitTemplate
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
-        public List<SpecialtyRank> Members { get; private set; }
+        public List<SpaceMarineRank> Members { get; private set; }
         public List<UnitTemplate> ChildUnits { get; private set; }
 
         public UnitTemplate(int id, string name)
@@ -19,7 +20,7 @@ namespace Iam.Scripts.Models
             Id = id;
             Name = name;
             ChildUnits = new List<UnitTemplate>();
-            Members = new List<SpecialtyRank>();
+            Members = new List<SpaceMarineRank>();
         }
 
         public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)
@@ -27,9 +28,9 @@ namespace Iam.Scripts.Models
             return new Unit(id, name, this);
         }
 
-        public void AddRankCounts(Dictionary<SpecialtyRank, int> rankCounts)
+        public void AddRankCounts(Dictionary<SpaceMarineRank, int> rankCounts)
         {
-            foreach(SpecialtyRank rank in Members)
+            foreach(SpaceMarineRank rank in Members)
             {
                 if(rankCounts.ContainsKey(rank))
                 {

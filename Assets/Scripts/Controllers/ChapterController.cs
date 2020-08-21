@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
@@ -14,7 +16,7 @@ namespace Iam.Scripts.Controllers
         public GameSettings GameSettings;
         Unit _chapter;
         Dictionary<int, Unit> _unitMap;
-        Soldier[] _soldiers;
+        SpaceMarine[] _marines;
         // Start is called before the first frame update
         void Start()
         {
@@ -26,9 +28,12 @@ namespace Iam.Scripts.Controllers
 
         private void CreateChapter()
         {
-            SoldierFactory soldierFactory = new SoldierFactory();
-            _soldiers = soldierFactory.GenerateNewSoldiers(1000, new Date(40, (GameSettings.Year - 2), 1).ToString());
-           _chapter = NewChapterBuilder.AssignSoldiersToChapter(_soldiers, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
+            _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
+            foreach(SpaceMarine marine in _marines)
+            {
+                marine.EvaluateSoldier(new Date(40, (GameSettings.Year - 4), 1));
+            }
+           _chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
         }
 
         public void OnChapterButtonClick()
@@ -68,7 +73,7 @@ namespace Iam.Scripts.Controllers
         {
             // populate view with members of selected unit
             Unit selectedUnit = _unitMap[unitId];
-            List<Tuple<int, string, string>> memberList = selectedUnit.Members.Select(s => new Tuple<int, string, string>(s.Id, s.Rank.Name, s.FirstName + " " + s.LastName)).ToList();
+            List<Tuple<int, string, string>> memberList = selectedUnit.Members.Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
             ChapterView.ReplaceSquadMemberContent(memberList);
             ChapterView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
         }
@@ -76,12 +81,12 @@ namespace Iam.Scripts.Controllers
         private string GenerateUnitSummary(Unit unit)
         {
             string unitReport = "";
-            Dictionary<SpecialtyRank, int> toe = new Dictionary<SpecialtyRank, int>();
-            var soldiers = unit.GetAllMembers();
+            Dictionary<SpaceMarineRank, int> toe = new Dictionary<SpaceMarineRank, int>();
+            var soldiers = unit.GetAllMembers().Select(s => (SpaceMarine)s);
             var rankCountMapActual = soldiers.GroupBy(s => s.Rank).ToDictionary(g => g.Key, g => g.Count());
             unit.UnitTemplate.AddRankCounts(toe);
             var orderedToe = toe.OrderByDescending(kvp => kvp.Key.IsOfficer).ThenByDescending(kvp => kvp.Key.Level);
-            foreach (KeyValuePair<SpecialtyRank, int> nominalSize in orderedToe)
+            foreach (KeyValuePair<SpaceMarineRank, int> nominalSize in orderedToe)
             {
                 int nominalCount = nominalSize.Value;
                 int realCount = rankCountMapActual.ContainsKey(nominalSize.Key) ? rankCountMapActual[nominalSize.Key] : 0;
@@ -93,7 +98,7 @@ namespace Iam.Scripts.Controllers
         public void SoldierSelected(int soldierId)
         {
             string newText = "";
-            Soldier soldier = _soldiers[soldierId];
+            Soldier soldier = _marines[soldierId];
             foreach(string historyLine in soldier.SoldierHistory)
             {
                 newText += historyLine + "\n";

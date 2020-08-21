@@ -1,17 +1,21 @@
 ﻿using Iam.Scripts.Models;
+using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers
 {
     public class ChosenWeapon
     {
-        public RangeBand ActiveRangeBand { get; private set; }
         public Weapon ActiveWeapon { get; private set; }
         public Soldier Soldier { get; private set; }
-        public ChosenWeapon(RangeBand band, Weapon weapon, Soldier soldier)
+        public ChosenWeapon(Weapon weapon, Soldier soldier)
         {
-            ActiveRangeBand = band;
             ActiveWeapon = weapon;
             Soldier = soldier;
+        }
+
+        public float GetStrengthAtRange(float range)
+        {
+            return ActiveWeapon.Template.BaseStrength * (1 - (range / ActiveWeapon.Template.MaximumDistance));
         }
     }
 }

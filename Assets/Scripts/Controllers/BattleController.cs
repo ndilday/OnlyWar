@@ -4,9 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
-using System.IO.Compression;
+using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Views;
-using System.ComponentModel;
 
 namespace Iam.Scripts.Controllers
 {
@@ -17,23 +16,23 @@ namespace Iam.Scripts.Controllers
         private BattleSquad _playerForce;
         private BattleSquad _opposingForce;
         private BattleGrid _grid;
-        private const int GRID_SCALE = 10;
+        private const int GRID_SCALE = 2;
         private int _turnNumber;
 
         public void Test()
         {
-            // we're going to start by assuming grid spaces are 10yd x 10yd and turns are 2 seconds. 
-            // A carefully moving unencumbered Marine can cover 10yrds in 2 seconds, or 20 yards if running/charging
+            // we're going to assume for now that squads fit into 2yd x 2yd spaces and turns are 2 seconds
+            // A carefully moving unencumbered Marine can cover 6yrds in 2 seconds, or 18 yards if running/charging
             BattleView.ClearBattleLog();
             _turnNumber = 0;
             Log(true, "Initiating Test Battle");
-            _grid = new BattleGrid(1, 80);
+            _grid = new BattleGrid(1, 250);
             // generate a Space Marine armed with a Boltgun in Power Armor on each side.
-            _playerForce = TempGenerateSingleMarineSquad(0, "Force Blue");
-            _opposingForce = TempGenerateSingleMarineSquad(1, "Force Red");
+            _playerForce = TempGenerateSmallMarineSquad(0, "Force Blue");
+            _opposingForce = TempGenerateSmallTyranidWarriorSquad(1, "Force Red");
             // Start them 800 yards apart
             _grid.PlacePlayerSquad(_playerForce, 0, 0);
-            _grid.PlaceOpposingSquad(_opposingForce, 0, 79);
+            _grid.PlaceOpposingSquad(_opposingForce, 0, 249);
             BattleView.NextStepButton.SetActive(true);
         }
 
@@ -57,7 +56,30 @@ namespace Iam.Scripts.Controllers
                     BattleView.NextStepButton.SetActive(false);
                 }
                 Log(true, "----------");
+
+                UpdateInjuryTrackers();
             }
+        }
+
+        private void UpdateInjuryTrackers()
+        {
+            BattleView.OverwritePlayerWoundTrack(GetSquadInjuryText(_playerForce));
+            BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingForce));
+        }
+
+        private string GetSquadInjuryText(BattleSquad squad)
+        {
+            string report = "";
+            foreach(Soldier soldier in squad.Squad)
+            {
+                report += soldier.ToString() + "\n";
+                foreach(HitLocation hl in soldier.Body.HitLocations)
+                {
+                    report += hl.ToString() + "\n";
+                }
+                report += "\n";
+            }
+            return report;
         }
 
         private void Log(bool isMessageVerbose, string text)
@@ -70,9 +92,8 @@ namespace Iam.Scripts.Controllers
 
         public BattleSquad TempGenerateSingleMarineSquad(int id, string name)
         {
-            SoldierFactory factory = new SoldierFactory();
-            Soldier[] soldiers = new Soldier[1];
-            soldiers[0] = factory.GenerateNewSoldier(1, "666 Test");
+            SpaceMarine[] soldiers = new SpaceMarine[1];
+            soldiers[0] = SoldierFactory.Instance.GenerateNewSoldier<SpaceMarine>(TempSpaceMarineTemplate.Instance);
             soldiers[0].Armor = new Armor
             {
                 Template = TempEquipment.Instance.PowerArmor
@@ -82,7 +103,42 @@ namespace Iam.Scripts.Controllers
                 Template = TempEquipment.Instance.Boltgun
             });
             // space marines are about 2.2m, or a little over 7' tall
-            return new BattleSquad(id, name, soldiers, 2.4f);
+            return new BattleSquad(id, name, soldiers);
+        }
+
+        public BattleSquad TempGenerateSmallMarineSquad(int id, string name)
+        {
+            SpaceMarine[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(6, TempSpaceMarineTemplate.Instance);
+            foreach(SpaceMarine marine in soldiers)
+            {
+                marine.EvaluateSoldier(new Date(40, 333, 5));
+                marine.Armor = new Armor
+                {
+                    Template = TempEquipment.Instance.PowerArmor
+                };
+                marine.Weapons.Add(new Weapon
+                {
+                    Template = TempEquipment.Instance.Boltgun
+                });
+            }
+            return new BattleSquad(id, name, soldiers);
+        }
+
+        public BattleSquad TempGenerateSmallTyranidWarriorSquad(int id, string name)
+        {
+            Tyranid[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<Tyranid>(3, TempTyranidWarriorTemplate.Instance);
+            foreach(Tyranid warrior in soldiers)
+            {
+                warrior.Armor = new Armor
+                {
+                    Template = TempEquipment.Instance.Chitin
+                };
+                warrior.Weapons.Add(new Weapon
+                {
+                    Template = TempEquipment.Instance.Deathspitter
+                });
+            }
+            return new BattleSquad(id, name, soldiers);
         }
 
         private void TakeAction(BattleSquad squad, bool isPlayerSquad, BattleGrid grid)
@@ -90,12 +146,7 @@ namespace Iam.Scripts.Controllers
             KeyValuePair<Tuple<int, int>, BattleSquad> enemy;
             float range = grid.GetNearestEnemy(squad, isPlayerSquad, out enemy) * GRID_SCALE;
             List<ChosenWeapon> bestWeapons = squad.GetWeaponsForRange(range);
-            if(isPlayerSquad && range > 100)
-            {
-                Log(true, squad.Name + " at range " + range.ToString() + " elected to move");
-                grid.MoveSquad(squad, isPlayerSquad, 0, isPlayerSquad ? 1 : -1);
-            }
-            else if(ShouldFire(bestWeapons, enemy.Value, range))
+            if(ShouldFire(bestWeapons, enemy.Value, range))
             {
                 Log(true, squad.Name + " at range " + range.ToString() + " elected to shoot");
                 Shoot(bestWeapons, enemy.Value, range, 0f);
@@ -103,8 +154,14 @@ namespace Iam.Scripts.Controllers
             else
             {
                 Log(true, squad.Name + " at range " + range.ToString() + " elected to move");
-                grid.MoveSquad(squad, isPlayerSquad, 0, isPlayerSquad ? 1 : -1);
+                MoveSquad(grid, squad, isPlayerSquad);
             }
+        }
+
+        private void MoveSquad(BattleGrid grid, BattleSquad squad, bool isPlayerSquad)
+        {
+            int moveAmount = squad.GetSquadMove() * 3 / GRID_SCALE;
+            grid.MoveSquad(squad, isPlayerSquad, 0, isPlayerSquad ? moveAmount : -moveAmount);
         }
 
         private bool ShouldFire(List<ChosenWeapon> weapons, BattleSquad enemy, float range)
@@ -115,20 +172,21 @@ namespace Iam.Scripts.Controllers
             }
             else
             {
-                int enemyArmor = enemy.GetAverageArmor();
-                return IsWorthShooting(weapons, enemyArmor, range);
+                return IsWorthShooting(weapons, enemy, range);
             }
         }
 
-        private bool IsWorthShooting(List<ChosenWeapon> bestWeapons, int enemyArmor, float range)
+        private bool IsWorthShooting(List<ChosenWeapon> bestWeapons, BattleSquad enemy, float range)
         {
             foreach(ChosenWeapon weapon in bestWeapons)
             {
-                int effectiveArmor = enemyArmor - weapon.ActiveWeapon.Template.ArmorPiercing;
+                int effectiveArmor = enemy.GetAverageArmor() - weapon.ActiveWeapon.Template.ArmorPiercing;
+                float effectiveStrength = weapon.GetStrengthAtRange(range);
+                float effectiveWound = enemy.GetAverageConstitution() / 10;
                 // TODO: come up with a better prediction equation
-                bool canPen = weapon.ActiveRangeBand.Strength * 6 > effectiveArmor;
-                bool canHit = weapon.ActiveRangeBand.Accuracy + CalculateRangeModifier(range) > -14.0f;
-                if (canHit && canPen) return true;
+                bool canWound = effectiveStrength * 5 > effectiveArmor + effectiveWound;
+                bool canHit = weapon.ActiveWeapon.Template.Accuracy + CalculateRangeModifier(range) > -12.0f;
+                if (canHit && canWound) return true;
             }
             return false;
         }
@@ -141,43 +199,44 @@ namespace Iam.Scripts.Controllers
             // size modifier is built into the target squad
             // weapon accuracy
             // cover
-            float totalModifier = rangeModifier + CalculateSizeModifier(target.Height) + coverModifier;
             foreach(ChosenWeapon weapon in weapons)
             {
-                float modifier = weapon.ActiveRangeBand.Accuracy + totalModifier;
-                Log(true, "Total modifier to shot is " + modifier.ToString());
+                Soldier hitSoldier = target.GetRandomSquadMember();
+                float totalModifier = weapon.ActiveWeapon.Template.Accuracy + rangeModifier + CalculateSizeModifier(hitSoldier.Size) + coverModifier;
+                Log(true, "Total modifier to shot is " + totalModifier.ToString());
                 // bracing
                 // figure out number of shots fired
                 for(int i = 0; i < weapon.ActiveWeapon.Template.RateOfFire; i++)
                 {
                     float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
-                    float marginOfSuccess = weapon.Soldier.Ranged + modifier - roll;
+                    float marginOfSuccess = weapon.Soldier.Ranged + totalModifier - roll;
                     Log(true, "Modified roll total is " + marginOfSuccess.ToString());
                     if(marginOfSuccess > 0)
                     {
                         // a hit!
-                        ResolveHit(weapon, target);
+                        ResolveHit(weapon, hitSoldier, target, range);
                     }
                 }
             }
         }
 
-        private void ResolveHit(ChosenWeapon weapon, BattleSquad target)
+        private void ResolveHit(ChosenWeapon weapon, Soldier hitSoldier, BattleSquad target, float range)
         {
-            Soldier hitSoldier = target.GetRandomSquadMember();
             // TODO: handle hit location
             HitLocation location = DetermineHitLocation(hitSoldier);
-            Log(true, "Hit in " + location.Name);
-            if ((short)location.Wounds >= (short)location.WoundLimit * 2)
+            Log(true, hitSoldier.ToString() + " hit in " + location.Template.Name);
+            if ((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
-                Log(true, location.Name + " already shot off");
+                Log(true, location.Template.Name + " already shot off");
             }
             else
             {
                 // TODO: should hit margin of success affect damage? If so, how much?
-                float damage = weapon.ActiveRangeBand.Strength * (3.5f + ((float)Gaussian.NextGaussianDouble() * 1.75f));
+                float damage = weapon.GetStrengthAtRange(range) * (3.5f + ((float)Gaussian.NextGaussianDouble() * 1.75f));
                 Log(true, damage.ToString() + "Damage rolled");
-                float penDamage = damage - hitSoldier.Armor.Template.ArmorProvided;
+                float effectiveArmor = hitSoldier.Armor.Template.ArmorProvided - weapon.ActiveWeapon.Template.ArmorPiercing;
+                if (effectiveArmor < 0) effectiveArmor = 0;
+                float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)
                 {
                     float totalDamage = penDamage * weapon.ActiveWeapon.Template.PenetrationMultiplier;
@@ -195,14 +254,14 @@ namespace Iam.Scripts.Controllers
             int roll = UnityEngine.Random.Range(1, soldier.Body.TotalProbability);
             foreach(HitLocation location in soldier.Body.HitLocations)
             {
-                if(roll < location.HitProbability)
+                if(roll < location.Template.HitProbability)
                 {
                     return location;
                 }
                 else
                 {
                     // this is basically an easy iterative way to figure out which body part on the "chart" the roll matches
-                    roll -= location.HitProbability;
+                    roll -= location.Template.HitProbability;
                 }
             }
             // this should never happen
@@ -213,10 +272,10 @@ namespace Iam.Scripts.Controllers
         {
             Wounds wound;
             // check location for natural armor
-            totalDamage -= location.NaturalArmor;
+            totalDamage -= location.Template.NaturalArmor;
             // for now, natural armor reducing the damange below 0 will still cause a Negligible injury
             // multiply damage by location modifier
-            totalDamage *= location.DamageMultiplier;
+            totalDamage *= location.Template.DamageMultiplier;
             // compare total damage to soldier Constitution
             float ratio = totalDamage / hitSoldier.Constitution;
             if(ratio >= 2.0f)
@@ -253,17 +312,25 @@ namespace Iam.Scripts.Controllers
             }
             Log(true, "The hit causes a " + wound.ToFriendlyString() + " wound");
             location.Wounds = (byte)location.Wounds + wound;
-            // TODO: handle
-            if((short)location.Wounds >= (short)location.WoundLimit * 2)
+            if((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
-                Log(true, location.Name + " is blown off");
+                Log(true, location.Template.Name + " is blown off");
                 if((short)location.Wounds >= (short)Wounds.Unsurvivable * 2)
                 {
-                    Log(false, hitSoldier.FirstName + " " + hitSoldier.LastName + " died");
+                    Log(false, hitSoldier.ToString() + " died");
                     soldierSquad.RemoveSoldier(hitSoldier);
                 }
             }
-            if(location.Wounds >= Wounds.Critical)
+            if(location.Template.Name == "Left Foot" || location.Template.Name == "Right Foot" 
+                || location.Template.Name == "Left Leg" || location.Template.Name == "Right Leg")
+            {
+                if(location.Wounds >= location.Template.WoundLimit)
+                {
+                    Log(false, hitSoldier.ToString() + " has fallen and can't get up");
+                    soldierSquad.RemoveSoldier(hitSoldier);
+                }
+            }
+            if (location.Wounds >= Wounds.Critical)
             {
                 // TODO: need to start making consciousness checks
             }
@@ -284,7 +351,7 @@ namespace Iam.Scripts.Controllers
             float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
             if (roll > soldier.Constitution)
             {
-                Log(false, soldier.FirstName + " " + soldier.LastName + " died");
+                Log(false, soldier.ToString() + " died");
                 squad.RemoveSoldier(soldier);
             }
         }
