@@ -10,17 +10,14 @@ namespace Iam.Scripts.Models.Soldiers
 
     public class SkillTemplate : AttributeTemplate
     {
-        public string Name;
-        public int Id;
+        public BaseSkill BaseSkill;
     }
-    
+
     public abstract class SoldierTemplate
     {
         public int Id;
 
-        // skills
-        public AttributeTemplate Melee;
-        public AttributeTemplate Ranged;
+        // attributes
         public AttributeTemplate Strength;
         public AttributeTemplate Dexterity;
         public AttributeTemplate Perception;
@@ -28,6 +25,7 @@ namespace Iam.Scripts.Models.Soldiers
         public AttributeTemplate Ego;
         public AttributeTemplate Presence;
         public AttributeTemplate Constitution;
+        public AttributeTemplate PsychicPower;
         
         public AttributeTemplate AttackSpeed;
         public AttributeTemplate MoveSpeed;

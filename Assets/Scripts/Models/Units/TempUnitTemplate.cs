@@ -26,17 +26,18 @@ namespace Iam.Scripts.Models.Units
         public static SpaceMarineRank TacticalMarine = new SpaceMarineRank(19, 2, false, "Tactical Marine");
         public static SpaceMarineRank AssaultSergeant = new SpaceMarineRank(20, 3, false, "Sergeant");
         public static SpaceMarineRank AssaultMarine = new SpaceMarineRank(21, 2, false, "Assault Marine");
-        public static SpaceMarineRank DevestatorSergeant = new SpaceMarineRank(22, 3, false, "Sergeant");
-        public static SpaceMarineRank DevestatorMarine = new SpaceMarineRank(23, 2, false, "Devestator Marine");
+        public static SpaceMarineRank DevastatorSergeant = new SpaceMarineRank(22, 3, false, "Sergeant");
+        public static SpaceMarineRank DevastatorMarine = new SpaceMarineRank(23, 2, false, "Devastator Marine");
         public static SpaceMarineRank TechMarine = new SpaceMarineRank(24, 3, false, "Techmarine");
-        public static SpaceMarineRank ScoutSergeant = new SpaceMarineRank(25, 2, false, "Scout Sergeant");
-        public static SpaceMarineRank Scout = new SpaceMarineRank(26, 1, false, "Scout");
-        public static SpaceMarineRank VeteranTechmarine = new SpaceMarineRank(27, 3, false, "Techmarine Supreme");
-        public static SpaceMarineRank Epistolary = new SpaceMarineRank(28, 4, false, "Epistolary");
-        public static SpaceMarineRank Codicier = new SpaceMarineRank(29, 3, false, "Codicier");
-        public static SpaceMarineRank Lexicanius = new SpaceMarineRank(30, 2, false, "Lexicanius");
-        public static SpaceMarineRank Acolyte = new SpaceMarineRank(31, 1, false, "Acolyte");
-        public static SpaceMarineRank VeteranApothecary = new SpaceMarineRank(32, 2, false, "Veteran Apothecary");
+        public static SpaceMarineRank RecruitmentCaptain = new SpaceMarineRank(25, 2, false, "Conquisitor");
+        public static SpaceMarineRank ScoutSergeant = new SpaceMarineRank(26, 2, false, "Scout Sergeant");
+        public static SpaceMarineRank Scout = new SpaceMarineRank(27, 1, false, "Scout");
+        public static SpaceMarineRank VeteranTechmarine = new SpaceMarineRank(28, 3, false, "Techmarine Supreme");
+        public static SpaceMarineRank Epistolary = new SpaceMarineRank(29, 4, false, "Epistolary");
+        public static SpaceMarineRank Codicier = new SpaceMarineRank(30, 3, false, "Codicier");
+        public static SpaceMarineRank Lexicanius = new SpaceMarineRank(31, 2, false, "Lexicanius");
+        public static SpaceMarineRank Acolyte = new SpaceMarineRank(32, 1, false, "Acolyte");
+        public static SpaceMarineRank VeteranApothecary = new SpaceMarineRank(33, 2, false, "Veteran Apothecary");
     }
 
     public sealed class TempUnitTemplates
@@ -45,7 +46,7 @@ namespace Iam.Scripts.Models.Units
         public UnitTemplate VeteranSquadTemplate { get; private set; }
         public UnitTemplate TacticalSquadTemplate { get; private set; }
         public UnitTemplate AssaultSquadTemplate { get; private set; }
-        public UnitTemplate DevestatorSquadTemplate { get; private set; }
+        public UnitTemplate DevastatorSquadTemplate { get; private set; }
         public UnitTemplate ScoutSquadTemplate { get; private set; }
         public UnitTemplate VeteranCompanyTemplate { get; private set; }
         public UnitTemplate BattleCompanyTemplate { get; private set; }
@@ -60,7 +61,7 @@ namespace Iam.Scripts.Models.Units
             VeteranSquadTemplate = CreateVeteranSquad();
             TacticalSquadTemplate = CreateTacticalSquad();
             AssaultSquadTemplate = CreateAssaultSquad();
-            DevestatorSquadTemplate = CreateDevestatorSquad();
+            DevastatorSquadTemplate = CreateDevastatorSquad();
             ScoutSquadTemplate = CreateScoutSquad();
             VeteranCompanyTemplate = CreateVeteranCompany();
             BattleCompanyTemplate = CreateBattleCompany();
@@ -131,20 +132,20 @@ namespace Iam.Scripts.Models.Units
             return assaultSquad;
         }
 
-        private UnitTemplate CreateDevestatorSquad()
+        private UnitTemplate CreateDevastatorSquad()
         {
-            UnitTemplate devestatorSquad = new UnitTemplate(4, "Devestator Squad");
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorSergeant);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            devestatorSquad.Members.Add(TempSpaceMarineRanks.DevestatorMarine);
-            return devestatorSquad;
+            UnitTemplate devastatorSquad = new UnitTemplate(4, "Devastator Squad");
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorSergeant);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
+            return devastatorSquad;
         }
 
         private UnitTemplate CreateScoutSquad()
@@ -197,7 +198,7 @@ namespace Iam.Scripts.Models.Units
             battleCompany.ChildUnits.Add(TacticalSquadTemplate);
             battleCompany.ChildUnits.Add(TacticalSquadTemplate);
             battleCompany.ChildUnits.Add(AssaultSquadTemplate);
-            battleCompany.ChildUnits.Add(DevestatorSquadTemplate);
+            battleCompany.ChildUnits.Add(DevastatorSquadTemplate);
             return battleCompany;
         }
 
@@ -245,23 +246,23 @@ namespace Iam.Scripts.Models.Units
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
-            company.ChildUnits.Add(DevestatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.ChildUnits.Add(DevastatorSquadTemplate);
             return company;
         }
 
         private UnitTemplate CreateScoutCompany()
         {
             UnitTemplate company = new UnitTemplate(11, "Scout Company");
-            company.Members.Add(TempSpaceMarineRanks.Captain);
+            company.Members.Add(TempSpaceMarineRanks.RecruitmentCaptain);
             company.ChildUnits.Add(ScoutSquadTemplate);
             company.ChildUnits.Add(ScoutSquadTemplate);
             company.ChildUnits.Add(ScoutSquadTemplate);

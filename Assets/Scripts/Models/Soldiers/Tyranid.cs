@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 
+using Iam.Scripts.Models.Equippables;
+
 namespace Iam.Scripts.Models.Soldiers
 {
     public class Tyranid : Soldier
