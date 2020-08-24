@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Views;
 
@@ -96,11 +96,11 @@ namespace Iam.Scripts.Controllers
             soldiers[0] = SoldierFactory.Instance.GenerateNewSoldier<SpaceMarine>(TempSpaceMarineTemplate.Instance);
             soldiers[0].Armor = new Armor
             {
-                Template = TempEquipment.Instance.PowerArmor
+                Template = ImperialEquippables.Instance.PowerArmor
             };
             soldiers[0].Weapons.Add(new Weapon
             {
-                Template = TempEquipment.Instance.Boltgun
+                Template = ImperialEquippables.Instance.Boltgun
             });
             // space marines are about 2.2m, or a little over 7' tall
             return new BattleSquad(id, name, soldiers);
@@ -114,11 +114,11 @@ namespace Iam.Scripts.Controllers
                 marine.EvaluateSoldier(new Date(40, 333, 5));
                 marine.Armor = new Armor
                 {
-                    Template = TempEquipment.Instance.PowerArmor
+                    Template = ImperialEquippables.Instance.PowerArmor
                 };
                 marine.Weapons.Add(new Weapon
                 {
-                    Template = TempEquipment.Instance.Boltgun
+                    Template = ImperialEquippables.Instance.Boltgun
                 });
             }
             return new BattleSquad(id, name, soldiers);
@@ -183,10 +183,16 @@ namespace Iam.Scripts.Controllers
                 int effectiveArmor = enemy.GetAverageArmor() - weapon.ActiveWeapon.Template.ArmorPiercing;
                 float effectiveStrength = weapon.GetStrengthAtRange(range);
                 float effectiveWound = enemy.GetAverageConstitution() / 10;
+                //float shootingSkill = 
                 // TODO: come up with a better prediction equation
                 bool canWound = effectiveStrength * 5 > effectiveArmor + effectiveWound;
-                bool canHit = weapon.ActiveWeapon.Template.Accuracy + CalculateRangeModifier(range) > -12.0f;
-                if (canHit && canWound) return true;
+                if(canWound)
+                {
+                    if (weapon.GetAccuracyAtRange(range) > 6)
+                    {
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -208,8 +214,11 @@ namespace Iam.Scripts.Controllers
                 // figure out number of shots fired
                 for(int i = 0; i < weapon.ActiveWeapon.Template.RateOfFire; i++)
                 {
+                    Skill soldierSkill = weapon.Soldier.Skills[weapon.ActiveWeapon.Template.RelatedSkill.Id];
+
+                    float skillTotal = soldierSkill.SkillBonus + GetStatForSkill(weapon.Soldier, soldierSkill);
                     float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
-                    float marginOfSuccess = weapon.Soldier.Ranged + totalModifier - roll;
+                    float marginOfSuccess = skillTotal + totalModifier - roll;
                     Log(true, "Modified roll total is " + marginOfSuccess.ToString());
                     if(marginOfSuccess > 0)
                     {
@@ -217,6 +226,23 @@ namespace Iam.Scripts.Controllers
                         ResolveHit(weapon, hitSoldier, target, range);
                     }
                 }
+            }
+        }
+
+        private float GetStatForSkill(Soldier soldier, Skill skill)
+        {
+            switch(skill.BaseSkill.BaseAttribute)
+            {
+                case SkillAttribute.Dexterity:
+                    return soldier.Dexterity;
+                case SkillAttribute.Intelligence:
+                    return soldier.Intelligence;
+                case SkillAttribute.Ego:
+                    return soldier.Ego;
+                case SkillAttribute.Presence:
+                    return soldier.Presence;
+                default:
+                    return soldier.Dexterity;
             }
         }
 

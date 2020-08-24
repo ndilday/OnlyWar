@@ -1,5 +1,6 @@
-﻿
-namespace Iam.Scripts.Models
+﻿using Iam.Scripts.Models.Soldiers;
+
+namespace Iam.Scripts.Models.Equippables
 {
     public class TempEquipment
     {
@@ -16,19 +17,6 @@ namespace Iam.Scripts.Models
             }
         }
 
-        public RangedWeaponTemplate Boltgun = new RangedWeaponTemplate
-        {
-            Id = 0,
-            Name = "Boltgun",
-            Accuracy = 0,
-            ArmorPiercing = 0,
-            Location = EquipLocation.TwoHand,
-            PenetrationMultiplier = 2.0f,
-            RateOfFire = 3,
-            BaseStrength = 6,
-            MaximumDistance = 1000
-        };
-
         public RangedWeaponTemplate Deathspitter = new RangedWeaponTemplate
         {
             Id = 1,
@@ -39,15 +27,9 @@ namespace Iam.Scripts.Models
             PenetrationMultiplier = 1,
             RateOfFire = 5,
             BaseStrength = 7.5f,
-            MaximumDistance = 750
-        };
-
-        public ArmorTemplate PowerArmor = new ArmorTemplate
-        {
-            Id = 1,
-            Name = "Power Armor Mk VII",
-            ArmorProvided = 20,
-            Location = EquipLocation.Body
+            MaximumDistance = 750,
+            AmmoCapacity = 100,
+            RelatedSkill = TempBaseSkillList.Instance.OpponentRanged
         };
 
         public ArmorTemplate Chitin = new ArmorTemplate

@@ -1,12 +1,20 @@
-﻿using System; 
+﻿using Iam.Scripts.Models.Soldiers;
+using System; 
 
-namespace Iam.Scripts.Models
+namespace Iam.Scripts.Models.Equippables
 {
     public enum EquipLocation
     {
         Body,
         OneHand,
         TwoHand
+    }
+
+    [Flags]
+    public enum FireModes
+    {
+        SingleShot = 0x1,
+
     }
     public class EquippableTemplate
     {
@@ -22,12 +30,14 @@ namespace Iam.Scripts.Models
 
     public class RangedWeaponTemplate: EquippableTemplate
     {
+        public BaseSkill RelatedSkill;
         public float Accuracy;
         public int ArmorPiercing;
         public float BaseStrength;
         public float MaximumDistance;
         public int RateOfFire;
         public float PenetrationMultiplier;
+        public ushort AmmoCapacity;
     }
 
     public class Equippable

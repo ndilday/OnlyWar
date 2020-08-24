@@ -36,20 +36,15 @@ namespace Iam.Scripts.Helpers
             soldier.Perception = template.Perception.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.Perception.StandardDeviation);
             soldier.Intelligence = template.Intelligence.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.Intelligence.StandardDeviation);
 
-            soldier.Melee = template.Melee.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.Melee.StandardDeviation);
-            soldier.Ranged = template.Ranged.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.Ranged.StandardDeviation);
             soldier.AttackSpeed = template.AttackSpeed.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.AttackSpeed.StandardDeviation);
             soldier.MoveSpeed = template.MoveSpeed.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
-            soldier.Size = template.MoveSpeed.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
+            soldier.Size = template.Size.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.Size.StandardDeviation);
+            soldier.PsychicPower = template.PsychicPower.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.PsychicPower.StandardDeviation);
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
-                soldier.Skills[skillTemplate.Name] = new Skill 
-                { 
-                    Id = skillTemplate.Id, 
-                    Name = skillTemplate.Name, 
-                    Value = skillTemplate.BaseValue + (float)(Gaussian.NextGaussianDouble() * template.MoveSpeed.StandardDeviation) 
-                };
+                soldier.Skills[skillTemplate.BaseSkill.Id] = new Skill(skillTemplate.BaseSkill, 
+                    skillTemplate.BaseValue + (float)(Gaussian.NextGaussianDouble() * skillTemplate.StandardDeviation) );
             }
 
             return soldier;
