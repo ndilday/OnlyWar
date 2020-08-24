@@ -28,16 +28,30 @@ namespace Iam.Scripts.Models.Equippables
         public int ArmorProvided;
     }
 
-    public class RangedWeaponTemplate: EquippableTemplate
+    public class WeaponTemplate : EquippableTemplate
     {
         public BaseSkill RelatedSkill;
         public float Accuracy;
         public int ArmorPiercing;
+        public float PenetrationMultiplier;
+    }
+
+    public class RangedWeaponTemplate: WeaponTemplate
+    {
         public float BaseStrength;
         public float MaximumDistance;
         public int RateOfFire;
-        public float PenetrationMultiplier;
         public ushort AmmoCapacity;
+        public ushort Recoil;
+    }
+
+    public class MeleeWeaponTemplate: WeaponTemplate
+    {
+        public float StrengthMultiplier;
+        public float ExtraDamage;
+        public float ParryModifier;
+        //public float Reach;
+        public float ExtraAttacks;
     }
 
     public class Equippable

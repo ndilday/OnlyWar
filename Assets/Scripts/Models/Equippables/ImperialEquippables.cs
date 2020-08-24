@@ -128,6 +128,186 @@ namespace Iam.Scripts.Models.Equippables
             RelatedSkill = TempBaseSkillList.Instance.Lascannon
         };
 
+        public MeleeWeaponTemplate Chainsword = new MeleeWeaponTemplate
+        {
+            Id = 1,
+            Name = "Chainsword",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 1.5f,
+            ExtraAttacks = 1,
+            ParryModifier = 0,
+            Accuracy = 0,
+            ArmorPiercing = 0,
+            RelatedSkill = TempBaseSkillList.Instance.Sword
+        };
+
+        public MeleeWeaponTemplate ChainFist = new MeleeWeaponTemplate
+        {
+            Id = 2,
+            Name = "Chainfist",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.5f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = -1,
+            ArmorPiercing = 20,
+            RelatedSkill = TempBaseSkillList.Instance.Fist
+        };
+
+        public MeleeWeaponTemplate Eviscerator = new MeleeWeaponTemplate
+        {
+            Id = 3,
+            Name = "Eviscerator",
+            Location = EquipLocation.TwoHand,
+            StrengthMultiplier = 0.5f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = -1,
+            ArmorPiercing = 20,
+            RelatedSkill = TempBaseSkillList.Instance.Sword
+        };
+
+        public MeleeWeaponTemplate Crozius = new MeleeWeaponTemplate
+        {
+            Id = 4,
+            Name = "Crozius Arcanum",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 1,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = 0,
+            Accuracy = 0,
+            ArmorPiercing = 5,
+            RelatedSkill = TempBaseSkillList.Instance.Axe
+        };
+
+        public MeleeWeaponTemplate ForceAxe = new MeleeWeaponTemplate
+        {
+            Id = 5,
+            Name = "Force axe",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 1,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = 0,
+            ArmorPiercing = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Axe
+        };
+
+        public MeleeWeaponTemplate ForceSword = new MeleeWeaponTemplate
+        {
+            Id = 6,
+            Name = "Force sword",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = 0,
+            Accuracy = 0,
+            ArmorPiercing = 15,
+            RelatedSkill = TempBaseSkillList.Instance.Sword
+        };
+
+        public MeleeWeaponTemplate PowerAxe = new MeleeWeaponTemplate
+        {
+            Id = 7,
+            Name = "Power axe",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 1,
+            PenetrationMultiplier = 1f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = 0,
+            ArmorPiercing = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Axe
+        };
+
+        public MeleeWeaponTemplate PowerSword = new MeleeWeaponTemplate
+        {
+            Id = 8,
+            Name = "Power sword",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 1f,
+            ExtraAttacks = 0,
+            ParryModifier = 0,
+            Accuracy = 0,
+            ArmorPiercing = 15,
+            RelatedSkill = TempBaseSkillList.Instance.Sword
+        };
+
+        public MeleeWeaponTemplate PowerFist = new MeleeWeaponTemplate
+        {
+            Id = 9,
+            Name = "Power fist",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.5f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = -1,
+            ArmorPiercing = 15,
+            RelatedSkill = TempBaseSkillList.Instance.Fist
+        };
+
+        public MeleeWeaponTemplate ServoArm = new MeleeWeaponTemplate
+        {
+            Id = 10,
+            Name = "Servo-arm",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.5f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 3f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = -1,
+            ArmorPiercing = 10,
+            RelatedSkill = TempBaseSkillList.Instance.ServoArm
+        };
+
+        public MeleeWeaponTemplate MasterPowerSword = new MeleeWeaponTemplate
+        {
+            Id = 11,
+            Name = "Master crafted power sword",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 2f,
+            ExtraAttacks = 0,
+            ParryModifier = 0,
+            Accuracy = 0,
+            ArmorPiercing = 15,
+            RelatedSkill = TempBaseSkillList.Instance.Sword
+        };
+
+        public MeleeWeaponTemplate ThunderHammer = new MeleeWeaponTemplate
+        {
+            Id = 12,
+            Name = "Thunder hammer",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.5f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 3f,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = -1,
+            ArmorPiercing = 15,
+            RelatedSkill = TempBaseSkillList.Instance.Axe
+        };
+
         public ArmorTemplate PowerArmor = new ArmorTemplate
         {
             Id = 1,
