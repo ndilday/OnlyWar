@@ -19,23 +19,15 @@ namespace Iam.Scripts.Models.Soldiers
         public float PietyScore;
         public float AncientScore;
 
-        public void EvaluateSoldier(Date trainingStartDate)
+        public void EvaluateSoldier(Date trainingFinishedYear)
         {
-            FirstName = TempNameGenerator.GetName();
-            LastName = TempNameGenerator.GetName();
-            SoldierHistory.Add(trainingStartDate + ": accepted into training");
-            if(PsychicPower > 0)
-            {
-                SoldierHistory.Add(trainingStartDate + ": psychic ability detected, acolyte training initiated");
-                // add psychic specific training here
-            }
-            Date trainingFinishedYear = new Date(trainingStartDate.Millenium, trainingStartDate.Year + 2, trainingStartDate.Week);
             // Melee score = (Speed * STR * Melee)
             // Expected score = 16 * 16 * 15.5/8 = 1000
             // low-end = 15 * 15 * 14/8 = 850
             // high-end = 17 * 17 * 16/8 = 578
             MeleeScore = AttackSpeed * Strength * (Dexterity + Skills[TempBaseSkillList.Instance.Sword.Id].SkillBonus) / 
                 (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
+            if(MeleeScore > 700) SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Adamantium Sword of the Emperor badge during training");
             if (MeleeScore > 600) SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Sword of the Emperor badge during training");
             else if (MeleeScore > 500) SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Sword of the Emperor badge during training");
             else if (MeleeScore > 400) SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Sword of the Emperor badge during training");

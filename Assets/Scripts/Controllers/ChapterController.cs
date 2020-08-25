@@ -14,7 +14,6 @@ namespace Iam.Scripts.Controllers
     {
         public ChapterView ChapterView;
         public GameSettings GameSettings;
-        Unit _chapter;
         Dictionary<int, Unit> _unitMap;
         SpaceMarine[] _marines;
         // Start is called before the first frame update
@@ -28,12 +27,22 @@ namespace Iam.Scripts.Controllers
 
         private void CreateChapter()
         {
+            Date basicTrainingEndDate = new Date(40, GameSettings.Year - 3, 52);
+            Date trainingStartDate = new Date(40, GameSettings.Year - 4, 1);
             _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
             foreach(SpaceMarine marine in _marines)
             {
-                marine.EvaluateSoldier(new Date(40, (GameSettings.Year - 4), 1));
+                marine.FirstName = TempNameGenerator.GetName();
+                marine.LastName = TempNameGenerator.GetName();
+                marine.SoldierHistory.Add(trainingStartDate + ": accepted into training");
+                if (marine.PsychicPower > 0)
+                {
+                    marine.SoldierHistory.Add(trainingStartDate + ": psychic ability detected, acolyte training initiated");
+                    // add psychic specific training here
+                }
+                marine.EvaluateSoldier(basicTrainingEndDate);
             }
-           _chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
+           GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
         }
 
         public void OnChapterButtonClick()
@@ -41,10 +50,10 @@ namespace Iam.Scripts.Controllers
             ChapterView.gameObject.SetActive(true);
             if (!ChapterView.Initialized)
             {
-                ChapterView.AddChapterHq(_chapter.Id, _chapter.Name + " HQ Squad");
-                //_unitMap[_chapter.Id + 1000] = _chapter;
-                _unitMap[_chapter.Id] = _chapter;
-                foreach (Unit company in _chapter.ChildUnits)
+                ChapterView.AddChapterHq(GameSettings.Chapter.Id, GameSettings.Chapter.Name + " HQ Squad");
+                //_unitMap[GameSettings.Chapter.Id + 1000] = GameSettings.Chapter;
+                _unitMap[GameSettings.Chapter.Id] = GameSettings.Chapter;
+                foreach (Unit company in GameSettings.Chapter.ChildUnits)
                 {
                     _unitMap[company.Id] = company;
                     if (company.ChildUnits == null || company.ChildUnits.Count == 0)
