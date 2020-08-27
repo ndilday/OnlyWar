@@ -170,16 +170,16 @@ namespace Iam.Scripts.Models.Units
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranCaptain);
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranChampion);
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranAncient);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
-            vetCompany.ChildUnits.Add(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
+            vetCompany.AddChildUnit(VeteranSquadTemplate);
             return vetCompany;
         }
 
@@ -189,16 +189,16 @@ namespace Iam.Scripts.Models.Units
             battleCompany.Members.Add(TempSpaceMarineRanks.Captain);
             battleCompany.Members.Add(TempSpaceMarineRanks.Champion);
             battleCompany.Members.Add(TempSpaceMarineRanks.Ancient);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(TacticalSquadTemplate);
-            battleCompany.ChildUnits.Add(AssaultSquadTemplate);
-            battleCompany.ChildUnits.Add(DevastatorSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(TacticalSquadTemplate);
+            battleCompany.AddChildUnit(AssaultSquadTemplate);
+            battleCompany.AddChildUnit(DevastatorSquadTemplate);
             return battleCompany;
         }
 
@@ -208,16 +208,16 @@ namespace Iam.Scripts.Models.Units
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
-            company.ChildUnits.Add(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
+            company.AddChildUnit(TacticalSquadTemplate);
             return company;
         }
 
@@ -227,16 +227,16 @@ namespace Iam.Scripts.Models.Units
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
-            company.ChildUnits.Add(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
+            company.AddChildUnit(AssaultSquadTemplate);
             return company;
         }
 
@@ -246,16 +246,16 @@ namespace Iam.Scripts.Models.Units
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
-            company.ChildUnits.Add(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
+            company.AddChildUnit(DevastatorSquadTemplate);
             return company;
         }
 
@@ -263,16 +263,16 @@ namespace Iam.Scripts.Models.Units
         {
             UnitTemplate company = new UnitTemplate(11, "Scout Company");
             company.Members.Add(TempSpaceMarineRanks.RecruitmentCaptain);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
-            company.ChildUnits.Add(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
+            company.AddChildUnit(ScoutSquadTemplate);
             return company;
         }
 
@@ -285,20 +285,20 @@ namespace Iam.Scripts.Models.Units
             chapter.Members.Add(TempSpaceMarineRanks.ChiefLibrarian);
             chapter.Members.Add(TempSpaceMarineRanks.ChiefChaplain);
             chapter.Members.Add(TempSpaceMarineRanks.ChapterAncient);
-            chapter.ChildUnits.Add(CreateArmory());
-            chapter.ChildUnits.Add(CreateLibrarius());
-            chapter.ChildUnits.Add(CreateApothecarion());
-            chapter.ChildUnits.Add(CreateReclusium());
-            chapter.ChildUnits.Add(VeteranCompanyTemplate);
-            chapter.ChildUnits.Add(BattleCompanyTemplate);
-            chapter.ChildUnits.Add(BattleCompanyTemplate);
-            chapter.ChildUnits.Add(BattleCompanyTemplate);
-            chapter.ChildUnits.Add(BattleCompanyTemplate);
-            chapter.ChildUnits.Add(TacticalCompanyTemplate);
-            chapter.ChildUnits.Add(TacticalCompanyTemplate);
-            chapter.ChildUnits.Add(AssaultCompanyTemplate);
-            chapter.ChildUnits.Add(DevestatorCompanyTemplate);
-            chapter.ChildUnits.Add(ScoutCompanyTemplate);
+            chapter.AddChildUnit(CreateArmory());
+            chapter.AddChildUnit(CreateLibrarius());
+            chapter.AddChildUnit(CreateApothecarion());
+            chapter.AddChildUnit(CreateReclusium());
+            chapter.AddChildUnit(VeteranCompanyTemplate);
+            chapter.AddChildUnit(BattleCompanyTemplate);
+            chapter.AddChildUnit(BattleCompanyTemplate);
+            chapter.AddChildUnit(BattleCompanyTemplate);
+            chapter.AddChildUnit(BattleCompanyTemplate);
+            chapter.AddChildUnit(TacticalCompanyTemplate);
+            chapter.AddChildUnit(TacticalCompanyTemplate);
+            chapter.AddChildUnit(AssaultCompanyTemplate);
+            chapter.AddChildUnit(DevestatorCompanyTemplate);
+            chapter.AddChildUnit(ScoutCompanyTemplate);
             return chapter;
         }
 

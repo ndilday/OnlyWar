@@ -15,5 +15,5 @@ MonoBehaviour:
   debugMode: 0
   GalaxySize: 30
   MapScale: {x: 15, y: 15}
-  Year: 664
+  Year: 666
   Week: 1

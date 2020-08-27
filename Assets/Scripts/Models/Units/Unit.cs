@@ -1,9 +1,6 @@
 ﻿using Iam.Scripts.Models.Soldiers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.Experimental.AI;
 
 namespace Iam.Scripts.Models.Units
 {
@@ -13,14 +10,32 @@ namespace Iam.Scripts.Models.Units
         public int Id { get; private set; }
         public string Name { get; private set; }
         public List<SpaceMarineRank> Members { get; private set; }
-        public List<UnitTemplate> ChildUnits { get; private set; }
+        private UnitTemplate _parentUnit;
+
+        private List<UnitTemplate> _childUnits;
 
         public UnitTemplate(int id, string name)
         {
             Id = id;
             Name = name;
-            ChildUnits = new List<UnitTemplate>();
+            _childUnits = new List<UnitTemplate>();
             Members = new List<SpaceMarineRank>();
+        }
+
+        public IEnumerable<UnitTemplate> GetChildUnits()
+        {
+            return _childUnits;
+        }
+
+        public void SetParentUnit(UnitTemplate parent)
+        {
+            _parentUnit = parent;
+        }
+
+        public void AddChildUnit(UnitTemplate child)
+        {
+            child.SetParentUnit(this);
+            _childUnits.Add(child);
         }
 
         public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)
@@ -41,7 +56,7 @@ namespace Iam.Scripts.Models.Units
                     rankCounts[rank] = 1;
                 }
             }
-            foreach(UnitTemplate child in ChildUnits)
+            foreach(UnitTemplate child in GetChildUnits())
             {
                 child.AddRankCounts(rankCounts);
             }
@@ -56,6 +71,7 @@ namespace Iam.Scripts.Models.Units
         public List<Soldier> Members;
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
+        public Unit ParentUnit;
         public Unit(int id, string name, UnitTemplate template)
         {
             Id = id;
@@ -72,6 +88,11 @@ namespace Iam.Scripts.Models.Units
                 return Members;
             }
             return Members.Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
+        }
+
+        public override string ToString()
+        {
+            return Name + ParentUnit == null ? "" : ", " + ParentUnit.Name;
         }
     }
 }

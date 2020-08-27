@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Soldiers;
@@ -12,7 +13,9 @@ namespace Iam.Scripts.Controllers
 {
     public class ChapterController : MonoBehaviour
     {
-        public ChapterView ChapterView;
+        public UnityEvent OnChapterCreated;
+        public UnitTreeView UnitTreeView;
+        public SquadMemberView SquadMemberView;
         public GameSettings GameSettings;
         Dictionary<int, Unit> _unitMap;
         SpaceMarine[] _marines;
@@ -23,34 +26,16 @@ namespace Iam.Scripts.Controllers
             Debug.Log("Creating Chapter");
             CreateChapter();
             Debug.Log("Done creating Chapter");
+            OnChapterCreated.Invoke();
         }
 
-        private void CreateChapter()
+        public void ChapterButton_OnClick()
         {
-            Date basicTrainingEndDate = new Date(40, GameSettings.Year - 3, 52);
-            Date trainingStartDate = new Date(40, GameSettings.Year - 4, 1);
-            _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
-            foreach(SpaceMarine marine in _marines)
+            UnitTreeView.gameObject.SetActive(true);
+            SquadMemberView.gameObject.SetActive(true);
+            if (!UnitTreeView.Initialized)
             {
-                marine.FirstName = TempNameGenerator.GetName();
-                marine.LastName = TempNameGenerator.GetName();
-                marine.SoldierHistory.Add(trainingStartDate + ": accepted into training");
-                if (marine.PsychicPower > 0)
-                {
-                    marine.SoldierHistory.Add(trainingStartDate + ": psychic ability detected, acolyte training initiated");
-                    // add psychic specific training here
-                }
-                marine.EvaluateSoldier(basicTrainingEndDate);
-            }
-           GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
-        }
-
-        public void OnChapterButtonClick()
-        {
-            ChapterView.gameObject.SetActive(true);
-            if (!ChapterView.Initialized)
-            {
-                ChapterView.AddChapterHq(GameSettings.Chapter.Id, GameSettings.Chapter.Name + " HQ Squad");
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.Id, GameSettings.Chapter.Name + " HQ Squad");
                 //_unitMap[GameSettings.Chapter.Id + 1000] = GameSettings.Chapter;
                 _unitMap[GameSettings.Chapter.Id] = GameSettings.Chapter;
                 foreach (Unit company in GameSettings.Chapter.ChildUnits)
@@ -58,7 +43,7 @@ namespace Iam.Scripts.Controllers
                     _unitMap[company.Id] = company;
                     if (company.ChildUnits == null || company.ChildUnits.Count == 0)
                     {
-                        ChapterView.AddChapterHq(company.Id, company.Name);
+                        UnitTreeView.AddLeafUnit(company.Id, company.Name);
                     }
                     else
                     {
@@ -71,10 +56,10 @@ namespace Iam.Scripts.Controllers
                             squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
                             _unitMap[squad.Id] = squad;
                         }
-                        ChapterView.AddCompany(company.Id, company.Name, squadList);
+                        UnitTreeView.AddTreeUnit(company.Id, company.Name, squadList);
                     }
                 }
-                ChapterView.Initialized = true;
+                UnitTreeView.Initialized = true;
             }
         }
 
@@ -83,8 +68,39 @@ namespace Iam.Scripts.Controllers
             // populate view with members of selected unit
             Unit selectedUnit = _unitMap[unitId];
             List<Tuple<int, string, string>> memberList = selectedUnit.Members.Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
-            ChapterView.ReplaceSquadMemberContent(memberList);
-            ChapterView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
+            SquadMemberView.ReplaceSquadMemberContent(memberList);
+            SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
+        }
+
+        public void SoldierSelected(int soldierId)
+        {
+            string newText = "";
+            Soldier soldier = _marines[soldierId];
+            foreach(string historyLine in soldier.SoldierHistory)
+            {
+                newText += historyLine + "\n";
+            }
+            SquadMemberView.ReplaceSelectedUnitText(newText);
+        }
+
+        private void CreateChapter()
+        {
+            Date basicTrainingEndDate = new Date(40, GameSettings.Year - 3, 52);
+            Date trainingStartDate = new Date(40, GameSettings.Year - 4, 1);
+            _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
+            foreach (SpaceMarine marine in _marines)
+            {
+                marine.FirstName = TempNameGenerator.GetName();
+                marine.LastName = TempNameGenerator.GetName();
+                marine.SoldierHistory.Add(trainingStartDate + ": accepted into training");
+                if (marine.PsychicPower > 0)
+                {
+                    marine.SoldierHistory.Add(trainingStartDate + ": psychic ability detected, acolyte training initiated");
+                    // add psychic specific training here
+                }
+                EvaluateSoldier(marine, basicTrainingEndDate);
+            }
+            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
         }
 
         private string GenerateUnitSummary(Unit unit)
@@ -104,15 +120,32 @@ namespace Iam.Scripts.Controllers
             return unitReport;
         }
 
-        public void SoldierSelected(int soldierId)
+        public void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)
         {
-            string newText = "";
-            Soldier soldier = _marines[soldierId];
-            foreach(string historyLine in soldier.SoldierHistory)
-            {
-                newText += historyLine + "\n";
-            }
-            ChapterView.ReplaceSelectedUnitText(newText);
+            SpaceMarineEvaluator.Instance.EvaluateMarine(marine);
+
+            if (marine.MeleeScore > 700) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Adamantium Sword of the Emperor badge during training");
+            else if (marine.MeleeScore > 600) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Sword of the Emperor badge during training");
+            else if (marine.MeleeScore > 500) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Sword of the Emperor badge during training");
+            else if (marine.MeleeScore > 400) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Sword of the Emperor badge during training");
+
+            if (marine.RangedScore > 75) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
+            else if (marine.RangedScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
+            else if (marine.RangedScore > 60) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
+
+            if (marine.LeadershipScore > 235) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Voice of the Emperor badge during training");
+            else if (marine.LeadershipScore > 160) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Voice of the Emperor badge during training");
+            else if (marine.LeadershipScore > 135) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Voice of the Emperor badge during training");
+
+            if (marine.AncientScore > 72) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Banner of the Emperor badge during training");
+            else if (marine.AncientScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Banner of the Emperor badge during training");
+            else if (marine.AncientScore > 57) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Banner of the Emperor badge during training");
+
+            if (marine.MedicalScore > 100) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Flagged for potential training as Apothecary");
+
+            if (marine.TechScore > 100) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Flagged for potential training as Techmarine");
+
+            if (marine.PietyScore > 110) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Devout badge and declared a Novice");
         }
     }
 }

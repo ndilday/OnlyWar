@@ -68,7 +68,7 @@ namespace Iam.Scripts.Helpers
         {
             string[] companyStrings = { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth" };
             int stringIndex = 0;
-            foreach(UnitTemplate child in rootTemplate.ChildUnits)
+            foreach(UnitTemplate child in rootTemplate.GetChildUnits())
             {
                 string name;
                 if(child.Name.Contains("Company"))
@@ -83,6 +83,7 @@ namespace Iam.Scripts.Helpers
                 Unit newUnit = child.GenerateUnitFromTemplateWithoutChildren(nextId, name);
                 nextId++;
                 rootUnit.ChildUnits.Add(newUnit);
+                newUnit.ParentUnit = rootUnit;
                 BuildUnitTreeHelper(newUnit, child, ref nextId);
             }
         }

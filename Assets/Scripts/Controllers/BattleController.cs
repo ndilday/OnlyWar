@@ -90,7 +90,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public BattleSquad TempGenerateSingleMarineSquad(int id, string name)
+        private BattleSquad TempGenerateSingleMarineSquad(int id, string name)
         {
             SpaceMarine[] soldiers = new SpaceMarine[1];
             soldiers[0] = SoldierFactory.Instance.GenerateNewSoldier<SpaceMarine>(TempSpaceMarineTemplate.Instance);
@@ -106,12 +106,13 @@ namespace Iam.Scripts.Controllers
             return new BattleSquad(id, name, soldiers);
         }
 
-        public BattleSquad TempGenerateSmallMarineSquad(int id, string name)
+        private BattleSquad TempGenerateSmallMarineSquad(int id, string name)
         {
             SpaceMarine[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(6, TempSpaceMarineTemplate.Instance);
             foreach(SpaceMarine marine in soldiers)
             {
-                marine.EvaluateSoldier(new Date(40, 333, 5));
+                marine.FirstName = TempNameGenerator.GetName();
+                marine.LastName = TempNameGenerator.GetName();
                 marine.Armor = new Armor
                 {
                     Template = ImperialEquippables.Instance.PowerArmor
@@ -124,7 +125,7 @@ namespace Iam.Scripts.Controllers
             return new BattleSquad(id, name, soldiers);
         }
 
-        public BattleSquad TempGenerateSmallTyranidWarriorSquad(int id, string name)
+        private BattleSquad TempGenerateSmallTyranidWarriorSquad(int id, string name)
         {
             Tyranid[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<Tyranid>(3, TempTyranidWarriorTemplate.Instance);
             foreach(Tyranid warrior in soldiers)
