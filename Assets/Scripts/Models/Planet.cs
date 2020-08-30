@@ -2,7 +2,6 @@
 using UnityEngine;
 
 using Iam.Scripts.Models.Units;
-using Assets.Scripts.Models;
 
 namespace Iam.Scripts.Models
 {
@@ -30,12 +29,13 @@ namespace Iam.Scripts.Models
     public class Planet
     {
         public Planet(Vector2 position) { Position = position; }
+        public int Id;
         public string Name;
         public int StarType;
         public readonly Vector2 Position;
         public PlanetType PlanetType;
         public Fleet LocalFleet;
-        public Dictionary<Faction, List<Unit>> GroundUnits;
+        public Dictionary<int, List<Unit>> FactionGroundUnitListMap;
         public Faction ControllingFaction;
         // how to represent forces on planet?
     }

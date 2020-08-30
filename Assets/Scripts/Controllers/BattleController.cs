@@ -1,38 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
 {
     public class BattleController : MonoBehaviour
     {
+        public UnityEvent OnBattleComplete;
         public BattleView BattleView;
         private const bool VERBOSE = true;
-        private BattleSquad _playerForce;
-        private BattleSquad _opposingForce;
+        private List<BattleSquad> _playerSquads;
+        private List<BattleSquad> _opposingSquads;
+        private Dictionary<int, Soldier> _playerSoldiers;
+        private Dictionary<int, Soldier> _opposingSoldiers;
+        //private BattleSquad _playerForce;
+        //private BattleSquad _opposingForce;
         private BattleGrid _grid;
-        private const int GRID_SCALE = 2;
+        private const int GRID_SCALE = 1;
         private int _turnNumber;
+
+        public BattleController()
+        {
+            _playerSquads = new List<BattleSquad>();
+            _opposingSquads = new List<BattleSquad>();
+            _playerSoldiers = new Dictionary<int, Soldier>();
+            _opposingSoldiers = new Dictionary<int, Soldier>();
+        }
+
+        public void GalaxyController_OnBattleStarted(Planet planet)
+        {
+            // assume, for now, that space marines will be one of the two factions
+            foreach(Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
+            {
+                // assume, for now, that only squads from the 1st-5th Companies participate, and the rest are in reserve
+            }
+        }
 
         public void Test()
         {
-            // we're going to assume for now that squads fit into 2yd x 2yd spaces and turns are 2 seconds
+            // we're going to assume for now that soldiers fit into 1yrd x 1yrd spaces and turns are 2 seconds
             // A carefully moving unencumbered Marine can cover 6yrds in 2 seconds, or 18 yards if running/charging
             BattleView.ClearBattleLog();
             _turnNumber = 0;
             Log(true, "Initiating Test Battle");
-            _grid = new BattleGrid(1, 250);
+            _grid = new BattleGrid(100, 250);
             // generate a Space Marine armed with a Boltgun in Power Armor on each side.
-            _playerForce = TempGenerateSmallMarineSquad(0, "Force Blue");
-            _opposingForce = TempGenerateSmallTyranidWarriorSquad(1, "Force Red");
+            _playerSquads.Add(TempGenerateSmallMarineSquad(0, "Force Blue"));
+            _opposingSquads.Add(TempGenerateSmallTyranidWarriorSquad(1, "Force Red"));
             // Start them 800 yards apart
-            _grid.PlacePlayerSquad(_playerForce, 0, 0);
-            _grid.PlaceOpposingSquad(_opposingForce, 0, 249);
+            _grid.PlacePlayerSquad(_playerSquads[0], 50, 0);
+            _grid.PlaceOpposingSquad(_opposingSquads[0], 50, 249);
             BattleView.NextStepButton.SetActive(true);
         }
 
@@ -40,16 +64,16 @@ namespace Iam.Scripts.Controllers
         {
             // don't worry about unit AI yet... just have them each move one and fire
             // TODO: handle initiative
-            if (_playerForce.Squad.Length > 0 && _opposingForce.Squad.Length > 0)
+            if (_playerSquads[0].Squad.Length > 0 && _opposingSquads[0].Squad.Length > 0)
             {
                 _turnNumber++;
                 Log(true, "Turn " + _turnNumber.ToString());
-                TakeAction(_playerForce, true, _grid);
-                if (_opposingForce.Squad.Length > 0)
+                TakeAction(_playerSquads[0], true, _grid);
+                if (_opposingSquads[0].Squad.Length > 0)
                 {
-                    TakeAction(_opposingForce, false, _grid);
+                    TakeAction(_opposingSquads[0], false, _grid);
                 }
-                if (_playerForce.Squad.Length == 0 && _opposingForce.Squad.Length == 0)
+                if (_playerSquads[0].Squad.Length == 0 && _opposingSquads[0].Squad.Length == 0)
                 {
                     Log(true, "One side destroyed, battle over");
                     // update View button
@@ -63,8 +87,8 @@ namespace Iam.Scripts.Controllers
 
         private void UpdateInjuryTrackers()
         {
-            BattleView.OverwritePlayerWoundTrack(GetSquadInjuryText(_playerForce));
-            BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingForce));
+            BattleView.OverwritePlayerWoundTrack(GetSquadInjuryText(_playerSquads[0]));
+            BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingSquads[0]));
         }
 
         private string GetSquadInjuryText(BattleSquad squad)
@@ -94,16 +118,19 @@ namespace Iam.Scripts.Controllers
         {
             SpaceMarine[] soldiers = new SpaceMarine[1];
             soldiers[0] = SoldierFactory.Instance.GenerateNewSoldier<SpaceMarine>(TempSpaceMarineTemplate.Instance);
+            _playerSoldiers[soldiers[0].Id] = soldiers[0];
+
             soldiers[0].Armor = new Armor
             {
                 Template = ImperialEquippables.Instance.PowerArmor
             };
+            
             soldiers[0].Weapons.Add(new Weapon
             {
                 Template = ImperialEquippables.Instance.Boltgun
             });
             // space marines are about 2.2m, or a little over 7' tall
-            return new BattleSquad(id, name, soldiers);
+            return new BattleSquad(id, name, true, soldiers);
         }
 
         private BattleSquad TempGenerateSmallMarineSquad(int id, string name)
@@ -111,6 +138,7 @@ namespace Iam.Scripts.Controllers
             SpaceMarine[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(6, TempSpaceMarineTemplate.Instance);
             foreach(SpaceMarine marine in soldiers)
             {
+                _playerSoldiers[marine.Id] = marine;
                 marine.FirstName = TempNameGenerator.GetName();
                 marine.LastName = TempNameGenerator.GetName();
                 marine.Armor = new Armor
@@ -122,7 +150,7 @@ namespace Iam.Scripts.Controllers
                     Template = ImperialEquippables.Instance.Boltgun
                 });
             }
-            return new BattleSquad(id, name, soldiers);
+            return new BattleSquad(id, name, true, soldiers);
         }
 
         private BattleSquad TempGenerateSmallTyranidWarriorSquad(int id, string name)
@@ -130,6 +158,7 @@ namespace Iam.Scripts.Controllers
             Tyranid[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<Tyranid>(3, TempTyranidWarriorTemplate.Instance);
             foreach(Tyranid warrior in soldiers)
             {
+                _opposingSoldiers[warrior.Id] = warrior;
                 warrior.Armor = new Armor
                 {
                     Template = TempEquipment.Instance.Chitin
@@ -139,18 +168,20 @@ namespace Iam.Scripts.Controllers
                     Template = TempEquipment.Instance.Deathspitter
                 });
             }
-            return new BattleSquad(id, name, soldiers);
+            return new BattleSquad(id, name, false, soldiers);
         }
 
         private void TakeAction(BattleSquad squad, bool isPlayerSquad, BattleGrid grid)
         {
-            KeyValuePair<Tuple<int, int>, BattleSquad> enemy;
-            float range = grid.GetNearestEnemy(squad, isPlayerSquad, out enemy) * GRID_SCALE;
+            int enemyId;
+            // for now, if anyone in the squad starts shooting, the squad shoots
+            float range = grid.GetNearestEnemy(squad.Squad[0], isPlayerSquad, out enemyId) * GRID_SCALE;
             List<ChosenWeapon> bestWeapons = squad.GetWeaponsForRange(range);
-            if(ShouldFire(bestWeapons, enemy.Value, range))
+            BattleSquad enemySquad = squad.IsPlayerSquad ? _opposingSquads[enemyId] : _playerSquads[enemyId];
+            if(ShouldFire(bestWeapons, enemySquad, range))
             {
                 Log(true, squad.Name + " at range " + range.ToString() + " elected to shoot");
-                Shoot(bestWeapons, enemy.Value, range, 0f);
+                Shoot(bestWeapons, enemySquad, range, 0f);
             }
             else
             {
@@ -162,12 +193,12 @@ namespace Iam.Scripts.Controllers
         private void MoveSquad(BattleGrid grid, BattleSquad squad, bool isPlayerSquad)
         {
             int moveAmount = squad.GetSquadMove() * 3 / GRID_SCALE;
-            grid.MoveSquad(squad, isPlayerSquad, 0, isPlayerSquad ? moveAmount : -moveAmount);
+            grid.MoveSquad(squad, 0, isPlayerSquad ? moveAmount : -moveAmount);
         }
 
         private bool ShouldFire(List<ChosenWeapon> weapons, BattleSquad enemy, float range)
         {
-            if(weapons.Count == 0)
+            if(weapons.Count < 1)
             {
                 return false;
             }

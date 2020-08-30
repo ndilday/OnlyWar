@@ -32,9 +32,25 @@ namespace Iam.Scripts.Models.Equippables
             RelatedSkill = TempBaseSkillList.Instance.OpponentRanged
         };
 
-        public ArmorTemplate Chitin = new ArmorTemplate
+        public ArmorTemplate LightChitin = new ArmorTemplate
         {
             Id = 2,
+            Name = "Tyranid 0.5cm Chitin",
+            ArmorProvided = 5,
+            Location = EquipLocation.Body
+        };
+
+        public ArmorTemplate MediumChitin = new ArmorTemplate
+        {
+            Id = 2,
+            Name = "Tyranid 1cm Chitin",
+            ArmorProvided = 10,
+            Location = EquipLocation.Body
+        };
+
+        public ArmorTemplate HeavyChitin = new ArmorTemplate
+        {
+            Id = 3,
             Name = "Tyranid 1.5cm Chitin",
             ArmorProvided = 15,
             Location = EquipLocation.Body

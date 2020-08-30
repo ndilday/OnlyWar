@@ -1535,7 +1535,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1066516933}
         m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
           Assembly-CSharp
-        m_MethodName: RecruitButton_OnClick
+        m_MethodName: RecruitButton_Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2714,8 +2714,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1066516928}
-        m_TargetAssemblyTypeName: Iam.Scripts.UniverseManager, Assembly-CSharp
-        m_MethodName: OnEndTurnClick
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.GalaxyController, Assembly-CSharp
+        m_MethodName: EndTurn_Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2725,21 +2725,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1481574417}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 1066516932}
-        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.BattleController, Assembly-CSharp
-        m_MethodName: Test
+      - m_Target: {fileID: 1066516933}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
+          Assembly-CSharp
+        m_MethodName: EndTurnButton_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2749,10 +2738,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1066516933}
-        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
-          Assembly-CSharp
-        m_MethodName: EndTurn_OnClick
+      - m_Target: {fileID: 854813795}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.UIController, Assembly-CSharp
+        m_MethodName: EndTurnButton_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3526,11 +3514,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1066516929}
-  - component: {fileID: 1066516928}
-  - component: {fileID: 1066516930}
-  - component: {fileID: 1066516931}
   - component: {fileID: 1066516932}
+  - component: {fileID: 1066516931}
+  - component: {fileID: 1066516928}
   - component: {fileID: 1066516933}
+  - component: {fileID: 1066516930}
   m_Layer: 0
   m_Name: GalaxyController
   m_TagString: Untagged
@@ -3550,12 +3538,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6da4f611276c8441893d7f23518e053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TurnStart:
+  OnTurnStart:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 854813795}
-        m_TargetAssemblyTypeName: UIController, Assembly-CSharp
-        m_MethodName: OnTurnStart
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.UIController, Assembly-CSharp
+        m_MethodName: GalaxyController_OnTurnStart
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3565,9 +3553,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  ViewClose:
+  OnEscapeKey:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 6875674184778723691}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 570941893}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -3580,10 +3580,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 6875674184778723691}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+  OnBattleStart:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1066516932}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.BattleController, Assembly-CSharp
+        m_MethodName: GalaxyController_OnBattleStarted
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3639,7 +3642,19 @@ MonoBehaviour:
       - m_Target: {fileID: 1066516933}
         m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
           Assembly-CSharp
-        m_MethodName: Chapter_Created
+        m_MethodName: GalaxyController_OnChapterCreated
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1066516928}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.GalaxyController, Assembly-CSharp
+        m_MethodName: ChapterController_OnChapterCreated
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3664,6 +3679,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9efca27584b0b8b4fbad6a4b48d3230b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnBattleComplete:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1066516928}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.GalaxyController, Assembly-CSharp
+        m_MethodName: BattleController_OnBattleComplete
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   BattleView: {fileID: 1481574422}
 --- !u!114 &1066516933
 MonoBehaviour:
@@ -4161,7 +4191,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1066516933}
         m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
           Assembly-CSharp
-        m_MethodName: OnUnitTraining_Changed
+        m_MethodName: RecruitmentView_OnToggleChange
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4700,12 +4730,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff0f10a6496e5ed4aa8fe03cd0d768ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FleetPathDraw:
+  OnFleetPathDraw:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1655719299}
-        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
-        m_MethodName: OnFleetLineDraw
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.FleetLinesView, Assembly-CSharp
+        m_MethodName: GalaxyMapView_OnFleetLineDraw
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4715,12 +4745,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  FleetPathRemove:
+  OnFleetPathRemove:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1655719299}
-        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
-        m_MethodName: OnFleetLineRemove
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.FleetLinesView, Assembly-CSharp
+        m_MethodName: GalaxyMapView_OnFleetLineRemove
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4730,12 +4760,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  FleetDestinationDraw:
+  OnFleetDestinationDraw:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 483913985}
-        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
-        m_MethodName: OnFleetLineDraw
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.FleetLinesView, Assembly-CSharp
+        m_MethodName: GalaxyMapView_OnFleetLineDraw
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4745,12 +4775,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  FleetDestinationRemove:
+  OnFleetDestinationRemove:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 483913985}
-        m_TargetAssemblyTypeName: FleetLinesView, Assembly-CSharp
-        m_MethodName: OnFleetLineRemove
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.FleetLinesView, Assembly-CSharp
+        m_MethodName: GalaxyMapView_OnFleetLineRemove
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

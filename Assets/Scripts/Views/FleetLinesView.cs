@@ -11,9 +11,14 @@ namespace Iam.Scripts.Views
         public GameObject FleetLinePrefab;
         Dictionary<int, GameObject> _lines = new Dictionary<int, GameObject>();
 
-        public void OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint)
+        public void GalaxyMapView_OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint)
         {
             CreateLine(index, startPoint, endPoint);
+        }
+
+        public void GalaxyMapView_OnFleetLineRemove(int index)
+        {
+            RemoveLine(index);
         }
 
         private void CreateLine(int index, Vector2 startPoint, Vector2 endPoint)
@@ -26,11 +31,6 @@ namespace Iam.Scripts.Views
             lRend.startColor = LineColor;
             lRend.endColor = LineColor;
             _lines[index] = newLine;
-        }
-
-        public void OnFleetLineRemove(int index)
-        {
-            RemoveLine(index);
         }
 
         private void RemoveLine(int index)

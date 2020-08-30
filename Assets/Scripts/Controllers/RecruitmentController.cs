@@ -47,13 +47,13 @@ I await any further instructions you have on our recruiting and training efforts
             _squadSkillFocusMap = new Dictionary<int, TrainingFocuses>();
         }
 
-        public void Chapter_Created()
+        public void GalaxyController_OnChapterCreated()
         {
             PopulateScoutSquadMap();
             EvaluateScouts();
         }
 
-        public void EndTurn_OnClick()
+        public void EndTurnButton_OnClick()
         {
             // at the end of each week, scouts who are on ship or on home planet get trained and re-evaluated
             TrainScouts();
@@ -95,7 +95,7 @@ I await any further instructions you have on our recruiting and training efforts
 
         }
 
-        public void OnUnitTraining_Changed(int unitId, ushort newFlags)
+        public void RecruitmentView_OnToggleChange(int unitId, ushort newFlags)
         {
             _squadSkillFocusMap[unitId] = (TrainingFocuses)newFlags;
         }

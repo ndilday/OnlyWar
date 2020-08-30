@@ -7,10 +7,10 @@ namespace Iam.Scripts.Views
 {
     public class GalaxyMapView : MonoBehaviour
     {
-        public UnityEvent<int, Vector2, Vector2> FleetPathDraw;
-        public UnityEvent<int> FleetPathRemove;
-        public UnityEvent<int, Vector2, Vector2> FleetDestinationDraw;
-        public UnityEvent<int> FleetDestinationRemove;
+        public UnityEvent<int, Vector2, Vector2> OnFleetPathDraw;
+        public UnityEvent<int> OnFleetPathRemove;
+        public UnityEvent<int, Vector2, Vector2> OnFleetDestinationDraw;
+        public UnityEvent<int> OnFleetDestinationRemove;
 
         public GameObject StarPrefab;
         public GameObject FleetPrefab;
@@ -96,22 +96,22 @@ namespace Iam.Scripts.Views
         public void DrawFleetPath(int fleetId, Vector2 endpoint)
         {
             //convert 
-            FleetPathDraw.Invoke(fleetId, _fleetViewMap[fleetId].position, Vector2.Scale(endpoint, GameSettings.MapScale));
+            OnFleetPathDraw.Invoke(fleetId, _fleetViewMap[fleetId].position, Vector2.Scale(endpoint, GameSettings.MapScale));
         }
 
         public void RemoveFleetPath(int fleetId)
         {
-            FleetPathRemove.Invoke(fleetId);
+            OnFleetPathRemove.Invoke(fleetId);
         }
 
         public void DrawFleetDestination(int fleetId, Vector2 endpoint)
         {
-            FleetDestinationDraw.Invoke(fleetId, _fleetViewMap[fleetId].position, Vector2.Scale(endpoint, GameSettings.MapScale));
+            OnFleetDestinationDraw.Invoke(fleetId, _fleetViewMap[fleetId].position, Vector2.Scale(endpoint, GameSettings.MapScale));
         }
 
         public void RemoveFleetDestination(int fleetId)
         {
-            FleetDestinationRemove.Invoke(fleetId);
+            OnFleetDestinationRemove.Invoke(fleetId);
         }
     }
 }

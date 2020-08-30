@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Models
+namespace Iam.Scripts.Models
 {
     public class Faction
     {

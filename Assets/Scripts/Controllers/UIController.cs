@@ -7,12 +7,12 @@ namespace Iam.Scripts.Controllers
     public class UIController : MonoBehaviour
     {
         public GameObject BottomUI;
-        public void OnEndTurnClick()
+        public void EndTurnButton_OnClick()
         {
             DisableUI();
         }
 
-        public void OnTurnStart()
+        public void GalaxyController_OnTurnStart()
         {
             EnableUI();
         }

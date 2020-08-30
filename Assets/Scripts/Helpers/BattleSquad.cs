@@ -13,12 +13,14 @@ namespace Iam.Scripts.Helpers
         public string Name { get; private set; }
         public Soldier[] Squad { get; private set; }
         public float CoverModifier { get; private set; }
+        public bool IsPlayerSquad { get; private set; }
 
-        public BattleSquad(int id, string name, Soldier[] soldiers)
+        public BattleSquad(int id, string name, bool isPlayerSquad, Soldier[] soldiers)
         {
             Id = id;
             Name = name;
             Squad = soldiers;
+            IsPlayerSquad = isPlayerSquad;
         }
 
         public Soldier GetRandomSquadMember()

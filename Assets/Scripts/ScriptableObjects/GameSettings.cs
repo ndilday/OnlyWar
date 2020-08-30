@@ -16,6 +16,7 @@ public class GameSettings : ScriptableObject
     [Header("Chapter Definitions")]
     public UnitTemplate ChapterTemplate = TempUnitTemplates.Instance.ChapterTemplate;
     public Unit Chapter;
+    public int ChapterPlanetId;
 
     [Header("Date")]
     public int Year;

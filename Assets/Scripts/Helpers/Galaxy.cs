@@ -2,7 +2,6 @@
 using System.Linq;
 using UnityEngine;
 using Iam.Scripts.Models;
-using Assets.Scripts.Models;
 
 namespace Iam.Scripts.Helpers
 {
@@ -58,6 +57,7 @@ namespace Iam.Scripts.Helpers
                         {
                             p.ControllingFaction = TempFactions.Instance.Tyranids;
                         }
+                        p.Id = Planets.Count;
                         Planets.Add(p);
                     }
                 }

@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
@@ -10,14 +12,16 @@ namespace Iam.Scripts.Controllers
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
     public class GalaxyController : MonoBehaviour
     {
-        public UnityEvent TurnStart;
-        public UnityEvent ViewClose;
+        public UnityEvent OnTurnStart;
+        public UnityEvent OnEscapeKey;
+        public UnityEvent<Planet> OnBattleStart;
         public GameSettings GameSettings;
 
         public GalaxyMapView Map;
 
-        Galaxy _galaxy;
-        int? _selectedFleetId;
+        private Galaxy _galaxy;
+        private int? _selectedFleetId;
+        private int _planetBattleStartedId;
 
         // Start is called before the first frame update
         void Start()
@@ -37,11 +41,86 @@ namespace Iam.Scripts.Controllers
             }
         }
 
+        public void Generate()
+        {
+            Debug.Log("UniverseManager::Generate -- Generating a new Galaxy");
+            _galaxy.GenerateGalaxy(1);
+            // populate visuals on map
+            for (int i = 0; i < _galaxy.Planets.Count; i++)
+            {
+                Color color = _galaxy.Planets[i].ControllingFaction != null ? _galaxy.Planets[i].ControllingFaction.Color : Color.white;
+                if(_galaxy.Planets[i].ControllingFaction.Name == "Space Marines")
+                {
+                    GameSettings.ChapterPlanetId = _galaxy.Planets[i].Id;
+                }
+                Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
+            }
+            for (int i = 0; i < _galaxy.Fleets.Count; i++)
+            {
+                Map.DrawFleetAtLocation(i, _galaxy.Fleets[i].Position, true);
+            }
+        }
+
+        public void ChapterController_OnChapterCreated()
+        {
+            // For now, put the chapter on their home planet
+            Planet planet = _galaxy.GetPlanet(GameSettings.ChapterPlanetId);
+            planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id] = new List<Unit>();
+            planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id].Add(GameSettings.Chapter);
+
+            // TODO: also for now, put a Tyranid army on the home planet, as well
+        }
+
+        public void EndTurn_Clicked()
+        {
+            // move fleets
+            for (int i = 0; i < _galaxy.Fleets.Count; i++)
+            {
+                Fleet fleet = _galaxy.Fleets[i];
+                if (fleet.Destination != null)
+                {
+                    Map.RemoveFleetDestination(i);
+                    Map.RemoveFleet(i);
+
+                    // if the fleet has a destination, we need to move the fleet
+                    // determine distance of line between two points
+                    float distance = Vector2.Distance(fleet.Destination.Position, fleet.Position);
+                    if (distance <= 1)
+                    {
+                        // the journey is done!
+                        fleet.Planet = fleet.Destination;
+                        fleet.Destination = null;
+                        fleet.Position = fleet.Planet.Position;
+                        Map.DrawFleetAtLocation(i, fleet.Position, true);
+                    }
+                    else
+                    {
+                        fleet.Planet = null;
+                        // calculate one unit of movement along line between current position and destination
+                        Vector2 path = (fleet.Destination.Position - fleet.Position);
+                        path.Normalize();
+                        fleet.Position += path;
+                        Map.DrawFleetAtLocation(i, fleet.Position, false);
+                        Map.DrawFleetDestination(i, fleet.Destination.Position);
+                    }
+                }
+            }
+            // TODO: Update resources
+            _planetBattleStartedId = -1;
+            HandleBattles();
+
+        }
+
+        public void BattleController_OnBattleComplete()
+        {
+            HandleBattles();
+        }
+
         private void HandleKeyboardInput()
         {
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                ViewClose.Invoke();
+                OnEscapeKey.Invoke();
             }
         }
 
@@ -115,13 +194,13 @@ namespace Iam.Scripts.Controllers
                     // clicked on a fleet
 
                     // deselect currently selected fleet
-                    if(_selectedFleetId != null)
+                    if (_selectedFleetId != null)
                     {
                         Map.DeselectFleet((int)_selectedFleetId);
                     }
                     // select new fleet
                     _selectedFleetId = Map.GetFleetIdFromLocation(hitInfo.collider.transform.position);
-                    if(_selectedFleetId != null )
+                    if (_selectedFleetId != null)
                     {
                         Map.SelectFleet((int)_selectedFleetId);
                     }
@@ -158,59 +237,24 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public void Generate()
-        {
-            Debug.Log("UniverseManager::Generate -- Generating a new Galaxy");
-            _galaxy.GenerateGalaxy(1);
-            // populate visuals on map
-            for (int i = 0; i < _galaxy.Planets.Count; i++)
-            {
-                Color color = _galaxy.Planets[i].ControllingFaction != null ? _galaxy.Planets[i].ControllingFaction.Color : Color.white;
-                Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
-            }
-            for (int i = 0; i < _galaxy.Fleets.Count; i++)
-            {
-                Map.DrawFleetAtLocation(i, _galaxy.Fleets[i].Position, true);
-            }
-        }
 
-        public void OnEndTurnClick()
+        private void HandleBattles()
         {
-            // TODO: move fleets
-            for (int i = 0; i < _galaxy.Fleets.Count; i++)
+            int i = _planetBattleStartedId + 1;
+            while (i < _galaxy.Planets.Count)
             {
-                Fleet fleet = _galaxy.Fleets[i];
-                if (fleet.Destination != null)
+                Planet planet = _galaxy.GetPlanet(i);
+                if (planet.FactionGroundUnitListMap != null && planet.FactionGroundUnitListMap.Keys.Count > 1)
                 {
-                    Map.RemoveFleetDestination(i);
-                    Map.RemoveFleet(i);
-
-                    // if the fleet has a destination, we need to move the fleet
-                    // determine distance of line between two points
-                    float distance = Vector2.Distance(fleet.Destination.Position, fleet.Position);
-                    if (distance <= 1)
-                    {
-                        // the journey is done!
-                        fleet.Planet = fleet.Destination;
-                        fleet.Destination = null;
-                        fleet.Position = fleet.Planet.Position;
-                        Map.DrawFleetAtLocation(i, fleet.Position, true);
-                    }
-                    else
-                    {
-                        fleet.Planet = null;
-                        // calculate one unit of movement along line between current position and destination
-                        Vector2 path = (fleet.Destination.Position - fleet.Position);
-                        path.Normalize();
-                        fleet.Position += path;
-                        Map.DrawFleetAtLocation(i, fleet.Position, false);
-                        Map.DrawFleetDestination(i, fleet.Destination.Position);
-                    }
+                    // a battle breaks out on this planet
+                    Debug.Log("Battle breaks out on " + planet.Name);
+                    _planetBattleStartedId = i;
+                    OnBattleStart.Invoke(planet);
+                    return;
                 }
             }
-            // TODO: Update resources
-            // TODO: Handle Recruitment
-            TurnStart.Invoke();
+            // if we've scanned through the whole galaxy, battles are done, start a new turn
+            OnTurnStart.Invoke();
         }
     }
 }
