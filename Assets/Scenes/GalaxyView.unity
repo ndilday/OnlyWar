@@ -2532,7 +2532,6 @@ GameObject:
   - component: {fileID: 735442872}
   - component: {fileID: 735442874}
   - component: {fileID: 735442873}
-  - component: {fileID: 735442875}
   m_Layer: 5
   m_Name: Pane
   m_TagString: Untagged
@@ -2573,7 +2572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2597,27 +2596,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 735442871}
   m_CullTransparentMesh: 0
---- !u!223 &735442875
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 735442871}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 809165931}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
 --- !u!1 &743731581
 GameObject:
   m_ObjectHideFlags: 0
@@ -9239,7 +9217,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9732,6 +9710,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 640514d4ae2311542b6debaf1d2f8713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnArmamentChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1066516934}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+        m_MethodName: SquadArmamentView_OnArmamentChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnIsFrontLineChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1066516934}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+        m_MethodName: SquadArmamentView_OnIsFrontLineChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   NumberPickerPrefab: {fileID: 2793134187991433295, guid: f9273c02dc450da428b98bf103bcec2b,
     type: 3}
   Pane: {fileID: 735442872}

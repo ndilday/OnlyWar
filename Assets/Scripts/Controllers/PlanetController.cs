@@ -16,6 +16,8 @@ namespace Iam.Scripts.Controllers
         public PlanetView PlanetView;
         public GameSettings GameSettings;
 
+        Unit _selectedUnit;
+
         private Dictionary<int, Unit> _unitMap = new Dictionary<int, Unit>();
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
@@ -34,13 +36,45 @@ namespace Iam.Scripts.Controllers
         public void UnitView_OnUnitSelected(int unitId)
         {
             // populate the SquadArmamentView
-            Unit unit = _unitMap[unitId];
+            _selectedUnit = _unitMap[unitId];
             SquadArmamentView.Clear();
-            if(unit.UnitTemplate.DefaultWeapons != null)
+            SquadArmamentView.SetIsFrontLine(!_selectedUnit.IsInReserve);
+            if(_selectedUnit.UnitTemplate.DefaultWeapons != null)
             {
-                SquadArmamentView.Initialize(!unit.IsInReserve, unit.Members.Count, unit.UnitTemplate.DefaultWeapons.Name, GetUnitWeaponSelectionSections(unit));
+                SquadArmamentView.Initialize(!_selectedUnit.IsInReserve, _selectedUnit.Members.Count, _selectedUnit.UnitTemplate.DefaultWeapons.Name, GetUnitWeaponSelectionSections(_selectedUnit));
             }
-            
+        }
+
+        public void SquadArmamentView_OnIsFrontLineChanged(bool newVal)
+        {
+            _selectedUnit.IsInReserve = !newVal;
+        }
+
+        public void SquadArmamentView_OnArmamentChanged()
+        {
+            if (_selectedUnit != null)
+            {
+                List<Tuple<string, int>> loadout = SquadArmamentView.GetSelections();
+                _selectedUnit.Loadout.Clear();
+                _selectedUnit.Loadout = ConvertToWeaponSetList(loadout);
+            }
+        }
+
+        private List<WeaponSet> ConvertToWeaponSetList(List<Tuple<string, int>> tuples)
+        {
+            List<WeaponSet> loadout = new List<WeaponSet>();
+            var allowedWeaponSets = _selectedUnit.UnitTemplate.WeaponOptions.SelectMany(wo => wo.Options);
+            foreach(Tuple<string, int> tuple in tuples)
+            {
+                // don't track the default loadouts, just the specialized ones
+                // also don't need to do anything with zero-value tuples
+                if (tuple.Item2 == 0 || tuple.Item1 == _selectedUnit.UnitTemplate.DefaultWeapons.Name) continue;
+                for (int i = 0; i < tuple.Item2; i++)
+                {
+                    loadout.Add(allowedWeaponSets.Single(aws => aws.Name == tuple.Item1));
+                }
+            }
+            return loadout;
         }
 
         private List<WeaponSelectionSection> GetUnitWeaponSelectionSections(Unit unit)
