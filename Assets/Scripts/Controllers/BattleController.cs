@@ -15,16 +15,20 @@ namespace Iam.Scripts.Controllers
     {
         public UnityEvent OnBattleComplete;
         public BattleView BattleView;
-        private const bool VERBOSE = true;
+        
         private List<BattleSquad> _playerSquads;
         private List<BattleSquad> _opposingSquads;
         private Dictionary<int, Soldier> _playerSoldiers;
         private Dictionary<int, Soldier> _opposingSoldiers;
-        //private BattleSquad _playerForce;
-        //private BattleSquad _opposingForce;
+        
         private BattleGrid _grid;
-        private const int GRID_SCALE = 1;
         private int _turnNumber;
+
+        private const int MAP_WIDTH = 100;
+        private const int MAP_HEIGHT = 500;
+        private const bool VERBOSE = true;
+        private const int GRID_SCALE = 1;
+
 
         public BattleController()
         {
@@ -36,27 +40,22 @@ namespace Iam.Scripts.Controllers
 
         public void GalaxyController_OnBattleStarted(Planet planet)
         {
-            // assume, for now, that space marines will be one of the two factions
-            foreach(Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
-            {
-                // assume, for now, that only squads from the 1st-5th Companies participate, and the rest are in reserve
-            }
-        }
-
-        public void Test()
-        {
-            // we're going to assume for now that soldiers fit into 1yrd x 1yrd spaces and turns are 2 seconds
-            // A carefully moving unencumbered Marine can cover 6yrds in 2 seconds, or 18 yards if running/charging
-            BattleView.ClearBattleLog();
+            BattleView.gameObject.SetActive(true);
+            BattleView.Clear();
+            BattleView.SetMapSize(new Vector2(MAP_WIDTH, MAP_HEIGHT));
             _turnNumber = 0;
-            Log(true, "Initiating Test Battle");
-            _grid = new BattleGrid(100, 250);
-            // generate a Space Marine armed with a Boltgun in Power Armor on each side.
-            _playerSquads.Add(TempGenerateSmallMarineSquad(0, "Force Blue"));
-            _opposingSquads.Add(TempGenerateSmallTyranidWarriorSquad(1, "Force Red"));
-            // Start them 800 yards apart
-            _grid.PlacePlayerSquad(_playerSquads[0], 50, 0);
-            _grid.PlaceOpposingSquad(_opposingSquads[0], 50, 249);
+            _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
+            // assume, for now, that space marines will be one of the two factions
+            int currentBottom = 0;
+            int currentLeft = 0;
+            foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
+            {
+                // start in bottom left 
+                if(!unit.IsInReserve)
+                {
+                    PlacePlayerUnit(unit, currentLeft, currentBottom);
+                }
+            }
             BattleView.NextStepButton.SetActive(true);
         }
 
@@ -91,6 +90,14 @@ namespace Iam.Scripts.Controllers
             BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingSquads[0]));
         }
 
+        private void PlacePlayerUnit(Unit unit, int left, int bottom)
+        {
+            BattleSquad squad = new BattleSquad(unit.Id, unit.Name, true, unit.Members.ToArray());
+            Tuple<int, int> squadSize = squad.GetSquadBoxSize();
+            _grid.PlaceSquad(squad, left, bottom);
+            BattleView.AddSquad(unit.Id, unit.Name, new Vector2(left, bottom), new Vector2(squadSize.Item1, squadSize.Item2));
+        }
+
         private string GetSquadInjuryText(BattleSquad squad)
         {
             string report = "";
@@ -112,63 +119,6 @@ namespace Iam.Scripts.Controllers
             {
                 BattleView.LogToBattleLog(text);
             }
-        }
-
-        private BattleSquad TempGenerateSingleMarineSquad(int id, string name)
-        {
-            SpaceMarine[] soldiers = new SpaceMarine[1];
-            soldiers[0] = SoldierFactory.Instance.GenerateNewSoldier<SpaceMarine>(TempSpaceMarineTemplate.Instance);
-            _playerSoldiers[soldiers[0].Id] = soldiers[0];
-
-            soldiers[0].Armor = new Armor
-            {
-                Template = ImperialEquippables.Instance.PowerArmor
-            };
-            
-            soldiers[0].Weapons.Add(new Weapon
-            {
-                Template = ImperialEquippables.Instance.Boltgun
-            });
-            // space marines are about 2.2m, or a little over 7' tall
-            return new BattleSquad(id, name, true, soldiers);
-        }
-
-        private BattleSquad TempGenerateSmallMarineSquad(int id, string name)
-        {
-            SpaceMarine[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(6, TempSpaceMarineTemplate.Instance);
-            foreach(SpaceMarine marine in soldiers)
-            {
-                _playerSoldiers[marine.Id] = marine;
-                marine.FirstName = TempNameGenerator.GetName();
-                marine.LastName = TempNameGenerator.GetName();
-                marine.Armor = new Armor
-                {
-                    Template = ImperialEquippables.Instance.PowerArmor
-                };
-                marine.Weapons.Add(new Weapon
-                {
-                    Template = ImperialEquippables.Instance.Boltgun
-                });
-            }
-            return new BattleSquad(id, name, true, soldiers);
-        }
-
-        private BattleSquad TempGenerateSmallTyranidWarriorSquad(int id, string name)
-        {
-            Tyranid[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers<Tyranid>(3, TempTyranidWarriorTemplate.Instance);
-            foreach(Tyranid warrior in soldiers)
-            {
-                _opposingSoldiers[warrior.Id] = warrior;
-                warrior.Armor = new Armor
-                {
-                    Template = TempEquipment.Instance.Chitin
-                };
-                warrior.Weapons.Add(new Weapon
-                {
-                    Template = TempEquipment.Instance.Deathspitter
-                });
-            }
-            return new BattleSquad(id, name, false, soldiers);
         }
 
         private void TakeAction(BattleSquad squad, bool isPlayerSquad, BattleGrid grid)

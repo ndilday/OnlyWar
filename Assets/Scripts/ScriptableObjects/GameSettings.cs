@@ -9,9 +9,12 @@ public class GameSettings : ScriptableObject
     [Header("Debug")]
     public bool debugMode;
 
-    [Header("Map Scale")]
+    [Header("Galaxy Map")]
     public int GalaxySize;
     public Vector2 MapScale;
+
+    [Header("Battle Map")]
+    public Vector2 BattleMapScale;
 
     [Header("Chapter Definitions")]
     public UnitTemplate ChapterTemplate = TempUnitTemplates.Instance.ChapterTemplate;

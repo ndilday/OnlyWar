@@ -4,71 +4,15 @@ using System.Linq;
 
 namespace Iam.Scripts.Models.Units
 {
-
-    public class UnitTemplate
-    {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public List<SpaceMarineRank> Members { get; private set; }
-        private UnitTemplate _parentUnit;
-
-        private List<UnitTemplate> _childUnits;
-
-        public UnitTemplate(int id, string name)
-        {
-            Id = id;
-            Name = name;
-            _childUnits = new List<UnitTemplate>();
-            Members = new List<SpaceMarineRank>();
-        }
-
-        public IEnumerable<UnitTemplate> GetChildUnits()
-        {
-            return _childUnits;
-        }
-
-        public void SetParentUnit(UnitTemplate parent)
-        {
-            _parentUnit = parent;
-        }
-
-        public void AddChildUnit(UnitTemplate child)
-        {
-            child.SetParentUnit(this);
-            _childUnits.Add(child);
-        }
-
-        public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)
-        {
-            return new Unit(id, name, this);
-        }
-
-        public void AddRankCounts(Dictionary<SpaceMarineRank, int> rankCounts)
-        {
-            foreach(SpaceMarineRank rank in Members)
-            {
-                if(rankCounts.ContainsKey(rank))
-                {
-                    rankCounts[rank]++;
-                }
-                else
-                {
-                    rankCounts[rank] = 1;
-                }
-            }
-            foreach(UnitTemplate child in GetChildUnits())
-            {
-                child.AddRankCounts(rankCounts);
-            }
-        }
-    }
-
     public class Unit
     {
         public int Id { get; private set; }
         public string Name { get; set; }
         public UnitTemplate UnitTemplate { get; private set; }
+        public bool IsInReserve { get; set; }
         public List<Soldier> Members;
+        // if Loadout count < Member count, assume the rest are using the default loadout in the template
+        public List<WeaponSet> Loadout { get; set; }
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
@@ -77,9 +21,11 @@ namespace Iam.Scripts.Models.Units
             Id = id;
             Name = name;
             UnitTemplate = template;
+            IsInReserve = true;
             Members = new List<Soldier>();
             AssignedVehicles = new List<int>();
             ChildUnits = new List<Unit>();
+            Loadout = new List<WeaponSet>();
         }
         public IEnumerable<Soldier> GetAllMembers()
         {

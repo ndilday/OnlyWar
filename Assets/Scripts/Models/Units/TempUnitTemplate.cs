@@ -1,4 +1,7 @@
-﻿using Iam.Scripts.Models.Soldiers;
+﻿using Iam.Scripts.Models.Equippables;
+using Iam.Scripts.Models.Soldiers;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace Iam.Scripts.Models.Units
 {
@@ -38,6 +41,57 @@ namespace Iam.Scripts.Models.Units
         public static SpaceMarineRank Lexicanius = new SpaceMarineRank(31, 2, false, "Lexicanius");
         public static SpaceMarineRank Acolyte = new SpaceMarineRank(32, 1, false, "Acolyte");
         public static SpaceMarineRank VeteranApothecary = new SpaceMarineRank(33, 2, false, "Veteran Apothecary");
+    }
+
+    public sealed class TempSpaceMarineWeaponSets
+    {
+        private static TempSpaceMarineWeaponSets _instance = null;
+        public static TempSpaceMarineWeaponSets Instance
+        {
+            get
+            {
+                if(_instance == null)
+                {
+                    _instance = new TempSpaceMarineWeaponSets();
+                }
+                return _instance;
+            }
+        }
+        private TempSpaceMarineWeaponSets() 
+        {
+            ImperialEquippables eq = ImperialEquippables.Instance;
+            Bolter = new WeaponSet { Name="Boltgun", MainWeapon = eq.Boltgun, SecondaryWeapon = null };
+            BoltPistolChainSword = new WeaponSet { Name="Bolt Pistol & Chainsword", MainWeapon = eq.BoltPistol, SecondaryWeapon = eq.Chainsword };
+            BolterPlusPistol = new WeaponSet { Name = "Boltgun & Bolt Pistol", MainWeapon = eq.Boltgun, SecondaryWeapon = eq.BoltPistol };
+            Flamer = new WeaponSet { Name="Flamer", MainWeapon = eq.Flamer, SecondaryWeapon = null };
+            HeavyBolter = new WeaponSet { Name="Heavy Bolter", MainWeapon = eq.HeavyBolter, SecondaryWeapon = null };
+            Lascannon = new WeaponSet { Name="Lascannon", MainWeapon = eq.Lascannon, SecondaryWeapon = null };
+            MeltaGun = new WeaponSet { Name="Meltagun", MainWeapon = eq.MeltaGun, SecondaryWeapon = null };
+            Missile = new WeaponSet { Name="Missile Launcher", MainWeapon = eq.MissileLauncher, SecondaryWeapon = null };
+            MultiMelta = new WeaponSet { Name="Multi-melta", MainWeapon = eq.MultiMelta, SecondaryWeapon = null };
+            PlasmaCannon = new WeaponSet { Name="Plasma Cannon", MainWeapon = eq.PlasmaCannon, SecondaryWeapon = null };
+            PlasmaGun = new WeaponSet { Name="Plasma Gun", MainWeapon = eq.PlasmaGun, SecondaryWeapon = null };
+            PlasmaPistolChainSword = new WeaponSet { Name="Plasma Pistol & Chainsword", MainWeapon = eq.PlasmaPistol, SecondaryWeapon = eq.Chainsword };
+            Shotgun = new WeaponSet { Name="Shotgun", MainWeapon = eq.Shotgun, SecondaryWeapon = null };
+            SniperRifle = new WeaponSet { Name="Sniper Rifle", MainWeapon = eq.SniperRifle, SecondaryWeapon = null };
+        }
+
+        public WeaponSet Bolter { get; private set; }
+        public WeaponSet BoltPistolChainSword { get; private set; }
+        public WeaponSet BolterPlusPistol { get; private set; }
+        public WeaponSet Flamer { get; private set; }
+        public WeaponSet HeavyBolter { get; private set; }
+        public WeaponSet Lascannon { get; private set; }
+        public WeaponSet MeltaGun { get; private set; }
+        public WeaponSet Missile { get; private set; }
+        public WeaponSet MultiMelta { get; private set; }
+        public WeaponSet PlasmaCannon { get; private set; }
+        public WeaponSet PlasmaGun { get; private set; }
+        public WeaponSet PlasmaPistolChainSword { get; private set; }
+        public WeaponSet Shotgun { get; private set; }
+        public WeaponSet SniperRifle { get; private set; }
+
+        public WeaponSet Eviscerator { get; private set; }
     }
 
     public sealed class TempUnitTemplates
@@ -86,7 +140,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateVeteranSquad()
         {
-            UnitTemplate veteranSquad = new UnitTemplate(1, "Veteran Squad");
+            UnitTemplate veteranSquad = new UnitTemplate(1, "Veteran Squad", TempSpaceMarineWeaponSets.Instance.BoltPistolChainSword, null);
             veteranSquad.Members.Add(TempSpaceMarineRanks.VeteranSquadSergeant);
             veteranSquad.Members.Add(TempSpaceMarineRanks.VeteranMarine);
             veteranSquad.Members.Add(TempSpaceMarineRanks.VeteranMarine);
@@ -102,7 +156,26 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateTacticalSquad()
         {
-            UnitTemplate tacticalSquad = new UnitTemplate(2, "Tactical Squad");
+            TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
+            List<WeaponSet> options1 = new List<WeaponSet>();
+            options1.Add(ws.Flamer);
+            options1.Add(ws.PlasmaGun);
+            options1.Add(ws.MeltaGun);
+            UnitWeaponOption uwo1 = new UnitWeaponOption("Specialty Weapons", 0, 1, options1);
+
+            List<WeaponSet> options2 = new List<WeaponSet>();
+            options2.Add(ws.HeavyBolter);
+            options2.Add(ws.Lascannon);
+            options2.Add(ws.Missile);
+            options2.Add(ws.MultiMelta);
+            options2.Add(ws.PlasmaCannon);
+            UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 1, options2);
+
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
+            options.Add(uwo1);
+            options.Add(uwo2);
+
+            UnitTemplate tacticalSquad = new UnitTemplate(2, "Tactical Squad", ws.Bolter, options);
             tacticalSquad.Members.Add(TempSpaceMarineRanks.TacticalSergeant);
             tacticalSquad.Members.Add(TempSpaceMarineRanks.TacticalMarine);
             tacticalSquad.Members.Add(TempSpaceMarineRanks.TacticalMarine);
@@ -118,7 +191,22 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateAssaultSquad()
         {
-            UnitTemplate assaultSquad = new UnitTemplate(3, "Assault Squad");
+            TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
+            List<WeaponSet> options1 = new List<WeaponSet>();
+            options1.Add(ws.Flamer);
+            options1.Add(ws.PlasmaPistolChainSword);
+            
+            UnitWeaponOption uwo1 = new UnitWeaponOption("Specialty Weapons", 0, 2, options1);
+
+            List<WeaponSet> options2 = new List<WeaponSet>();
+            options2.Add(ws.Eviscerator);
+            UnitWeaponOption uwo2 = new UnitWeaponOption("Two-handed Sword", 0, 2, options2);
+
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
+            options.Add(uwo1);
+            options.Add(uwo2);
+
+            UnitTemplate assaultSquad = new UnitTemplate(3, "Assault Squad", ws.BoltPistolChainSword, options);
             assaultSquad.Members.Add(TempSpaceMarineRanks.AssaultSergeant);
             assaultSquad.Members.Add(TempSpaceMarineRanks.AssaultMarine);
             assaultSquad.Members.Add(TempSpaceMarineRanks.AssaultMarine);
@@ -134,7 +222,19 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateDevastatorSquad()
         {
-            UnitTemplate devastatorSquad = new UnitTemplate(4, "Devastator Squad");
+            TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
+            List<WeaponSet> options2 = new List<WeaponSet>();
+            options2.Add(ws.HeavyBolter);
+            options2.Add(ws.Lascannon);
+            options2.Add(ws.Missile);
+            options2.Add(ws.MultiMelta);
+            options2.Add(ws.PlasmaCannon);
+            UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 4, options2);
+
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
+            options.Add(uwo2);
+
+            UnitTemplate devastatorSquad = new UnitTemplate(4, "Devastator Squad", ws.Bolter, options);
             devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorSergeant);
             devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
             devastatorSquad.Members.Add(TempSpaceMarineRanks.DevastatorMarine);
@@ -150,7 +250,23 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateScoutSquad()
         {
-            UnitTemplate scoutSquad = new UnitTemplate(5, "Scout Squad");
+            TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
+            List<WeaponSet> options1 = new List<WeaponSet>();
+            options1.Add(ws.Shotgun);
+            options1.Add(ws.SniperRifle);
+            UnitWeaponOption uwo1 = new UnitWeaponOption("Optional Armament", 0, 9, options1);
+
+            List<WeaponSet> options2 = new List<WeaponSet>();
+            options2.Add(ws.HeavyBolter);
+            options2.Add(ws.Missile);
+            UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 1, options2);
+
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
+            options.Add(uwo1);
+            options.Add(uwo2);
+
+
+            UnitTemplate scoutSquad = new UnitTemplate(5, "Scout Squad", ws.BolterPlusPistol, options);
             scoutSquad.Members.Add(TempSpaceMarineRanks.ScoutSergeant);
             scoutSquad.Members.Add(TempSpaceMarineRanks.Scout);
             scoutSquad.Members.Add(TempSpaceMarineRanks.Scout);
@@ -166,7 +282,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateVeteranCompany()
         {
-            UnitTemplate vetCompany = new UnitTemplate(6, "Veteran Company");
+            UnitTemplate vetCompany = new UnitTemplate(6, "Veteran Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranCaptain);
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranChampion);
             vetCompany.Members.Add(TempSpaceMarineRanks.VeteranAncient);
@@ -185,7 +301,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateBattleCompany()
         {
-            UnitTemplate battleCompany = new UnitTemplate(7, "Battle Company");
+            UnitTemplate battleCompany = new UnitTemplate(7, "Battle Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             battleCompany.Members.Add(TempSpaceMarineRanks.Captain);
             battleCompany.Members.Add(TempSpaceMarineRanks.Champion);
             battleCompany.Members.Add(TempSpaceMarineRanks.Ancient);
@@ -204,7 +320,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateTacticalCompany()
         {
-            UnitTemplate company = new UnitTemplate(8, "Tactical Company");
+            UnitTemplate company = new UnitTemplate(8, "Tactical Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
@@ -223,7 +339,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateAssaultCompany()
         {
-            UnitTemplate company = new UnitTemplate(9, "Tactical Company");
+            UnitTemplate company = new UnitTemplate(9, "Tactical Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
@@ -242,7 +358,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateDevestatorCompany()
         {
-            UnitTemplate company = new UnitTemplate(10, "Devestator Company");
+            UnitTemplate company = new UnitTemplate(10, "Devestator Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             company.Members.Add(TempSpaceMarineRanks.Captain);
             company.Members.Add(TempSpaceMarineRanks.Champion);
             company.Members.Add(TempSpaceMarineRanks.Ancient);
@@ -261,7 +377,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateScoutCompany()
         {
-            UnitTemplate company = new UnitTemplate(11, "Scout Company");
+            UnitTemplate company = new UnitTemplate(11, "Scout Company", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             company.Members.Add(TempSpaceMarineRanks.RecruitmentCaptain);
             company.AddChildUnit(ScoutSquadTemplate);
             company.AddChildUnit(ScoutSquadTemplate);
@@ -278,7 +394,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateChapter()
         {
-            UnitTemplate chapter = new UnitTemplate(16, "Chapter");
+            UnitTemplate chapter = new UnitTemplate(16, "Chapter", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             chapter.Members.Add(TempSpaceMarineRanks.ChapterMaster);
             chapter.Members.Add(TempSpaceMarineRanks.ChiefApothecary);
             chapter.Members.Add(TempSpaceMarineRanks.ForgeMaster);
@@ -304,7 +420,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateArmory()
         {
-            UnitTemplate armory = new UnitTemplate(12, "Armory");
+            UnitTemplate armory = new UnitTemplate(12, "Armory", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             armory.Members.Add(TempSpaceMarineRanks.VeteranTechmarine);
             armory.Members.Add(TempSpaceMarineRanks.TechMarine);
             armory.Members.Add(TempSpaceMarineRanks.TechMarine);
@@ -320,7 +436,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateLibrarius()
         {
-            UnitTemplate library = new UnitTemplate(13, "Librarius");
+            UnitTemplate library = new UnitTemplate(13, "Librarius", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             library.Members.Add(TempSpaceMarineRanks.Epistolary);
             library.Members.Add(TempSpaceMarineRanks.Codicier);
             library.Members.Add(TempSpaceMarineRanks.Lexicanius);
@@ -330,7 +446,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateApothecarion()
         {
-            UnitTemplate apothecary = new UnitTemplate(14, "Apothecarion");
+            UnitTemplate apothecary = new UnitTemplate(14, "Apothecarion", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             apothecary.Members.Add(TempSpaceMarineRanks.VeteranApothecary);
             apothecary.Members.Add(TempSpaceMarineRanks.Apothecary);
             apothecary.Members.Add(TempSpaceMarineRanks.Apothecary);
@@ -346,7 +462,7 @@ namespace Iam.Scripts.Models.Units
 
         private UnitTemplate CreateReclusium()
         {
-            UnitTemplate reclusium = new UnitTemplate(15, "Reclusium");
+            UnitTemplate reclusium = new UnitTemplate(15, "Reclusium", TempSpaceMarineWeaponSets.Instance.Bolter, null);
             reclusium.Members.Add(TempSpaceMarineRanks.Reclusiarch);
             reclusium.Members.Add(TempSpaceMarineRanks.Chaplain);
             reclusium.Members.Add(TempSpaceMarineRanks.Chaplain);

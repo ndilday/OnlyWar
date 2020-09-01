@@ -24,16 +24,6 @@ namespace Iam.Scripts.Helpers
             _opposingSoldierLocationMap = new Dictionary<int, Tuple<int, int>>();
         }
 
-        public bool PlacePlayerSquad(BattleSquad squad, int x, int y)
-        {
-            return PlaceSquad(squad, x, y, false);
-        }
-
-        public bool PlaceOpposingSquad(BattleSquad squad, int x, int y)
-        {
-            return PlaceSquad(squad, x, y, true);
-        }
-
         public bool MoveSquad(BattleSquad squad, int xMovement, int yMovement)
         {
             Dictionary<int, Tuple<int, int>> soldierLocationMap = squad.IsPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
@@ -82,37 +72,26 @@ namespace Iam.Scripts.Helpers
             throw new ArgumentException("Squad not found");
         }
 
-        private bool PlaceSquad(BattleSquad squad, int x, int y, bool flipDirection)
+        public bool PlaceSquad(BattleSquad squad, int left, int bottom)
         {
             Dictionary<int, Tuple<int, int>> soldierLocationMap = squad.IsPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
             // if any squad member is already on the map, we have a problem
             if (squad.Squad.Any(s => soldierLocationMap.ContainsKey(s.Id))) throw new InvalidOperationException("Soldier in squad " + squad.Name + " already on BattleGrid");
             if (squad.Squad.Length == 0) throw new InvalidOperationException(squad.Name + " has no soldiers to place");
-            Tuple<int, int> startingLocation = new Tuple<int, int>(x, y);
-            // numberOfRows is how many rows of soldiers make up the formation
-            int numberOfRows = 1;
-            if(squad.Squad.Length >= 30)
-            {
-                numberOfRows = 3;
-            }
-            if(squad.Squad.Length > 7)
-            {
-                numberOfRows = 2;
-            }
-            // membersPerRow is how many soldiers are in each row (back row may be smaller)
-            int membersPerRow = Mathf.CeilToInt((float)(squad.Squad.Length) / (float)(numberOfRows));
-            for(int i = 0; i < squad.Squad.Length; i++)
+            Tuple<int, int> squadBoxSize = squad.GetSquadBoxSize();
+            Tuple<int, int> startingLocation = new Tuple<int, int>(left + ((squadBoxSize.Item1 - 1) / 2), bottom + squadBoxSize.Item2 - 1);
+            for (int i = 0; i < squad.Squad.Length; i++)
             {
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
-                int yMod = i / numberOfRows * (flipDirection ? -1 : 1);
-                int xMod = ((i % membersPerRow) + 1) / 2 * (i % 2 == 0 ? 1 : -1);
+                int yMod = i / squadBoxSize.Item2 * (squad.IsPlayerSquad ? -1 : 1);
+                int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
                 if (squad.IsPlayerSquad)
                 {
-                    _playerSoldierLocationMap[squad.Squad[i].Id] = new Tuple<int, int>(x + xMod, y + yMod);
+                    _playerSoldierLocationMap[squad.Squad[i].Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
                 }
                 else
                 {
-                    _opposingSoldierLocationMap[squad.Squad[i].Id] = new Tuple<int, int>(x + xMod, y + yMod);
+                    _opposingSoldierLocationMap[squad.Squad[i].Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
                 }
             }
             return true;

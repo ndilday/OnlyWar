@@ -42,7 +42,7 @@ namespace Iam.Scripts.Models.Equippables
 
         public ArmorTemplate MediumChitin = new ArmorTemplate
         {
-            Id = 2,
+            Id = 3,
             Name = "Tyranid 1cm Chitin",
             ArmorProvided = 10,
             Location = EquipLocation.Body
@@ -50,7 +50,7 @@ namespace Iam.Scripts.Models.Equippables
 
         public ArmorTemplate HeavyChitin = new ArmorTemplate
         {
-            Id = 3,
+            Id = 4,
             Name = "Tyranid 1.5cm Chitin",
             ArmorProvided = 15,
             Location = EquipLocation.Body

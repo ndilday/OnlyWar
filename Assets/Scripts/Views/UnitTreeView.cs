@@ -49,6 +49,14 @@ namespace Iam.Scripts.Views
             }
         }
 
+        public void ClearTree()
+        {
+            foreach(Transform child in UnitContent.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+
         private void UnitButtonClicked(int id)
         {
             OnUnitSelected.Invoke(id);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
@@ -21,6 +22,22 @@ namespace Iam.Scripts.Helpers
             Name = name;
             Squad = soldiers;
             IsPlayerSquad = isPlayerSquad;
+        }
+
+        public Tuple<int, int> GetSquadBoxSize()
+        {
+            int numberOfRows = 1;
+            if (Squad.Length >= 30)
+            {
+                numberOfRows = 3;
+            }
+            if (Squad.Length > 7)
+            {
+                numberOfRows = 2;
+            }
+            // membersPerRow is how many soldiers are in each row (back row may be smaller)
+            int membersPerRow = Mathf.CeilToInt((float)(Squad.Length) / (float)(numberOfRows));
+            return new Tuple<int, int>(membersPerRow, numberOfRows);
         }
 
         public Soldier GetRandomSquadMember()

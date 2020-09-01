@@ -6,6 +6,7 @@ using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
+using System;
 
 namespace Iam.Scripts.Controllers
 {
@@ -14,6 +15,7 @@ namespace Iam.Scripts.Controllers
     {
         public UnityEvent OnTurnStart;
         public UnityEvent OnEscapeKey;
+        public UnityEvent<Planet> OnPlanetSelected;
         public UnityEvent<Planet> OnBattleStart;
         public GameSettings GameSettings;
 
@@ -48,11 +50,21 @@ namespace Iam.Scripts.Controllers
             // populate visuals on map
             for (int i = 0; i < _galaxy.Planets.Count; i++)
             {
-                Color color = _galaxy.Planets[i].ControllingFaction != null ? _galaxy.Planets[i].ControllingFaction.Color : Color.white;
-                if(_galaxy.Planets[i].ControllingFaction.Name == "Space Marines")
+                Color color;
+                Planet planet = _galaxy.Planets[i];
+                if(planet.ControllingFaction != null)
                 {
-                    GameSettings.ChapterPlanetId = _galaxy.Planets[i].Id;
+                    color = planet.ControllingFaction.Color;
+                    if (_galaxy.Planets[i].ControllingFaction.Name == "Space Marines")
+                    {
+                        GameSettings.ChapterPlanetId = _galaxy.Planets[i].Id;
+                    }
                 }
+                else
+                {
+                    color = Color.white;
+                }
+                
                 Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
             }
             for (int i = 0; i < _galaxy.Fleets.Count; i++)
@@ -65,6 +77,7 @@ namespace Iam.Scripts.Controllers
         {
             // For now, put the chapter on their home planet
             Planet planet = _galaxy.GetPlanet(GameSettings.ChapterPlanetId);
+            planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>();
             planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id] = new List<Unit>();
             planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id].Add(GameSettings.Chapter);
 
@@ -191,52 +204,68 @@ namespace Iam.Scripts.Controllers
                 Debug.Log("Clicked on " + hitInfo.collider.name);
                 if (hitInfo.collider.name == "FleetSprite")
                 {
-                    // clicked on a fleet
-
-                    // deselect currently selected fleet
-                    if (_selectedFleetId != null)
-                    {
-                        Map.DeselectFleet((int)_selectedFleetId);
-                    }
-                    // select new fleet
-                    _selectedFleetId = Map.GetFleetIdFromLocation(hitInfo.collider.transform.position);
-                    if (_selectedFleetId != null)
-                    {
-                        Map.SelectFleet((int)_selectedFleetId);
-                    }
+                    HandleFleetClick(hitInfo);
                 }
                 else if (hitInfo.collider.name == "StarSprite")
                 {
                     // if we have a selected fleet that is not en route, the click becomes their new target system
                     if (_selectedFleetId != null && _galaxy.Fleets[(int)_selectedFleetId].Planet != null)
                     {
-                        Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
-                        // this is the selected fleet's new target system
-                        int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
-                        if (destinationPlanetId != null)
-                        {
-                            Planet planet = _galaxy.Planets[(int)destinationPlanetId];
-                            if (fleet.Planet == planet && fleet.Destination != null)
-                            {
-                                // click is on the fleet's current location, remove fleet destination
-                                Map.RemoveFleetDestination((int)_selectedFleetId);
-                                fleet.Destination = null;
-                            }
-                            else
-                            {
-                                // if we're worried about efficiency, we could remove the extra fleet draw in cases where they've clicked on their current destination
-                                // redraw the path in a different color to represent a set course
-                                Map.RemoveFleetPath((int)_selectedFleetId);
-                                Map.DrawFleetDestination((int)_selectedFleetId, planet.Position);
-                                // update fleet model
-                                _galaxy.Fleets[(int)_selectedFleetId].Destination = _galaxy.Planets[(int)destinationPlanetId];
-                            }
-                        }
+                        HandleFleetDestinationClick(hitInfo);
+                    }
+                    if (_selectedFleetId == null)
+                    {
+                        int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
+                        if (planetId == null) throw new NullReferenceException("Clicked planet does not exist");
+                        //if no fleet is selected, this is a planet selection action
+                        OnPlanetSelected.Invoke(_galaxy.Planets[(int)planetId]);
                     }
                 }
             }
         }
 
+        private void HandleFleetDestinationClick(RaycastHit2D hitInfo)
+        {
+            Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
+            // this is the selected fleet's new target system
+            int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
+            if (destinationPlanetId != null)
+            {
+                Planet planet = _galaxy.Planets[(int)destinationPlanetId];
+                if (fleet.Planet == planet && fleet.Destination != null)
+                {
+                    // click is on the fleet's current location, remove fleet destination
+                    Map.RemoveFleetDestination((int)_selectedFleetId);
+                    fleet.Destination = null;
+                }
+                else
+                {
+                    // if we're worried about efficiency, we could remove the extra fleet draw in cases where they've clicked on their current destination
+                    // redraw the path in a different color to represent a set course
+                    Map.RemoveFleetPath((int)_selectedFleetId);
+                    Map.DrawFleetDestination((int)_selectedFleetId, planet.Position);
+                    // update fleet model
+                    _galaxy.Fleets[(int)_selectedFleetId].Destination = _galaxy.Planets[(int)destinationPlanetId];
+                }
+            }
+        }
+
+        private void HandleFleetClick(RaycastHit2D hitInfo)
+        {
+            // clicked on a fleet
+
+            // deselect currently selected fleet
+            if (_selectedFleetId != null)
+            {
+                Map.DeselectFleet((int)_selectedFleetId);
+            }
+            // select new fleet
+            _selectedFleetId = Map.GetFleetIdFromLocation(hitInfo.collider.transform.position);
+            if (_selectedFleetId != null)
+            {
+                Map.SelectFleet((int)_selectedFleetId);
+            }
+        }
 
         private void HandleBattles()
         {

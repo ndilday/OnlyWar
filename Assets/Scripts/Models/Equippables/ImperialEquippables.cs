@@ -128,6 +128,99 @@ namespace Iam.Scripts.Models.Equippables
             RelatedSkill = TempBaseSkillList.Instance.Lascannon
         };
 
+        public RangedWeaponTemplate PlasmaPistol = new RangedWeaponTemplate
+        {
+            Id = 7,
+            Name = "Plasma Pistol",
+            Accuracy = 0,
+            ArmorPiercing = 15,
+            Location = EquipLocation.OneHand,
+            PenetrationMultiplier = 1.0f,
+            RateOfFire = 1,
+            BaseStrength = 10.5f,
+            MaximumDistance = 500,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
+        // TODO: handle multiple firing modes of missile launcher
+        public RangedWeaponTemplate MissileLauncher = new RangedWeaponTemplate
+        {
+            Id = 8,
+            Name = "Missile Launcher",
+            Accuracy = 0,
+            ArmorPiercing = 10,
+            Location = EquipLocation.TwoHand,
+            PenetrationMultiplier = 3.5f,
+            RateOfFire = 1,
+            BaseStrength = 12f,
+            MaximumDistance = 2000,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
+        // TODO: handle weird damage falloff of multi-melta (works out to wound x of 4.467 on average); for now, just using 4
+        public RangedWeaponTemplate MultiMelta = new RangedWeaponTemplate
+        {
+            Id = 9,
+            Name = "Multi-melta",
+            Accuracy = 0,
+            ArmorPiercing = 20,
+            Location = EquipLocation.TwoHand,
+            PenetrationMultiplier = 4f,
+            RateOfFire = 1,
+            BaseStrength = 12f,
+            MaximumDistance = 1000,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
+        public RangedWeaponTemplate PlasmaCannon = new RangedWeaponTemplate
+        {
+            Id = 10,
+            Name = "Plasma Cannon",
+            Accuracy = 0,
+            ArmorPiercing = 15,
+            Location = EquipLocation.TwoHand,
+            PenetrationMultiplier = 1f,
+            RateOfFire = 3,
+            BaseStrength = 10.5f,
+            MaximumDistance = 1500,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
+        // TODO: how to model the mortal wound ability?
+        public RangedWeaponTemplate SniperRifle = new RangedWeaponTemplate
+        {
+            Id = 11,
+            Name = "Sniper Rifle",
+            Accuracy = 3,
+            ArmorPiercing = 0,
+            Location = EquipLocation.TwoHand,
+            PenetrationMultiplier = 1f,
+            RateOfFire = 3,
+            BaseStrength = 6f,
+            MaximumDistance = 1500,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
+        public RangedWeaponTemplate Shotgun = new RangedWeaponTemplate
+        {
+            Id = 12,
+            Name = "Astartes shotgun",
+            Accuracy = 0,
+            ArmorPiercing = 0,
+            Location = EquipLocation.TwoHand,
+            PenetrationMultiplier = 1f,
+            RateOfFire = 2,
+            BaseStrength = 6f,
+            MaximumDistance = 500,
+            AmmoCapacity = 10,
+            RelatedSkill = TempBaseSkillList.Instance.Plasma
+        };
+
         public MeleeWeaponTemplate Chainsword = new MeleeWeaponTemplate
         {
             Id = 1,
