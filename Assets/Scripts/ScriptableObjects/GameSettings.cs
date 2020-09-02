@@ -17,7 +17,7 @@ public class GameSettings : ScriptableObject
     public Vector2 BattleMapScale;
 
     [Header("Chapter Definitions")]
-    public UnitTemplate ChapterTemplate = TempUnitTemplates.Instance.ChapterTemplate;
+    public UnitTemplate ChapterTemplate = TempSpaceMarineUnitTemplates.Instance.ChapterTemplate;
     public Unit Chapter;
     public int ChapterPlanetId;
 

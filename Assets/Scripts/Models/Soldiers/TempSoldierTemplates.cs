@@ -124,8 +124,132 @@ namespace Iam.Scripts.Models.Soldiers
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;
 
             SkillTemplates = new List<SkillTemplate>();
+            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 });
             SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
+        }
+    }
+
+    class TempHormagauntTemplate : SoldierTemplate
+    {
+        private static TempHormagauntTemplate _instance = null;
+
+        public static TempHormagauntTemplate Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new TempHormagauntTemplate();
+                }
+                return _instance;
+            }
+        }
+
+        private TempHormagauntTemplate()
+        {
+            Id = 1;
+
+            Strength = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Constitution = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Dexterity = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Perception = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Ego = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+            Presence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+            Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+
+            AttackSpeed = new AttributeTemplate { BaseValue = 20, StandardDeviation = 1 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 8, StandardDeviation = 0 };
+            // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
+            Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
+            PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
+
+            BodyTemplate = TyranidWarriorBodyTemplate.Instance;
+
+            SkillTemplates = new List<SkillTemplate>();
             SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
+        }
+    }
+
+    class TempTermagauntTemplate : SoldierTemplate
+    {
+        private static TempTermagauntTemplate _instance = null;
+
+        public static TempTermagauntTemplate Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new TempTermagauntTemplate();
+                }
+                return _instance;
+            }
+        }
+
+        private TempTermagauntTemplate()
+        {
+            Id = 1;
+
+            Strength = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Constitution = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Dexterity = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Perception = new AttributeTemplate { BaseValue = 12, StandardDeviation = 1 };
+            Ego = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+            Presence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+            Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+
+            AttackSpeed = new AttributeTemplate { BaseValue = 10, StandardDeviation = 1 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 6, StandardDeviation = 0 };
+            // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
+            Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
+            PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
+
+            BodyTemplate = TyranidWarriorBodyTemplate.Instance;
+
+            SkillTemplates = new List<SkillTemplate>();
+            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
+            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 });
+        }
+    }
+
+    class TempGenestealerTemplate : SoldierTemplate
+    {
+        private static TempGenestealerTemplate _instance = null;
+
+        public static TempGenestealerTemplate Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new TempGenestealerTemplate();
+                }
+                return _instance;
+            }
+        }
+
+        private TempGenestealerTemplate()
+        {
+            Id = 1;
+
+            Strength = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Constitution = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Dexterity = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Perception = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Ego = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Presence = new AttributeTemplate { BaseValue = 16, StandardDeviation = 1 };
+            Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
+
+            AttackSpeed = new AttributeTemplate { BaseValue = 30, StandardDeviation = 1 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 8, StandardDeviation = 0 };
+            // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
+            Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
+            PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
+
+            BodyTemplate = TyranidWarriorBodyTemplate.Instance;
+
+            SkillTemplates = new List<SkillTemplate>();
+            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 16, StandardDeviation = 0 });
         }
     }
 }

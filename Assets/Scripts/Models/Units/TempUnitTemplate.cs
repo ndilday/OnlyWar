@@ -94,9 +94,9 @@ namespace Iam.Scripts.Models.Units
         public WeaponSet Eviscerator { get; private set; }
     }
 
-    public sealed class TempUnitTemplates
+    public sealed class TempSpaceMarineUnitTemplates
     {
-        private static TempUnitTemplates _instance = null;
+        private static TempSpaceMarineUnitTemplates _instance = null;
         public UnitTemplate VeteranSquadTemplate { get; private set; }
         public UnitTemplate TacticalSquadTemplate { get; private set; }
         public UnitTemplate AssaultSquadTemplate { get; private set; }
@@ -110,7 +110,7 @@ namespace Iam.Scripts.Models.Units
         public UnitTemplate ScoutCompanyTemplate { get; private set; }
         public UnitTemplate ChapterTemplate { get; private set; }
 
-        private TempUnitTemplates()
+        private TempSpaceMarineUnitTemplates()
         {
             VeteranSquadTemplate = CreateVeteranSquad();
             TacticalSquadTemplate = CreateTacticalSquad();
@@ -126,13 +126,13 @@ namespace Iam.Scripts.Models.Units
             ChapterTemplate = CreateChapter();
         }
 
-        public static TempUnitTemplates Instance
+        public static TempSpaceMarineUnitTemplates Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new TempUnitTemplates();
+                    _instance = new TempSpaceMarineUnitTemplates();
                 }
                 return _instance;
             }
@@ -475,5 +475,29 @@ namespace Iam.Scripts.Models.Units
             reclusium.Members.Add(TempSpaceMarineRanks.Chaplain);
             return reclusium;
         }
+    }
+
+    public sealed class TempTyranidUnitTempates
+    {
+        private TempTyranidUnitTempates _instance;
+        public TempTyranidUnitTempates Instance
+        {
+            get
+            {
+                if(_instance == null)
+                {
+                    _instance = new TempTyranidUnitTempates();
+                }
+                return _instance;
+            }
+        }
+
+        private TempTyranidUnitTempates() 
+        { 
+        }
+
+        public UnitTemplate HormagauntSquadTemplate { get; private set; }
+        public UnitTemplate TermagauntSquadTemplate { get; private set; }
+        public UnitTemplate TyranidWarriorTemplate { get; private set; }
     }
 }

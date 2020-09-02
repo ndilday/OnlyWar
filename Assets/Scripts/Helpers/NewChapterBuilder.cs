@@ -391,7 +391,7 @@ namespace Iam.Scripts.Helpers
             {
                 int id = lastSquad.Id + 1;
                 // add a new Scout Squad to the company
-                Unit squad = TempUnitTemplates.Instance.ScoutSquadTemplate.GenerateUnitFromTemplateWithoutChildren(id, "Scout Squad");
+                Unit squad = TempSpaceMarineUnitTemplates.Instance.ScoutSquadTemplate.GenerateUnitFromTemplateWithoutChildren(id, "Scout Squad");
                 lastCompany.ChildUnits.Add(squad);
                 id++;
                 lastSquad = squad;
@@ -513,7 +513,7 @@ namespace Iam.Scripts.Helpers
             {
                 foreach (Unit squad in company.ChildUnits)
                 {
-                    if (squad.UnitTemplate == TempUnitTemplates.Instance.DevastatorSquadTemplate)
+                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.DevastatorSquadTemplate)
                     {
                         if (devSgtList.Count > 0)
                         {
@@ -547,7 +547,7 @@ namespace Iam.Scripts.Helpers
             {
                 foreach (Unit squad in company.ChildUnits)
                 {
-                    if (squad.UnitTemplate == TempUnitTemplates.Instance.AssaultSquadTemplate)
+                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.AssaultSquadTemplate)
                     {
                         if (assSgtList.Count > 0)
                         {
@@ -586,7 +586,7 @@ namespace Iam.Scripts.Helpers
             {
                 foreach (Unit squad in company.ChildUnits)
                 {
-                    if (squad.UnitTemplate == TempUnitTemplates.Instance.TacticalSquadTemplate)
+                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.TacticalSquadTemplate)
                     {
 
                         if (tactSgtList.Count > 0)
