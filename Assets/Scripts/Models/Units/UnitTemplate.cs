@@ -31,26 +31,29 @@ namespace Iam.Scripts.Models.Units
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
-        public List<SpaceMarineRank> Members { get; private set; }
-        public List<UnitWeaponOption> WeaponOptions { get; private set; }
-        public WeaponSet DefaultWeapons { get; private set; }
+
+        public SquadTemplate HQSquad { get; private set; }
 
         private UnitTemplate _parentUnit;
         private List<UnitTemplate> _childUnits;
+        private List<SquadTemplate> _childSquads;
 
-        public UnitTemplate(int id, string name, WeaponSet defaultWeapons, List<UnitWeaponOption> weaponOptions)
+        public UnitTemplate(int id, string name)
         {
             Id = id;
             Name = name;
             _childUnits = new List<UnitTemplate>();
-            Members = new List<SpaceMarineRank>();
-            DefaultWeapons = defaultWeapons;
-            WeaponOptions = weaponOptions;
+            _childSquads = new List<SquadTemplate>();
         }
 
         public IEnumerable<UnitTemplate> GetChildUnits()
         {
             return _childUnits;
+        }
+
+        public IEnumerable<SquadTemplate> GetChildSquads()
+        {
+            return _childSquads;
         }
 
         public void SetParentUnit(UnitTemplate parent)
@@ -64,28 +67,20 @@ namespace Iam.Scripts.Models.Units
             _childUnits.Add(child);
         }
 
+        public void AddHQSquad(SquadTemplate hq)
+        {
+            HQSquad = hq;
+        }
+
+        public void AddSquad(SquadTemplate squad)
+        {
+            squad.SetUnit(this);
+            _childSquads.Add(squad);
+        }
+
         public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)
         {
             return new Unit(id, name, this);
-        }
-
-        public void AddRankCounts(Dictionary<SpaceMarineRank, int> rankCounts)
-        {
-            foreach (SpaceMarineRank rank in Members)
-            {
-                if (rankCounts.ContainsKey(rank))
-                {
-                    rankCounts[rank]++;
-                }
-                else
-                {
-                    rankCounts[rank] = 1;
-                }
-            }
-            foreach (UnitTemplate child in GetChildUnits())
-            {
-                child.AddRankCounts(rankCounts);
-            }
         }
     }
 

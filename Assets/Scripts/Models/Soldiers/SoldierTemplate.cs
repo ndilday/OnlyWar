@@ -16,6 +16,7 @@ namespace Iam.Scripts.Models.Soldiers
     public abstract class SoldierTemplate
     {
         public int Id;
+        public string Name;
 
         // attributes
         public AttributeTemplate Strength;

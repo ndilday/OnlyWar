@@ -17,12 +17,12 @@ namespace Iam.Scripts.Controllers
         public UnitTreeView UnitTreeView;
         public SquadMemberView SquadMemberView;
         public GameSettings GameSettings;
-        Dictionary<int, Unit> _unitMap;
+        Dictionary<int, Squad> _squadMap;
         SpaceMarine[] _marines;
         // Start is called before the first frame update
         void Start()
         {
-            _unitMap = new Dictionary<int, Unit>();
+            _squadMap = new Dictionary<int, Squad>();
             Debug.Log("Creating Chapter");
             CreateChapter();
             Debug.Log("Done creating Chapter");
@@ -35,26 +35,33 @@ namespace Iam.Scripts.Controllers
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.Id, GameSettings.Chapter.Name + " HQ Squad");
-                //_unitMap[GameSettings.Chapter.Id + 1000] = GameSettings.Chapter;
-                _unitMap[GameSettings.Chapter.Id] = GameSettings.Chapter;
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.HQSquad.Id, GameSettings.Chapter.HQSquad.Name);
+                _squadMap[GameSettings.Chapter.HQSquad.Id] = GameSettings.Chapter.HQSquad;
+
+                foreach(Squad squad in GameSettings.Chapter.Squads)
+                {
+                    _squadMap[squad.Id] = squad;
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name);
+                }
                 foreach (Unit company in GameSettings.Chapter.ChildUnits)
                 {
-                    _unitMap[company.Id] = company;
-                    if (company.ChildUnits == null || company.ChildUnits.Count == 0)
+                    _squadMap[company.HQSquad.Id] = company.HQSquad;
+                    if (company.Squads == null || company.Squads.Count == 0)
                     {
-                        UnitTreeView.AddLeafUnit(company.Id, company.Name);
+                        // this is unexpected, currently
+                        Debug.Log("We have a company with no squads?");
+                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name);
                     }
                     else
                     {
                         List<Tuple<int, string>> squadList = new List<Tuple<int, string>>();
                         //squadList.Add(new Tuple<int, string>(company.Id + 1000, company.Name + " HQ Squad"));
-                        //_unitMap[company.Id + 1000] = company;
-                        foreach (Unit squad in company.ChildUnits)
+                        //_squadMap[company.Id + 1000] = company;
+                        foreach (Squad squad in company.Squads)
                         {
 
                             squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
-                            _unitMap[squad.Id] = squad;
+                            _squadMap[squad.Id] = squad;
                         }
                         UnitTreeView.AddTreeUnit(company.Id, company.Name, squadList);
                     }
@@ -63,13 +70,20 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public void UnitSelected(int unitId)
+        public void SquadSelected(int squadId)
         {
-            // populate view with members of selected unit
-            Unit selectedUnit = _unitMap[unitId];
-            List<Tuple<int, string, string>> memberList = selectedUnit.Members.Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
-            SquadMemberView.ReplaceSquadMemberContent(memberList);
-            SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
+            // populate view with members of selected squad
+            if (!_squadMap.ContainsKey(squadId))
+            {
+                UnitSelected(squadId);
+            }
+            else
+            {
+                Squad selectedSquad = _squadMap[squadId];
+                List<Tuple<int, string, string>> memberList = selectedSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
+                SquadMemberView.ReplaceSquadMemberContent(memberList);
+                SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
+            }
         }
 
         public void SoldierSelected(int soldierId)
@@ -81,6 +95,64 @@ namespace Iam.Scripts.Controllers
                 newText += historyLine + "\n";
             }
             SquadMemberView.ReplaceSelectedUnitText(newText);
+        }
+
+        private void UnitSelected(int unitId)
+        {
+            Unit selectedUnit = GameSettings.Chapter.ChildUnits.First(u => u.Id == unitId);
+            List<Tuple<int, string, string>> memberList = selectedUnit.HQSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
+            SquadMemberView.ReplaceSquadMemberContent(memberList);
+            SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
+        }
+
+        private string GenerateUnitSummary(Unit unit)
+        {
+            string unitReport = unit.Name + " Order of Battle\n\n";
+            Dictionary<SpaceMarineRank, int> toe = new Dictionary<SpaceMarineRank, int>();
+            if(unit.HQSquad != null)
+            {
+                if(unit.HQSquad.SquadLeader != null)
+                {
+                    unitReport += "Captain: " + unit.HQSquad.SquadLeader.ToString() + "\n";
+                }
+                else
+                {
+                    unitReport += "Needs a Captain Assigned!";
+                }
+
+                if(unit.Name != "Tenth Company")
+                {
+                    var marines = unit.HQSquad.Members.Select(m => (SpaceMarine)m);
+                    SpaceMarine ancient = marines.FirstOrDefault(m => m.Rank == TempSpaceMarineRanks.Ancient || m.Rank == TempSpaceMarineRanks.ChapterAncient);
+                    if(ancient != null)
+                    {
+                        unitReport += "Ancient: " + ancient.ToString() + "\n";
+                    }
+                    else
+                    {
+                        unitReport += "Needs an Ancient Assigned!";
+                    }
+                    SpaceMarine champion = marines.FirstOrDefault(m => m.Rank == TempSpaceMarineRanks.Champion || m.Rank == TempSpaceMarineRanks.ChapterChampion);
+                    if (champion != null)
+                    {
+                        unitReport += "Champion: " + champion.ToString() + "\n";
+                    }
+                    else
+                    {
+                        unitReport += "Needs a Champion Assigned!";
+                    }
+                }
+            }
+            else
+            {
+                unitReport += "Entire HQ Missing\n";
+            }
+            unitReport += "\nCurrent Company size: " + unit.GetAllMembers().Count().ToString() + "\n\n";
+            foreach(Squad squad in unit.Squads)
+            {
+                unitReport += GenerateSquadSummary(squad);
+            }
+            return unitReport;
         }
 
         private void CreateChapter()
@@ -103,21 +175,10 @@ namespace Iam.Scripts.Controllers
             GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
         }
 
-        private string GenerateUnitSummary(Unit unit)
+        private string GenerateSquadSummary(Squad squad)
         {
-            string unitReport = "";
-            Dictionary<SpaceMarineRank, int> toe = new Dictionary<SpaceMarineRank, int>();
-            var soldiers = unit.GetAllMembers().Select(s => (SpaceMarine)s);
-            var rankCountMapActual = soldiers.GroupBy(s => s.Rank).ToDictionary(g => g.Key, g => g.Count());
-            unit.UnitTemplate.AddRankCounts(toe);
-            var orderedToe = toe.OrderByDescending(kvp => kvp.Key.IsOfficer).ThenByDescending(kvp => kvp.Key.Level);
-            foreach (KeyValuePair<SpaceMarineRank, int> nominalSize in orderedToe)
-            {
-                int nominalCount = nominalSize.Value;
-                int realCount = rankCountMapActual.ContainsKey(nominalSize.Key) ? rankCountMapActual[nominalSize.Key] : 0;
-                unitReport += nominalSize.Key.Name + ": " + realCount.ToString() + " / " + nominalCount.ToString() + "\n";
-            }
-            return unitReport;
+            int headCount = squad.GetAllMembers().Length;
+            return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
         }
 
         public void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)

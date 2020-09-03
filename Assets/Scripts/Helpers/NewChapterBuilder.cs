@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -39,27 +40,10 @@ namespace Iam.Scripts.Helpers
             return chapter;
         }
 
-        private static void AssignChapterMaster(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
-        {
-            var master = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipScore).First();
-            master.Rank = TempSpaceMarineRanks.ChapterMaster;
-            chapter.Members.Add(master);
-            master.AssignedUnit = chapter;
-            master.SoldierHistory.Add(year + ": voted by the chapter to become the first Chapter Master");
-            unassignedSoldierMap.Remove(master.Id);
-
-            master.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
-            master.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
-            master.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 4);
-            master.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
-            master.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
-            master.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
-        }
-
         private static Unit BuildUnitTreeFromTemplate(UnitTemplate rootTemplate)
         {
             int i = 1;
-            Unit root = rootTemplate.GenerateUnitFromTemplateWithoutChildren(0, "Heart of the Emperor");
+            Unit root = rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor");
             BuildUnitTreeHelper(root, rootTemplate, ref i);
             return root;
         }
@@ -68,10 +52,10 @@ namespace Iam.Scripts.Helpers
         {
             string[] companyStrings = { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth" };
             int stringIndex = 0;
-            foreach(UnitTemplate child in rootTemplate.GetChildUnits())
+            foreach (UnitTemplate child in rootTemplate.GetChildUnits())
             {
                 string name;
-                if(child.Name.Contains("Company"))
+                if (child.Name.Contains("Company"))
                 {
                     name = companyStrings[stringIndex] + " Company";
                     stringIndex++;
@@ -88,34 +72,52 @@ namespace Iam.Scripts.Helpers
             }
         }
 
+        private static void AssignChapterMaster(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
+        {
+            var master = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipScore).First();
+            master.Rank = TempSpaceMarineRanks.ChapterMaster;
+            chapter.HQSquad.SquadLeader = master;
+            master.AssignedSquad = chapter.HQSquad;
+            master.SoldierHistory.Add(year + ": voted by the chapter to become the first Chapter Master");
+            unassignedSoldierMap.Remove(master.Id);
+
+            master.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
+            master.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
+            master.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 4);
+            master.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
+            master.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
+            master.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
+        }
+
         private static void AssignLibrarians(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
         {
-            bool chief = false;
-            // assume for now that there's a single unit to hold all of the Librarians
-            var library = chapter.ChildUnits.First(u => u.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Lexicanius));
+            // assume for now that there's a single unit to hold all of the Librarians as a squad on the chapter
+            var library = chapter.Squads.First(s => s.Name == "Librarius");
             var psychers = unassignedSoldierMap.Values.Where(s => s.PsychicPower > 0).OrderByDescending(s => s.Ego);
             // TODO: add 24 points
             foreach (SpaceMarine soldier in psychers)
             {
                 if (soldier.Ego >= 18)
                 {
-                    if (!chief)
+                    if (library.SquadLeader == null)
                     {
                         soldier.Rank = TempSpaceMarineRanks.ChiefLibrarian;
-                        chief = true;
+                        library.SquadLeader = soldier;
                     }
                     else
                     {
                         soldier.Rank = TempSpaceMarineRanks.Codicier;
+                        library.Members.Add(soldier);
+
                     }
                 }
                 else
                 {
                     soldier.Rank = TempSpaceMarineRanks.Lexicanius;
+                    library.Members.Add(soldier);
                 }
-                soldier.AssignedUnit = library;
-                soldier.SoldierHistory.Add(year + ": Promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
-                library.Members.Add(soldier);
+                soldier.AssignedSquad = library;
+                soldier.SoldierHistory.Add(year + ": Promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
                 unassignedSoldierMap.Remove(soldier.Id);
             }
         }
@@ -123,9 +125,8 @@ namespace Iam.Scripts.Helpers
         private static void AssignTechMarines(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
         {
             var techMarines = unassignedSoldierMap.Values.Where(s => s.TechScore > 100).OrderByDescending(s => s.TechScore).Take(50);
-            bool chief = false;
             // assume for now that there's a single unit to hold all of the Techmarines
-            var armory = chapter.ChildUnits.First(u => u.UnitTemplate.Members.Contains(TempSpaceMarineRanks.TechMarine));
+            var armory = chapter.Squads.First(s => s.Name == "Armory");
             foreach (SpaceMarine soldier in techMarines)
             {
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.MachineGod, 2);
@@ -139,21 +140,20 @@ namespace Iam.Scripts.Helpers
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.LandRaiderMechanic, 2);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.LandRaider, 2);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.ServoArm, 2);
-                if (soldier.TechScore > 150 && !chief)
+                if (soldier.TechScore > 150 && armory.SquadLeader == null)
                 {
                     soldier.Rank = TempSpaceMarineRanks.ForgeMaster;
-
-                    chief = true;
+                    armory.SquadLeader = soldier;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 2);
                 }
                 else
                 {
                     soldier.Rank = TempSpaceMarineRanks.TechMarine;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.GunneryBeam, 2);
+                    armory.Members.Add(soldier);
                 }
-                soldier.AssignedUnit = armory;
-                soldier.SoldierHistory.Add(year + ": Returned from Mars, promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
-                armory.Members.Add(soldier);
+                soldier.AssignedSquad = armory;
+                soldier.SoldierHistory.Add(year + ": Returned from Mars, promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
                 unassignedSoldierMap.Remove(soldier.Id);
             }
         }
@@ -161,9 +161,8 @@ namespace Iam.Scripts.Helpers
         private static void AssignApothecaries(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
         {
             var apothecaries = unassignedSoldierMap.Values.Where(s => s.MedicalScore > 80).OrderByDescending(s => s.MedicalScore).Take(20);
-            bool chief = false;
             // assume for now that there's a single unit to hold all of the Techmarines
-            var apo = chapter.ChildUnits.First(u => u.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Apothecary));
+            var apo = chapter.Squads.First(s => s.Name == "Apothecarion");
             foreach (SpaceMarine soldier in apothecaries)
             {
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Diagnosis, 2);
@@ -172,24 +171,23 @@ namespace Iam.Scripts.Helpers
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Surgery, 4);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
-                if (soldier.MedicalScore > 150 && !chief)
+                if (soldier.MedicalScore > 150 && apo.SquadLeader == null)
                 {
                     soldier.Rank = TempSpaceMarineRanks.ChiefApothecary;
-                    chief = true;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 1);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 1);
-
+                    apo.SquadLeader = soldier;
                 }
                 else
                 {
                     soldier.Rank = TempSpaceMarineRanks.Apothecary;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
+                    apo.Members.Add(soldier);
                 }
-                soldier.AssignedUnit = apo;
-                soldier.SoldierHistory.Add(year + ": finished medical and genetic training, promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
-                apo.Members.Add(soldier);
+                soldier.AssignedSquad = apo;
+                soldier.SoldierHistory.Add(year + ": finished medical and genetic training, promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
                 unassignedSoldierMap.Remove(soldier.Id);
             }
         }
@@ -197,9 +195,8 @@ namespace Iam.Scripts.Helpers
         private static void AssignChaplains(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
         {
             var chaplains = unassignedSoldierMap.Values.Where(s => s.PietyScore > 110).OrderByDescending(s => s.PietyScore).Take(20);
-            bool chief = false;
             // assume for now that there's a single unit to hold all of the Techmarines
-            var reclusium = chapter.ChildUnits.First(u => u.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Chaplain));
+            var reclusium = chapter.Squads.First(s => s.Name == "Reclusium");
             foreach (SpaceMarine soldier in chaplains)
             {
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Piety, 4);
@@ -209,72 +206,62 @@ namespace Iam.Scripts.Helpers
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Axe, 2);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
 
-                if (soldier.PietyScore > 11 && !chief)
+                if (soldier.PietyScore > 11 && reclusium.SquadLeader == null)
                 {
                     soldier.Rank = TempSpaceMarineRanks.ChiefChaplain;
-                    chief = true;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 2);
-                    
+                    reclusium.SquadLeader = soldier;
                 }
                 else
                 {
                     soldier.Rank = TempSpaceMarineRanks.Chaplain;
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Axe, 2);
+                    reclusium.Members.Add(soldier);
                 }
-                soldier.AssignedUnit = reclusium;
-                soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
-                reclusium.Members.Add(soldier);
+                soldier.AssignedSquad = reclusium;
+                soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
                 unassignedSoldierMap.Remove(soldier.Id);
             }
         }
 
         private static void AssignCaptains(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit chapter, string year)
         {
+            SpaceMarine soldier;
             // see if there is an impressive enough leader to be the Veteran Captain
             var veteranLeaders = unassignedSoldierMap.Values.Where(s => s.LeadershipScore > 235 && s.MeleeScore > 600 && s.RangedScore > 75).OrderByDescending(s => s.LeadershipScore).ToList();
             if (veteranLeaders.Count > 0)
             {
-                foreach (Unit company in chapter.ChildUnits)
-                {
-                    if (company.ChildUnits != null && company.ChildUnits.Count > 0
-                        && company.UnitTemplate.Members.Contains(TempSpaceMarineRanks.VeteranCaptain))
-                    {
-                        SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, veteranLeaders, company, TempSpaceMarineRanks.VeteranCaptain, year);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
-                    }
-                }
+                var firstCompany = chapter.ChildUnits.First(u => u.Name == "First Company");
+                soldier = AssignSoldier(unassignedSoldierMap, veteranLeaders, firstCompany.HQSquad, TempSpaceMarineRanks.VeteranCaptain, true, year);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
+                soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
             }
             var leaders = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipScore).Take(20).ToList();
+            // assign Recruitment Captain next
+            // assuming Tenth Company for now
+            var tenthCompany = chapter.ChildUnits.First(u => u.Name == "Tenth Company");
+            soldier = AssignSoldier(unassignedSoldierMap, leaders, tenthCompany.HQSquad, TempSpaceMarineRanks.RecruitmentCaptain, true, year);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Persuade, 2);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 4);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
+            soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
+
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0
-                    && company.UnitTemplate.Members.Contains(TempSpaceMarineRanks.RecruitmentCaptain))
-                {
-                    SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, leaders, company, TempSpaceMarineRanks.RecruitmentCaptain, year);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Persuade, 2);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 4);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
-                }
-            }
-            foreach (Unit company in chapter.ChildUnits)
-            {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0
-                    && company.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Captain) )
+                if (company.HQSquad.SquadLeader == null && company.Name != "First Company" )
                 {
                     // is a true company, needs a captain
-                    SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, leaders, company, TempSpaceMarineRanks.Captain, year);
+                    soldier = AssignSoldier(unassignedSoldierMap, leaders, company.HQSquad, TempSpaceMarineRanks.Captain, true, year);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
@@ -294,24 +281,24 @@ namespace Iam.Scripts.Helpers
             if (veteranLeaders.Count == 0) return;
             var vetList = veterans.Except(veteranLeaders).OrderByDescending(s => s.MeleeScore).ToList();
             int squadSize = (vetList.Count / veteranLeaders.Count) + 1;
-            if(squadSize < 5)
+            if(squadSize < 4)
             {
                 // set squad size to five, and we'll use the other veteran sgts elsewhere
-                squadSize = 5;
+                squadSize = 4;
             }
-            if(squadSize > 10)
+            if(squadSize > 9)
             {
                 // set squad size to ten, and we'll use the other veterans elsewhere
-                squadSize = 10;
+                squadSize = 9;
             }
 
             SpaceMarine soldier;
             // look for Veteran Squads
             foreach(Unit company in chapter.ChildUnits)
             {
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate.Name == "Veteran Squad")
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.VeteranSquadTemplate)
                     {
                         if (vetList.Count == 0 || veteranLeaders.Count == 0)
                         {
@@ -319,7 +306,7 @@ namespace Iam.Scripts.Helpers
                         }
                         // assign sgt to squad
                         squad.Name = veteranLeaders[0].LastName + " Squad";
-                        soldier = AssignSoldier(unassignedSoldierMap, veteranLeaders, squad, TempSpaceMarineRanks.VeteranSquadSergeant, year);
+                        soldier = AssignSoldier(unassignedSoldierMap, veteranLeaders, squad, TempSpaceMarineRanks.VeteranSquadSergeant, true, year);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
@@ -330,7 +317,7 @@ namespace Iam.Scripts.Helpers
 
                         while (squad.Members.Count < squadSize && vetList.Count > 0)
                         {
-                            soldier = AssignSoldier(unassignedSoldierMap, vetList, squad, TempSpaceMarineRanks.VeteranMarine, year);
+                            soldier = AssignSoldier(unassignedSoldierMap, vetList, squad, TempSpaceMarineRanks.VeteranMarine, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
@@ -348,19 +335,19 @@ namespace Iam.Scripts.Helpers
             var leaderList = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipScore).Take(sgtNeed).ToList();
             var scoutList = unassignedSoldierMap.Values.Except(leaderList).ToList();
             Unit lastCompany = null;
-            Unit lastSquad = null;
+            Squad lastSquad = null;
             SpaceMarine soldier = null;
             foreach (Unit company in chapter.ChildUnits)
             {
                 lastCompany = company;
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate.Name == "Scout Squad")
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.ScoutSquadTemplate)
                     {
                         lastSquad = squad;
                         // assign sgt to squad
                         squad.Name = leaderList[0].LastName + " Squad";
-                        soldier = AssignSoldier(unassignedSoldierMap, leaderList, squad, TempSpaceMarineRanks.ScoutSergeant, year);
+                        soldier = AssignSoldier(unassignedSoldierMap, leaderList, squad, TempSpaceMarineRanks.ScoutSergeant, true, year);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 2);
@@ -370,10 +357,10 @@ namespace Iam.Scripts.Helpers
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Stealth, 2);
-                        //int squadSize = CalculateSquadSize(scoutList, leaderList);
-                        while (squad.Members.Count < 10 && scoutList.Count > 0)
+
+                        while (squad.Members.Count < 9 && scoutList.Count > 0)
                         {
-                            soldier = AssignSoldier(unassignedSoldierMap, scoutList, squad, TempSpaceMarineRanks.Scout, year);
+                            soldier = AssignSoldier(unassignedSoldierMap, scoutList, squad, TempSpaceMarineRanks.Scout, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
@@ -391,13 +378,13 @@ namespace Iam.Scripts.Helpers
             {
                 int id = lastSquad.Id + 1;
                 // add a new Scout Squad to the company
-                Unit squad = TempSpaceMarineUnitTemplates.Instance.ScoutSquadTemplate.GenerateUnitFromTemplateWithoutChildren(id, "Scout Squad");
-                lastCompany.ChildUnits.Add(squad);
+                Squad squad = new Squad(id, "Scout Squad", TempSpaceMarineSquadTemplates.Instance.ScoutSquadTemplate);
+                lastCompany.Squads.Add(squad);
                 id++;
                 lastSquad = squad;
                 // assign sgt to squad
                 squad.Name = leaderList[0].LastName + " Squad";
-                soldier = AssignSoldier(unassignedSoldierMap, leaderList, squad, TempSpaceMarineRanks.ScoutSergeant, year);
+                soldier = AssignSoldier(unassignedSoldierMap, leaderList, squad, TempSpaceMarineRanks.ScoutSergeant, true, year);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 4);
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 2);
@@ -409,9 +396,9 @@ namespace Iam.Scripts.Helpers
                 soldier.AddSkillPoints(TempBaseSkillList.Instance.Stealth, 2);
 
                 //int squadSize = CalculateSquadSize(scoutList, leaderList);
-                while (squad.Members.Count < 10 && scoutList.Count > 0)
+                while (squad.Members.Count < 9 && scoutList.Count > 0)
                 {
-                    soldier = AssignSoldier(unassignedSoldierMap, scoutList, squad, TempSpaceMarineRanks.Scout, year);
+                    soldier = AssignSoldier(unassignedSoldierMap, scoutList, squad, TempSpaceMarineRanks.Scout, false, year);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
@@ -430,7 +417,7 @@ namespace Iam.Scripts.Helpers
         {
             var champions = unassignedSoldierMap.Values.OrderByDescending(s => s.MeleeScore).Take(20).ToList();
             // assign top to HQ
-            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, champions, chapter, TempSpaceMarineRanks.ChapterChampion, year);
+            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, champions, chapter.HQSquad, TempSpaceMarineRanks.ChapterChampion, false, year);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 4);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
@@ -439,11 +426,10 @@ namespace Iam.Scripts.Helpers
 
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0
-                    && company.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Champion) )
+                if (company.Name != "Tenth Company" && company.Name != "First Company")
                 {
                     // is a true company, needs a champion
-                    soldier = AssignSoldier(unassignedSoldierMap, champions, company, TempSpaceMarineRanks.Champion, year);
+                    soldier = AssignSoldier(unassignedSoldierMap, champions, company.HQSquad, TempSpaceMarineRanks.Champion, false, year);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
@@ -457,18 +443,17 @@ namespace Iam.Scripts.Helpers
         {
             var ancients = unassignedSoldierMap.Values.OrderByDescending(s => s.AncientScore).Take(20).ToList();
             // assign top to HQ
-            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, ancients, chapter, TempSpaceMarineRanks.ChapterAncient, year);
+            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, ancients, chapter.HQSquad, TempSpaceMarineRanks.ChapterAncient, false, year);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 8);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
             soldier.AddSkillPoints(TempBaseSkillList.Instance.Throwing, 4);
             foreach (Unit company in chapter.ChildUnits)
             {
-                if (company.ChildUnits != null && company.ChildUnits.Count > 0
-                    && company.UnitTemplate.Members.Contains(TempSpaceMarineRanks.Ancient) )
+                if (company.Name != "Tenth Company" && company.Name != "First Company")
                 {
                     // is a true company, needs a champion
-                    soldier = AssignSoldier(unassignedSoldierMap, ancients, company, TempSpaceMarineRanks.Ancient, year);
+                    soldier = AssignSoldier(unassignedSoldierMap, ancients, company.HQSquad, TempSpaceMarineRanks.Ancient, false, year);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 8);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
@@ -511,14 +496,14 @@ namespace Iam.Scripts.Helpers
             }
             foreach (Unit company in chapter.ChildUnits)
             {
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.DevastatorSquadTemplate)
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.DevastatorSquadTemplate)
                     {
                         if (devSgtList.Count > 0)
                         {
                             squad.Name = devSgtList[0].LastName + " Squad";
-                            soldier = AssignSoldier(unassignedSoldierMap, devSgtList, squad, TempSpaceMarineRanks.DevastatorSergeant, year);
+                            soldier = AssignSoldier(unassignedSoldierMap, devSgtList, squad, TempSpaceMarineRanks.DevastatorSergeant, true, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
@@ -528,7 +513,7 @@ namespace Iam.Scripts.Helpers
                         int devSquadSize = CalculateSquadSize(devList, devSgtList);
                         while (devList.Count > 0 && squad.Members.Count < devSquadSize)
                         {
-                            soldier = AssignSoldier(unassignedSoldierMap, devList, squad, TempSpaceMarineRanks.DevastatorMarine, year);
+                            soldier = AssignSoldier(unassignedSoldierMap, devList, squad, TempSpaceMarineRanks.DevastatorMarine, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 3);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
@@ -545,14 +530,14 @@ namespace Iam.Scripts.Helpers
         {
             foreach (Unit company in chapter.ChildUnits)
             {
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.AssaultSquadTemplate)
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.AssaultSquadTemplate)
                     {
                         if (assSgtList.Count > 0)
                         {
                             squad.Name = assSgtList[0].LastName + " Squad";
-                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, assSgtList, squad, TempSpaceMarineRanks.AssaultSergeant, year);
+                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, assSgtList, squad, TempSpaceMarineRanks.AssaultSergeant, true, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
@@ -566,7 +551,7 @@ namespace Iam.Scripts.Helpers
                         int assSquadSize = CalculateSquadSize(assList, assSgtList);
                         while (assList.Count > 0 && squad.Members.Count < assSquadSize)
                         {
-                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, assList, squad, TempSpaceMarineRanks.AssaultMarine, year);
+                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, assList, squad, TempSpaceMarineRanks.AssaultMarine, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
@@ -584,15 +569,15 @@ namespace Iam.Scripts.Helpers
         {
             foreach (Unit company in chapter.ChildUnits)
             {
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate == TempSpaceMarineUnitTemplates.Instance.TacticalSquadTemplate)
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.TacticalSquadTemplate)
                     {
 
                         if (tactSgtList.Count > 0)
                         {
                             squad.Name = tactSgtList[0].LastName + " Squad";
-                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, tactSgtList, squad, TempSpaceMarineRanks.TacticalSergeant, year);
+                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, tactSgtList, squad, TempSpaceMarineRanks.TacticalSergeant, true, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
@@ -603,7 +588,7 @@ namespace Iam.Scripts.Helpers
                         int tactSquadSize = CalculateSquadSize(tactList, tactSgtList);
                         while (tactList.Count > 0 && squad.Members.Count < tactSquadSize)
                         {
-                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, tactList, squad, TempSpaceMarineRanks.TacticalMarine, year);
+                            SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, tactList, squad, TempSpaceMarineRanks.TacticalMarine, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Plasma, 2);
@@ -621,36 +606,47 @@ namespace Iam.Scripts.Helpers
         {
             if ((soldierList.Count - 9) >= (sgtList.Count * 4))
             {
-                return 10;
+                return 9;
             }
             else if (sgtList.Count == 0)
             {
-                return soldierList.Count + 1;
+                return soldierList.Count;
             }
             else
             {
-                return soldierList.Count - (sgtList.Count * 4) + 1;
+                return soldierList.Count - (sgtList.Count * 4);
             }
         }
 
-        private static SpaceMarine AssignSoldier(Dictionary<int, SpaceMarine> unassignedSoldierMap, List<SpaceMarine> soldierList, Unit squad, SpaceMarineRank rank, string year)
+        private static SpaceMarine AssignSoldier(Dictionary<int, SpaceMarine> unassignedSoldierMap, List<SpaceMarine> soldierList, Squad squad, SpaceMarineRank rank, bool isLeader, string year)
         {
             var soldier = soldierList[0];
             soldier.Rank = rank;
-            soldier.AssignedUnit = squad;
-            soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
-            squad.Members.Add(soldier);
+            soldier.AssignedSquad = squad;
+            soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
+            if (isLeader && squad.SquadLeader == null)
+            {
+                squad.SquadLeader = soldier;
+            }
+            else if(isLeader)
+            {
+                throw new ArgumentException("Squad " + squad.Name + " already has a leader assigned");
+            }
+            else
+            {
+                squad.Members.Add(soldier);
+            }
             unassignedSoldierMap.Remove(soldier.Id);
             soldierList.RemoveAt(0);
             return soldier;
         }
 
-        private static SpaceMarine AssignSoldier(Dictionary<int, SpaceMarine> unassignedSoldierMap, Unit squad, SpaceMarineRank rank, string year)
+        private static SpaceMarine AssignSoldier(Dictionary<int, SpaceMarine> unassignedSoldierMap, Squad squad, SpaceMarineRank rank, string year)
         {
             var soldier = unassignedSoldierMap.Values.First();
             soldier.Rank = rank;
-            soldier.AssignedUnit = squad;
-            soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedUnit.Name);
+            soldier.AssignedSquad = squad;
+            soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
             squad.Members.Add(soldier);
             unassignedSoldierMap.Remove(soldier.Id);
             return soldier;

@@ -24,7 +24,7 @@ namespace Iam.Scripts.Views
             Text squadName = unit.transform.Find("SquadName").GetComponent<Text>();
             squadName.text = name;
             //GetInstanceID is guaranteed to be unique
-            unit.transform.Find("Image").GetComponent<Button>().onClick.AddListener(() => UnitButtonClicked(id));
+            unit.transform.Find("Image").GetComponent<Button>().onClick.AddListener(() => UnitButton_OnClick(id));
         }
 
         public void AddTreeUnit(int id, string name, List<Tuple<int, string>> squadData)
@@ -33,7 +33,7 @@ namespace Iam.Scripts.Views
                                 new Vector3(0, 0, 0),
                                 Quaternion.identity,
                                 UnitContent.transform);
-            unit.transform.Find("Header").GetComponent<Button>().onClick.AddListener(() => UnitButtonClicked(id));
+            unit.transform.Find("Header").GetComponent<Button>().onClick.AddListener(() => UnitButton_OnClick(id));
             Transform squadList = unit.transform.Find("SquadList");
             Text companyName = unit.transform.Find("Header").Find("CompanyName").GetComponent<Text>();
             companyName.text = name;
@@ -45,7 +45,7 @@ namespace Iam.Scripts.Views
                                 squadList);
                 Text squadName = squadUnit.transform.Find("SquadName").GetComponent<Text>();
                 squadName.text = squad.Item2;
-                squadUnit.transform.Find("Image").GetComponent<Button>().onClick.AddListener(() => UnitButtonClicked(squad.Item1));
+                squadUnit.transform.Find("Image").GetComponent<Button>().onClick.AddListener(() => UnitButton_OnClick(squad.Item1));
             }
         }
 
@@ -57,7 +57,7 @@ namespace Iam.Scripts.Views
             }
         }
 
-        private void UnitButtonClicked(int id)
+        private void UnitButton_OnClick(int id)
         {
             OnUnitSelected.Invoke(id);
         }

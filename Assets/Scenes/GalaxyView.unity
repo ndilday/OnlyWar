@@ -1809,7 +1809,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1066516933}
         m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
           Assembly-CSharp
-        m_MethodName: RecruitButton_Clicked
+        m_MethodName: RecruitButton_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4685,12 +4685,12 @@ PrefabInstance:
     - target: {fileID: 104890069994236458, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 667619212156585780, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 11
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1173954134989477196, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -4870,7 +4870,7 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UnitSelected
+      value: SquadSelected
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -4880,7 +4880,7 @@ PrefabInstance:
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.090909064
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -5545,7 +5545,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 5, y: 0.0000023054058}
-  m_SizeDelta: {x: -10, y: 300}
+  m_SizeDelta: {x: -10, y: 528}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1338407543
 MonoBehaviour:
@@ -5560,7 +5560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &1338407544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5700,7 +5700,7 @@ RectTransform:
   m_Father: {fileID: 32701003}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.07333332}
+  m_AnchorMin: {x: 0, y: 0.4526515}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -7995,7 +7995,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1426863894}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.9266667
+  m_Size: 0.5473485
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

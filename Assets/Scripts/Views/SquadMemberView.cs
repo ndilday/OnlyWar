@@ -31,17 +31,20 @@ namespace Iam.Scripts.Views
             {
                 GameObject.Destroy(child.gameObject);
             }
-            foreach(Tuple<int, string, string> squadMember in squadMemberList)
+            if (squadMemberList != null)
             {
-                GameObject squadUnit = Instantiate(SquadMemberPrefab,
-                                new Vector3(0, 0, 0),
-                                Quaternion.identity,
-                                SquadMemberContent.transform);
-                Text rankText = squadUnit.transform.Find("Rank").GetComponent<Text>();
-                Text nameText = squadUnit.transform.Find("Name").GetComponent<Text>();
-                rankText.text = squadMember.Item2;
-                nameText.text = squadMember.Item3;
-                squadUnit.transform.GetComponent<Button>().onClick.AddListener(() => SquadMemberButtonClicked(squadMember.Item1));
+                foreach (Tuple<int, string, string> squadMember in squadMemberList)
+                {
+                    GameObject squadUnit = Instantiate(SquadMemberPrefab,
+                                    new Vector3(0, 0, 0),
+                                    Quaternion.identity,
+                                    SquadMemberContent.transform);
+                    Text rankText = squadUnit.transform.Find("Rank").GetComponent<Text>();
+                    Text nameText = squadUnit.transform.Find("Name").GetComponent<Text>();
+                    rankText.text = squadMember.Item2;
+                    nameText.text = squadMember.Item3;
+                    squadUnit.transform.GetComponent<Button>().onClick.AddListener(() => SquadMemberButtonClicked(squadMember.Item1));
+                }
             }
         }
     }

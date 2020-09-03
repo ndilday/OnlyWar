@@ -50,11 +50,7 @@ namespace Iam.Scripts.Controllers
             int currentLeft = 0;
             foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
             {
-                // start in bottom left 
-                if(!unit.IsInReserve)
-                {
-                    PlacePlayerUnit(unit, currentLeft, currentBottom);
-                }
+                PlaceUnitSquads(unit, ref currentLeft, ref currentBottom);
             }
             BattleView.NextStepButton.SetActive(true);
         }
@@ -84,18 +80,38 @@ namespace Iam.Scripts.Controllers
             }
         }
 
+        private void PlaceUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom)
+        {
+            // start in bottom left 
+            if (!unit.HQSquad.IsInReserve)
+            {
+                PlacePlayerSquad(unit.HQSquad, ref currentLeft, ref currentBottom);
+            }
+            foreach (Squad squad in unit.Squads)
+            {
+                if (!squad.IsInReserve)
+                {
+                    PlacePlayerSquad(squad, ref currentLeft, ref currentBottom);
+                }
+            }
+            foreach(Unit childUnit in unit.ChildUnits)
+            {
+                PlaceUnitSquads(childUnit, ref currentLeft, ref currentBottom);
+            }
+        }
+
+        private void PlacePlayerSquad(Squad squad, ref int left, ref int bottom)
+        {
+            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, true, squad.GetAllMembers());
+            Tuple<int, int> squadSize = bs.GetSquadBoxSize();
+            _grid.PlaceSquad(bs, left, bottom);
+            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(left, bottom), new Vector2(squadSize.Item1, squadSize.Item2));
+        }
+
         private void UpdateInjuryTrackers()
         {
             BattleView.OverwritePlayerWoundTrack(GetSquadInjuryText(_playerSquads[0]));
             BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingSquads[0]));
-        }
-
-        private void PlacePlayerUnit(Unit unit, int left, int bottom)
-        {
-            BattleSquad squad = new BattleSquad(unit.Id, unit.Name, true, unit.Members.ToArray());
-            Tuple<int, int> squadSize = squad.GetSquadBoxSize();
-            _grid.PlaceSquad(squad, left, bottom);
-            BattleView.AddSquad(unit.Id, unit.Name, new Vector2(left, bottom), new Vector2(squadSize.Item1, squadSize.Item2));
         }
 
         private string GetSquadInjuryText(BattleSquad squad)

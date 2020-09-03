@@ -8,7 +8,7 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public int Id;
         public abstract string JobRole { get; }
-        public Unit AssignedUnit;
+        public Squad AssignedSquad;
         public List<Equippable> Equipment;
         public List<Weapon> Weapons;
         public Armor Armor;

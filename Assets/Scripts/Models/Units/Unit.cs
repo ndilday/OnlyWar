@@ -9,10 +9,9 @@ namespace Iam.Scripts.Models.Units
         public int Id { get; private set; }
         public string Name { get; set; }
         public UnitTemplate UnitTemplate { get; private set; }
-        public bool IsInReserve { get; set; }
-        public List<Soldier> Members;
+        public Squad HQSquad { get; private set; }
+        public List<Squad> Squads { get; private set; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
-        public List<WeaponSet> Loadout { get; set; }
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
@@ -21,19 +20,36 @@ namespace Iam.Scripts.Models.Units
             Id = id;
             Name = name;
             UnitTemplate = template;
-            IsInReserve = true;
-            Members = new List<Soldier>();
             AssignedVehicles = new List<int>();
             ChildUnits = new List<Unit>();
-            Loadout = new List<WeaponSet>();
+            int i = 1;
+            HQSquad = new Squad(id * 100 + i, name + " HQ Squad", template.HQSquad);
+            i++;
+            Squads = new List<Squad>();
+            foreach(SquadTemplate squadTemplate in template.GetChildSquads())
+            {
+                Squads.Add(new Squad(id * 100 + i, squadTemplate.Name, squadTemplate));
+                i++;
+            }
         }
         public IEnumerable<Soldier> GetAllMembers()
         {
-            if(ChildUnits == null || ChildUnits.Count == 0)
-            {
-                return Members;
-            }
-            return Members.Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
+            return HQSquad.GetAllMembers().Union(Squads.SelectMany(s => s.GetAllMembers())).Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
+        }
+        
+        public IEnumerable<Squad> GetAllSquads()
+        {
+            return Squads.Union(new[] { HQSquad }).Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+        }
+
+        public void AddHQSquad(Squad hq)
+        {
+            HQSquad = hq;
+        }
+
+        public void AddSquad(Squad squad)
+        {
+            Squads.Add(squad);
         }
 
         public override string ToString()

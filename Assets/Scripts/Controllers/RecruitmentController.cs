@@ -26,7 +26,7 @@ namespace Iam.Scripts.Controllers
         public GameSettings GameSettings;
         public RecruitmentView RecruitmentView;
 
-        private Dictionary<int, Unit> _scoutSquads;
+        private Dictionary<int, Squad> _scoutSquads;
         private Dictionary<int, TrainingFocuses> _squadSkillFocusMap;
         private int _scoutCount;
         private int _squadCount;
@@ -43,7 +43,7 @@ I await any further instructions you have on our recruiting and training efforts
 
         public RecruitmentController()
         {
-            _scoutSquads = new Dictionary<int, Unit>();
+            _scoutSquads = new Dictionary<int, Squad>();
             _squadSkillFocusMap = new Dictionary<int, TrainingFocuses>();
         }
 
@@ -71,33 +71,30 @@ I await any further instructions you have on our recruiting and training efforts
             RecruitmentView.gameObject.SetActive(true);
             string message = string.Format(RECRUITER_FORMAT, _scoutCount, _squadCount, _readyCount, 0);
             RecruitmentView.SetRecruiterMessage(message);
-            foreach(Unit squad in _scoutSquads.Values)
+            foreach(Squad squad in _scoutSquads.Values)
             {
                 ScoutSquadView.AddLeafUnit(squad.Id, squad.Name);
             }
         }
 
-        public void UnitSelected(int unitId)
+        public void SquadSelected(int squadId)
         {
             string squadReport = "";
-            Unit squad = _scoutSquads[unitId];
+            Squad squad = _scoutSquads[squadId];
+            // should we ignore the SGT here or not?
             foreach(Soldier soldier in squad.Members)
             {
                 SpaceMarine marine = (SpaceMarine)soldier;
-                if (marine.Rank == TempSpaceMarineRanks.ScoutSergeant)
-                {
-                    continue;
-                }
                 squadReport += GetRecruiterDescription(marine);
             }
             RecruitmentView.SquadDescription.text = squadReport;
-            RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[unitId]);
+            RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
 
         }
 
-        public void RecruitmentView_OnToggleChange(int unitId, ushort newFlags)
+        public void RecruitmentView_OnToggleChange(int squadId, ushort newFlags)
         {
-            _squadSkillFocusMap[unitId] = (TrainingFocuses)newFlags;
+            _squadSkillFocusMap[squadId] = (TrainingFocuses)newFlags;
         }
 
         private string GetRecruiterDescription(SpaceMarine marine)
@@ -143,9 +140,9 @@ I await any further instructions you have on our recruiting and training efforts
             Dictionary<int, TrainingFocuses> newMap = new Dictionary<int, TrainingFocuses>();
             foreach (Unit company in GameSettings.Chapter.ChildUnits)
             {
-                foreach (Unit squad in company.ChildUnits)
+                foreach (Squad squad in company.Squads)
                 {
-                    if (squad.UnitTemplate.Name == "Scout Squad")
+                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.ScoutSquadTemplate)
                     {
                         _scoutSquads[squad.Id] = squad;
                         if(_squadSkillFocusMap.ContainsKey(squad.Id))
@@ -164,7 +161,7 @@ I await any further instructions you have on our recruiting and training efforts
 
         private void TrainScouts()
         {
-            foreach(Unit squad in _scoutSquads.Values)
+            foreach(Squad squad in _scoutSquads.Values)
             {
                 bool goodTeacher = false;
                 TrainingFocuses focuses = _squadSkillFocusMap[squad.Id];
@@ -180,7 +177,7 @@ I await any further instructions you have on our recruiting and training efforts
                 }
                 // 200 hours per point means about 5 weeks, so about 1/5 point per week
                 float baseLearning = 0.2f;
-                foreach (Soldier soldier in squad.Members)
+                foreach (Soldier soldier in squad.GetAllMembers())
                 {
                     SpaceMarine marine = (SpaceMarine)soldier;
                     if (marine.Rank == TempSpaceMarineRanks.ScoutSergeant)
@@ -197,7 +194,7 @@ I await any further instructions you have on our recruiting and training efforts
                     // with a sub-par teacher, learning is halfway between teaching and practicing
                     baseLearning *= 0.75f;
                 }
-                foreach (Soldier soldier in squad.Members)
+                foreach (Soldier soldier in squad.GetAllMembers())
                 {   
                     SpaceMarine marine = (SpaceMarine)soldier;
                     if(marine.Rank != TempSpaceMarineRanks.ScoutSergeant)
@@ -274,7 +271,7 @@ I await any further instructions you have on our recruiting and training efforts
             _scoutCount = 0;
             _squadCount = 0;
             _readyCount = 0;
-            foreach(Unit squad in _scoutSquads.Values)
+            foreach(Squad squad in _scoutSquads.Values)
             {
                 _squadCount++;
                 foreach(Soldier soldier in squad.Members)
