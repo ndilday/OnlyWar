@@ -12,7 +12,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return "Tyranid Warrior";
+                return "Tyranid";
             }
         }
 

@@ -34,9 +34,9 @@ namespace Iam.Scripts.Models.Units
 
         public SquadTemplate HQSquad { get; private set; }
 
-        private UnitTemplate _parentUnit;
-        private List<UnitTemplate> _childUnits;
-        private List<SquadTemplate> _childSquads;
+        //private UnitTemplate _parentUnit;
+        private readonly List<UnitTemplate> _childUnits;
+        private readonly List<SquadTemplate> _childSquads;
 
         public UnitTemplate(int id, string name)
         {
@@ -56,14 +56,8 @@ namespace Iam.Scripts.Models.Units
             return _childSquads;
         }
 
-        public void SetParentUnit(UnitTemplate parent)
-        {
-            _parentUnit = parent;
-        }
-
         public void AddChildUnit(UnitTemplate child)
         {
-            child.SetParentUnit(this);
             _childUnits.Add(child);
         }
 

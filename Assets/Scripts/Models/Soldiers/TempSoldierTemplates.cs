@@ -243,7 +243,7 @@ namespace Iam.Scripts.Models.Soldiers
             AttackSpeed = new AttributeTemplate { BaseValue = 30, StandardDeviation = 1 };
             MoveSpeed = new AttributeTemplate { BaseValue = 8, StandardDeviation = 0 };
             // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
-            Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
+            Size = new AttributeTemplate { BaseValue = 2.08f, StandardDeviation = .01f };
             PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
 
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;

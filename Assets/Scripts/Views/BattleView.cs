@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Iam.Scripts.Views
 {
     public class BattleView : MonoBehaviour
     {
+        public UnityEvent<int> OnSquadSelected;
         public Text BattleLog;
         public Text TempPlayerWoundTrack;
         public Text TempOpposingWoundTrack;
@@ -43,12 +45,15 @@ namespace Iam.Scripts.Views
 
         public void AddSquad(int id, string name, Vector2 position, Vector2 size)
         {
+            position.Scale(GameSettings.BattleMapScale);
             GameObject squad = Instantiate(SquadPrefab,
                                 position,
                                 Quaternion.identity,
                                 Map.transform);
             squad.GetComponentInChildren<Text>().text = name;
+            squad.GetComponent<Button>().onClick.AddListener(() => Squad_OnClick(id));
             var rt = squad.GetComponent<RectTransform>();
+            rt.anchoredPosition = position;
             size.Scale(GameSettings.BattleMapScale);
             rt.sizeDelta = size;
             _squadMap[id] = squad;
@@ -85,6 +90,12 @@ namespace Iam.Scripts.Views
         public void OverwriteOpposingWoundTrack(string text)
         {
             TempOpposingWoundTrack.text = text;
+        }
+
+        private void Squad_OnClick(int squadId)
+        {
+            OnSquadSelected.Invoke(squadId);
+            
         }
     }
 }

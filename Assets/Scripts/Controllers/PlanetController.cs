@@ -18,11 +18,11 @@ namespace Iam.Scripts.Controllers
 
         Squad _selectedSquad;
 
-        private Dictionary<int, Squad> _squadMap = new Dictionary<int, Squad>();
+        private readonly Dictionary<int, Squad> _squadMap = new Dictionary<int, Squad>();
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             // assume player is Space Marine
-            List<Unit> unitList = planet.FactionGroundUnitListMap == null ? null : planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id];
+            List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarines.Id];
             PlanetView.gameObject.SetActive(true);
             UnitTreeView.ClearTree();
             _squadMap.Clear();
@@ -82,12 +82,14 @@ namespace Iam.Scripts.Controllers
             List<WeaponSelectionSection> list = new List<WeaponSelectionSection>();
             foreach(UnitWeaponOption option in squad.SquadTemplate.WeaponOptions)
             {
-                WeaponSelectionSection section = new WeaponSelectionSection();
-                section.Label = option.Name;
-                section.MaxCount = option.MaxNumber;
-                section.MinCount = option.MinNumber;
-                section.Selections = new List<Tuple<string, int>>();
-                foreach(WeaponSet weaponSet in option.Options)
+                WeaponSelectionSection section = new WeaponSelectionSection
+                {
+                    Label = option.Name,
+                    MaxCount = option.MaxNumber,
+                    MinCount = option.MinNumber,
+                    Selections = new List<Tuple<string, int>>()
+                };
+                foreach (WeaponSet weaponSet in option.Options)
                 {
                     int currentCount = squad.Loadout.Where(l => l == weaponSet).Count();
                     section.Selections.Add(new Tuple<string, int>(weaponSet.Name, currentCount));

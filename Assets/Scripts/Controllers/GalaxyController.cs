@@ -80,8 +80,8 @@ namespace Iam.Scripts.Controllers
             planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>();
             planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id] = new List<Unit>();
             planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id].Add(GameSettings.Chapter);
-
-            // TODO: also for now, put a Tyranid army on the home planet, as well
+            planet.FactionGroundUnitListMap[TempFactions.Instance.Tyranids.Id] = new List<Unit>();
+            planet.FactionGroundUnitListMap[TempFactions.Instance.Tyranids.Id].Add(TempTyranidArmyGenerator.GenerateTyranidArmy());
         }
 
         public void EndTurn_Clicked()
@@ -281,6 +281,7 @@ namespace Iam.Scripts.Controllers
                     OnBattleStart.Invoke(planet);
                     return;
                 }
+                i++;
             }
             // if we've scanned through the whole galaxy, battles are done, start a new turn
             OnTurnStart.Invoke();

@@ -408,5 +408,13 @@ namespace Iam.Scripts.Models.Equippables
             ArmorProvided = 20,
             Location = EquipLocation.Body
         };
+
+        public ArmorTemplate CarapaceArmor = new ArmorTemplate
+        {
+            Id = 2,
+            Name = "Carapace Armor",
+            ArmorProvided = 15,
+            Location = EquipLocation.Body
+        };
     }
 }

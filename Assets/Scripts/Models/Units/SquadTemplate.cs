@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Models.Units
@@ -12,15 +12,17 @@ namespace Iam.Scripts.Models.Units
         public SoldierTemplate SquadLeader { get; private set; }
         public List<SoldierTemplate> Members { get; private set; }
         public List<UnitWeaponOption> WeaponOptions { get; private set; }
+        public ArmorTemplate Armor { get; private set; }
         public WeaponSet DefaultWeapons { get; private set; }
 
-        public SquadTemplate(int id, string name, WeaponSet defaultWeapons, List<UnitWeaponOption> weaponOptions)
+        public SquadTemplate(int id, string name, WeaponSet defaultWeapons, List<UnitWeaponOption> weaponOptions, ArmorTemplate armor)
         {
             Id = id;
             Name = name;
             Members = new List<SoldierTemplate>();
             DefaultWeapons = defaultWeapons;
             WeaponOptions = weaponOptions;
+            Armor = armor;
         }
 
         public void AddSquadLeader(SoldierTemplate soldierTemplate)

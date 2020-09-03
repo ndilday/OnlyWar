@@ -22,9 +22,15 @@ namespace Iam.Scripts.Models.Units
             UnitTemplate = template;
             AssignedVehicles = new List<int>();
             ChildUnits = new List<Unit>();
+            
             int i = 1;
-            HQSquad = new Squad(id * 100 + i, name + " HQ Squad", template.HQSquad);
-            i++;
+
+            if (template.HQSquad != null)
+            {
+                HQSquad = new Squad(id * 100 + i, name + " HQ Squad", template.HQSquad);
+                i++;
+            }
+            
             Squads = new List<Squad>();
             foreach(SquadTemplate squadTemplate in template.GetChildSquads())
             {

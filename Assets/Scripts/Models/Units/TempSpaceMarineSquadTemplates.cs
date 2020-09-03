@@ -1,9 +1,61 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
+using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Models.Units
 {
+    public sealed class TempSpaceMarineWeaponSets
+    {
+        private static TempSpaceMarineWeaponSets _instance = null;
+        public static TempSpaceMarineWeaponSets Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new TempSpaceMarineWeaponSets();
+                }
+                return _instance;
+            }
+        }
+        private TempSpaceMarineWeaponSets()
+        {
+            ImperialEquippables eq = ImperialEquippables.Instance;
+            Bolter = new WeaponSet { Name = "Boltgun", MainWeapon = eq.Boltgun, SecondaryWeapon = null };
+            BoltPistolChainSword = new WeaponSet { Name = "Bolt Pistol & Chainsword", MainWeapon = eq.BoltPistol, SecondaryWeapon = eq.Chainsword };
+            BolterPlusPistol = new WeaponSet { Name = "Boltgun & Bolt Pistol", MainWeapon = eq.Boltgun, SecondaryWeapon = eq.BoltPistol };
+            Flamer = new WeaponSet { Name = "Flamer", MainWeapon = eq.Flamer, SecondaryWeapon = null };
+            HeavyBolter = new WeaponSet { Name = "Heavy Bolter", MainWeapon = eq.HeavyBolter, SecondaryWeapon = null };
+            Lascannon = new WeaponSet { Name = "Lascannon", MainWeapon = eq.Lascannon, SecondaryWeapon = null };
+            MeltaGun = new WeaponSet { Name = "Meltagun", MainWeapon = eq.MeltaGun, SecondaryWeapon = null };
+            Missile = new WeaponSet { Name = "Missile Launcher", MainWeapon = eq.MissileLauncher, SecondaryWeapon = null };
+            MultiMelta = new WeaponSet { Name = "Multi-melta", MainWeapon = eq.MultiMelta, SecondaryWeapon = null };
+            PlasmaCannon = new WeaponSet { Name = "Plasma Cannon", MainWeapon = eq.PlasmaCannon, SecondaryWeapon = null };
+            PlasmaGun = new WeaponSet { Name = "Plasma Gun", MainWeapon = eq.PlasmaGun, SecondaryWeapon = null };
+            PlasmaPistolChainSword = new WeaponSet { Name = "Plasma Pistol & Chainsword", MainWeapon = eq.PlasmaPistol, SecondaryWeapon = eq.Chainsword };
+            Shotgun = new WeaponSet { Name = "Shotgun", MainWeapon = eq.Shotgun, SecondaryWeapon = null };
+            SniperRifle = new WeaponSet { Name = "Sniper Rifle", MainWeapon = eq.SniperRifle, SecondaryWeapon = null };
+            Eviscerator = new WeaponSet { Name = "Eviscerator", MainWeapon = eq.Eviscerator, SecondaryWeapon = null };
+        }
+
+        public WeaponSet Bolter { get; private set; }
+        public WeaponSet BoltPistolChainSword { get; private set; }
+        public WeaponSet BolterPlusPistol { get; private set; }
+        public WeaponSet Flamer { get; private set; }
+        public WeaponSet HeavyBolter { get; private set; }
+        public WeaponSet Lascannon { get; private set; }
+        public WeaponSet MeltaGun { get; private set; }
+        public WeaponSet Missile { get; private set; }
+        public WeaponSet MultiMelta { get; private set; }
+        public WeaponSet PlasmaCannon { get; private set; }
+        public WeaponSet PlasmaGun { get; private set; }
+        public WeaponSet PlasmaPistolChainSword { get; private set; }
+        public WeaponSet Shotgun { get; private set; }
+        public WeaponSet SniperRifle { get; private set; }
+
+        public WeaponSet Eviscerator { get; private set; }
+    }
+
     public sealed class TempSpaceMarineSquadTemplates
     {
         public SquadTemplate VeteranSquadTemplate { get; private set; }
@@ -47,7 +99,7 @@ namespace Iam.Scripts.Models.Units
 
         private SquadTemplate CreateVeteranSquad()
         {
-            SquadTemplate veteranSquad = new SquadTemplate(1, "Veteran Squad", TempSpaceMarineWeaponSets.Instance.BoltPistolChainSword, null);
+            SquadTemplate veteranSquad = new SquadTemplate(1, "Veteran Squad", TempSpaceMarineWeaponSets.Instance.BoltPistolChainSword, null, ImperialEquippables.Instance.PowerArmor);
             veteranSquad.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             veteranSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             veteranSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -64,25 +116,31 @@ namespace Iam.Scripts.Models.Units
         private SquadTemplate CreateTacticalSquad()
         {
             TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
-            List<WeaponSet> options1 = new List<WeaponSet>();
-            options1.Add(ws.Flamer);
-            options1.Add(ws.PlasmaGun);
-            options1.Add(ws.MeltaGun);
+            List<WeaponSet> options1 = new List<WeaponSet>
+            {
+                ws.Flamer,
+                ws.PlasmaGun,
+                ws.MeltaGun
+            };
             UnitWeaponOption uwo1 = new UnitWeaponOption("Specialty Weapons", 0, 1, options1);
 
-            List<WeaponSet> options2 = new List<WeaponSet>();
-            options2.Add(ws.HeavyBolter);
-            options2.Add(ws.Lascannon);
-            options2.Add(ws.Missile);
-            options2.Add(ws.MultiMelta);
-            options2.Add(ws.PlasmaCannon);
+            List<WeaponSet> options2 = new List<WeaponSet>
+            {
+                ws.HeavyBolter,
+                ws.Lascannon,
+                ws.Missile,
+                ws.MultiMelta,
+                ws.PlasmaCannon
+            };
             UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 1, options2);
 
-            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
-            options.Add(uwo1);
-            options.Add(uwo2);
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>
+            {
+                uwo1,
+                uwo2
+            };
 
-            SquadTemplate tacticalSquad = new SquadTemplate(2, "Tactical Squad", ws.Bolter, options);
+            SquadTemplate tacticalSquad = new SquadTemplate(2, "Tactical Squad", ws.Bolter, options, ImperialEquippables.Instance.PowerArmor);
             tacticalSquad.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             tacticalSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             tacticalSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -99,21 +157,27 @@ namespace Iam.Scripts.Models.Units
         private SquadTemplate CreateAssaultSquad()
         {
             TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
-            List<WeaponSet> options1 = new List<WeaponSet>();
-            options1.Add(ws.Flamer);
-            options1.Add(ws.PlasmaPistolChainSword);
+            List<WeaponSet> options1 = new List<WeaponSet>
+            {
+                ws.Flamer,
+                ws.PlasmaPistolChainSword
+            };
 
             UnitWeaponOption uwo1 = new UnitWeaponOption("Specialty Weapons", 0, 2, options1);
 
-            List<WeaponSet> options2 = new List<WeaponSet>();
-            options2.Add(ws.Eviscerator);
+            List<WeaponSet> options2 = new List<WeaponSet>
+            {
+                ws.Eviscerator
+            };
             UnitWeaponOption uwo2 = new UnitWeaponOption("Two-handed Sword", 0, 2, options2);
 
-            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
-            options.Add(uwo1);
-            options.Add(uwo2);
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>
+            {
+                uwo1,
+                uwo2
+            };
 
-            SquadTemplate assaultSquad = new SquadTemplate(3, "Assault Squad", ws.BoltPistolChainSword, options);
+            SquadTemplate assaultSquad = new SquadTemplate(3, "Assault Squad", ws.BoltPistolChainSword, options, ImperialEquippables.Instance.PowerArmor);
             assaultSquad.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             assaultSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             assaultSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -130,18 +194,22 @@ namespace Iam.Scripts.Models.Units
         private SquadTemplate CreateDevastatorSquad()
         {
             TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
-            List<WeaponSet> options2 = new List<WeaponSet>();
-            options2.Add(ws.HeavyBolter);
-            options2.Add(ws.Lascannon);
-            options2.Add(ws.Missile);
-            options2.Add(ws.MultiMelta);
-            options2.Add(ws.PlasmaCannon);
+            List<WeaponSet> options2 = new List<WeaponSet>
+            {
+                ws.HeavyBolter,
+                ws.Lascannon,
+                ws.Missile,
+                ws.MultiMelta,
+                ws.PlasmaCannon
+            };
             UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 4, options2);
 
-            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
-            options.Add(uwo2);
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>
+            {
+                uwo2
+            };
 
-            SquadTemplate devastatorSquad = new SquadTemplate(4, "Devastator Squad", ws.Bolter, options);
+            SquadTemplate devastatorSquad = new SquadTemplate(4, "Devastator Squad", ws.Bolter, options, ImperialEquippables.Instance.PowerArmor);
             devastatorSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             devastatorSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             devastatorSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -158,22 +226,28 @@ namespace Iam.Scripts.Models.Units
         private SquadTemplate CreateScoutSquad()
         {
             TempSpaceMarineWeaponSets ws = TempSpaceMarineWeaponSets.Instance;
-            List<WeaponSet> options1 = new List<WeaponSet>();
-            options1.Add(ws.Shotgun);
-            options1.Add(ws.SniperRifle);
+            List<WeaponSet> options1 = new List<WeaponSet>
+            {
+                ws.Shotgun,
+                ws.SniperRifle
+            };
             UnitWeaponOption uwo1 = new UnitWeaponOption("Optional Armament", 0, 9, options1);
 
-            List<WeaponSet> options2 = new List<WeaponSet>();
-            options2.Add(ws.HeavyBolter);
-            options2.Add(ws.Missile);
+            List<WeaponSet> options2 = new List<WeaponSet>
+            {
+                ws.HeavyBolter,
+                ws.Missile
+            };
             UnitWeaponOption uwo2 = new UnitWeaponOption("Heavy Weapons", 0, 1, options2);
 
-            List<UnitWeaponOption> options = new List<UnitWeaponOption>();
-            options.Add(uwo1);
-            options.Add(uwo2);
+            List<UnitWeaponOption> options = new List<UnitWeaponOption>
+            {
+                uwo1,
+                uwo2
+            };
 
 
-            SquadTemplate scoutSquad = new SquadTemplate(5, "Scout Squad", ws.BolterPlusPistol, options);
+            SquadTemplate scoutSquad = new SquadTemplate(5, "Scout Squad", ws.BolterPlusPistol, options, ImperialEquippables.Instance.CarapaceArmor);
             scoutSquad.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             scoutSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             scoutSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -189,7 +263,7 @@ namespace Iam.Scripts.Models.Units
     
         private SquadTemplate CreateCompanyHQSquad()
         {
-            SquadTemplate hqSquad = new SquadTemplate(6, "HQ Squad", TempSpaceMarineWeaponSets.Instance.BolterPlusPistol, null);
+            SquadTemplate hqSquad = new SquadTemplate(6, "HQ Squad", TempSpaceMarineWeaponSets.Instance.BolterPlusPistol, null, ImperialEquippables.Instance.PowerArmor);
             hqSquad.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             hqSquad.Members.Add(TempSpaceMarineTemplate.Instance);
             hqSquad.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -199,7 +273,7 @@ namespace Iam.Scripts.Models.Units
 
         private SquadTemplate CreateArmory()
         {
-            SquadTemplate armory = new SquadTemplate(7, "Armory", TempSpaceMarineWeaponSets.Instance.Bolter, null);
+            SquadTemplate armory = new SquadTemplate(7, "Armory", TempSpaceMarineWeaponSets.Instance.Bolter, null, ImperialEquippables.Instance.PowerArmor);
             armory.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             armory.Members.Add(TempSpaceMarineTemplate.Instance);
             armory.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -215,7 +289,7 @@ namespace Iam.Scripts.Models.Units
 
         private SquadTemplate CreateLibrarius()
         {
-            SquadTemplate library = new SquadTemplate(8, "Librarius", TempSpaceMarineWeaponSets.Instance.Bolter, null);
+            SquadTemplate library = new SquadTemplate(8, "Librarius", TempSpaceMarineWeaponSets.Instance.Bolter, null, ImperialEquippables.Instance.PowerArmor);
             library.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             library.Members.Add(TempSpaceMarineTemplate.Instance);
             library.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -231,7 +305,7 @@ namespace Iam.Scripts.Models.Units
 
         private SquadTemplate CreateApothecarion()
         {
-            SquadTemplate apothecary = new SquadTemplate(14, "Apothecarion", TempSpaceMarineWeaponSets.Instance.Bolter, null);
+            SquadTemplate apothecary = new SquadTemplate(14, "Apothecarion", TempSpaceMarineWeaponSets.Instance.Bolter, null, ImperialEquippables.Instance.PowerArmor);
             apothecary.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             apothecary.Members.Add(TempSpaceMarineTemplate.Instance);
             apothecary.Members.Add(TempSpaceMarineTemplate.Instance);
@@ -247,7 +321,7 @@ namespace Iam.Scripts.Models.Units
 
         private SquadTemplate CreateReclusium()
         {
-            SquadTemplate reclusium = new SquadTemplate(15, "Reclusium", TempSpaceMarineWeaponSets.Instance.Bolter, null);
+            SquadTemplate reclusium = new SquadTemplate(15, "Reclusium", TempSpaceMarineWeaponSets.Instance.Bolter, null, ImperialEquippables.Instance.PowerArmor);
             reclusium.AddSquadLeader(TempSpaceMarineTemplate.Instance);
             reclusium.Members.Add(TempSpaceMarineTemplate.Instance);
             reclusium.Members.Add(TempSpaceMarineTemplate.Instance);
