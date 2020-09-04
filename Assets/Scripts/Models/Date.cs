@@ -1,21 +1,43 @@
-﻿namespace Iam.Scripts.Models
+﻿using System;
+using UnityEngine;
+namespace Iam.Scripts.Models
 {
+    [Serializable]
     public class Date
     {
-        private string _string;
-        public int Millenium { get; private set; }
-        public int Year { get; private set; }
-        public int Week { get; private set; }
+        public int Millenium;
+        public int Year;
+        public int Week;
         public Date(int millenium, int year, int week)
         {
             Millenium = millenium;
             Year = year;
             Week = week;
-            _string = Week.ToString() + "." + Year.ToString() + ".M" + Millenium.ToString();
+        }
+
+        public void IncrementWeek()
+        {
+            if(Week == 52)
+            {
+                Week = 1;
+                if (Year == 999)
+                {
+                    Year = 0;
+                    Millenium++;
+                }
+                else
+                {
+                    Year++;
+                }
+            }
+            else
+            {
+                Week++;
+            }
         }
         public override string ToString()
         {
-            return _string;
+            return Week.ToString() + "." + Year.ToString() + ".M" + Millenium.ToString();
         }
     }
 }

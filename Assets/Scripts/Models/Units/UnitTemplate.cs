@@ -4,13 +4,6 @@ using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Models.Units
 {
-    public class WeaponSet
-    {
-        public string Name { get; set; }
-        public WeaponTemplate MainWeapon { get; set; }
-        public WeaponTemplate SecondaryWeapon { get; set; }
-    }
-
     public class UnitWeaponOption
     {
         public string Name { get; private set; }

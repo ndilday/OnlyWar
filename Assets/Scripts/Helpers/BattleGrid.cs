@@ -24,17 +24,34 @@ namespace Iam.Scripts.Helpers
             _opposingSoldierLocationMap = new Dictionary<int, Tuple<int, int>>();
         }
 
-        public bool MoveSquad(BattleSquad squad, int xMovement, int yMovement)
+        public void RemoveSoldier(int soldierId, bool isPlayerSoldier)
+        {
+            if (isPlayerSoldier)
+            {
+                _playerSoldierLocationMap.Remove(soldierId);
+            }
+            else
+            {
+                _opposingSoldierLocationMap.Remove(soldierId);
+            }
+        }
+
+        public Tuple<int, int> MoveSquad(BattleSquad squad, int xMovement, int yMovement)
         {
             Dictionary<int, Tuple<int, int>> soldierLocationMap = squad.IsPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
             // if any of the squad members aren't on the map, we have a problem
             if (squad.Squad.Any(s => !soldierLocationMap.ContainsKey(s.Id))) throw new ArgumentException("Soldier in squad " + squad.Name + " not on BattleGrid");
+            int bottom = int.MaxValue;
+            int left = int.MaxValue;
             foreach(Soldier soldier in squad.Squad)
             {
                 Tuple<int, int> currentLocation = soldierLocationMap[soldier.Id];
                 Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + xMovement, currentLocation.Item2 + yMovement);
+                soldierLocationMap[soldier.Id] = newLocation;
+                if (newLocation.Item1 < left) left = newLocation.Item1;
+                if (newLocation.Item2 < bottom) bottom = newLocation.Item2;
             }
-            return true;
+            return new Tuple<int, int>(left, bottom);
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSquadBox(BattleSquad squad)
@@ -83,7 +100,7 @@ namespace Iam.Scripts.Helpers
             for (int i = 0; i < squad.Squad.Length; i++)
             {
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
-                int yMod = i / squadBoxSize.Item2 * (squad.IsPlayerSquad ? -1 : 1);
+                int yMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
                 int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
                 if (squad.IsPlayerSquad)
                 {

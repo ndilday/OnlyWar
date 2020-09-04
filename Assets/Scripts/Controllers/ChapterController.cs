@@ -157,8 +157,8 @@ namespace Iam.Scripts.Controllers
 
         private void CreateChapter()
         {
-            Date basicTrainingEndDate = new Date(40, GameSettings.Year - 3, 52);
-            Date trainingStartDate = new Date(40, GameSettings.Year - 4, 1);
+            Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
+            Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
             _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
             foreach (SpaceMarine marine in _marines)
             {
@@ -172,7 +172,8 @@ namespace Iam.Scripts.Controllers
                 }
                 EvaluateSoldier(marine, basicTrainingEndDate);
             }
-            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, new Date(40, (GameSettings.Year), 1).ToString());
+            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, 
+                new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
         private string GenerateSquadSummary(Squad squad)

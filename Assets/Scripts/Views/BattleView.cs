@@ -11,7 +11,6 @@ namespace Iam.Scripts.Views
         public UnityEvent<int> OnSquadSelected;
         public Text BattleLog;
         public Text TempPlayerWoundTrack;
-        public Text TempOpposingWoundTrack;
         public GameObject Map;
         public GameObject NextStepButton;
         public GameObject SquadPrefab;
@@ -43,27 +42,46 @@ namespace Iam.Scripts.Views
             Map.GetComponent<RectTransform>().sizeDelta = size;
         }
 
-        public void AddSquad(int id, string name, Vector2 position, Vector2 size)
+        public void AddSquad(int id, string name, Vector2 position, Vector2 size, Color color)
         {
-            position.Scale(GameSettings.BattleMapScale);
             GameObject squad = Instantiate(SquadPrefab,
                                 position,
-                                Quaternion.identity,
+                                Quaternion.Euler(0, 0, -90),
                                 Map.transform);
+            
             squad.GetComponentInChildren<Text>().text = name;
+            squad.GetComponent<Image>().color = color;
             squad.GetComponent<Button>().onClick.AddListener(() => Squad_OnClick(id));
+            
             var rt = squad.GetComponent<RectTransform>();
+            position.Scale(GameSettings.BattleMapScale);
             rt.anchoredPosition = position;
+            //rt.rotation = gameObject.GetComponent<RectTransform>().rotation;
+
+
             size.Scale(GameSettings.BattleMapScale);
             rt.sizeDelta = size;
+            
             _squadMap[id] = squad;
+        }
+
+        public void MoveSquad(int id, Vector2 newPosition)
+        {
+            newPosition.Scale(GameSettings.BattleMapScale);
+            _squadMap[id].GetComponent<RectTransform>().anchoredPosition = newPosition;
+        }
+
+        public void RemoveSquad(int id)
+        {
+            GameObject.Destroy(_squadMap[id]);
+            _squadMap.Remove(id);
         }
 
         public void Clear()
         {
             BattleLog.text = "";
-            TempOpposingWoundTrack.text = "";
             TempPlayerWoundTrack.text = "";
+
             foreach(KeyValuePair<int, GameObject> kvp in _squadMap)
             {
                 GameObject.Destroy(kvp.Value);
@@ -85,11 +103,6 @@ namespace Iam.Scripts.Views
         public void OverwritePlayerWoundTrack(string text)
         {
             TempPlayerWoundTrack.text = text;
-        }
-
-        public void OverwriteOpposingWoundTrack(string text)
-        {
-            TempOpposingWoundTrack.text = text;
         }
 
         private void Squad_OnClick(int squadId)

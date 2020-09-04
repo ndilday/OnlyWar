@@ -57,7 +57,7 @@ I await any further instructions you have on our recruiting and training efforts
         {
             // at the end of each week, scouts who are on ship or on home planet get trained and re-evaluated
             TrainScouts();
-            if(GameSettings.Week % 13 == 1)
+            if(GameSettings.Date.Week % 13 == 1)
             {
                 EvaluateScouts();
             }

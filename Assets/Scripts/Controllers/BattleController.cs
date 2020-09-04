@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using System.Xml.Serialization;
 
 namespace Iam.Scripts.Controllers
 {
@@ -18,26 +21,26 @@ namespace Iam.Scripts.Controllers
         public BattleView BattleView;
         
         private readonly Dictionary<int, BattleSquad> _playerSquads;
-        private readonly List<BattleSquad> _opposingSquads;
-        private readonly Dictionary<int, Soldier> _playerSoldiers;
-        private readonly Dictionary<int, Soldier> _opposingSoldiers;
+        private readonly Dictionary<int, BattleSquad> _opposingSquads;
+        private readonly Dictionary<int, BattleSquad> _playerSoldierSquadMap;
+        private readonly Dictionary<int, BattleSquad> _opposingSoldierSquadMap;
         private BattleSquad _selectedBattleSquad;
         
         private BattleGrid _grid;
         private int _turnNumber;
 
         private const int MAP_WIDTH = 100;
-        private const int MAP_HEIGHT = 600;
-        private const bool VERBOSE = true;
+        private const int MAP_HEIGHT = 450;
+        private const bool VERBOSE = false;
         private const int GRID_SCALE = 1;
 
 
         public BattleController()
         {
             _playerSquads = new Dictionary<int, BattleSquad>();
-            _opposingSquads = new List<BattleSquad>();
-            _playerSoldiers = new Dictionary<int, Soldier>();
-            _opposingSoldiers = new Dictionary<int, Soldier>();
+            _opposingSquads = new Dictionary<int, BattleSquad>();
+            _playerSoldierSquadMap = new Dictionary<int, BattleSquad>();
+            _opposingSoldierSquadMap = new Dictionary<int, BattleSquad>();
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
@@ -54,43 +57,79 @@ namespace Iam.Scripts.Controllers
             int currentRight = MAP_WIDTH / 2;
             foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
             {
-                PlaceUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                // the four coordinates represent the smallest possible box that contains only the current row of units
+                PlacePlayerUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+            }
+            currentBottom = MAP_HEIGHT - 5;
+            currentTop = MAP_HEIGHT - 5;
+            currentLeft = MAP_WIDTH / 2;
+            currentRight = MAP_WIDTH / 2;
+            var oppUnitList = planet.FactionGroundUnitListMap.First(kvp => kvp.Key != TempFactions.Instance.SpaceMarines.Id).Value;
+            foreach (Unit unit in oppUnitList)
+            {
+                // the four coordinates represent the smallest possible box that contains only the current row of units
+                PlaceOpponentUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
             }
             BattleView.NextStepButton.SetActive(true);
+            BattleView.NextStepButton.GetComponentInChildren<Text>().text = "Next Turn";
         }
 
         public void RunBattleTurn()
         {
             // don't worry about unit AI yet... just have them each move one and fire
             // TODO: handle initiative
-            if (_playerSquads[0].Squad.Length > 0 && _opposingSquads[0].Squad.Length > 0)
+            if (_playerSquads.Count() > 0 && _opposingSquads.Count() > 0)
             {
                 _turnNumber++;
-                Log(true, "Turn " + _turnNumber.ToString());
-                TakeAction(_playerSquads[0], true, _grid);
-                if (_opposingSquads[0].Squad.Length > 0)
+                BattleView.ClearBattleLog();
+                Log(false, "Turn " + _turnNumber.ToString());
+                foreach (BattleSquad squad in _playerSquads.Values)
                 {
-                    TakeAction(_opposingSquads[0], false, _grid);
+                    if (_opposingSquads.Count() > 0)
+                    {
+                        TakeAction(squad);
+                    }
                 }
-                if (_playerSquads[0].Squad.Length == 0 && _opposingSquads[0].Squad.Length == 0)
+                foreach(BattleSquad squad in _opposingSquads.Values)
                 {
-                    Log(true, "One side destroyed, battle over");
+                    if (_playerSquads.Count() > 0)
+                    {
+                        TakeAction(squad);
+                    }
+                }
+                BattleView.OverwritePlayerWoundTrack(_selectedBattleSquad == null ? "" : GetSquadSummary(_selectedBattleSquad));
+                if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
+                {
+                    Log(false, "One side destroyed, battle over");
+                    BattleView.NextStepButton.GetComponentInChildren<Text>().text = "End Battle";
                     // update View button
-                    BattleView.NextStepButton.SetActive(false);
                 }
-                Log(true, "----------");
 
-                UpdateInjuryTrackers();
+                //UpdateInjuryTrackers();
+            }
+            else
+            {
+                Debug.Log("Battle completed");
+                BattleView.gameObject.SetActive(false);
+                OnBattleComplete.Invoke();
             }
         }
 
         public void BattleView_OnSquadSelected(int squadId)
         {
-            _selectedBattleSquad = _playerSquads[squadId];
-            BattleView.OverwritePlayerWoundTrack(GetSquadInjuryText(_selectedBattleSquad));
+            if (_playerSquads.ContainsKey(squadId))
+            {
+                _selectedBattleSquad = _playerSquads[squadId];
+                BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
+            }
+            else
+            {
+                _selectedBattleSquad = _opposingSquads[squadId];
+                BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
+            }
         }
 
-        private void PlaceUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom, ref int currentRight, ref int currentTop)
+        private void PlacePlayerUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom, ref int currentRight, ref int currentTop)
         {
             // start in bottom left 
             if (!unit.HQSquad.IsInReserve)
@@ -106,14 +145,18 @@ namespace Iam.Scripts.Controllers
             }
             foreach(Unit childUnit in unit.ChildUnits)
             {
-                PlaceUnitSquads(childUnit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                PlacePlayerUnitSquads(childUnit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
             }
         }
 
         private void PlacePlayerSquad(Squad squad, ref int left, ref int bottom, ref int right, ref int top)
         {
-            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, true, squad.GetAllMembers());
+            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, true, squad);
             _playerSquads[squad.Id] = bs;
+            foreach(Soldier soldier in bs.Squad)
+            {
+                _playerSoldierSquadMap[soldier.Id] = bs;
+            }
             Tuple<int, int> squadSize = bs.GetSquadBoxSize();
 
             // determine if there's more space to the left or right of the current limits
@@ -122,10 +165,10 @@ namespace Iam.Scripts.Controllers
             if(squadSize.Item1 > spaceRight && squadSize.Item1 > left)
             {
                 // there's not enough room; move "up"
-                bottom = top;
-                top += squadSize.Item2;
-                left = MAP_WIDTH / 2;
-                right = left + squadSize.Item1;
+                bottom = top + 2;
+                top += squadSize.Item2 + 4;
+                left = (MAP_WIDTH / 2) - 2;
+                right = left + squadSize.Item1 + 2;
 
                 placeLeft = left;
                 placeBottom = bottom;
@@ -133,36 +176,101 @@ namespace Iam.Scripts.Controllers
             else if(spaceRight > left)
             {
                 // place to the right of the current box
-                placeLeft = right;
+                placeLeft = right + 2;
+                placeBottom = bottom + 2;
+                right += squadSize.Item1 + 5;
+                if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
+            }
+            else
+            {
+                // place to the left of the current box
+                left -= squadSize.Item1 + 2;
+                placeLeft = left;
+                placeBottom = bottom + 2;
+                if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
+            }
+
+
+            _grid.PlaceSquad(bs, placeLeft, placeBottom);
+            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(placeLeft, placeBottom), new Vector2(squadSize.Item1, squadSize.Item2), Color.blue);
+        }
+
+        private void PlaceOpponentUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom, ref int currentRight, ref int currentTop)
+        {
+            // start in bottom left 
+            if (unit.HQSquad != null && !unit.HQSquad.IsInReserve)
+            {
+                PlaceOpponentSquad(unit.HQSquad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+            }
+            foreach (Squad squad in unit.Squads)
+            {
+                if (!squad.IsInReserve)
+                {
+                    PlaceOpponentSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                }
+            }
+            foreach (Unit childUnit in unit.ChildUnits)
+            {
+                PlaceOpponentUnitSquads(childUnit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+            }
+        }
+
+        private void PlaceOpponentSquad(Squad squad, ref int left, ref int bottom, ref int right, ref int top)
+        {
+            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, false, squad);
+            _opposingSquads[squad.Id] = bs;
+            foreach (Soldier soldier in bs.Squad)
+            {
+                _opposingSoldierSquadMap[soldier.Id] = bs;
+            }
+            Tuple<int, int> squadSize = bs.GetSquadBoxSize();
+
+            // determine if there's more space to the left or right of the current limits
+            int spaceRight = MAP_WIDTH - right;
+            int placeLeft, placeBottom;
+            if (squadSize.Item1 > spaceRight && squadSize.Item1 > left)
+            {
+                // there's not enough room; move "up"
+                top = bottom;
+                bottom += squadSize.Item2;
+                left = MAP_WIDTH / 2;
+                right = left + squadSize.Item1;
+
+                placeLeft = left;
                 placeBottom = bottom;
+            }
+            else if (spaceRight > left)
+            {
+                // place to the right of the current box
+                placeLeft = right;
+                placeBottom = top - squadSize.Item2;
                 right += squadSize.Item1;
-                if (top < bottom + squadSize.Item2) top += squadSize.Item2;
+                if (bottom > top - squadSize.Item2) bottom = top - squadSize.Item2;
             }
             else
             {
                 // place to the left of the current box
                 left -= squadSize.Item1;
                 placeLeft = left;
-                placeBottom = bottom;
-                if (top < bottom + squadSize.Item2) top += squadSize.Item2;
+                placeBottom = top - squadSize.Item2;
+                if (top < bottom + squadSize.Item2) bottom = top - squadSize.Item2;
             }
 
-
-            _grid.PlaceSquad(bs, left, bottom);
-            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(placeLeft, placeBottom), new Vector2(squadSize.Item1, squadSize.Item2));
+            _grid.PlaceSquad(bs, placeLeft, placeBottom);
+            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(placeLeft, placeBottom), new Vector2(squadSize.Item1, squadSize.Item2), Color.black);
         }
 
-        private void UpdateInjuryTrackers()
+        private string GetSquadDetails(BattleSquad squad)
         {
-            BattleView.OverwriteOpposingWoundTrack(GetSquadInjuryText(_opposingSquads[0]));
-        }
-
-        private string GetSquadInjuryText(BattleSquad squad)
-        {
-            string report = squad.Name + "\n";
+            string report = "\n" + squad.Name + "\n" + squad.Squad.Length.ToString() + " soldiers standing\n\n";
             foreach(Soldier soldier in squad.Squad)
             {
                 report += soldier.ToString() + "\n";
+                foreach (Weapon weapon in soldier.Weapons)
+                {
+                    report += weapon.Template.Name + "\n";
+                }
+                report += soldier.Armor.Template.Name + "\n";
                 foreach(HitLocation hl in soldier.Body.HitLocations)
                 {
                     report += hl.ToString() + "\n";
@@ -170,6 +278,11 @@ namespace Iam.Scripts.Controllers
                 report += "\n";
             }
             return report;
+        }
+
+        private string GetSquadSummary(BattleSquad squad)
+        {
+            return "\n" + squad.Name + "\n" + squad.Squad.Length.ToString() + " soldiers standing\n\n";
         }
 
         private void Log(bool isMessageVerbose, string text)
@@ -180,28 +293,29 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void TakeAction(BattleSquad squad, bool isPlayerSquad, BattleGrid grid)
+        private void TakeAction(BattleSquad squad)
         {
             // for now, if anyone in the squad starts shooting, the squad shoots
-            float range = grid.GetNearestEnemy(squad.Squad[0], isPlayerSquad, out int enemyId) * GRID_SCALE;
+            float range = _grid.GetNearestEnemy(squad.Squad[0], squad.IsPlayerSquad, out int enemyId) * GRID_SCALE;
             List<ChosenWeapon> bestWeapons = squad.GetWeaponsForRange(range);
-            BattleSquad enemySquad = squad.IsPlayerSquad ? _opposingSquads[enemyId] : _playerSquads[enemyId];
+            BattleSquad enemySquad = squad.IsPlayerSquad ? _opposingSoldierSquadMap[enemyId] : _playerSoldierSquadMap[enemyId];
             if(ShouldFire(bestWeapons, enemySquad, range))
             {
-                Log(true, squad.Name + " at range " + range.ToString() + " elected to shoot");
+                Log(false, squad.Name + "is shooting");
                 Shoot(bestWeapons, enemySquad, range, 0f);
             }
             else
             {
-                Log(true, squad.Name + " at range " + range.ToString() + " elected to move");
-                MoveSquad(grid, squad, isPlayerSquad);
+                Log(false, squad.Name + " is advancing");
+                MoveSquad(squad);
             }
         }
 
-        private void MoveSquad(BattleGrid grid, BattleSquad squad, bool isPlayerSquad)
+        private void MoveSquad(BattleSquad squad)
         {
             int moveAmount = squad.GetSquadMove() * 3 / GRID_SCALE;
-            grid.MoveSquad(squad, 0, isPlayerSquad ? moveAmount : -moveAmount);
+            Tuple<int, int> newPosition = _grid.MoveSquad(squad, 0, squad.IsPlayerSquad ? moveAmount : -moveAmount);
+            BattleView.MoveSquad(squad.Id, new Vector2(newPosition.Item1, newPosition.Item2));
         }
 
         private bool ShouldFire(List<ChosenWeapon> weapons, BattleSquad enemy, float range)
@@ -247,19 +361,23 @@ namespace Iam.Scripts.Controllers
             // cover
             foreach(ChosenWeapon weapon in weapons)
             {
+                // a previous shot may have finished off this squad; if so, other shots from this squad are wasted
+                if (target.Squad.Length == 0) break;
+
                 Soldier hitSoldier = target.GetRandomSquadMember();
                 float totalModifier = weapon.ActiveWeapon.Template.Accuracy + rangeModifier + CalculateSizeModifier(hitSoldier.Size) + coverModifier;
-                Log(true, "Total modifier to shot is " + totalModifier.ToString());
+                Log(true, "Total modifier to shot is " + totalModifier.ToString("F0"));
                 // bracing
                 // figure out number of shots fired
-                for(int i = 0; i < weapon.ActiveWeapon.Template.RateOfFire; i++)
+                RangedWeaponTemplate template = (RangedWeaponTemplate)weapon.ActiveWeapon.Template;
+                for(int i = 0; i < template.RateOfFire; i++)
                 {
                     Skill soldierSkill = weapon.Soldier.Skills[weapon.ActiveWeapon.Template.RelatedSkill.Id];
 
                     float skillTotal = soldierSkill.SkillBonus + GetStatForSkill(weapon.Soldier, soldierSkill);
                     float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
                     float marginOfSuccess = skillTotal + totalModifier - roll;
-                    Log(true, "Modified roll total is " + marginOfSuccess.ToString());
+                    Log(true, "Modified roll total is " + marginOfSuccess.ToString("F0"));
                     if(marginOfSuccess > 0)
                     {
                         // a hit!
@@ -290,7 +408,7 @@ namespace Iam.Scripts.Controllers
         {
             // TODO: handle hit location
             HitLocation location = DetermineHitLocation(hitSoldier);
-            Log(true, hitSoldier.ToString() + " hit in " + location.Template.Name);
+            Log(false, "<b>" + hitSoldier.ToString() + " hit in " + location.Template.Name + "</b>");
             if ((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
                 Log(true, location.Template.Name + " already shot off");
@@ -299,7 +417,7 @@ namespace Iam.Scripts.Controllers
             {
                 // TODO: should hit margin of success affect damage? If so, how much?
                 float damage = weapon.GetStrengthAtRange(range) * (3.5f + ((float)Gaussian.NextGaussianDouble() * 1.75f));
-                Log(true, damage.ToString() + "Damage rolled");
+                Log(true, damage.ToString("F0") + " damage rolled");
                 float effectiveArmor = hitSoldier.Armor.Template.ArmorProvided - weapon.ActiveWeapon.Template.ArmorPiercing;
                 if (effectiveArmor < 0) effectiveArmor = 0;
                 float penDamage = damage - effectiveArmor;
@@ -380,36 +498,43 @@ namespace Iam.Scripts.Controllers
             location.Wounds = (byte)location.Wounds + wound;
             if((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
-                Log(true, location.Template.Name + " is blown off");
-                if((short)location.Wounds >= (short)Wounds.Unsurvivable * 2)
+                Log(false, "<b>" + location.Template.Name + " is blown off</b>");
+                location.Wounds = (Wounds)((short)location.Template.WoundLimit * 2);
+                if((short)wound > (short)location.Template.WoundLimit * 2)
                 {
-                    Log(false, hitSoldier.ToString() + " died");
-                    soldierSquad.RemoveSoldier(hitSoldier);
+                    wound = (Wounds)((short)location.Template.WoundLimit * 2);
                 }
             }
-            if(location.Template.Name == "Left Foot" || location.Template.Name == "Right Foot" 
+            else if ((short)location.Wounds >= (short)location.Template.WoundLimit)
+            {
+                Log(false, "<b>" + location.Template.Name + " is crippled</b>");
+            }
+
+            if (location.Template.Name == "Left Foot" || location.Template.Name == "Right Foot" 
                 || location.Template.Name == "Left Leg" || location.Template.Name == "Right Leg")
             {
                 if(location.Wounds >= location.Template.WoundLimit)
                 {
-                    Log(false, hitSoldier.ToString() + " has fallen and can't get up");
-                    soldierSquad.RemoveSoldier(hitSoldier);
+                    Log(false, "<b>" + hitSoldier.ToString() + " has fallen and can't get up</b>");
+                    RemoveSoldier(hitSoldier, soldierSquad);
                 }
             }
             if (location.Wounds >= Wounds.Critical)
             {
                 // TODO: need to start making consciousness checks
             }
-            if(wound >= Wounds.Critical)
+            if (location.Wounds >= Wounds.Unsurvivable)
+            {
+                // make additional death check
+                Log(false, "<b>" + hitSoldier.ToString() + " died</b>");
+                RemoveSoldier(hitSoldier, soldierSquad);
+            }
+            else if (wound >= Wounds.Critical)
             {
                 // make death check
                 CheckForDeath(hitSoldier, soldierSquad);
             }
-            if(wound >= Wounds.Unsurvivable)
-            {
-                // make additional death check
-                CheckForDeath(hitSoldier, soldierSquad);
-            }
+            
         }
 
         private void CheckForDeath(Soldier soldier, BattleSquad squad)
@@ -418,7 +543,37 @@ namespace Iam.Scripts.Controllers
             if (roll > soldier.Constitution)
             {
                 Log(false, soldier.ToString() + " died");
-                squad.RemoveSoldier(soldier);
+                RemoveSoldier(soldier, squad);
+            }
+        }
+
+        private void RemoveSoldier(Soldier soldier, BattleSquad squad)
+        {
+            squad.RemoveSoldier(soldier);
+            _grid.RemoveSoldier(soldier.Id, squad.IsPlayerSquad);
+            if(squad.Squad.Length == 0)
+            {
+                Log(false, "<b>" + squad.Name + " wiped out</b>");
+                RemoveSquad(squad);
+            }
+        }
+
+        private void RemoveSquad(BattleSquad squad)
+        {
+            BattleView.RemoveSquad(squad.Id);
+            if (squad.IsPlayerSquad)
+            {
+                _playerSoldierSquadMap.Remove(squad.Id);
+                _playerSquads.Remove(squad.Id);
+            }
+            else
+            {
+                _opposingSquads.Remove(squad.Id);
+                _opposingSoldierSquadMap.Remove(squad.Id);
+            }
+            if(_selectedBattleSquad == squad)
+            {
+                _selectedBattleSquad = null;
             }
         }
 

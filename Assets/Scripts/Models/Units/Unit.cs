@@ -40,7 +40,20 @@ namespace Iam.Scripts.Models.Units
         }
         public IEnumerable<Soldier> GetAllMembers()
         {
-            return HQSquad.GetAllMembers().Union(Squads.SelectMany(s => s.GetAllMembers())).Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
+            IEnumerable<Soldier> soldiers = null;
+            if(Squads != null)
+            {
+                soldiers = Squads.SelectMany(s => s.GetAllMembers());
+            }
+            if(HQSquad != null)
+            {
+                soldiers = HQSquad.GetAllMembers().Union(soldiers);
+            }
+            if(ChildUnits != null)
+            {
+                soldiers = soldiers.Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
+            }
+            return soldiers;
         }
         
         public IEnumerable<Squad> GetAllSquads()

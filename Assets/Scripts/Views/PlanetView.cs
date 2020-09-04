@@ -8,5 +8,11 @@ namespace Iam.Scripts.Views
 {
     class PlanetView : MonoBehaviour
     {
+        public Text ScoutingReport;
+
+        public void UpdateScoutingReport(string newText)
+        {
+            ScoutingReport.text = newText;
+        }
     }
 }

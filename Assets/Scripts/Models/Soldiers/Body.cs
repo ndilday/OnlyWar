@@ -83,9 +83,41 @@ namespace Iam.Scripts.Models
         {
             if(Wounds >= Template.WoundLimit)
             {
-                return Template.Name + ": Crippled";
+                return Template.Name + ": <color=red>Crippled</color>";
             }
-            return Template.Name + ": 0x" + Convert.ToString((byte)Wounds, 2);
+            if(Wounds >= Wounds.Unsurvivable)
+            {
+                return Template.Name + ": <color=red>Unsurvivable</color>";
+            }
+            if (Wounds >= Wounds.Critical)
+            {
+                return Template.Name + ":<color=maroon> Critical</color>";
+            }
+            if (Wounds >= Wounds.Severe)
+            {
+                return Template.Name + ": <color=maroon>Severe</color>";
+            }
+            if (Wounds >= Wounds.Serious)
+            {
+                return Template.Name + ": <color=orange>Serious</color>";
+            }
+            if (Wounds >= Wounds.Major)
+            {
+                return Template.Name + ": <color=orange>Major</color>";
+            }
+            if (Wounds >= Wounds.Moderate)
+            {
+                return Template.Name + ": <color=olive>Moderate</color>";
+            }
+            if (Wounds >= Wounds.Minor)
+            {
+                return Template.Name + ": <color=teal>Minor</color>";
+            }
+            if (Wounds >= Wounds.Negligible)
+            {
+                return Template.Name + ": <color=teal>Negligible</color>";
+            }
+            return Template.Name + ": No wounds";
         }
     }
 

@@ -56,16 +56,19 @@ namespace Iam.Scripts.Models.Equippables
 
     public class Equippable
     {
-        public EquippableTemplate Template;
+        public EquippableTemplate Template { get; private set; }
+        public Equippable(EquippableTemplate template) { Template = template; }
     }
 
     public class Armor
     {
-        public ArmorTemplate Template;
+        public ArmorTemplate Template { get; private set; }
+        public Armor(ArmorTemplate template) { Template = template; }
     }
 
     public class Weapon
     {
-        public RangedWeaponTemplate Template;
+        public WeaponTemplate Template { get; private set; }
+        public Weapon(WeaponTemplate template) { Template = template; }
     }
 }

@@ -4,8 +4,10 @@ using System.Linq;
 using UnityEngine;
 
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
+using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Controllers
 {
@@ -26,6 +28,7 @@ namespace Iam.Scripts.Controllers
             PlanetView.gameObject.SetActive(true);
             UnitTreeView.ClearTree();
             _squadMap.Clear();
+            CreateScoutingReport(planet);
             if(unitList != null && unitList.Count > 0)
             {
                 PopulateUnitTree(unitList);
@@ -60,6 +63,38 @@ namespace Iam.Scripts.Controllers
             }
         }
 
+        private void CreateScoutingReport(Planet planet)
+        {
+            Dictionary<string, int> enemyMap = new Dictionary<string, int>();
+            PlanetView.UpdateScoutingReport("");
+            string newReport = "";
+            bool hasMarineForces = false;
+            foreach(KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            {
+                string factionName = "Xenos";
+               if(kvp.Key == TempFactions.Instance.Tyranids.Id)
+                {
+                    factionName = "Tyranid";
+                }
+                int factionSoldierCount = 0;
+                if (kvp.Key == TempFactions.Instance.SpaceMarines.Id) hasMarineForces = true;
+                else
+                {
+                    foreach (Unit unit in kvp.Value)
+                    {
+                        factionSoldierCount += unit.GetAllMembers().Count();
+                    }
+                    newReport = factionName + " forces on the planet number in the ";
+                    if (factionSoldierCount >= 2000) newReport += "thousands.";
+                    else if (factionSoldierCount >= 200) newReport += "hundreds.";
+                    else if (factionSoldierCount >= 24) newReport += "dozens.";
+                    else newReport = factionName + " forces on the planet are minimal, and should be easy to deal with.";
+                }
+            }
+            if (!hasMarineForces) PlanetView.UpdateScoutingReport("With no forces on planet, we have no sense of what xenos or heretics may exist here.");
+            else PlanetView.UpdateScoutingReport(newReport);
+        }
+
         private List<WeaponSet> ConvertToWeaponSetList(List<Tuple<string, int>> tuples)
         {
             List<WeaponSet> loadout = new List<WeaponSet>();
@@ -80,21 +115,24 @@ namespace Iam.Scripts.Controllers
         private List<WeaponSelectionSection> GetSquadWeaponSelectionSections(Squad squad)
         {
             List<WeaponSelectionSection> list = new List<WeaponSelectionSection>();
-            foreach(UnitWeaponOption option in squad.SquadTemplate.WeaponOptions)
+            if (squad.SquadTemplate.WeaponOptions != null)
             {
-                WeaponSelectionSection section = new WeaponSelectionSection
+                foreach (UnitWeaponOption option in squad.SquadTemplate.WeaponOptions)
                 {
-                    Label = option.Name,
-                    MaxCount = option.MaxNumber,
-                    MinCount = option.MinNumber,
-                    Selections = new List<Tuple<string, int>>()
-                };
-                foreach (WeaponSet weaponSet in option.Options)
-                {
-                    int currentCount = squad.Loadout.Where(l => l == weaponSet).Count();
-                    section.Selections.Add(new Tuple<string, int>(weaponSet.Name, currentCount));
+                    WeaponSelectionSection section = new WeaponSelectionSection
+                    {
+                        Label = option.Name,
+                        MaxCount = option.MaxNumber,
+                        MinCount = option.MinNumber,
+                        Selections = new List<Tuple<string, int>>()
+                    };
+                    foreach (WeaponSet weaponSet in option.Options)
+                    {
+                        int currentCount = squad.Loadout.Where(l => l == weaponSet).Count();
+                        section.Selections.Add(new Tuple<string, int>(weaponSet.Name, currentCount));
+                    }
+                    list.Add(section);
                 }
-                list.Add(section);
             }
 
             return list;
@@ -125,10 +163,12 @@ namespace Iam.Scripts.Controllers
                             _squadMap[squad.Id] = squad;
                         }
                         UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, squadList);
+                        _squadMap[unit.HQSquad.Id] = unit.HQSquad;
                     }
                     else if(unit.HQSquad != null)
                     {
                         UnitTreeView.AddLeafUnit(unit.HQSquad.Id, unit.HQSquad.Name);
+                        _squadMap[unit.HQSquad.Id] = unit.HQSquad;
                     }
                 }
             }

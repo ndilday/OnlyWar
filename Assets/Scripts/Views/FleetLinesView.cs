@@ -1,6 +1,4 @@
-﻿ using System.Collections;
-using System.Collections.Generic;
-using TMPro.EditorUtilities;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Iam.Scripts.Views

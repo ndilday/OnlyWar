@@ -16,6 +16,8 @@ MonoBehaviour:
   GalaxySize: 30
   MapScale: {x: 15, y: 15}
   BattleMapScale: {x: 10, y: 10}
-  ChapterPlanetId: 0
-  Year: 666
-  Week: 1
+  ChapterPlanetId: 23
+  Date:
+    Millenium: 40
+    Year: 664
+    Week: 1

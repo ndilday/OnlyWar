@@ -16,7 +16,9 @@ namespace Iam.Scripts.Helpers
 
         public float GetStrengthAtRange(float range)
         {
-            return ActiveWeapon.Template.BaseStrength * (1 - (range / ActiveWeapon.Template.MaximumDistance));
+            if (ActiveWeapon.Template.GetType() != typeof(RangedWeaponTemplate)) return 0;
+            RangedWeaponTemplate template = (RangedWeaponTemplate)ActiveWeapon.Template;
+            return template.BaseStrength * (1 - (range / template.MaximumDistance));
         }
 
         public float GetAccuracyAtRange(float range)

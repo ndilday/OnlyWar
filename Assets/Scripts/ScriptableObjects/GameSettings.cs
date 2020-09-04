@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using Iam.Scripts.Models;
 using Iam.Scripts.Models.Units;
 
 [Serializable]
@@ -22,6 +23,5 @@ public class GameSettings : ScriptableObject
     public int ChapterPlanetId;
 
     [Header("Date")]
-    public int Year;
-    public int Week;
+    public Date Date;
 }

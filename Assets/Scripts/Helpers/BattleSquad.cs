@@ -5,6 +5,7 @@ using UnityEngine;
 
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Units;
 
 namespace Iam.Scripts.Helpers
 {
@@ -16,12 +17,14 @@ namespace Iam.Scripts.Helpers
         public float CoverModifier { get; private set; }
         public bool IsPlayerSquad { get; private set; }
 
-        public BattleSquad(int id, string name, bool isPlayerSquad, Soldier[] soldiers)
+        public BattleSquad(int id, string name, bool isPlayerSquad, Squad squad)
         {
             Id = id;
             Name = name;
-            Squad = soldiers;
+            Squad = squad.GetAllMembers();
             IsPlayerSquad = isPlayerSquad;
+            // order weapon sets by strength of primary weapon
+            AllocateEquipment(squad);
         }
 
         public Tuple<int, int> GetSquadBoxSize()
@@ -31,7 +34,7 @@ namespace Iam.Scripts.Helpers
             {
                 numberOfRows = 3;
             }
-            if (Squad.Length > 7)
+            else if (Squad.Length > 7)
             {
                 numberOfRows = 2;
             }
@@ -136,10 +139,38 @@ namespace Iam.Scripts.Helpers
         {
             Squad = Squad.Except(Squad.Where(s => s.Id == soldier.Id)).ToArray();
         }
+
+        private void AllocateEquipment(Squad squad)
+        {
+            var tempSquad = Squad.ToList();
+            var wsList = squad.Loadout.OrderByDescending(l => l.MainWeapon.ArmorPiercing).ThenBy(l => l.MainWeapon.PenetrationMultiplier).ThenBy(l => l.MainWeapon.Accuracy).ToList();
+            // need to allocate weapons from squad weapon sets
+            if (Squad[0] == squad.SquadLeader)
+            {
+                // for now, sgt always gets default weapons
+                Squad[0].Weapons = squad.SquadTemplate.DefaultWeapons.GetWeapons();
+                // TODO: personalize armor and weapons
+                Squad[0].Armor = new Armor(squad.SquadTemplate.Armor);
+                tempSquad.RemoveAt(0);
+            }
+            foreach (WeaponSet ws in wsList)
+            {
+                // TODO: we'll want to stop assuming Dex as the base stat at some point
+                var bestShooter = tempSquad.OrderByDescending(s => s.Dexterity + s.Skills[ws.MainWeapon.RelatedSkill.Id].SkillBonus).First();
+                bestShooter.Weapons = ws.GetWeapons();
+                bestShooter.Armor = new Armor(squad.SquadTemplate.Armor);
+                tempSquad.Remove(bestShooter);
+            }
+            if(tempSquad.Count() > 0)
+            {
+                Debug.Log("BattleSquad.AllocateEquipment: how did we get here?");
+                foreach(Soldier soldier in tempSquad)
+                {
+                    soldier.Weapons = squad.SquadTemplate.DefaultWeapons.GetWeapons();
+                    // TODO: personalize armor and weapons
+                    soldier.Armor = new Armor(squad.SquadTemplate.Armor);
+                }
+            }
+        }
     }
-
-    /*public class BattleForce
-    {
-
-    }*/
 }
