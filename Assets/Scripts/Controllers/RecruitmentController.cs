@@ -246,7 +246,7 @@ I await any further instructions you have on our recruiting and training efforts
             marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
             marine.Skills[TempBaseSkillList.Instance.Lascannon.Id].AddPoints(pointShare);
             marine.Skills[TempBaseSkillList.Instance.Flamer.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Needler.Id].AddPoints(pointShare);
+            marine.Skills[TempBaseSkillList.Instance.Sniper.Id].AddPoints(pointShare);
             marine.Skills[TempBaseSkillList.Instance.Shotgun.Id].AddPoints(pointShare);
         }
 

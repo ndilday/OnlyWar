@@ -32,8 +32,9 @@ namespace Iam.Scripts.Models.Equippables
     {
         public BaseSkill RelatedSkill;
         public float Accuracy;
-        public int ArmorPiercing;
+        public float ArmorMultiplier;
         public float PenetrationMultiplier;
+        public float RequiredStrength;
     }
 
     public class RangedWeaponTemplate: WeaponTemplate
@@ -43,6 +44,8 @@ namespace Iam.Scripts.Models.Equippables
         public int RateOfFire;
         public ushort AmmoCapacity;
         public ushort Recoil;
+        public ushort Bulk;
+        public bool DoesDamageDegradeWithRange;
     }
 
     public class MeleeWeaponTemplate: WeaponTemplate

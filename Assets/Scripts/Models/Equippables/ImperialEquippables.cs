@@ -23,13 +23,17 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 0,
             Name = "Boltgun",
-            Accuracy = 0,
-            ArmorPiercing = 0,
+            Accuracy = 2,
+            ArmorMultiplier = 1,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 2.0f,
-            RateOfFire = 1,
+            RateOfFire = 9,
+            Recoil = 1,
             BaseStrength = 6,
             MaximumDistance = 1000,
+            DoesDamageDegradeWithRange = false,
+            Bulk=4,
+            RequiredStrength=10,
             AmmoCapacity = 30,
             RelatedSkill = TempBaseSkillList.Instance.Bolter
         };
@@ -38,13 +42,17 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 1,
             Name = "Bolt Pistol",
-            Accuracy = 0,
-            ArmorPiercing = 0,
+            Accuracy = 1,
+            ArmorMultiplier = 1,
             Location = EquipLocation.OneHand,
             PenetrationMultiplier = 2.0f,
-            RateOfFire = 1,
+            RateOfFire = 3,
+            Recoil = 3,
             BaseStrength = 6,
             MaximumDistance = 500,
+            DoesDamageDegradeWithRange = false,
+            Bulk=2,
+            RequiredStrength=10,
             AmmoCapacity = 10,
             RelatedSkill = TempBaseSkillList.Instance.Bolter
         };
@@ -54,14 +62,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 2,
             Name = "Flamer",
-            Accuracy = 0,
-            ArmorPiercing = 0,
+            Accuracy = 6,
+            ArmorMultiplier = 1,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1.0f,
             RateOfFire = 1,
+            Recoil = 1,
             BaseStrength = 6,
-            MaximumDistance = 10,
-            AmmoCapacity = 10,
+            MaximumDistance = 30,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 3,
+            RequiredStrength = 5,
+            AmmoCapacity = 50,
             RelatedSkill = TempBaseSkillList.Instance.Flamer
         };
 
@@ -70,14 +82,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 3,
             Name = "Plasma Gun",
-            Accuracy = 0,
-            ArmorPiercing = 15,
+            Accuracy = 2,
+            ArmorMultiplier = 0.25f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1.0f,
-            RateOfFire = 1,
+            RateOfFire = 3,
+            Recoil = 2,
             BaseStrength = 10.5f,
             MaximumDistance = 1000,
-            AmmoCapacity = 10,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 3,
+            RequiredStrength = 9,
+            AmmoCapacity = 30,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
 
@@ -86,14 +102,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 4,
             Name = "Melta Gun",
-            Accuracy = 0,
-            ArmorPiercing = 20,
+            Accuracy = 2,
+            ArmorMultiplier = 0.2f,
             Location = EquipLocation.TwoHand,
-            PenetrationMultiplier = 1.0f,
-            RateOfFire = 1,
+            PenetrationMultiplier = 4.0f,
+            RateOfFire = 3,
+            Recoil = 1,
             BaseStrength = 12,
             MaximumDistance = 200,
-            AmmoCapacity = 10,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 4,
+            RequiredStrength = 10,
+            AmmoCapacity = 20,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
 
@@ -102,14 +122,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 5,
             Name = "Heavy Bolter",
-            Accuracy = 0,
-            ArmorPiercing = 5,
+            Accuracy = 2,
+            ArmorMultiplier = 0.75f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 2.0f,
-            RateOfFire = 3,
+            RateOfFire = 12,
+            Recoil = 1,
             BaseStrength = 7.5f,
             MaximumDistance = 1600,
-            AmmoCapacity = 100,
+            DoesDamageDegradeWithRange = false,
+            Bulk = 8,
+            RequiredStrength = 16,
+            AmmoCapacity = 150,
             RelatedSkill = TempBaseSkillList.Instance.GunneryBolter
         };
 
@@ -117,14 +141,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 6,
             Name = "Lascannon",
-            Accuracy = 0,
-            ArmorPiercing = 15,
+            Accuracy = 10,
+            ArmorMultiplier = 0.25f,
             Location = EquipLocation.TwoHand,
-            PenetrationMultiplier = 1,
+            PenetrationMultiplier = 1f,
             RateOfFire = 1,
+            Recoil = 1,
             BaseStrength = 13.5f,
             MaximumDistance = 2000,
-            AmmoCapacity = 100,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 8,
+            RequiredStrength = 15,
+            AmmoCapacity = 10,
             RelatedSkill = TempBaseSkillList.Instance.Lascannon
         };
 
@@ -132,14 +160,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 7,
             Name = "Plasma Pistol",
-            Accuracy = 0,
-            ArmorPiercing = 15,
+            Accuracy = 2,
+            ArmorMultiplier = 0.25f,
             Location = EquipLocation.OneHand,
             PenetrationMultiplier = 1.0f,
-            RateOfFire = 1,
+            RateOfFire = 3,
+            Recoil = 2,
             BaseStrength = 10.5f,
             MaximumDistance = 500,
-            AmmoCapacity = 10,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 2,
+            RequiredStrength = 6,
+            AmmoCapacity = 40,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
 
@@ -148,15 +180,18 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 8,
             Name = "Missile Launcher",
-            Accuracy = 0,
-            ArmorPiercing = 10,
+            Accuracy = 3,
+            ArmorMultiplier = 0.5f,
             Location = EquipLocation.TwoHand,
-            PenetrationMultiplier = 3.5f,
+            PenetrationMultiplier = 3f,
             RateOfFire = 1,
             BaseStrength = 12f,
             MaximumDistance = 2000,
+            DoesDamageDegradeWithRange = false,
+            Bulk = 8,
+            RequiredStrength = 12,
             AmmoCapacity = 10,
-            RelatedSkill = TempBaseSkillList.Instance.Plasma
+            RelatedSkill = TempBaseSkillList.Instance.MissileLauncher
         };
 
         // TODO: handle weird damage falloff of multi-melta (works out to wound x of 4.467 on average); for now, just using 4
@@ -164,13 +199,16 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 9,
             Name = "Multi-melta",
-            Accuracy = 0,
-            ArmorPiercing = 20,
+            Accuracy = 3,
+            ArmorMultiplier = 0.2f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 4f,
             RateOfFire = 1,
             BaseStrength = 12f,
             MaximumDistance = 1000,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 6,
+            RequiredStrength = 10,
             AmmoCapacity = 10,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
@@ -179,13 +217,17 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 10,
             Name = "Plasma Cannon",
-            Accuracy = 0,
-            ArmorPiercing = 15,
+            Accuracy = 6,
+            ArmorMultiplier = 0.25f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1f,
-            RateOfFire = 3,
+            RateOfFire = 10,
+            Recoil = 2,
             BaseStrength = 10.5f,
             MaximumDistance = 1500,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 6,
+            RequiredStrength = 15,
             AmmoCapacity = 10,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
@@ -195,29 +237,37 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 11,
             Name = "Sniper Rifle",
-            Accuracy = 3,
-            ArmorPiercing = 0,
+            Accuracy = 9,
+            ArmorMultiplier = 0.5f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1f,
-            RateOfFire = 3,
+            RateOfFire = 1,
+            Recoil = 1,
             BaseStrength = 6f,
             MaximumDistance = 1500,
-            AmmoCapacity = 10,
-            RelatedSkill = TempBaseSkillList.Instance.Plasma
+            DoesDamageDegradeWithRange = true,
+            Bulk = 8,
+            RequiredStrength = 10,
+            AmmoCapacity = 20,
+            RelatedSkill = TempBaseSkillList.Instance.Sniper
         };
 
         public RangedWeaponTemplate Shotgun = new RangedWeaponTemplate
         {
             Id = 12,
             Name = "Astartes shotgun",
-            Accuracy = 0,
-            ArmorPiercing = 0,
+            Accuracy = 3,
+            ArmorMultiplier = 1,
             Location = EquipLocation.TwoHand,
-            PenetrationMultiplier = 1f,
+            PenetrationMultiplier = 2f,
             RateOfFire = 2,
+            Recoil = 3,
             BaseStrength = 6f,
-            MaximumDistance = 500,
-            AmmoCapacity = 10,
+            MaximumDistance = 100,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 4,
+            RequiredStrength = 11,
+            AmmoCapacity = 8,
             RelatedSkill = TempBaseSkillList.Instance.Plasma
         };
 
@@ -232,7 +282,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 1,
             ParryModifier = 0,
             Accuracy = 0,
-            ArmorPiercing = 0,
+            ArmorMultiplier = 1,
+            RequiredStrength = 3,
             RelatedSkill = TempBaseSkillList.Instance.Sword
         };
 
@@ -247,7 +298,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = -1,
-            ArmorPiercing = 20,
+            ArmorMultiplier = 0.75f,
+            RequiredStrength = 3,
             RelatedSkill = TempBaseSkillList.Instance.Fist
         };
 
@@ -262,7 +314,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = -1,
-            ArmorPiercing = 20,
+            ArmorMultiplier = 0.2f,
+            RequiredStrength = 12,
             RelatedSkill = TempBaseSkillList.Instance.Sword
         };
 
@@ -277,7 +330,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = 0,
             Accuracy = 0,
-            ArmorPiercing = 5,
+            ArmorMultiplier = 0.75f,
+            RequiredStrength = 12,
             RelatedSkill = TempBaseSkillList.Instance.Axe
         };
 
@@ -292,7 +346,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = 0,
-            ArmorPiercing = 10,
+            ArmorMultiplier = 0.5f,
+            RequiredStrength = 11,
             RelatedSkill = TempBaseSkillList.Instance.Axe
         };
 
@@ -307,7 +362,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = 0,
             Accuracy = 0,
-            ArmorPiercing = 15,
+            ArmorMultiplier = 0.5f,
+            RequiredStrength = 11,
             RelatedSkill = TempBaseSkillList.Instance.Sword
         };
 
@@ -322,7 +378,7 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = 0,
-            ArmorPiercing = 10,
+            ArmorMultiplier = 0.5f,
             RelatedSkill = TempBaseSkillList.Instance.Axe
         };
 
@@ -337,7 +393,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = 0,
             Accuracy = 0,
-            ArmorPiercing = 15,
+            ArmorMultiplier = 0.25f,
+            RequiredStrength = 10,
             RelatedSkill = TempBaseSkillList.Instance.Sword
         };
 
@@ -352,7 +409,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = -1,
-            ArmorPiercing = 15,
+            ArmorMultiplier = 0.25f,
+            RequiredStrength = 3,
             RelatedSkill = TempBaseSkillList.Instance.Fist
         };
 
@@ -367,7 +425,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = -1,
-            ArmorPiercing = 10,
+            ArmorMultiplier = 0.5f,
+            RequiredStrength = 5,
             RelatedSkill = TempBaseSkillList.Instance.ServoArm
         };
 
@@ -382,7 +441,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = 0,
             Accuracy = 0,
-            ArmorPiercing = 15,
+            ArmorMultiplier = 0.25f,
+            RequiredStrength = 10,
             RelatedSkill = TempBaseSkillList.Instance.Sword
         };
 
@@ -397,7 +457,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraAttacks = 0,
             ParryModifier = -1,
             Accuracy = -1,
-            ArmorPiercing = 15,
+            ArmorMultiplier = 0.25f,
+            RequiredStrength = 12,
             RelatedSkill = TempBaseSkillList.Instance.Axe
         };
 

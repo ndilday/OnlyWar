@@ -21,13 +21,17 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 1,
             Name = "Deathspitter",
-            Accuracy = -1,
-            ArmorPiercing = 5,
+            Accuracy = 0,
+            ArmorMultiplier = 0.75f,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1,
-            RateOfFire = 3,
+            RateOfFire = 15,
+            Recoil = 2,
             BaseStrength = 7.5f,
             MaximumDistance = 750,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 3,
+            RequiredStrength = 12,
             AmmoCapacity = 100,
             RelatedSkill = TempBaseSkillList.Instance.OpponentRanged
         };
@@ -36,13 +40,17 @@ namespace Iam.Scripts.Models.Equippables
         {
             Id = 2,
             Name = "Devourer",
-            Accuracy = -1,
-            ArmorPiercing = 0,
+            Accuracy = 0,
+            ArmorMultiplier = 1,
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 1,
-            RateOfFire = 3,
+            RateOfFire = 15,
+            Recoil = 0,
             BaseStrength = 6f,
             MaximumDistance = 750,
+            DoesDamageDegradeWithRange = true,
+            Bulk = 2,
+            RequiredStrength = 8,
             AmmoCapacity = 100,
             RelatedSkill = TempBaseSkillList.Instance.OpponentRanged
         };
@@ -52,13 +60,14 @@ namespace Iam.Scripts.Models.Equippables
             Id = 3,
             Name = "Scything Talons",
             Accuracy = 1,
-            ArmorPiercing = 0,
+            ArmorMultiplier = 1,
             ExtraAttacks = 0,
             ExtraDamage = 0,
             Location = EquipLocation.OneHand,
             ParryModifier = 0,
             PenetrationMultiplier = 1,
             StrengthMultiplier = 1,
+            RequiredStrength = 8,
             RelatedSkill = TempBaseSkillList.Instance.OpponentMelee
         };
 
@@ -67,13 +76,14 @@ namespace Iam.Scripts.Models.Equippables
             Id = 4,
             Name = "Rending Claws",
             Accuracy = 1,
-            ArmorPiercing = 5,
+            ArmorMultiplier = 0.75f,
             ExtraAttacks = 0,
             ExtraDamage = 0,
             Location = EquipLocation.OneHand,
             ParryModifier = 0,
             PenetrationMultiplier = 1,
             StrengthMultiplier = 1,
+            RequiredStrength = 8,
             RelatedSkill = TempBaseSkillList.Instance.OpponentMelee
         };
         public ArmorTemplate LightChitin = new ArmorTemplate

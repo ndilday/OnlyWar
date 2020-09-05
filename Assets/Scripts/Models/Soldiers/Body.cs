@@ -156,7 +156,7 @@ namespace Iam.Scripts.Models
                 Name = "Brain",
                 NaturalArmor = 2,
                 DamageMultiplier = 4,
-                HitProbability = 32,
+                HitProbability = 30,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -166,17 +166,17 @@ namespace Iam.Scripts.Models
                 Name = "Eyes",
                 NaturalArmor = 0,
                 DamageMultiplier = 4,
-                HitProbability = 6,
+                HitProbability = 1,
                 WoundLimit = Wounds.Major
             });
 
             list.Add( new HitLocationTemplate
             {
                 Id = 2,
-                Name = "Head",
+                Name = "Face",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 52,
+                HitProbability = 75,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -186,7 +186,7 @@ namespace Iam.Scripts.Models
                 Name = "Torso",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 500,
+                HitProbability = 480,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -196,7 +196,7 @@ namespace Iam.Scripts.Models
                 Name = "Left Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 190,
+                HitProbability = 96,
                 WoundLimit = Wounds.Serious
             });
 
@@ -206,7 +206,7 @@ namespace Iam.Scripts.Models
                 Name = "Right Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 190,
+                HitProbability = 96,
                 WoundLimit = Wounds.Serious
             });
 
@@ -216,7 +216,7 @@ namespace Iam.Scripts.Models
                 Name = "Left Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 45,
+                HitProbability = 20,
                 WoundLimit = Wounds.Major
             });
 
@@ -226,7 +226,7 @@ namespace Iam.Scripts.Models
                 Name = "Right Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 45,
+                HitProbability = 20,
                 WoundLimit = Wounds.Major
             });
 
@@ -236,7 +236,7 @@ namespace Iam.Scripts.Models
                 Name = "Vitals",
                 NaturalArmor = 2,
                 DamageMultiplier = 1.5f,
-                HitProbability = 136,
+                HitProbability = 100,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -246,7 +246,7 @@ namespace Iam.Scripts.Models
                 Name = "Left Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 363,
+                HitProbability = 160,
                 WoundLimit = Wounds.Severe
             });
 
@@ -256,7 +256,7 @@ namespace Iam.Scripts.Models
                 Name = "Right Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 363,
+                HitProbability = 160,
                 WoundLimit = Wounds.Severe
             });
 
@@ -266,7 +266,7 @@ namespace Iam.Scripts.Models
                 Name = "Left Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 112,
+                HitProbability = 15,
                 WoundLimit = Wounds.Major
             });
 
@@ -276,7 +276,7 @@ namespace Iam.Scripts.Models
                 Name = "Right Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 112,
+                HitProbability = 15,
                 WoundLimit = Wounds.Major
             });
 
@@ -308,7 +308,7 @@ namespace Iam.Scripts.Models
                 Name = "Brain",
                 NaturalArmor = 2,
                 DamageMultiplier = 4,
-                HitProbability = 32,
+                HitProbability = 30,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -318,17 +318,17 @@ namespace Iam.Scripts.Models
                 Name = "Eyes",
                 NaturalArmor = 0,
                 DamageMultiplier = 4,
-                HitProbability = 6,
+                HitProbability = 1,
                 WoundLimit = Wounds.Major
             });
 
             list.Add(new HitLocationTemplate
             {
                 Id = 2,
-                Name = "Head",
+                Name = "Face",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 52,
+                HitProbability = 75,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -338,7 +338,7 @@ namespace Iam.Scripts.Models
                 Name = "Torso",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 500,
+                HitProbability = 480,
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -348,107 +348,107 @@ namespace Iam.Scripts.Models
                 Name = "Left Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 95,
+                HitProbability = 96,
                 WoundLimit = Wounds.Serious
             });
 
             list.Add(new HitLocationTemplate
             {
-                Id = 4,
+                Id = 5,
                 Name = "Left Talon",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 95,
-                WoundLimit = Wounds.Serious
-            });
-
-            list.Add(new HitLocationTemplate
-            {
-                Id = 5,
-                Name = "Right Arm",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbability = 190,
-                WoundLimit = Wounds.Serious
-            });
-
-            list.Add(new HitLocationTemplate
-            {
-                Id = 5,
-                Name = "Right Talon",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbability = 95,
+                HitProbability = 72,
                 WoundLimit = Wounds.Serious
             });
 
             list.Add(new HitLocationTemplate
             {
                 Id = 6,
-                Name = "Left Hand",
+                Name = "Right Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 45,
-                WoundLimit = Wounds.Major
+                HitProbability = 96,
+                WoundLimit = Wounds.Serious
             });
 
             list.Add(new HitLocationTemplate
             {
                 Id = 7,
-                Name = "Right Hand",
+                Name = "Right Talon",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 45,
-                WoundLimit = Wounds.Major
+                HitProbability = 72,
+                WoundLimit = Wounds.Serious
             });
 
             list.Add(new HitLocationTemplate
             {
                 Id = 8,
-                Name = "Vitals",
-                NaturalArmor = 2,
-                DamageMultiplier = 1.5f,
-                HitProbability = 136,
-                WoundLimit = Wounds.Unsurvivable
-            });
-
-            list.Add(new HitLocationTemplate
-            {
-                Id = 9,
-                Name = "Left Leg",
+                Name = "Left Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 363,
-                WoundLimit = Wounds.Severe
-            });
-
-            list.Add(new HitLocationTemplate
-            {
-                Id = 10,
-                Name = "Right Leg",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbability = 363,
-                WoundLimit = Wounds.Severe
-            });
-
-            list.Add(new HitLocationTemplate
-            {
-                Id = 11,
-                Name = "Left Foot",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbability = 112,
+                HitProbability = 20,
                 WoundLimit = Wounds.Major
             });
 
             list.Add(new HitLocationTemplate
             {
+                Id = 9,
+                Name = "Right Hand",
+                NaturalArmor = 0,
+                DamageMultiplier = 1,
+                HitProbability = 20,
+                WoundLimit = Wounds.Major
+            });
+
+            list.Add(new HitLocationTemplate
+            {
+                Id = 10,
+                Name = "Vitals",
+                NaturalArmor = 2,
+                DamageMultiplier = 1.5f,
+                HitProbability = 100,
+                WoundLimit = Wounds.Unsurvivable
+            });
+
+            list.Add(new HitLocationTemplate
+            {
+                Id = 11,
+                Name = "Left Leg",
+                NaturalArmor = 0,
+                DamageMultiplier = 1,
+                HitProbability = 160,
+                WoundLimit = Wounds.Severe
+            });
+
+            list.Add(new HitLocationTemplate
+            {
                 Id = 12,
+                Name = "Right Leg",
+                NaturalArmor = 0,
+                DamageMultiplier = 1,
+                HitProbability = 160,
+                WoundLimit = Wounds.Severe
+            });
+
+            list.Add(new HitLocationTemplate
+            {
+                Id = 13,
+                Name = "Left Foot",
+                NaturalArmor = 0,
+                DamageMultiplier = 1,
+                HitProbability = 15,
+                WoundLimit = Wounds.Major
+            });
+
+            list.Add(new HitLocationTemplate
+            {
+                Id = 14,
                 Name = "Right Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 112,
+                HitProbability = 15,
                 WoundLimit = Wounds.Major
             });
 

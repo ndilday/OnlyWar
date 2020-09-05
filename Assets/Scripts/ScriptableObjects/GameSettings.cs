@@ -24,4 +24,7 @@ public class GameSettings : ScriptableObject
 
     [Header("Date")]
     public Date Date;
+
+    //[Header("SharedData")]
+    //public bool IsDialogShowing;
 }

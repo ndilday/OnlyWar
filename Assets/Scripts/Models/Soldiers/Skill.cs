@@ -109,7 +109,7 @@ namespace Iam.Scripts.Models.Soldiers
             Plasma = new BaseSkill(32, SkillCategory.Ranged, "Plasma", SkillAttribute.Dexterity, 0);
             MissileLauncher = new BaseSkill(33, SkillCategory.Ranged, "Missile Launcher", SkillAttribute.Dexterity, 0);
             Flamer = new BaseSkill(34, SkillCategory.Ranged, "Flamer", SkillAttribute.Dexterity, 0);
-            Needler = new BaseSkill(35, SkillCategory.Ranged, "Needler", SkillAttribute.Dexterity, 0);
+            Sniper = new BaseSkill(35, SkillCategory.Ranged, "Sniper", SkillAttribute.Dexterity, 0);
             Shotgun = new BaseSkill(36, SkillCategory.Ranged, "Shotgun", SkillAttribute.Dexterity, 0);
 
             Throwing = new BaseSkill(40, SkillCategory.Melee, "Throwing", SkillAttribute.Dexterity, -1);
@@ -167,7 +167,7 @@ namespace Iam.Scripts.Models.Soldiers
         public BaseSkill Plasma { get; private set; }
         public BaseSkill MissileLauncher { get; private set; }
         public BaseSkill Flamer { get; private set; }
-        public BaseSkill Needler { get; private set; }
+        public BaseSkill Sniper { get; private set; }
         public BaseSkill Shotgun { get; private set; }
 
         public BaseSkill Throwing { get; private set; }

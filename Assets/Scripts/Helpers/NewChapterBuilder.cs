@@ -367,7 +367,7 @@ namespace Iam.Scripts.Helpers
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Stealth, 4);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Needler, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Sniper, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Shotgun, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.LandSpeeder, 2);
                         }
@@ -405,7 +405,7 @@ namespace Iam.Scripts.Helpers
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 4);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Stealth, 4);
-                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Needler, 2);
+                    soldier.AddSkillPoints(TempBaseSkillList.Instance.Sniper, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Shotgun, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.LandSpeeder, 2);
                 }
