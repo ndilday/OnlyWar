@@ -334,7 +334,7 @@ namespace Iam.Scripts.Controllers
         {
             foreach(ChosenWeapon weapon in bestWeapons)
             {
-                int effectiveArmor = enemy.GetAverageArmor() - weapon.ActiveWeapon.Template.ArmorPiercing;
+                float effectiveArmor = enemy.GetAverageArmor() * weapon.ActiveWeapon.Template.ArmorMultiplier;
                 float effectiveStrength = weapon.GetStrengthAtRange(range);
                 float effectiveWound = enemy.GetAverageConstitution() / 10;
                 //float shootingSkill = 
@@ -418,7 +418,7 @@ namespace Iam.Scripts.Controllers
                 // TODO: should hit margin of success affect damage? If so, how much?
                 float damage = weapon.GetStrengthAtRange(range) * (3.5f + ((float)Gaussian.NextGaussianDouble() * 1.75f));
                 Log(true, damage.ToString("F0") + " damage rolled");
-                float effectiveArmor = hitSoldier.Armor.Template.ArmorProvided - weapon.ActiveWeapon.Template.ArmorPiercing;
+                float effectiveArmor = hitSoldier.Armor.Template.ArmorProvided * weapon.ActiveWeapon.Template.ArmorMultiplier;
                 if (effectiveArmor < 0) effectiveArmor = 0;
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)

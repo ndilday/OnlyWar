@@ -26,7 +26,7 @@ namespace Iam.Scripts.Controllers
         public GameSettings GameSettings;
         public RecruitmentView RecruitmentView;
 
-        private Dictionary<int, Squad> _scoutSquads;
+        private readonly Dictionary<int, Squad> _scoutSquads;
         private Dictionary<int, TrainingFocuses> _squadSkillFocusMap;
         private int _scoutCount;
         private int _squadCount;

@@ -18,7 +18,7 @@ namespace Iam.Scripts.Views
         public GameSettings GameSettings;
 
         private bool _scrollToBottom = false;
-        private Dictionary<int, GameObject> _squadMap;
+        private readonly Dictionary<int, GameObject> _squadMap;
 
         public BattleView()
         {

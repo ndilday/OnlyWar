@@ -65,7 +65,6 @@ namespace Iam.Scripts.Controllers
 
         private void CreateScoutingReport(Planet planet)
         {
-            Dictionary<string, int> enemyMap = new Dictionary<string, int>();
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;

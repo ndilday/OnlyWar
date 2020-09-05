@@ -75,7 +75,7 @@ namespace Iam.Scripts.Helpers
             return list;
         }
     
-        public int GetAverageArmor()
+        public float GetAverageArmor()
         {
             int runningTotal = 0;
             int squadSize = 0;
@@ -88,7 +88,7 @@ namespace Iam.Scripts.Helpers
                 }
             }
             if (squadSize == 0) return 0;
-            return runningTotal / squadSize;
+            return (float)runningTotal / (float)squadSize;
         }
     
         public float GetAverageSize()
@@ -143,7 +143,7 @@ namespace Iam.Scripts.Helpers
         private void AllocateEquipment(Squad squad)
         {
             var tempSquad = Squad.ToList();
-            var wsList = squad.Loadout.OrderByDescending(l => l.MainWeapon.ArmorPiercing).ThenBy(l => l.MainWeapon.PenetrationMultiplier).ThenBy(l => l.MainWeapon.Accuracy).ToList();
+            var wsList = squad.Loadout.OrderByDescending(l => l.MainWeapon.ArmorMultiplier).ThenBy(l => l.MainWeapon.PenetrationMultiplier).ThenBy(l => l.MainWeapon.Accuracy).ToList();
             // need to allocate weapons from squad weapon sets
             if (Squad[0] == squad.SquadLeader)
             {
