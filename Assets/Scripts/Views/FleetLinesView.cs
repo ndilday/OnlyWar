@@ -5,9 +5,12 @@ namespace Iam.Scripts.Views
 {
     public class FleetLinesView : MonoBehaviour
     {
-        public Color LineColor;
-        public GameObject FleetLinePrefab;
-        Dictionary<int, GameObject> _lines = new Dictionary<int, GameObject>();
+        [SerializeField]
+        private Color LineColor;
+        [SerializeField]
+        private GameObject FleetLinePrefab;
+        
+        private Dictionary<int, GameObject> _lines = new Dictionary<int, GameObject>();
 
         public void GalaxyMapView_OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint)
         {

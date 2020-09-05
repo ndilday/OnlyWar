@@ -12,13 +12,19 @@ namespace Iam.Scripts.Views
         public UnityEvent<int, Vector2, Vector2> OnFleetDestinationDraw;
         public UnityEvent<int> OnFleetDestinationRemove;
 
-        public GameObject StarPrefab;
-        public GameObject FleetPrefab;
-        public LayerMask StarLayerMask;
-        public LayerMask FleetLayerMask;
-        public GameSettings GameSettings;
-        Dictionary<int, Transform> _planetViewMap;
-        Dictionary<int, Transform> _fleetViewMap;
+        [SerializeField]
+        private GameObject StarPrefab;
+        [SerializeField]
+        private GameObject FleetPrefab;
+        [SerializeField]
+        private LayerMask StarLayerMask;
+        [SerializeField]
+        private LayerMask FleetLayerMask;
+        [SerializeField]
+        private GameSettings GameSettings;
+        
+        private Dictionary<int, Transform> _planetViewMap;
+        private Dictionary<int, Transform> _fleetViewMap;
 
         public GalaxyMapView()
         {

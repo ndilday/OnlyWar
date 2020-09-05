@@ -13,10 +13,14 @@ namespace Iam.Scripts.Controllers
 {
     class PlanetController : MonoBehaviour
     {
-        public UnitTreeView UnitTreeView;
-        public SquadArmamentView SquadArmamentView;
-        public PlanetView PlanetView;
-        public GameSettings GameSettings;
+        [SerializeField]
+        private UnitTreeView UnitTreeView;
+        [SerializeField]
+        private SquadArmamentView SquadArmamentView;
+        [SerializeField]
+        private PlanetView PlanetView;
+        [SerializeField]
+        private GameSettings GameSettings;
 
         Squad _selectedSquad;
 

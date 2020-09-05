@@ -22,9 +22,12 @@ namespace Iam.Scripts.Controllers
 
     public class RecruitmentController : MonoBehaviour
     {
-        public UnitTreeView ScoutSquadView;
-        public GameSettings GameSettings;
-        public RecruitmentView RecruitmentView;
+        [SerializeField]
+        private UnitTreeView ScoutSquadView;
+        [SerializeField]
+        private GameSettings GameSettings;
+        [SerializeField]
+        private RecruitmentView RecruitmentView;
 
         private readonly Dictionary<int, Squad> _scoutSquads;
         private Dictionary<int, TrainingFocuses> _squadSkillFocusMap;
@@ -87,7 +90,7 @@ I await any further instructions you have on our recruiting and training efforts
                 SpaceMarine marine = (SpaceMarine)soldier;
                 squadReport += GetRecruiterDescription(marine);
             }
-            RecruitmentView.SquadDescription.text = squadReport;
+            RecruitmentView.UpdateSquadDescription(squadReport);
             RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
 
         }

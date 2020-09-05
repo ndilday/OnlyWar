@@ -9,16 +9,25 @@ namespace Iam.Scripts.Views
     public class BattleView : MonoBehaviour
     {
         public UnityEvent<int> OnSquadSelected;
-        public Text BattleLog;
-        public Text TempPlayerWoundTrack;
-        public GameObject Map;
-        public GameObject NextStepButton;
-        public GameObject SquadPrefab;
-        public ScrollRect ScrollRect;
-        public GameSettings GameSettings;
+        
+        [SerializeField]
+        private Text BattleLog;
+        [SerializeField]
+        private Text TempPlayerWoundTrack;
+        [SerializeField]
+        private GameObject Map;
+        [SerializeField]
+        private GameObject NextStepButton;
+        [SerializeField]
+        private GameObject SquadPrefab;
+        [SerializeField]
+        private ScrollRect ScrollRect;
+        [SerializeField]
+        private GameSettings GameSettings;
 
         private bool _scrollToBottom = false;
         private readonly Dictionary<int, GameObject> _squadMap;
+        private Text _nextStepButtonText;
 
         public BattleView()
         {
@@ -98,6 +107,16 @@ namespace Iam.Scripts.Views
         {
             BattleLog.text += text + "\n";
             _scrollToBottom = true;
+        }
+
+        public void UpdateNextStepButton(string text, bool enabled)
+        {
+            NextStepButton.gameObject.SetActive(enabled);
+            if(_nextStepButtonText == null)
+            {
+                _nextStepButtonText = NextStepButton.GetComponentInChildren<Text>();
+            }
+            _nextStepButtonText.text = text;
         }
 
         public void OverwritePlayerWoundTrack(string text)

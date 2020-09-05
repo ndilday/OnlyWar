@@ -9,11 +9,16 @@ namespace Iam.Scripts.Views
     public class UnitTreeView : MonoBehaviour
     {
         public UnityEvent<int> OnUnitSelected;
-        public GameObject LeafSquadPrefab;
-        public GameObject TreeUnitPrefab;
-        public GameObject ChildLeafPrefab;
-        public GameObject UnitContent;
         public bool Initialized = false;
+
+        [SerializeField]
+        private GameObject LeafSquadPrefab;
+        [SerializeField]
+        private GameObject TreeUnitPrefab;
+        [SerializeField]
+        private GameObject ChildLeafPrefab;
+        [SerializeField]
+        private GameObject UnitContent;
 
         public void AddLeafUnit(int id, string name)
         {

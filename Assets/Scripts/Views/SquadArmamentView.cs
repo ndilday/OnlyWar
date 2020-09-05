@@ -17,9 +17,13 @@ public class SquadArmamentView : MonoBehaviour
 {
     public UnityEvent OnArmamentChanged;
     public UnityEvent<bool> OnIsFrontLineChanged;
-    public GameObject NumberPickerPrefab;
-    public RectTransform Pane;
-    public Toggle IsFrontLine;
+
+    [SerializeField]
+    private GameObject NumberPickerPrefab;
+    [SerializeField]
+    private RectTransform Pane;
+    [SerializeField]
+    private Toggle IsFrontLine;
 
     private NumberPicker _default;
     private List<NumberPicker> _selections = new List<NumberPicker>();

@@ -17,9 +17,11 @@ namespace Iam.Scripts.Controllers
         public UnityEvent OnEscapeKey;
         public UnityEvent<Planet> OnPlanetSelected;
         public UnityEvent<Planet> OnBattleStart;
-        public GameSettings GameSettings;
-
-        public GalaxyMapView Map;
+        
+        [SerializeField]
+        private GameSettings GameSettings;
+        [SerializeField]
+        private GalaxyMapView Map;
 
         private Galaxy _galaxy;
         private int? _selectedFleetId;

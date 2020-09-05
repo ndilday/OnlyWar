@@ -14,11 +14,15 @@ namespace Iam.Scripts.Controllers
     public class ChapterController : MonoBehaviour
     {
         public UnityEvent OnChapterCreated;
-        public UnitTreeView UnitTreeView;
-        public SquadMemberView SquadMemberView;
-        public GameSettings GameSettings;
-        Dictionary<int, Squad> _squadMap;
-        SpaceMarine[] _marines;
+
+        [SerializeField]
+        private UnitTreeView UnitTreeView;
+        [SerializeField]
+        private SquadMemberView SquadMemberView;
+        [SerializeField]
+        private GameSettings GameSettings;
+        private Dictionary<int, Squad> _squadMap;
+        private SpaceMarine[] _marines;
         // Start is called before the first frame update
         void Start()
         {

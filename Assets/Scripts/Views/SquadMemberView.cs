@@ -9,10 +9,13 @@ namespace Iam.Scripts.Views
     public class SquadMemberView : MonoBehaviour
     {
         public UnityEvent<int> OnSoldierSelected;
-        
-        public GameObject SquadMemberPrefab;
-        public GameObject SquadMemberContent;
-        public GameObject SelectedUnitHistoryContent;
+
+        [SerializeField]
+        private GameObject SquadMemberPrefab;
+        [SerializeField]
+        private GameObject SquadMemberContent;
+        [SerializeField]
+        private GameObject SelectedUnitHistoryContent;
 
         private void SquadMemberButtonClicked(int id)
         {

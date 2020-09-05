@@ -18,7 +18,8 @@ namespace Iam.Scripts.Controllers
     public class BattleController : MonoBehaviour
     {
         public UnityEvent OnBattleComplete;
-        public BattleView BattleView;
+        [SerializeField]
+        private BattleView BattleView;
         
         private readonly Dictionary<int, BattleSquad> _playerSquads;
         private readonly Dictionary<int, BattleSquad> _opposingSquads;
@@ -51,27 +52,8 @@ namespace Iam.Scripts.Controllers
             _turnNumber = 0;
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
             // assume, for now, that space marines will be one of the two factions
-            int currentBottom = 0;
-            int currentLeft = MAP_WIDTH / 2;
-            int currentTop = 0;
-            int currentRight = MAP_WIDTH / 2;
-            foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
-            {
-                // the four coordinates represent the smallest possible box that contains only the current row of units
-                PlacePlayerUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-            currentBottom = MAP_HEIGHT - 5;
-            currentTop = MAP_HEIGHT - 5;
-            currentLeft = MAP_WIDTH / 2;
-            currentRight = MAP_WIDTH / 2;
-            var oppUnitList = planet.FactionGroundUnitListMap.First(kvp => kvp.Key != TempFactions.Instance.SpaceMarines.Id).Value;
-            foreach (Unit unit in oppUnitList)
-            {
-                // the four coordinates represent the smallest possible box that contains only the current row of units
-                PlaceOpponentUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-            BattleView.NextStepButton.SetActive(true);
-            BattleView.NextStepButton.GetComponentInChildren<Text>().text = "Next Turn";
+            PlaceSquads(planet);
+            BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
         public void RunBattleTurn()
@@ -101,7 +83,7 @@ namespace Iam.Scripts.Controllers
                 if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
                 {
                     Log(false, "One side destroyed, battle over");
-                    BattleView.NextStepButton.GetComponentInChildren<Text>().text = "End Battle";
+                    BattleView.UpdateNextStepButton("End Battle", true);
                     // update View button
                 }
 
@@ -126,6 +108,29 @@ namespace Iam.Scripts.Controllers
             {
                 _selectedBattleSquad = _opposingSquads[squadId];
                 BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
+            }
+        }
+
+        private void PlaceSquads(Planet planet)
+        {
+            int currentBottom = 0;
+            int currentLeft = MAP_WIDTH / 2;
+            int currentTop = 0;
+            int currentRight = MAP_WIDTH / 2;
+            foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
+            {
+                // the four coordinates represent the smallest possible box that contains only the current row of units
+                PlacePlayerUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+            }
+            currentBottom = MAP_HEIGHT - 5;
+            currentTop = MAP_HEIGHT - 5;
+            currentLeft = MAP_WIDTH / 2;
+            currentRight = MAP_WIDTH / 2;
+            var oppUnitList = planet.FactionGroundUnitListMap.First(kvp => kvp.Key != TempFactions.Instance.SpaceMarines.Id).Value;
+            foreach (Unit unit in oppUnitList)
+            {
+                // the four coordinates represent the smallest possible box that contains only the current row of units
+                PlaceOpponentUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
             }
         }
 

@@ -7,10 +7,14 @@ namespace Iam.Scripts.Controllers
 {
     public class UIController : MonoBehaviour
     {
-        public GameObject BottomUI;
-        public Text Date;
-        public Text ScreenTitle;
-        public GameSettings GameSettings;
+        [SerializeField]
+        private GameObject BottomUI;
+        [SerializeField]
+        private Text Date;
+        [SerializeField]
+        private Text ScreenTitle;
+        [SerializeField]
+        private GameSettings GameSettings;
 
         public void Start()
         {

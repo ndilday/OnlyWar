@@ -7,9 +7,12 @@ namespace Iam.Scripts.Views
 {
     public class ApothecaryView : MonoBehaviour
     {
-        public Text InjuryReportText;
-        public Text GeneSeedText;
-        public Text RecruitmentText;
+        [SerializeField]
+        private Text InjuryReportText;
+        [SerializeField]
+        private Text GeneSeedText;
+        [SerializeField]
+        private Text RecruitmentText;
         // Start is called before the first frame update
         void Start()
         {

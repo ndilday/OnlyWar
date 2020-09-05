@@ -7,10 +7,15 @@ namespace Iam.Scripts.Views
     public class RecruitmentView : MonoBehaviour
     {
         public UnityEvent<int, ushort> OnToggleChange;
-        public Text SquadDescription;
-        public Text RecruiterMessage;
-        public GameObject ToggleParent;
-        public Text ToggleHeaderText;
+
+        [SerializeField]
+        private Text SquadDescription;
+        [SerializeField]
+        private Text RecruiterMessage;
+        [SerializeField]
+        private GameObject ToggleParent;
+        [SerializeField]
+        private Text ToggleHeaderText;
 
         private int _selectedUnitId;
         private Toggle[] _toggles;
@@ -21,7 +26,6 @@ namespace Iam.Scripts.Views
             ToggleHeaderText.text = "";
             ToggleParent.SetActive(false);
             _toggles = ToggleParent.GetComponentsInChildren<Toggle>();
-
         }
 
         public void Unit_Selected(int id)
@@ -85,6 +89,11 @@ namespace Iam.Scripts.Views
                 _toggles[3].GetComponent<Image>().color = Color.white;
             }
             OnToggleChange.Invoke(_selectedUnitId, toggled);
+        }
+    
+        public void UpdateSquadDescription(string text)
+        {
+            SquadDescription.text = text;
         }
     }
 }
