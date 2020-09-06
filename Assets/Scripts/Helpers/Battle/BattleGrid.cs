@@ -1,11 +1,9 @@
-﻿using Iam.Scripts.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Iam.Scripts.Models.Soldiers;
-using UnityEngine;
 
-namespace Iam.Scripts.Helpers
+namespace Iam.Scripts.Helpers.Battle
 {
     public class BattleGrid
     {

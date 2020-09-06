@@ -4,9 +4,9 @@ using System.Linq;
 
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 using Iam.Scripts.Helpers;
+using Iam.Scripts.Helpers.Battle;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
@@ -46,13 +46,26 @@ namespace Iam.Scripts.Controllers
 
         public void GalaxyController_OnBattleStarted(Planet planet)
         {
-            BattleView.gameObject.SetActive(true);
-            BattleView.Clear();
-            BattleView.SetMapSize(new Vector2(MAP_WIDTH, MAP_HEIGHT));
-            _turnNumber = 0;
-            _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
-            // assume, for now, that space marines will be one of the two factions
-            PlaceSquads(planet);
+            ResetValues();
+
+            foreach(KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            {
+                if(kvp.Key == TempFactions.Instance.SpaceMarines.Id)
+                {
+                    PopulateSquadMapFromUnitList(_playerSquads, kvp.Value, true);
+                }
+                else
+                {
+                    PopulateSquadMapFromUnitList(_opposingSquads, kvp.Value, false);
+                }
+            }
+
+            BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
+            var playerPlacements = placer.PlaceSquads(_playerSquads.Values);
+            PopulateBattleViewSquads(playerPlacements);
+            var oppPlacements = placer.PlaceSquads(_opposingSquads.Values);
+            PopulateBattleViewSquads(oppPlacements);
+            PopulateSoldierMaps();
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
@@ -111,158 +124,60 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void PlaceSquads(Planet planet)
+        private void ResetValues()
         {
-            int currentBottom = 0;
-            int currentLeft = MAP_WIDTH / 2;
-            int currentTop = 0;
-            int currentRight = MAP_WIDTH / 2;
-            foreach (Unit unit in planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id])
-            {
-                // the four coordinates represent the smallest possible box that contains only the current row of units
-                PlacePlayerUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-            currentBottom = MAP_HEIGHT - 5;
-            currentTop = MAP_HEIGHT - 5;
-            currentLeft = MAP_WIDTH / 2;
-            currentRight = MAP_WIDTH / 2;
-            var oppUnitList = planet.FactionGroundUnitListMap.First(kvp => kvp.Key != TempFactions.Instance.SpaceMarines.Id).Value;
-            foreach (Unit unit in oppUnitList)
-            {
-                // the four coordinates represent the smallest possible box that contains only the current row of units
-                PlaceOpponentUnitSquads(unit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
+            BattleView.gameObject.SetActive(true);
+            BattleView.Clear();
+            BattleView.SetMapSize(new Vector2(MAP_WIDTH, MAP_HEIGHT));
+            _turnNumber = 0;
+
+            _playerSquads.Clear();
+            _playerSoldierSquadMap.Clear();
+            _opposingSquads.Clear();
+            _opposingSoldierSquadMap.Clear();
+
+            _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
 
-        private void PlacePlayerUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom, ref int currentRight, ref int currentTop)
+        private void PopulateSquadMapFromUnitList(Dictionary<int, BattleSquad> map, List<Unit> units, bool isPlayerSquad)
         {
-            // start in bottom left 
-            if (!unit.HQSquad.IsInReserve)
+            foreach (Unit unit in units)
             {
-                PlacePlayerSquad(unit.HQSquad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-            foreach (Squad squad in unit.Squads)
-            {
-                if (!squad.IsInReserve)
+                var battleSquads = unit.GetAllSquads().Where(s => !s.IsInReserve).Select(s => new BattleSquad(isPlayerSquad, s));
+                foreach (BattleSquad bs in battleSquads)
                 {
-                    PlacePlayerSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                    map[bs.Id] = bs;
                 }
             }
-            foreach(Unit childUnit in unit.ChildUnits)
+        }
+
+        private void PopulateBattleViewSquads(Dictionary<BattleSquad, Vector2> squadLocationMap)
+        {
+            foreach(KeyValuePair<BattleSquad, Vector2> kvp in squadLocationMap)
             {
-                PlacePlayerUnitSquads(childUnit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                Tuple<int, int> size = kvp.Key.GetSquadBoxSize();
+                Color color = kvp.Key.IsPlayerSquad ? Color.blue : Color.black;
+                BattleView.AddSquad(kvp.Key.Id, kvp.Key.Name, kvp.Value, new Vector2(size.Item1, size.Item2), color);
             }
         }
 
-        private void PlacePlayerSquad(Squad squad, ref int left, ref int bottom, ref int right, ref int top)
+        private void PopulateSoldierMaps()
         {
-            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, true, squad);
-            _playerSquads[squad.Id] = bs;
-            foreach(Soldier soldier in bs.Squad)
+            foreach(BattleSquad squad in _playerSquads.Values)
             {
-                _playerSoldierSquadMap[soldier.Id] = bs;
-            }
-            Tuple<int, int> squadSize = bs.GetSquadBoxSize();
-
-            // determine if there's more space to the left or right of the current limits
-            int spaceRight = MAP_WIDTH - right;
-            int placeLeft, placeBottom;
-            if(squadSize.Item1 > spaceRight && squadSize.Item1 > left)
-            {
-                // there's not enough room; move "up"
-                bottom = top + 2;
-                top += squadSize.Item2 + 4;
-                left = (MAP_WIDTH / 2) - 2;
-                right = left + squadSize.Item1 + 2;
-
-                placeLeft = left;
-                placeBottom = bottom;
-            }
-            else if(spaceRight > left)
-            {
-                // place to the right of the current box
-                placeLeft = right + 2;
-                placeBottom = bottom + 2;
-                right += squadSize.Item1 + 5;
-                if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
-            }
-            else
-            {
-                // place to the left of the current box
-                left -= squadSize.Item1 + 2;
-                placeLeft = left;
-                placeBottom = bottom + 2;
-                if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
-            }
-
-
-            _grid.PlaceSquad(bs, placeLeft, placeBottom);
-            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(placeLeft, placeBottom), new Vector2(squadSize.Item1, squadSize.Item2), Color.blue);
-        }
-
-        private void PlaceOpponentUnitSquads(Unit unit, ref int currentLeft, ref int currentBottom, ref int currentRight, ref int currentTop)
-        {
-            // start in bottom left 
-            if (unit.HQSquad != null && !unit.HQSquad.IsInReserve)
-            {
-                PlaceOpponentSquad(unit.HQSquad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-            foreach (Squad squad in unit.Squads)
-            {
-                if (!squad.IsInReserve)
+                foreach(Soldier soldier in squad.Squad)
                 {
-                    PlaceOpponentSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
+                    _playerSoldierSquadMap[soldier.Id] = squad;
                 }
             }
-            foreach (Unit childUnit in unit.ChildUnits)
-            {
-                PlaceOpponentUnitSquads(childUnit, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-            }
-        }
 
-        private void PlaceOpponentSquad(Squad squad, ref int left, ref int bottom, ref int right, ref int top)
-        {
-            BattleSquad bs = new BattleSquad(squad.Id, squad.Name, false, squad);
-            _opposingSquads[squad.Id] = bs;
-            foreach (Soldier soldier in bs.Squad)
+            foreach (BattleSquad squad in _opposingSquads.Values)
             {
-                _opposingSoldierSquadMap[soldier.Id] = bs;
+                foreach (Soldier soldier in squad.Squad)
+                {
+                    _opposingSoldierSquadMap[soldier.Id] = squad;
+                }
             }
-            Tuple<int, int> squadSize = bs.GetSquadBoxSize();
-
-            // determine if there's more space to the left or right of the current limits
-            int spaceRight = MAP_WIDTH - right;
-            int placeLeft, placeBottom;
-            if (squadSize.Item1 > spaceRight && squadSize.Item1 > left)
-            {
-                // there's not enough room; move "up"
-                top = bottom;
-                bottom += squadSize.Item2;
-                left = MAP_WIDTH / 2;
-                right = left + squadSize.Item1;
-
-                placeLeft = left;
-                placeBottom = bottom;
-            }
-            else if (spaceRight > left)
-            {
-                // place to the right of the current box
-                placeLeft = right;
-                placeBottom = top - squadSize.Item2;
-                right += squadSize.Item1;
-                if (bottom > top - squadSize.Item2) bottom = top - squadSize.Item2;
-            }
-            else
-            {
-                // place to the left of the current box
-                left -= squadSize.Item1;
-                placeLeft = left;
-                placeBottom = top - squadSize.Item2;
-                if (top < bottom + squadSize.Item2) bottom = top - squadSize.Item2;
-            }
-
-            _grid.PlaceSquad(bs, placeLeft, placeBottom);
-            BattleView.AddSquad(squad.Id, squad.Name, new Vector2(placeLeft, placeBottom), new Vector2(squadSize.Item1, squadSize.Item2), Color.black);
         }
 
         private string GetSquadDetails(BattleSquad squad)

@@ -7,7 +7,7 @@ using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 
-namespace Iam.Scripts.Helpers
+namespace Iam.Scripts.Helpers.Battle
 {
     public class BattleSquad
     {
@@ -17,10 +17,10 @@ namespace Iam.Scripts.Helpers
         public float CoverModifier { get; private set; }
         public bool IsPlayerSquad { get; private set; }
 
-        public BattleSquad(int id, string name, bool isPlayerSquad, Squad squad)
+        public BattleSquad(bool isPlayerSquad, Squad squad)
         {
-            Id = id;
-            Name = name;
+            Id = squad.Id;
+            Name = squad.Name;
             Squad = squad.GetAllMembers();
             IsPlayerSquad = isPlayerSquad;
             // order weapon sets by strength of primary weapon

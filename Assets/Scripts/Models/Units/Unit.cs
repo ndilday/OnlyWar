@@ -58,7 +58,14 @@ namespace Iam.Scripts.Models.Units
         
         public IEnumerable<Squad> GetAllSquads()
         {
-            return Squads.Union(new[] { HQSquad }).Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+            if (HQSquad != null)
+            {
+                return Squads.Union(new[] { HQSquad }).Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+            }
+            else
+            {
+                return Squads.Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+            }
         }
 
         public void AddHQSquad(Squad hq)
