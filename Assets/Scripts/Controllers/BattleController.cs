@@ -186,7 +186,7 @@ namespace Iam.Scripts.Controllers
             foreach(Soldier soldier in squad.Squad)
             {
                 report += soldier.ToString() + "\n";
-                foreach (Weapon weapon in soldier.Weapons)
+                foreach (RangedWeapon weapon in soldier.RangedWeapons)
                 {
                     report += weapon.Template.Name + "\n";
                 }
@@ -217,7 +217,7 @@ namespace Iam.Scripts.Controllers
         {
             // for now, if anyone in the squad starts shooting, the squad shoots
             float range = _grid.GetNearestEnemy(squad.Squad[0], squad.IsPlayerSquad, out int enemyId) * GRID_SCALE;
-            List<ChosenWeapon> bestWeapons = squad.GetWeaponsForRange(range);
+            List<ChosenRangedWeapon> bestWeapons = squad.GetWeaponsForRange(range);
             BattleSquad enemySquad = squad.IsPlayerSquad ? _opposingSoldierSquadMap[enemyId] : _playerSoldierSquadMap[enemyId];
             if(ShouldFire(bestWeapons, enemySquad, range))
             {
@@ -238,7 +238,7 @@ namespace Iam.Scripts.Controllers
             BattleView.MoveSquad(squad.Id, new Vector2(newPosition.Item1, newPosition.Item2));
         }
 
-        private bool ShouldFire(List<ChosenWeapon> weapons, BattleSquad enemy, float range)
+        private bool ShouldFire(List<ChosenRangedWeapon> weapons, BattleSquad enemy, float range)
         {
             if(weapons.Count < 1)
             {
@@ -250,9 +250,9 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private bool IsWorthShooting(List<ChosenWeapon> bestWeapons, BattleSquad enemy, float range)
+        private bool IsWorthShooting(List<ChosenRangedWeapon> bestWeapons, BattleSquad enemy, float range)
         {
-            foreach(ChosenWeapon weapon in bestWeapons)
+            foreach(ChosenRangedWeapon weapon in bestWeapons)
             {
                 float effectiveArmor = enemy.GetAverageArmor() * weapon.ActiveWeapon.Template.ArmorMultiplier;
                 float effectiveStrength = weapon.GetStrengthAtRange(range);
@@ -271,7 +271,7 @@ namespace Iam.Scripts.Controllers
             return false;
         }
     
-        private void Shoot(List<ChosenWeapon> weapons, BattleSquad target, float range, float coverModifier)
+        private void Shoot(List<ChosenRangedWeapon> weapons, BattleSquad target, float range, float coverModifier)
         {
             // figure out to-hit modifiers
             // distance + speed
@@ -279,7 +279,7 @@ namespace Iam.Scripts.Controllers
             // size modifier is built into the target squad
             // weapon accuracy
             // cover
-            foreach(ChosenWeapon weapon in weapons)
+            foreach(ChosenRangedWeapon weapon in weapons)
             {
                 // a previous shot may have finished off this squad; if so, other shots from this squad are wasted
                 if (target.Squad.Length == 0) break;
@@ -324,7 +324,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void ResolveHit(ChosenWeapon weapon, Soldier hitSoldier, BattleSquad target, float range)
+        private void ResolveHit(ChosenRangedWeapon weapon, Soldier hitSoldier, BattleSquad target, float range)
         {
             // TODO: handle hit location
             HitLocation location = DetermineHitLocation(hitSoldier);

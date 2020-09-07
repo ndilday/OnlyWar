@@ -10,7 +10,8 @@ namespace Iam.Scripts.Models.Soldiers
         public abstract string JobRole { get; }
         public Squad AssignedSquad;
         public List<Equippable> Equipment;
-        public List<Weapon> Weapons;
+        public List<MeleeWeapon> MeleeWeapons;
+        public List<RangedWeapon> RangedWeapons;
         public Armor Armor;
 
         public float Strength;
@@ -39,7 +40,8 @@ namespace Iam.Scripts.Models.Soldiers
         public Soldier()
         {
             Equipment = new List<Equippable>();
-            Weapons = new List<Weapon>();
+            MeleeWeapons = new List<MeleeWeapon>();
+            RangedWeapons = new List<RangedWeapon>();
             SoldierHistory = new List<string>();
             Skills = new Dictionary<int, Skill>();
         }
@@ -61,6 +63,6 @@ namespace Iam.Scripts.Models.Soldiers
             }
         }
 
-        public abstract bool CanFireWeapon(Weapon weapon);
+        public abstract int FreeHands { get; }
     }
 }

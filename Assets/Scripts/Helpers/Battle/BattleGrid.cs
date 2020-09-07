@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Iam.Scripts.Models.Soldiers;
 
+using UnityEngine;
+using UnityEngine.Events;
+
 namespace Iam.Scripts.Helpers.Battle
 {
     public class BattleGrid
     {
+        // I'm not using these events yet, but I probably will
+        public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadPlaced;
+        public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadMoved;
         // TODO: allow multiple friendlies in single grid location?
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
@@ -34,6 +40,12 @@ namespace Iam.Scripts.Helpers.Battle
             }
         }
 
+        public Tuple<int, int> GetSoldierPosition(int soldierId, bool isPlayerSoldier)
+        {
+            if (isPlayerSoldier) return _playerSoldierLocationMap[soldierId];
+            return _opposingSoldierLocationMap[soldierId];
+        }
+
         public Tuple<int, int> MoveSquad(BattleSquad squad, int xMovement, int yMovement)
         {
             Dictionary<int, Tuple<int, int>> soldierLocationMap = squad.IsPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
@@ -49,7 +61,18 @@ namespace Iam.Scripts.Helpers.Battle
                 if (newLocation.Item1 < left) left = newLocation.Item1;
                 if (newLocation.Item2 < bottom) bottom = newLocation.Item2;
             }
-            return new Tuple<int, int>(left, bottom);
+            Tuple<int, int> newBottomLeft = new Tuple<int, int>(left, bottom);
+            OnSquadMoved.Invoke(squad, newBottomLeft);
+            return newBottomLeft;
+        }
+
+        public Tuple<int, int> MoveSoldier(int soldierId, bool isPlayerSquad, int xMovement, int yMovement)
+        {
+            Dictionary<int, Tuple<int, int>> soldierLocationMap = isPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
+            Tuple<int, int> currentLocation = soldierLocationMap[soldierId];
+            Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + xMovement, currentLocation.Item2 + yMovement);
+            soldierLocationMap[soldierId] = newLocation;
+            return newLocation;
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSquadBox(BattleSquad squad)
@@ -87,14 +110,14 @@ namespace Iam.Scripts.Helpers.Battle
             throw new ArgumentException("Squad not found");
         }
 
-        public bool PlaceSquad(BattleSquad squad, int left, int bottom)
+        public void PlaceSquad(BattleSquad squad, Tuple<int, int> bottomLeft)
         {
             Dictionary<int, Tuple<int, int>> soldierLocationMap = squad.IsPlayerSquad ? _playerSoldierLocationMap : _opposingSoldierLocationMap;
             // if any squad member is already on the map, we have a problem
             if (squad.Squad.Any(s => soldierLocationMap.ContainsKey(s.Id))) throw new InvalidOperationException("Soldier in squad " + squad.Name + " already on BattleGrid");
             if (squad.Squad.Length == 0) throw new InvalidOperationException(squad.Name + " has no soldiers to place");
             Tuple<int, int> squadBoxSize = squad.GetSquadBoxSize();
-            Tuple<int, int> startingLocation = new Tuple<int, int>(left + ((squadBoxSize.Item1 - 1) / 2), bottom + squadBoxSize.Item2 - 1);
+            Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + ((squadBoxSize.Item1 - 1) / 2), bottomLeft.Item2 + squadBoxSize.Item2 - 1);
             for (int i = 0; i < squad.Squad.Length; i++)
             {
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
@@ -109,30 +132,30 @@ namespace Iam.Scripts.Helpers.Battle
                     _opposingSoldierLocationMap[squad.Squad[i].Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
                 }
             }
-            return true;
+            OnSquadPlaced.Invoke(squad, startingLocation);
         }
 
         private float GetNearestTarget(Tuple<int, int> location, Dictionary<int, Tuple<int, int>> soldierLocationMap, out int closestTarget)
         {
             closestTarget = -1;
-            float distance = int.MaxValue;
+            float distanceSq = int.MaxValue;
             foreach (KeyValuePair<int, Tuple<int, int>> kvp in soldierLocationMap)
             {
                 
-                float tempDistance = CalculateDistance(location, kvp.Value);
-                if(tempDistance < distance)
+                float tempDistance = CalculateDistanceSq(location, kvp.Value);
+                if(tempDistance < distanceSq)
                 {
-                    distance = tempDistance;
+                    distanceSq = tempDistance;
                     closestTarget = kvp.Key;
                 }
             }
-            return distance;
+            return Mathf.Sqrt(distanceSq);
         }
 
-        private float CalculateDistance(Tuple<int, int> pos1, Tuple<int, int> pos2)
+        private float CalculateDistanceSq(Tuple<int, int> pos1, Tuple<int, int> pos2)
         {
             // for now, as a quick good-enough, just look at the difference in coordinates
-            return Math.Abs(pos1.Item1 - pos2.Item1) + Math.Abs(pos1.Item2 - pos2.Item2);
+            return Mathf.Pow(pos1.Item1 - pos2.Item1, 2) + Mathf.Pow(pos1.Item2 - pos2.Item2, 2);
         }
     }
 }

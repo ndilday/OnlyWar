@@ -16,6 +16,7 @@ namespace Iam.Scripts.Helpers.Battle
         public Soldier[] Squad { get; private set; }
         public float CoverModifier { get; private set; }
         public bool IsPlayerSquad { get; private set; }
+        public bool IsInMelee { get; private set; }
 
         public BattleSquad(bool isPlayerSquad, Squad squad)
         {
@@ -23,6 +24,7 @@ namespace Iam.Scripts.Helpers.Battle
             Name = squad.Name;
             Squad = squad.GetAllMembers();
             IsPlayerSquad = isPlayerSquad;
+            IsInMelee = false;
             // order weapon sets by strength of primary weapon
             AllocateEquipment(squad);
         }
@@ -48,17 +50,17 @@ namespace Iam.Scripts.Helpers.Battle
             return Squad[UnityEngine.Random.Range(0, Squad.Length)];
         }
 
-        public List<ChosenWeapon> GetWeaponsForRange(float range)
+        public List<ChosenRangedWeapon> GetWeaponsForRange(float range)
         {
-            List<ChosenWeapon> list = new List<ChosenWeapon>();
+            List<ChosenRangedWeapon> list = new List<ChosenRangedWeapon>();
             foreach(Soldier soldier in Squad)
             {
-                ChosenWeapon bestWeapon = null;
+                ChosenRangedWeapon bestWeapon = null;
                 float bestStrength = 0;
-                foreach(Weapon weapon in soldier.Weapons)
+                foreach(RangedWeapon weapon in soldier.RangedWeapons)
                 {
-                    if (!soldier.CanFireWeapon(weapon)) continue;
-                    ChosenWeapon newWeapon = new ChosenWeapon(weapon, soldier);
+                    if (soldier.FreeHands == 0) continue;
+                    ChosenRangedWeapon newWeapon = new ChosenRangedWeapon(weapon, soldier);
                     float newStrength = newWeapon.GetStrengthAtRange(range);
                     if( bestWeapon == null || bestStrength < newStrength 
                         || (bestStrength == newStrength && newWeapon.ActiveWeapon.Template.Accuracy > bestWeapon.ActiveWeapon.Template.Accuracy))
@@ -143,12 +145,12 @@ namespace Iam.Scripts.Helpers.Battle
         private void AllocateEquipment(Squad squad)
         {
             var tempSquad = Squad.ToList();
-            var wsList = squad.Loadout.OrderByDescending(l => l.MainWeapon.ArmorMultiplier).ThenBy(l => l.MainWeapon.PenetrationMultiplier).ThenBy(l => l.MainWeapon.Accuracy).ToList();
+            var wsList = squad.Loadout.OrderByDescending(l => l.PrimaryRangedWeapon.MaximumDistance).ToList();
             // need to allocate weapons from squad weapon sets
             if (Squad[0] == squad.SquadLeader)
             {
                 // for now, sgt always gets default weapons
-                Squad[0].Weapons = squad.SquadTemplate.DefaultWeapons.GetWeapons();
+                Squad[0].RangedWeapons = squad.SquadTemplate.DefaultWeapons.GetRangedWeapons();
                 // TODO: personalize armor and weapons
                 Squad[0].Armor = new Armor(squad.SquadTemplate.Armor);
                 tempSquad.RemoveAt(0);
@@ -156,8 +158,8 @@ namespace Iam.Scripts.Helpers.Battle
             foreach (WeaponSet ws in wsList)
             {
                 // TODO: we'll want to stop assuming Dex as the base stat at some point
-                var bestShooter = tempSquad.OrderByDescending(s => s.Dexterity + s.Skills[ws.MainWeapon.RelatedSkill.Id].SkillBonus).First();
-                bestShooter.Weapons = ws.GetWeapons();
+                var bestShooter = tempSquad.OrderByDescending(s => s.Dexterity + s.Skills[ws.PrimaryRangedWeapon.RelatedSkill.Id].SkillBonus).First();
+                bestShooter.RangedWeapons = ws.GetRangedWeapons();
                 bestShooter.Armor = new Armor(squad.SquadTemplate.Armor);
                 tempSquad.Remove(bestShooter);
             }
@@ -166,7 +168,7 @@ namespace Iam.Scripts.Helpers.Battle
                 Debug.Log("BattleSquad.AllocateEquipment: how did we get here?");
                 foreach(Soldier soldier in tempSquad)
                 {
-                    soldier.Weapons = squad.SquadTemplate.DefaultWeapons.GetWeapons();
+                    soldier.RangedWeapons = squad.SquadTemplate.DefaultWeapons.GetRangedWeapons();
                     // TODO: personalize armor and weapons
                     soldier.Armor = new Armor(squad.SquadTemplate.Armor);
                 }

@@ -1,23 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iam.Scripts.Models.Equippables
 {
     public class WeaponSet
     {
         public string Name { get; set; }
-        public WeaponTemplate MainWeapon { get; set; }
-        public WeaponTemplate SecondaryWeapon { get; set; }
-        public List<Weapon> GetWeapons()
+        public RangedWeaponTemplate PrimaryRangedWeapon { get; set; }
+        public RangedWeaponTemplate SecondaryRangedWeapon { get; set; }
+        public MeleeWeaponTemplate PrimaryMeleeWeapon { get; set; }
+        public MeleeWeaponTemplate SecondaryMeleeWeapon { get; set; }
+        public List<RangedWeapon> GetRangedWeapons()
         {
-            List<Weapon> list = new List<Weapon>();
-            list.Add(new Weapon(MainWeapon));
-            if(SecondaryWeapon != null)
+            List<RangedWeapon> list = new List<RangedWeapon>();
+            list.Add(new RangedWeapon(PrimaryRangedWeapon));
+            if(SecondaryRangedWeapon != null)
             {
-                list.Add(new Weapon(SecondaryWeapon));
+                list.Add(new RangedWeapon(SecondaryRangedWeapon));
+            }
+            return list;
+        }
+        public List<MeleeWeapon> GetMeleeWeapons()
+        {
+            List<MeleeWeapon> list = new List<MeleeWeapon>();
+            list.Add(new MeleeWeapon(PrimaryMeleeWeapon));
+            if (SecondaryMeleeWeapon != null)
+            {
+                list.Add(new MeleeWeapon(SecondaryMeleeWeapon));
             }
             return list;
         }

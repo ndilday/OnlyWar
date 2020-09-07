@@ -4,11 +4,11 @@ using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers
 {
-    public class ChosenWeapon
+    public class ChosenRangedWeapon
     {
-        public Weapon ActiveWeapon { get; private set; }
+        public RangedWeapon ActiveWeapon { get; private set; }
         public Soldier Soldier { get; private set; }
-        public ChosenWeapon(Weapon weapon, Soldier soldier)
+        public ChosenRangedWeapon(RangedWeapon weapon, Soldier soldier)
         {
             ActiveWeapon = weapon;
             Soldier = soldier;
@@ -16,9 +16,7 @@ namespace Iam.Scripts.Helpers
 
         public float GetStrengthAtRange(float range)
         {
-            if (ActiveWeapon.Template.GetType() != typeof(RangedWeaponTemplate)) return 0;
-            RangedWeaponTemplate template = (RangedWeaponTemplate)ActiveWeapon.Template;
-            return template.BaseStrength * (1 - (range / template.MaximumDistance));
+            return ActiveWeapon.Template.BaseStrength * (1 - (range / ActiveWeapon.Template.MaximumDistance));
         }
 
         public float GetAccuracyAtRange(float range)
