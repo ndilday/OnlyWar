@@ -1,17 +1,21 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Events;
 
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Helpers.Battle;
+using Iam.Scripts.Helpers.Battle.Actions;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Iam.Scripts.Controllers
 {
@@ -76,21 +80,23 @@ namespace Iam.Scripts.Controllers
                 _turnNumber++;
                 BattleView.ClearBattleLog();
                 Log(false, "Turn " + _turnNumber.ToString());
-                foreach (BattleSquad squad in _playerSquads.Values)
+                ConcurrentBag<IAction> actionBag = new ConcurrentBag<IAction>();
+                Parallel.ForEach(_playerSquads.Values, (squad) =>
                 {
-                    if (_opposingSquads.Count() > 0)
-                    {
-                        TakeAction(squad);
-                    }
-                }
-                foreach(BattleSquad squad in _opposingSquads.Values)
+                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag);
+                    planner.PrepareActions(squad);
+                });
+                Parallel.ForEach(_opposingSquads.Values, (squad) =>
                 {
-                    if (_playerSquads.Count() > 0)
-                    {
-                        TakeAction(squad);
-                    }
-                }
-                BattleView.OverwritePlayerWoundTrack(_selectedBattleSquad == null ? "" : GetSquadSummary(_selectedBattleSquad));
+                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag);
+                    planner.PrepareActions(squad);
+                });
+
+                // execute
+
+
+                // apply
+                
                 if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
                 {
                     Log(false, "One side destroyed, battle over");

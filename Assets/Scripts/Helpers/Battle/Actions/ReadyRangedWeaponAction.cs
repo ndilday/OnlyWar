@@ -5,8 +5,8 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 {
     class ReadyRangedWeaponAction : IAction
     {
-        BattleSoldier _soldier;
-        RangedWeapon _weapon;
+        private readonly BattleSoldier _soldier;
+        private readonly RangedWeapon _weapon;
         public ReadyRangedWeaponAction(BattleSoldier soldier, RangedWeapon weapon)
         {
             _soldier = soldier;

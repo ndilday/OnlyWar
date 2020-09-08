@@ -18,8 +18,8 @@ namespace Iam.Scripts.Helpers.Battle
         public int GridHeight { get; private set; }
 
         private readonly Dictionary<int, Tuple<int, int>> _soldierLocationMap;
-        private HashSet<int> _playerSoldierIds;
-        private HashSet<int> _opposingSoldierIds;
+        private readonly HashSet<int> _playerSoldierIds;
+        private readonly HashSet<int> _opposingSoldierIds;
 
         public BattleGrid(int gridWidth, int gridHeight)
         {

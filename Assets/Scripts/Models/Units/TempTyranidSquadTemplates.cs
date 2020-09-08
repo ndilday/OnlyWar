@@ -19,10 +19,10 @@ namespace Iam.Scripts.Models.Units
         }
         private TempTyranidWeaponSets()
         {
-            Deathspitter = new WeaponSet { Name = "Deathspitter", MainWeapon = TempEquipment.Instance.Deathspitter, SecondaryWeapon = null };
-            Devourer = new WeaponSet { Name = "Devourer", MainWeapon = TempEquipment.Instance.Devourer, SecondaryWeapon = null };
-            ScythingTalons = new WeaponSet { Name = "Scything Talons", MainWeapon = TempEquipment.Instance.ScythingTalons, SecondaryWeapon = TempEquipment.Instance.ScythingTalons };
-            RendingClaws = new WeaponSet { Name = "Rending Claws", MainWeapon = TempEquipment.Instance.RendingClaws, SecondaryWeapon = TempEquipment.Instance.RendingClaws };
+            Deathspitter = new WeaponSet { Name = "Deathspitter", PrimaryRangedWeapon = TempEquipment.Instance.Deathspitter };
+            Devourer = new WeaponSet { Name = "Devourer", PrimaryRangedWeapon = TempEquipment.Instance.Devourer };
+            ScythingTalons = new WeaponSet { Name = "Scything Talons", PrimaryMeleeWeapon = TempEquipment.Instance.ScythingTalons, SecondaryMeleeWeapon = TempEquipment.Instance.ScythingTalons };
+            RendingClaws = new WeaponSet { Name = "Rending Claws", PrimaryMeleeWeapon = TempEquipment.Instance.RendingClaws, SecondaryMeleeWeapon = TempEquipment.Instance.RendingClaws };
         }
 
         public WeaponSet ScythingTalons { get; private set; }

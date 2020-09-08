@@ -48,7 +48,7 @@ namespace Iam.Scripts.Controllers
             SquadArmamentView.SetIsFrontLine(!_selectedSquad.IsInReserve);
             if(_selectedSquad.SquadTemplate.DefaultWeapons != null)
             {
-                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve, _selectedSquad.GetAllMembers().Length, _selectedSquad.SquadTemplate.DefaultWeapons.Name, GetSquadWeaponSelectionSections(_selectedSquad));
+                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve, _selectedSquad.GetAllMembers().Count(), _selectedSquad.SquadTemplate.DefaultWeapons.Name, GetSquadWeaponSelectionSections(_selectedSquad));
             }
         }
 

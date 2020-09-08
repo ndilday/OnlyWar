@@ -8,7 +8,6 @@ using UnityEngine;
 using Iam.Scripts.Helpers.Battle.Actions;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
-using System.Xml.Schema;
 
 namespace Iam.Scripts.Helpers.Battle
 {
@@ -382,7 +381,7 @@ namespace Iam.Scripts.Helpers.Battle
             // +1 for all-out attack, - ROF after the first shot
             // z value of 0.43 is 
             baseTotal = baseTotal + 1 + weapon.Template.Accuracy;
-            baseTotal = baseTotal + CalculateRateOfFireModifier(weapon.Template.RateOfFire);
+            baseTotal += CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             if (baseTotal < 10.5) return 0;
             return GetRangeForModifier(10.5f - baseTotal);
         }
@@ -439,7 +438,7 @@ namespace Iam.Scripts.Helpers.Battle
             return bestWeapon;
         }
 
-        private Tuple<float, float> EstimateShootingResult(BattleSoldier soldier, BattleSoldier target, RangedWeapon weapon, float range, float modifiers)
+        private Tuple<float, float> EstimateShootingResult(BattleSoldier soldier, BattleSoldier target, RangedWeapon weapon, float range, float moveAndAimMod)
         {
             float sizeMod = CalculateSizeModifier(target.Soldier.Size);
             float armor = target.Armor.Template.ArmorProvided;
@@ -448,7 +447,7 @@ namespace Iam.Scripts.Helpers.Battle
             float rangeMod = CalculateRangeModifier(range);
             float rofMod = CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             float weaponSkill = GetWeaponSkill(soldier.Soldier, weapon.Template);
-            float total = weaponSkill + rofMod + rangeMod + modifiers;
+            float total = weaponSkill + rofMod + rangeMod + sizeMod + moveAndAimMod;
             return new Tuple<float, float>(total, expectedDamage);
 
         }

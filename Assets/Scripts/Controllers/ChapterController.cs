@@ -121,7 +121,7 @@ namespace Iam.Scripts.Controllers
                 }
                 else
                 {
-                    unitReport += "Needs a Captain Assigned!";
+                    unitReport += "Needs a Captain Assigned!\n";
                 }
 
                 if(unit.Name != "Tenth Company")
@@ -134,7 +134,7 @@ namespace Iam.Scripts.Controllers
                     }
                     else
                     {
-                        unitReport += "Needs an Ancient Assigned!";
+                        unitReport += "Needs an Ancient Assigned!\n";
                     }
                     SpaceMarine champion = marines.FirstOrDefault(m => m.Rank == TempSpaceMarineRanks.Champion || m.Rank == TempSpaceMarineRanks.ChapterChampion);
                     if (champion != null)
@@ -143,7 +143,7 @@ namespace Iam.Scripts.Controllers
                     }
                     else
                     {
-                        unitReport += "Needs a Champion Assigned!";
+                        unitReport += "Needs a Champion Assigned!\n";
                     }
                 }
             }
@@ -182,7 +182,7 @@ namespace Iam.Scripts.Controllers
 
         private string GenerateSquadSummary(Squad squad)
         {
-            int headCount = squad.GetAllMembers().Length;
+            int headCount = squad.GetAllMembers().Count();
             return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
         }
 

@@ -8,7 +8,7 @@ namespace Iam.Scripts.Helpers.Battle
 {
     class BattleSquadPlacer
     {
-        BattleGrid _grid;
+        private readonly BattleGrid _grid;
 
         public BattleSquadPlacer(BattleGrid grid)
         {
@@ -78,7 +78,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
 
 
-            _grid.PlaceSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
             return new Vector2(placeLeft, placeBottom);
         }
 
@@ -117,7 +117,7 @@ namespace Iam.Scripts.Helpers.Battle
                 if (top < bottom + squadSize.Item2) bottom = top - squadSize.Item2;
             }
 
-            _grid.PlaceSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
             return new Vector2(placeLeft, placeBottom);
         }
     }

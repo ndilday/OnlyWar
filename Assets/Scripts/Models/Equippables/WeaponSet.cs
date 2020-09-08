@@ -12,9 +12,11 @@ namespace Iam.Scripts.Models.Equippables
         public MeleeWeaponTemplate SecondaryMeleeWeapon { get; set; }
         public List<RangedWeapon> GetRangedWeapons()
         {
-            List<RangedWeapon> list = new List<RangedWeapon>();
-            list.Add(new RangedWeapon(PrimaryRangedWeapon));
-            if(SecondaryRangedWeapon != null)
+            List<RangedWeapon> list = new List<RangedWeapon>
+            {
+                new RangedWeapon(PrimaryRangedWeapon)
+            };
+            if (SecondaryRangedWeapon != null)
             {
                 list.Add(new RangedWeapon(SecondaryRangedWeapon));
             }
@@ -22,8 +24,10 @@ namespace Iam.Scripts.Models.Equippables
         }
         public List<MeleeWeapon> GetMeleeWeapons()
         {
-            List<MeleeWeapon> list = new List<MeleeWeapon>();
-            list.Add(new MeleeWeapon(PrimaryMeleeWeapon));
+            List<MeleeWeapon> list = new List<MeleeWeapon>
+            {
+                new MeleeWeapon(PrimaryMeleeWeapon)
+            };
             if (SecondaryMeleeWeapon != null)
             {
                 list.Add(new MeleeWeapon(SecondaryMeleeWeapon));

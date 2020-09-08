@@ -21,21 +21,21 @@ namespace Iam.Scripts.Models.Units
         private TempSpaceMarineWeaponSets()
         {
             ImperialEquippables eq = ImperialEquippables.Instance;
-            Bolter = new WeaponSet { Name = "Boltgun", MainWeapon = eq.Boltgun, SecondaryWeapon = null };
-            BoltPistolChainSword = new WeaponSet { Name = "Bolt Pistol & Chainsword", MainWeapon = eq.BoltPistol, SecondaryWeapon = eq.Chainsword };
-            BolterPlusPistol = new WeaponSet { Name = "Boltgun & Bolt Pistol", MainWeapon = eq.Boltgun, SecondaryWeapon = eq.BoltPistol };
-            Flamer = new WeaponSet { Name = "Flamer", MainWeapon = eq.Flamer, SecondaryWeapon = null };
-            HeavyBolter = new WeaponSet { Name = "Heavy Bolter", MainWeapon = eq.HeavyBolter, SecondaryWeapon = null };
-            Lascannon = new WeaponSet { Name = "Lascannon", MainWeapon = eq.Lascannon, SecondaryWeapon = null };
-            MeltaGun = new WeaponSet { Name = "Meltagun", MainWeapon = eq.MeltaGun, SecondaryWeapon = null };
-            Missile = new WeaponSet { Name = "Missile Launcher", MainWeapon = eq.MissileLauncher, SecondaryWeapon = null };
-            MultiMelta = new WeaponSet { Name = "Multi-melta", MainWeapon = eq.MultiMelta, SecondaryWeapon = null };
-            PlasmaCannon = new WeaponSet { Name = "Plasma Cannon", MainWeapon = eq.PlasmaCannon, SecondaryWeapon = null };
-            PlasmaGun = new WeaponSet { Name = "Plasma Gun", MainWeapon = eq.PlasmaGun, SecondaryWeapon = null };
-            PlasmaPistolChainSword = new WeaponSet { Name = "Plasma Pistol & Chainsword", MainWeapon = eq.PlasmaPistol, SecondaryWeapon = eq.Chainsword };
-            Shotgun = new WeaponSet { Name = "Shotgun", MainWeapon = eq.Shotgun, SecondaryWeapon = null };
-            SniperRifle = new WeaponSet { Name = "Sniper Rifle", MainWeapon = eq.SniperRifle, SecondaryWeapon = null };
-            Eviscerator = new WeaponSet { Name = "Eviscerator", MainWeapon = eq.Eviscerator, SecondaryWeapon = null };
+            Bolter = new WeaponSet { Name = "Boltgun", PrimaryRangedWeapon = eq.Boltgun };
+            BoltPistolChainSword = new WeaponSet { Name = "Bolt Pistol & Chainsword", PrimaryRangedWeapon = eq.BoltPistol, PrimaryMeleeWeapon = eq.Chainsword };
+            BolterPlusPistol = new WeaponSet { Name = "Boltgun & Bolt Pistol", PrimaryRangedWeapon = eq.Boltgun, SecondaryRangedWeapon = eq.BoltPistol };
+            Flamer = new WeaponSet { Name = "Flamer", PrimaryRangedWeapon = eq.Flamer };
+            HeavyBolter = new WeaponSet { Name = "Heavy Bolter", PrimaryRangedWeapon = eq.HeavyBolter };
+            Lascannon = new WeaponSet { Name = "Lascannon", PrimaryRangedWeapon = eq.Lascannon };
+            MeltaGun = new WeaponSet { Name = "Meltagun", PrimaryRangedWeapon = eq.MeltaGun };
+            Missile = new WeaponSet { Name = "Missile Launcher", PrimaryRangedWeapon = eq.MissileLauncher };
+            MultiMelta = new WeaponSet { Name = "Multi-melta", PrimaryRangedWeapon = eq.MultiMelta };
+            PlasmaCannon = new WeaponSet { Name = "Plasma Cannon", PrimaryRangedWeapon = eq.PlasmaCannon };
+            PlasmaGun = new WeaponSet { Name = "Plasma Gun", PrimaryRangedWeapon = eq.PlasmaGun };
+            PlasmaPistolChainSword = new WeaponSet { Name = "Plasma Pistol & Chainsword", PrimaryRangedWeapon = eq.PlasmaPistol, PrimaryMeleeWeapon = eq.Chainsword };
+            Shotgun = new WeaponSet { Name = "Shotgun", PrimaryRangedWeapon = eq.Shotgun };
+            SniperRifle = new WeaponSet { Name = "Sniper Rifle", PrimaryRangedWeapon = eq.SniperRifle };
+            Eviscerator = new WeaponSet { Name = "Eviscerator", PrimaryMeleeWeapon = eq.Eviscerator };
         }
 
         public WeaponSet Bolter { get; private set; }
