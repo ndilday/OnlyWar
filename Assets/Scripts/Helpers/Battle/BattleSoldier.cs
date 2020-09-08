@@ -46,7 +46,7 @@ namespace Iam.Scripts.Helpers.Battle
                 return handCount;
             }
         }
-        public Tuple<BattleSoldier, RangedWeapon, int> Aim { get; private set; }
+        public Tuple<BattleSoldier, RangedWeapon, int> Aim { get; set; }
 
         public BattleSoldier(Soldier soldier, BattleSquad squad)
         {

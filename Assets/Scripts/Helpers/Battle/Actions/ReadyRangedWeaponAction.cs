@@ -15,7 +15,24 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 
         public void Execute()
         {
-            throw new NotImplementedException();
+            if(_weapon.Template.Location == EquipLocation.TwoHand && _soldier.HandsFree < 2)
+            {
+                // unequip any equipped weapons
+                _soldier.EquippedRangedWeapons.Clear();
+                _soldier.EquippedMeleeWeapons.Clear();
+            }
+            if(_weapon.Template.Location == EquipLocation.OneHand && _soldier.HandsFree < 1)
+            {
+                if(_soldier.EquippedRangedWeapons.Count > 0)
+                {
+                    _soldier.EquippedRangedWeapons.Clear();
+                }
+                else
+                {
+                    _soldier.EquippedMeleeWeapons.Clear();
+                }
+            }
+            _soldier.EquippedRangedWeapons.Add(_weapon);
         }
     }
 }
