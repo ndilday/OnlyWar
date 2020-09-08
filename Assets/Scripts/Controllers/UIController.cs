@@ -54,6 +54,16 @@ namespace Iam.Scripts.Controllers
             ScreenTitle.text = "Battle on " + planet.Name;
         }
 
+        public void Dialog_OnClose()
+        {
+            ScreenTitle.text = "Sector Map";
+        }
+
+        public void GalaxyController_OnPlanetSelected(Planet planet)
+        {
+            ScreenTitle.text = planet.Name;
+        }
+
         private void DisableUI()
         {
             BottomUI.SetActive(false);
