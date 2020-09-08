@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Concurrent;
+using Iam.Scripts.Helpers.Battle.Resolutions;
 using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers.Battle.Actions
@@ -9,11 +10,13 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         private readonly BattleSoldier _soldier;
         private readonly BattleGrid _grid;
         private readonly Tuple<int, int> _movement;
-        public MoveAction(BattleSoldier soldier, BattleGrid grid, Tuple<int, int> movement)
+        private readonly ConcurrentBag<MoveResolution> _resultList;
+        public MoveAction(BattleSoldier soldier, BattleGrid grid, Tuple<int, int> movement, ConcurrentBag<MoveResolution> resultList)
         {
             _soldier = soldier;
             _grid = grid;
             _movement = movement;
+            _resultList = resultList;
         }
 
         public void Execute()

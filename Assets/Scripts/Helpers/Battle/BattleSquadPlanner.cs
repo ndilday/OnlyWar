@@ -8,6 +8,7 @@ using UnityEngine;
 using Iam.Scripts.Helpers.Battle.Actions;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Helpers.Battle.Resolutions;
 
 namespace Iam.Scripts.Helpers.Battle
 {
@@ -16,12 +17,17 @@ namespace Iam.Scripts.Helpers.Battle
         private readonly BattleGrid _grid;
         private readonly ConcurrentBag<IAction> _actionBag;
         private readonly Dictionary<int, BattleSquad> _opposingSoldierIdSquadMap;
+        private readonly ConcurrentBag<WoundResolution> _woundBag;
+        private readonly ConcurrentBag<MoveResolution> _moveBag;
 
-        public BattleSquadPlanner(BattleGrid grid, Dictionary<int, BattleSquad> opposingSoldierIdSquadMap, ConcurrentBag<IAction> actionBag)
+        public BattleSquadPlanner(BattleGrid grid, Dictionary<int, BattleSquad> opposingSoldierIdSquadMap, 
+            ConcurrentBag<IAction> actionBag, ConcurrentBag<WoundResolution> woundBag, ConcurrentBag<MoveResolution> moveBag)
         {
             _grid = grid;
             _opposingSoldierIdSquadMap = opposingSoldierIdSquadMap;
             _actionBag = actionBag;
+            _moveBag = moveBag;
+            _woundBag = woundBag;
         }
 
         public void PrepareActions(BattleSquad squad)
@@ -41,7 +47,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // it doesn't really matter what the soldiers want to do, it's time to fight
                 foreach(BattleSoldier soldier in squad.Soldiers)
                 {
-                    AddMeleeActionsToBag(soldier);
+                    AddChargeActionsToBag(soldier);
                 }
             }
             else
@@ -149,7 +155,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // if the aim cannot be improved, go ahead and shoot
                 if (soldier.Aim.Item3 == 2)
                 {
-                    _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1));
+                    _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, _woundBag));
                 }
                 else
                 {
@@ -162,13 +168,13 @@ namespace Iam.Scripts.Helpers.Battle
                     if (soldier.Aim.Item1.GetMoveSpeed() > range)
                     {
                         // it's about to attack, go ahead and shoot, you may not get another chance
-                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1));
+                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, _woundBag));
 
                     }
                     else if (resultEstimate.Item2 >= 1 && resultEstimate.Item1 >= -8.7f)
                     {
                         // there's a good chance of both hitting and killing, go ahead and shoot now
-                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1));
+                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, _woundBag));
                     }
                     else
                     {
@@ -192,7 +198,7 @@ namespace Iam.Scripts.Helpers.Battle
                 }
                 else
                 {
-                    _actionBag.Add(new ShootAction(soldier, weapon, oppSquad.GetRandomSquadMember()));
+                    _actionBag.Add(new ShootAction(soldier, weapon, oppSquad.GetRandomSquadMember(), _woundBag));
                 }
             }
         }
@@ -216,7 +222,7 @@ namespace Iam.Scripts.Helpers.Battle
                 Tuple<int, int> line = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(line, moveSpeed);
-                _actionBag.Add(new MoveAction(soldier, _grid, realMove));
+                _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
 
                 // should the soldier shoot along the way?
                 float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
@@ -224,7 +230,7 @@ namespace Iam.Scripts.Helpers.Battle
                 RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
                 if (weapon != null)
                 {
-                    _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember()));
+                    _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember(), _woundBag));
                 }
             }
         }
@@ -237,7 +243,7 @@ namespace Iam.Scripts.Helpers.Battle
 
             int newY = (int)(soldierSquad.IsPlayerSquad ? currentPosition.Item2 - moveSpeed : currentPosition.Item2 + moveSpeed);
 
-            _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(0, newY)));
+            _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(0, newY), _moveBag));
 
             // determine if soldier will shoot as he falls back
             int closestEnemyId;
@@ -246,7 +252,7 @@ namespace Iam.Scripts.Helpers.Battle
             RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
             if(weapon != null)
             {
-                _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember()));
+                _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember(), _woundBag));
             }
         }
 
@@ -257,7 +263,7 @@ namespace Iam.Scripts.Helpers.Battle
             float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
             if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
             BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-            _actionBag.Add(new MeleeAttackAction(soldier, enemy, false));
+            _actionBag.Add(new MeleeAttackAction(soldier, enemy, false, _woundBag));
         }
 
         private void AddChargeActionsToBag(BattleSoldier soldier)
@@ -271,6 +277,8 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // get stuck in
                 // move adjacent to nearest enemy
+                // TODO: handle when someone else in the same squad wants to use the same spot
+                // TODO: probably by letting the one with the lower id have it, and the higher id has to 
                 int closestEnemyId;
                 Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
                 float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
@@ -323,7 +331,7 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(move, moveSpeed);
-                _actionBag.Add(new MoveAction(soldier, _grid, realMove));
+                _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
                 
                 // should the soldier shoot along the way?
                 float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
@@ -331,14 +339,14 @@ namespace Iam.Scripts.Helpers.Battle
                 RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
                 if (weapon != null)
                 {
-                    _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember()));
+                    _actionBag.Add(new ShootAction(soldier, weapon, targetSquad.GetRandomSquadMember(), _woundBag));
                 }
             }
             else
             {
-                _actionBag.Add(new MoveAction(soldier, _grid, move));
+                _actionBag.Add(new MoveAction(soldier, _grid, move, _moveBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _actionBag.Add(new MeleeAttackAction(soldier, target, distance <= 2));
+                _actionBag.Add(new MeleeAttackAction(soldier, target, distance <= 2, _woundBag));
             }
         }
 

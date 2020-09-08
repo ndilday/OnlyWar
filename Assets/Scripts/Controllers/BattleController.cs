@@ -16,6 +16,7 @@ using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 using Unity.Collections.LowLevel.Unsafe;
+using Iam.Scripts.Helpers.Battle.Resolutions;
 
 namespace Iam.Scripts.Controllers
 {
@@ -33,6 +34,9 @@ namespace Iam.Scripts.Controllers
         private BattleSquad _selectedBattleSquad;
         private BattleGrid _grid;
         private int _turnNumber;
+        private readonly MoveResolver _moveResolver;
+        private readonly WoundResolver _woundResolver;
+
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -45,6 +49,8 @@ namespace Iam.Scripts.Controllers
             _playerSquads = new Dictionary<int, BattleSquad>();
             _opposingSquads = new Dictionary<int, BattleSquad>();;
             _soldierSquadMap = new Dictionary<int, BattleSquad>();
+            _moveResolver = new MoveResolver();
+            _woundResolver = new WoundResolver();
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
@@ -73,38 +79,48 @@ namespace Iam.Scripts.Controllers
 
         public void RunBattleTurn()
         {
-            // don't worry about unit AI yet... just have them each move one and fire
-            // TODO: handle initiative
             if (_playerSquads.Count() > 0 && _opposingSquads.Count() > 0)
             {
                 _turnNumber++;
                 BattleView.ClearBattleLog();
                 Log(false, "Turn " + _turnNumber.ToString());
+                // this is a three step process: plan, execute, and apply
+
+                // PLAN
+                // use the thread pool to handle the BattleSquadPlanner classes;
+                // these look at the current game state to figure out the actions each soldier should take
+                // the planners populate the actionBag with what they want to do
                 ConcurrentBag<IAction> actionBag = new ConcurrentBag<IAction>();
                 Parallel.ForEach(_playerSquads.Values, (squad) =>
                 {
-                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag);
+                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue);
                     planner.PrepareActions(squad);
                 });
                 Parallel.ForEach(_opposingSquads.Values, (squad) =>
                 {
-                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag);
+                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue);
                     planner.PrepareActions(squad);
                 });
 
-                // execute
+                // EXECUTE
+                // once the squads have all finished planning actions, we use the thread pool to process the execution logic. 
+                // These use the command pattern to allow the controller to execute each without having any knowledge of what the internal implementation is
+                // this also allows us to separate the concerns of the planner and the executor
+                // we take the results/side effects of each execution that impact the outside world and put those results into queues
+                // (movement and wounding are the only things that fit this category, today, but there will be others in the future)
+                Parallel.ForEach(actionBag, (action) => action.Execute());
 
+                // APPLY
+                // the move resolver and wound resolver should now be populated
+                // because movement and wounding may have race conditions, resolution has to be handled serially
+                _moveResolver.ResolveQueue();
+                _woundResolver.ResolveQueue();
 
-                // apply
-                
                 if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
                 {
                     Log(false, "One side destroyed, battle over");
                     BattleView.UpdateNextStepButton("End Battle", true);
-                    // update View button
                 }
-
-                //UpdateInjuryTrackers();
             }
             else
             {
