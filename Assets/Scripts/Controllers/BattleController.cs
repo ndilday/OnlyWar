@@ -18,15 +18,15 @@ namespace Iam.Scripts.Controllers
     public class BattleController : MonoBehaviour
     {
         public UnityEvent OnBattleComplete;
+        
         [SerializeField]
         private BattleView BattleView;
         
         private readonly Dictionary<int, BattleSquad> _playerSquads;
         private readonly Dictionary<int, BattleSquad> _opposingSquads;
-        private readonly Dictionary<int, BattleSquad> _playerSoldierSquadMap;
-        private readonly Dictionary<int, BattleSquad> _opposingSoldierSquadMap;
+        private readonly Dictionary<int, BattleSquad> _soldierSquadMap;
+
         private BattleSquad _selectedBattleSquad;
-        
         private BattleGrid _grid;
         private int _turnNumber;
 
@@ -39,9 +39,8 @@ namespace Iam.Scripts.Controllers
         public BattleController()
         {
             _playerSquads = new Dictionary<int, BattleSquad>();
-            _opposingSquads = new Dictionary<int, BattleSquad>();
-            _playerSoldierSquadMap = new Dictionary<int, BattleSquad>();
-            _opposingSoldierSquadMap = new Dictionary<int, BattleSquad>();
+            _opposingSquads = new Dictionary<int, BattleSquad>();;
+            _soldierSquadMap = new Dictionary<int, BattleSquad>();
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
@@ -52,11 +51,11 @@ namespace Iam.Scripts.Controllers
             {
                 if(kvp.Key == TempFactions.Instance.SpaceMarines.Id)
                 {
-                    PopulateSquadMapFromUnitList(_playerSquads, kvp.Value, true);
+                    PopulateMapsFromUnitList(_playerSquads, kvp.Value, true);
                 }
                 else
                 {
-                    PopulateSquadMapFromUnitList(_opposingSquads, kvp.Value, false);
+                    PopulateMapsFromUnitList(_opposingSquads, kvp.Value, false);
                 }
             }
 
@@ -65,7 +64,6 @@ namespace Iam.Scripts.Controllers
             PopulateBattleViewSquads(playerPlacements);
             var oppPlacements = placer.PlaceSquads(_opposingSquads.Values);
             PopulateBattleViewSquads(oppPlacements);
-            PopulateSoldierMaps();
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
@@ -132,14 +130,13 @@ namespace Iam.Scripts.Controllers
             _turnNumber = 0;
 
             _playerSquads.Clear();
-            _playerSoldierSquadMap.Clear();
+            _soldierSquadMap.Clear();
             _opposingSquads.Clear();
-            _opposingSoldierSquadMap.Clear();
 
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
 
-        private void PopulateSquadMapFromUnitList(Dictionary<int, BattleSquad> map, List<Unit> units, bool isPlayerSquad)
+        private void PopulateMapsFromUnitList(Dictionary<int, BattleSquad> map, List<Unit> units, bool isPlayerSquad)
         {
             foreach (Unit unit in units)
             {
@@ -147,6 +144,10 @@ namespace Iam.Scripts.Controllers
                 foreach (BattleSquad bs in battleSquads)
                 {
                     map[bs.Id] = bs;
+                    foreach(BattleSoldier soldier in bs.Soldiers)
+                    {
+                        _soldierSquadMap[soldier.Soldier.Id] = bs;
+                    }
                 }
             }
         }
@@ -161,29 +162,10 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void PopulateSoldierMaps()
-        {
-            foreach(BattleSquad squad in _playerSquads.Values)
-            {
-                foreach(Soldier soldier in squad.Squad)
-                {
-                    _playerSoldierSquadMap[soldier.Id] = squad;
-                }
-            }
-
-            foreach (BattleSquad squad in _opposingSquads.Values)
-            {
-                foreach (Soldier soldier in squad.Squad)
-                {
-                    _opposingSoldierSquadMap[soldier.Id] = squad;
-                }
-            }
-        }
-
         private string GetSquadDetails(BattleSquad squad)
         {
-            string report = "\n" + squad.Name + "\n" + squad.Squad.Length.ToString() + " soldiers standing\n\n";
-            foreach(Soldier soldier in squad.Squad)
+            string report = "\n" + squad.Name + "\n" + squad.Soldiers.Count.ToString() + " soldiers standing\n\n";
+            foreach(BattleSoldier soldier in squad.Soldiers)
             {
                 report += soldier.ToString() + "\n";
                 foreach (RangedWeapon weapon in soldier.RangedWeapons)
@@ -191,7 +173,7 @@ namespace Iam.Scripts.Controllers
                     report += weapon.Template.Name + "\n";
                 }
                 report += soldier.Armor.Template.Name + "\n";
-                foreach(HitLocation hl in soldier.Body.HitLocations)
+                foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                 {
                     report += hl.ToString() + "\n";
                 }
@@ -202,7 +184,7 @@ namespace Iam.Scripts.Controllers
 
         private string GetSquadSummary(BattleSquad squad)
         {
-            return "\n" + squad.Name + "\n" + squad.Squad.Length.ToString() + " soldiers standing\n\n";
+            return "\n" + squad.Name + "\n" + squad.Soldiers.Count.ToString() + " soldiers standing\n\n";
         }
 
         private void Log(bool isMessageVerbose, string text)
@@ -216,9 +198,9 @@ namespace Iam.Scripts.Controllers
         private void TakeAction(BattleSquad squad)
         {
             // for now, if anyone in the squad starts shooting, the squad shoots
-            float range = _grid.GetNearestEnemy(squad.Squad[0], squad.IsPlayerSquad, out int enemyId) * GRID_SCALE;
+            float range = _grid.GetNearestEnemy(squad.Soldiers[0].Soldier, out int enemyId) * GRID_SCALE;
             List<ChosenRangedWeapon> bestWeapons = squad.GetWeaponsForRange(range);
-            BattleSquad enemySquad = squad.IsPlayerSquad ? _opposingSoldierSquadMap[enemyId] : _playerSoldierSquadMap[enemyId];
+            BattleSquad enemySquad =  _soldierSquadMap[enemyId];
             if(ShouldFire(bestWeapons, enemySquad, range))
             {
                 Log(false, squad.Name + "is shooting");
@@ -233,9 +215,14 @@ namespace Iam.Scripts.Controllers
 
         private void MoveSquad(BattleSquad squad)
         {
-            int moveAmount = squad.GetSquadMove() * 3 / GRID_SCALE;
-            Tuple<int, int> newPosition = _grid.MoveSquad(squad, 0, squad.IsPlayerSquad ? moveAmount : -moveAmount);
-            BattleView.MoveSquad(squad.Id, new Vector2(newPosition.Item1, newPosition.Item2));
+            int moveAmount = squad.GetSquadMove() / GRID_SCALE;
+            int yMove = squad.IsPlayerSquad ? moveAmount : -moveAmount;
+            foreach(BattleSoldier soldier in squad.Soldiers)
+            {
+                _grid.MoveSoldier(soldier.Soldier.Id, 0, yMove);
+            }
+            var location = _grid.GetSoldierBoxCorners(squad.Soldiers);
+            BattleView.MoveSquad(squad.Id, new Vector2(location.Item1.Item1, location.Item1.Item2));
         }
 
         private bool ShouldFire(List<ChosenRangedWeapon> weapons, BattleSquad enemy, float range)
@@ -282,10 +269,10 @@ namespace Iam.Scripts.Controllers
             foreach(ChosenRangedWeapon weapon in weapons)
             {
                 // a previous shot may have finished off this squad; if so, other shots from this squad are wasted
-                if (target.Squad.Length == 0) break;
+                if (target.Soldiers.Count == 0) break;
 
-                Soldier hitSoldier = target.GetRandomSquadMember();
-                float totalModifier = weapon.ActiveWeapon.Template.Accuracy + rangeModifier + CalculateSizeModifier(hitSoldier.Size) + coverModifier;
+                BattleSoldier hitSoldier = target.GetRandomSquadMember();
+                float totalModifier = weapon.ActiveWeapon.Template.Accuracy + rangeModifier + CalculateSizeModifier(hitSoldier.Soldier.Size) + coverModifier;
                 Log(true, "Total modifier to shot is " + totalModifier.ToString("F0"));
                 // bracing
                 // figure out number of shots fired
@@ -324,10 +311,10 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void ResolveHit(ChosenRangedWeapon weapon, Soldier hitSoldier, BattleSquad target, float range)
+        private void ResolveHit(ChosenRangedWeapon weapon, BattleSoldier hitSoldier, BattleSquad target, float range)
         {
             // TODO: handle hit location
-            HitLocation location = DetermineHitLocation(hitSoldier);
+            HitLocation location = DetermineHitLocation(hitSoldier.Soldier);
             Log(false, "<b>" + hitSoldier.ToString() + " hit in " + location.Template.Name + "</b>");
             if ((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
@@ -372,7 +359,7 @@ namespace Iam.Scripts.Controllers
             return null;
         }
 
-        private void HandleWound(float totalDamage, Soldier hitSoldier, HitLocation location, BattleSquad soldierSquad)
+        private void HandleWound(float totalDamage, BattleSoldier hitSoldier, HitLocation location, BattleSquad soldierSquad)
         {
             Wounds wound;
             // check location for natural armor
@@ -381,7 +368,7 @@ namespace Iam.Scripts.Controllers
             // multiply damage by location modifier
             totalDamage *= location.Template.DamageMultiplier;
             // compare total damage to soldier Constitution
-            float ratio = totalDamage / hitSoldier.Constitution;
+            float ratio = totalDamage / hitSoldier.Soldier.Constitution;
             if(ratio >= 2.0f)
             {
                 wound = Wounds.Unsurvivable;
@@ -457,21 +444,21 @@ namespace Iam.Scripts.Controllers
             
         }
 
-        private void CheckForDeath(Soldier soldier, BattleSquad squad)
+        private void CheckForDeath(BattleSoldier soldier, BattleSquad squad)
         {
             float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
-            if (roll > soldier.Constitution)
+            if (roll > soldier.Soldier.Constitution)
             {
                 Log(false, soldier.ToString() + " died");
                 RemoveSoldier(soldier, squad);
             }
         }
 
-        private void RemoveSoldier(Soldier soldier, BattleSquad squad)
+        private void RemoveSoldier(BattleSoldier soldier, BattleSquad squad)
         {
             squad.RemoveSoldier(soldier);
-            _grid.RemoveSoldier(soldier.Id, squad.IsPlayerSquad);
-            if(squad.Squad.Length == 0)
+            _grid.RemoveSoldier(soldier.Soldier.Id);
+            if(squad.Soldiers.Count == 0)
             {
                 Log(false, "<b>" + squad.Name + " wiped out</b>");
                 RemoveSquad(squad);
@@ -481,16 +468,8 @@ namespace Iam.Scripts.Controllers
         private void RemoveSquad(BattleSquad squad)
         {
             BattleView.RemoveSquad(squad.Id);
-            if (squad.IsPlayerSquad)
-            {
-                _playerSoldierSquadMap.Remove(squad.Id);
-                _playerSquads.Remove(squad.Id);
-            }
-            else
-            {
-                _opposingSquads.Remove(squad.Id);
-                _opposingSoldierSquadMap.Remove(squad.Id);
-            }
+             _opposingSquads.Remove(squad.Id);
+            _soldierSquadMap.Remove(squad.Id);
             if(_selectedBattleSquad == squad)
             {
                 _selectedBattleSquad = null;

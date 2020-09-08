@@ -80,24 +80,24 @@ namespace Iam.Scripts.Models.Soldiers
             }
         }
 
-        public override int FreeHands
+        public override int FunctioningHands
         {
             get
             {
-                int handsFree = 0;
+                int handsAvailable = 0;
                 HitLocation leftHand = Body.HitLocations.Single(hl => hl.Template.Name == "Left Hand");
                 HitLocation leftArm = Body.HitLocations.Single(hl => hl.Template.Name == "Left Arm");
                 HitLocation rightHand = Body.HitLocations.Single(hl => hl.Template.Name == "Right Hand");
                 HitLocation rightArm = Body.HitLocations.Single(hl => hl.Template.Name == "Right Arm");
                 if(leftHand.Wounds < leftHand.Template.WoundLimit && leftArm.Wounds < leftArm.Template.WoundLimit)
                 {
-                    handsFree++;
+                    handsAvailable++;
                 }
                 if(rightHand.Wounds < rightHand.Template.WoundLimit && rightArm.Wounds < rightArm.Template.WoundLimit)
                 {
-                    handsFree++;
+                    handsAvailable++;
                 }
-                return handsFree;
+                return handsAvailable;
             }
         }
     }

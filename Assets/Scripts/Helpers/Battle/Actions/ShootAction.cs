@@ -9,15 +9,15 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 {
     class ShootAction : IAction
     {
-        private readonly Soldier _soldier;
+        private readonly BattleSoldier _soldier;
         private readonly RangedWeapon _weapon;
-        private readonly BattleSquad _targetSquad;
+        private readonly BattleSoldier _target;
 
-        public ShootAction(Soldier shooter, RangedWeapon weapon, BattleSquad targetSquad)
+        public ShootAction(BattleSoldier shooter, RangedWeapon weapon, BattleSoldier target)
         {
             _soldier = shooter;
             _weapon = weapon;
-            _targetSquad = targetSquad;
+            _target = target;
         }
 
         public void Execute()

@@ -26,22 +26,14 @@ namespace Iam.Scripts.Models.Units
             AssignedVehicles = new List<int>();
             Loadout = new List<WeaponSet>();
         }
-        public Soldier[] GetAllMembers()
+        public IEnumerable<Soldier> GetAllMembers()
         {
-            int count = Members.Count + (SquadLeader == null ? 0 : 1);
-            Soldier[] array = new Soldier[count];
-            int i = 0;
+            List<Soldier> memberList = new List<Soldier>(Members);
             if(SquadLeader != null)
             {
-                array[i] = SquadLeader;
-                i++;
+                memberList.Insert(0, SquadLeader);
             }
-            foreach(Soldier soldier in Members)
-            {
-                array[i] = soldier;
-                i++;
-            }
-            return array;
+            return memberList;
         }
     }
 }
