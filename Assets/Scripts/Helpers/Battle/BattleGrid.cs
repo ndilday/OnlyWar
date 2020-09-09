@@ -38,10 +38,10 @@ namespace Iam.Scripts.Helpers.Battle
             return _soldierLocationMap[soldierId];
         }
 
-        public Tuple<int, int> MoveSoldier(int soldierId, int xMovement, int yMovement)
+        public Tuple<int, int> MoveSoldier(int soldierId, Tuple<int, int> movement)
         {
             Tuple<int, int> currentLocation = _soldierLocationMap[soldierId];
-            Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + xMovement, currentLocation.Item2 + yMovement);
+            Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + movement.Item1, currentLocation.Item2 + movement.Item2);
             _soldierLocationMap[soldierId] = newLocation;
             return newLocation;
         }

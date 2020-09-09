@@ -462,6 +462,22 @@ namespace Iam.Scripts.Models.Equippables
             RelatedSkill = TempBaseSkillList.Instance.Axe
         };
 
+        public MeleeWeaponTemplate Fist = new MeleeWeaponTemplate
+        {
+            Id = 13,
+            Name = "Fist",
+            Location = EquipLocation.OneHand,
+            StrengthMultiplier = 0.25f,
+            ExtraDamage = 0,
+            PenetrationMultiplier = 1,
+            ExtraAttacks = 0,
+            ParryModifier = -1,
+            Accuracy = 0,
+            ArmorMultiplier = 1,
+            RequiredStrength = 3,
+            RelatedSkill = TempBaseSkillList.Instance.Fist
+        };
+
         public ArmorTemplate PowerArmor = new ArmorTemplate
         {
             Id = 1,

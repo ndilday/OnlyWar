@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Iam.Scripts.Models
+namespace Iam.Scripts.Models.Soldiers
 {
     [Flags]
     public enum Wounds : byte
@@ -71,6 +71,8 @@ namespace Iam.Scripts.Models
     {
         public Wounds Wounds;
         public bool IsCybernetic;
+        public bool IsSevered;
+        //public bool IsCrippled;
         public HitLocationTemplate Template { get; private set; }
         public HitLocation(HitLocationTemplate template)
         {

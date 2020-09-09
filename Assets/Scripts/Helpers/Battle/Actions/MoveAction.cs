@@ -21,7 +21,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 
         public void Execute()
         {
-            _grid.MoveSoldier(_soldier.Soldier.Id, _movement.Item1, _movement.Item2);
+            _resultList.Add(new MoveResolution(_soldier, _grid, _movement));
         }
     }
 }
