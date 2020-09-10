@@ -77,11 +77,12 @@ namespace Iam.Scripts.Controllers
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
-        public void RunBattleTurn()
+        public void NextStepButton_OnClick()
         {
             if (_playerSquads.Count() > 0 && _opposingSquads.Count() > 0)
             {
                 _turnNumber++;
+                BattleView.UpdateNextStepButton("Next Turn", false);
                 BattleView.ClearBattleLog();
                 _casualtyMap.Clear();
                 Log(false, "Turn " + _turnNumber.ToString());
@@ -113,6 +114,10 @@ namespace Iam.Scripts.Controllers
                 {
                     Log(false, "One side destroyed, battle over");
                     BattleView.UpdateNextStepButton("End Battle", true);
+                }
+                else
+                {
+                    BattleView.UpdateNextStepButton("Next Turn", true);
                 }
             }
             else

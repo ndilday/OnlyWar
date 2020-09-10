@@ -586,7 +586,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1066516932}
         m_TargetAssemblyTypeName: Iam.Scripts.Controllers.BattleController, Assembly-CSharp
-        m_MethodName: RunBattleTurn
+        m_MethodName: NextStepButton_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

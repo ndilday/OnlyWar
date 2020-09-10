@@ -49,7 +49,7 @@ namespace Iam.Scripts.Models.Soldiers
             Intelligence = new AttributeTemplate { BaseValue = 10, StandardDeviation = 0.5f };
 
             AttackSpeed = new AttributeTemplate { BaseValue = 15, StandardDeviation = 0.5f };
-            MoveSpeed = new AttributeTemplate { BaseValue = 6, StandardDeviation = 0 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 6.001f, StandardDeviation = 0 };
             Size = new AttributeTemplate { BaseValue = 2.4f, StandardDeviation = 0.1f };
             PsychicPower = new AttributeTemplate { BaseValue = -2.5f, StandardDeviation = 1 };
 
@@ -117,7 +117,7 @@ namespace Iam.Scripts.Models.Soldiers
             Intelligence = new AttributeTemplate { BaseValue = 9, StandardDeviation = 1 };
 
             AttackSpeed = new AttributeTemplate { BaseValue = 20, StandardDeviation = 1 };
-            MoveSpeed = new AttributeTemplate { BaseValue = 6, StandardDeviation = 0 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 6.001f, StandardDeviation = 0 };
             Size = new AttributeTemplate { BaseValue = 2.4f, StandardDeviation = 0 };
             PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
 
@@ -158,7 +158,7 @@ namespace Iam.Scripts.Models.Soldiers
             Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
 
             AttackSpeed = new AttributeTemplate { BaseValue = 20, StandardDeviation = 1 };
-            MoveSpeed = new AttributeTemplate { BaseValue = 8, StandardDeviation = 0 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 8.001f, StandardDeviation = 0 };
             // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
             Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
             PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
@@ -199,7 +199,7 @@ namespace Iam.Scripts.Models.Soldiers
             Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
 
             AttackSpeed = new AttributeTemplate { BaseValue = 10, StandardDeviation = 1 };
-            MoveSpeed = new AttributeTemplate { BaseValue = 6, StandardDeviation = 0 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 6.001f, StandardDeviation = 0 };
             // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
             Size = new AttributeTemplate { BaseValue = 1f, StandardDeviation = 0 };
             PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };
@@ -241,7 +241,7 @@ namespace Iam.Scripts.Models.Soldiers
             Intelligence = new AttributeTemplate { BaseValue = 8, StandardDeviation = 1 };
 
             AttackSpeed = new AttributeTemplate { BaseValue = 30, StandardDeviation = 1 };
-            MoveSpeed = new AttributeTemplate { BaseValue = 8, StandardDeviation = 0 };
+            MoveSpeed = new AttributeTemplate { BaseValue = 8.001f, StandardDeviation = 0 };
             // Hormagaunts are approximately man sized, but constantly crouching, so build in that bonus here
             Size = new AttributeTemplate { BaseValue = 2.08f, StandardDeviation = .01f };
             PsychicPower = new AttributeTemplate { BaseValue = 0f, StandardDeviation = 0f };

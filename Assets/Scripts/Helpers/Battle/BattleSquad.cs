@@ -16,7 +16,7 @@ namespace Iam.Scripts.Helpers.Battle
         public List<BattleSoldier> Soldiers { get; private set; }
         public float CoverModifier { get; private set; }
         public bool IsPlayerSquad { get; private set; }
-        public bool IsInMelee { get; private set; }
+        public bool IsInMelee { get; set; }
 
         private Squad _squad;
 

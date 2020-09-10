@@ -34,6 +34,8 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             {
                 _attacker.IsInMelee = true;
                 _target.IsInMelee = true;
+                _attacker.Squad.IsInMelee = true;
+                _target.Squad.IsInMelee = true;
                 float modifier = _weapon.Template.Accuracy + (_didMove ? -2 : 0);
                 float skill = BattleHelpers.GetWeaponSkillPlusStat(_attacker.Soldier, _weapon.Template);
                 float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());

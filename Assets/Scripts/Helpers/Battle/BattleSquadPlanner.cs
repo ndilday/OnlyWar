@@ -107,7 +107,7 @@ namespace Iam.Scripts.Helpers.Battle
                     {
                         foreach (BattleSoldier soldier in squad.Soldiers)
                         {
-                            AddAdvancingActionsToBag(soldier);
+                            AddAdvanceActionsToBag(soldier);
                         }
                     }
                 }
@@ -193,7 +193,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
         }
 
-        private void AddAdvancingActionsToBag(BattleSoldier soldier)
+        private void AddAdvanceActionsToBag(BattleSoldier soldier)
         {
             // for now advance toward closest enemy;
             // down the road, we may want to advance toward a rearward enemy, ignoring the closest enemy
@@ -266,42 +266,57 @@ namespace Iam.Scripts.Helpers.Battle
                 int closestEnemyId;
                 Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
                 float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+                float moveSpeed = soldier.GetMoveSpeed();
                 Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
-                BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-                Tuple<int, int> newPos = _grid.GetClosestOpenAdjacency(currentPosition, enemyPosition);
-                if (newPos == null)
+                if (distance > moveSpeed + 1)
                 {
-                    // find the next closest
-                    // okay, this is one of those times where I made something because it made me feel smart,
-                    // but it's probably unreadable so I should change it later
-                    // basically, foreach soldier in the squad of the closest enemy, except the closest enemy (who we already checked)
-                    // get their locations, and then sort it according to distance square
-                    // PROTIP: SQRT is a relatively expensive operation, so sort by distance squares when it's about comparative, not absolute, distance
-                    var map = oppSquad.Soldiers
-                        .Where(s => s.Soldier.Id != closestEnemyId)
-                        .Select(s => new Tuple<int, Tuple<int, int>>(s.Soldier.Id, _grid.GetSoldierPosition(s.Soldier.Id)))
-                        .Select(t => new Tuple<int, Tuple<int, int>, Tuple<int, int>>(t.Item1, t.Item2, new Tuple<int, int>(t.Item2.Item1 - currentPosition.Item1, t.Item2.Item2 - currentPosition.Item2)))
-                        .Select(u => new Tuple<int, Tuple<int, int>, int>(u.Item1, u.Item2, (u.Item3.Item1 * u.Item3.Item1 + u.Item3.Item2 * u.Item3.Item2)))
-                        .OrderBy(u => u.Item3);
-                    foreach(Tuple<int, Tuple<int, int>, int> soldierData in map)
-                    {
-                        newPos = _grid.GetClosestOpenAdjacency(currentPosition, soldierData.Item2);
-                        if(newPos != null)
-                        {
-                            AddChargeActionsHelper(soldier, soldierData.Item1, currentPosition, Mathf.Sqrt(soldierData.Item3), oppSquad, newPos);
-                            break;
-                        }
-                    }
-                    if(newPos == null)
-                    {
-                        // we weren't able to find an enemy to get near, guess we try to find someone to shoot, instead?
-                        Debug.Log("Soldier in squad engaged in melee couldn't find anyone to attack");
-                        AddStandingActionsToBag(soldier);
-                    }
+                    Tuple<int, int> moveVector = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
+                    // we can't make it to an enemy in one move
+                    // soldier can't get there in one move, advance as far as possible
+                    Tuple<int, int> realMove = CalculateMovementAlongLine(moveVector, moveSpeed);
+                    _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
+
+                    // should the soldier shoot along the way?
+                    ShootIfReasonable(soldier, true);
                 }
                 else
                 {
-                    AddChargeActionsHelper(soldier, closestEnemyId, currentPosition, distance, oppSquad, newPos);
+                    Tuple<int, int> newPos = _grid.GetClosestOpenAdjacency(currentPosition, enemyPosition);
+                    BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
+                    if (newPos == null)
+                    {
+                        // find the next closest
+                        // okay, this is one of those times where I made something because it made me feel smart,
+                        // but it's probably unreadable so I should change it later
+                        // basically, foreach soldier in the squad of the closest enemy, except the closest enemy (who we already checked)
+                        // get their locations, and then sort it according to distance square
+                        // PROTIP: SQRT is a relatively expensive operation, so sort by distance squares when it's about comparative, not absolute, distance
+                        var map = oppSquad.Soldiers
+                            .Where(s => s.Soldier.Id != closestEnemyId)
+                            .Select(s => new Tuple<int, Tuple<int, int>>(s.Soldier.Id, _grid.GetSoldierPosition(s.Soldier.Id)))
+                            .Select(t => new Tuple<int, Tuple<int, int>, Tuple<int, int>>(t.Item1, t.Item2, new Tuple<int, int>(t.Item2.Item1 - currentPosition.Item1, t.Item2.Item2 - currentPosition.Item2)))
+                            .Select(u => new Tuple<int, Tuple<int, int>, int>(u.Item1, u.Item2, (u.Item3.Item1 * u.Item3.Item1 + u.Item3.Item2 * u.Item3.Item2)))
+                            .OrderBy(u => u.Item3);
+                        foreach (Tuple<int, Tuple<int, int>, int> soldierData in map)
+                        {
+                            newPos = _grid.GetClosestOpenAdjacency(currentPosition, soldierData.Item2);
+                            if (newPos != null)
+                            {
+                                AddChargeActionsHelper(soldier, soldierData.Item1, currentPosition, Mathf.Sqrt(soldierData.Item3), oppSquad, newPos);
+                                break;
+                            }
+                        }
+                        if (newPos == null)
+                        {
+                            // we weren't able to find an enemy to get near, guess we try to find someone to shoot, instead?
+                            Debug.Log("Soldier in squad engaged in melee couldn't find anyone to attack");
+                            AddStandingActionsToBag(soldier);
+                        }
+                    }
+                    else
+                    {
+                        AddChargeActionsHelper(soldier, closestEnemyId, currentPosition, distance, oppSquad, newPos);
+                    }
                 }
             }
         }
@@ -311,8 +326,9 @@ namespace Iam.Scripts.Helpers.Battle
             Tuple<int, int> move = new Tuple<int, int>(newPos.Item1 - currentPosition.Item1, newPos.Item2 - currentPosition.Item2);
             float distanceSq = ((move.Item1 * move.Item1) + (move.Item2 * move.Item2));
             float moveSpeed = soldier.GetMoveSpeed();
-            if (distanceSq > moveSpeed * moveSpeed)
+            if (distance > moveSpeed + 1)
             {
+                // we can't make it to an enemy in one move
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(move, moveSpeed);
                 _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
@@ -329,13 +345,14 @@ namespace Iam.Scripts.Helpers.Battle
                 Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
                 _actionBag.Add(new MoveAction(soldier, _grid, move, _moveBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance <= 2, _woundBag, _log));
+                _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundBag, _log));
             }
         }
 
         private void ShootIfReasonable(BattleSoldier soldier, bool isMoving)
         {
             int closestEnemyId;
+            if (soldier.RangedWeapons.Count == 0) return;
             float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
             BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
             BattleSoldier target = oppSquad.GetRandomSquadMember();
@@ -475,6 +492,17 @@ namespace Iam.Scripts.Helpers.Battle
         private Tuple<int, int> CalculateMovementAlongLine(Tuple<int, int> line, float moveSpeed)
         {
             if (moveSpeed <= 0) return new Tuple<int, int>(0, 0);   // this shouldn't happen
+            else if(line.Item1 == 0 || line.Item2 == 0)
+            {
+                if(line.Item1 == 0)
+                {
+                    return new Tuple<int, int>(0, line.Item2 < 0 ? -(int)moveSpeed : (int)moveSpeed);
+                }
+                else
+                {
+                    return new Tuple<int, int>(line.Item1 < 0 ? -(int)moveSpeed : (int)moveSpeed, 0);
+                }
+            }
             // multiply line by the square root of moveSpeed^2/line^2
             int lineLengthSq = (line.Item1 * line.Item1) + (line.Item2 * line.Item2);
             float speedSq = moveSpeed * moveSpeed;
@@ -502,21 +530,21 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // if there's movement in both dimensions and "Wasted" movement in the longer direction
                 // determine if the excess is enough to finish the movement along the smaller leg
-                float xLeftover = xDistance % 1.0f;
-                float yLeftover = yDistance % 1.0f;
+                float xLeftover = xDistance % 1;
+                float yLeftover = yDistance % 1;
 
-                if (line.Item2 > 0 && xDistance > yDistance && xLeftover > 0)
+                if (line.Item2 != 0 && xLeftover != 0 && Mathf.Abs(xDistance) > Mathf.Abs(yDistance))
                 {
                     int x = (int)xDistance;
-                    int y = (int)yDistance + 1;
+                    int y = yDistance < 0 ? (int)yDistance -1 : (int)yDistance + 1;
                     if((x * x) + (y * y) < speedSq)
                     {
                         return new Tuple<int, int>(x, y);
                     }
                 }
-                else if (line.Item2 > 0 && yLeftover > 0)
+                else if (line.Item2 != 0 && yLeftover != 0)
                 {
-                    int x = (int)xDistance + 1;
+                    int x = xDistance < 0 ? (int)xDistance - 1: (int)xDistance + 1;
                     int y = (int)yDistance;
                     if ((x * x) + (y * y) < speedSq)
                     {
