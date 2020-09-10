@@ -19,15 +19,17 @@ namespace Iam.Scripts.Helpers.Battle
         private readonly Dictionary<int, BattleSquad> _opposingSoldierIdSquadMap;
         private readonly ConcurrentBag<WoundResolution> _woundBag;
         private readonly ConcurrentBag<MoveResolution> _moveBag;
+        private readonly ConcurrentQueue<string> _log;
 
         public BattleSquadPlanner(BattleGrid grid, Dictionary<int, BattleSquad> opposingSoldierIdSquadMap, 
-            ConcurrentBag<IAction> actionBag, ConcurrentBag<WoundResolution> woundBag, ConcurrentBag<MoveResolution> moveBag)
+            ConcurrentBag<IAction> actionBag, ConcurrentBag<WoundResolution> woundBag, ConcurrentBag<MoveResolution> moveBag, ConcurrentQueue<string> log)
         {
             _grid = grid;
             _opposingSoldierIdSquadMap = opposingSoldierIdSquadMap;
             _actionBag = actionBag;
             _moveBag = moveBag;
             _woundBag = woundBag;
+            _log = log;
         }
 
         public void PrepareActions(BattleSquad squad)
@@ -60,26 +62,25 @@ namespace Iam.Scripts.Helpers.Battle
                     float targetSize = closestSquad.GetAverageSize();
                     float targetArmor = closestSquad.GetAverageArmor();
                     float targetCon = closestSquad.GetAverageConstitution();
-                    float preferredHitDistance = GetOptimalDistance(soldier, targetSize, targetArmor, targetCon);
+                    float preferredHitDistance = CalculateOptimalDistance(soldier, targetSize, targetArmor, targetCon);
                     if (preferredHitDistance == -1)
                     {
                         // this soldier wants to run
                         retreatVotes++;
                     }
+                    else if(preferredHitDistance == 0)
+                    {
+                        advanceVotes++;
+                        chargeVotes++;
+                    }
                     else
                     {
-                        float targetPreferredDistance = GetOptimalDistance(closestSquad.GetRandomSquadMember(), 
+                        float targetPreferredDistance = CalculateOptimalDistance(closestSquad.GetRandomSquadMember(), 
                                                                            soldier.Soldier.Size, 
                                                                            soldier.Armor.Template.ArmorProvided, 
                                                                            soldier.Soldier.Constitution);
 
-
-                        if (preferredHitDistance == 0)
-                        {
-                            advanceVotes++;
-                            chargeVotes++;
-                        }
-                        else if(preferredHitDistance < targetPreferredDistance)
+                        if(preferredHitDistance < targetPreferredDistance)
                         {
                             // advance
                             advanceVotes++;
@@ -94,6 +95,7 @@ namespace Iam.Scripts.Helpers.Battle
 
                 if (advanceVotes > standVotes && advanceVotes > retreatVotes)
                 {
+                    _log.Enqueue(squad.Name + " advances");
                     if (chargeVotes >= advanceVotes / 2)
                     {
                         foreach (BattleSoldier soldier in squad.Soldiers)
@@ -158,8 +160,8 @@ namespace Iam.Scripts.Helpers.Battle
                 {
                     float range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, soldier.Aim.Item1.Soldier.Id);
                     Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, soldier.Aim.Item1, soldier.Aim.Item2, range, soldier.Aim.Item2.Template.Accuracy + 3);
-                    int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
-                    _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag));
+                    int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
+                    _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
                 }
                 else
                 {
@@ -174,37 +176,20 @@ namespace Iam.Scripts.Helpers.Battle
                         // there's a good chance of both hitting and killing, go ahead and shoot now
                         || (resultEstimate.Item2 >= 1 && resultEstimate.Item1 >= -8.7f))
                     {
-                        int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, resultEstimate.Item1, resultEstimate.Item2);
-                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag));
+                        int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, resultEstimate.Item1, resultEstimate.Item2);
+                        _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
                     }
                     else
                     {
                         // keep aiming
-                        _actionBag.Add(new AimAction(soldier, soldier.Aim.Item1, soldier.Aim.Item2));
+                        _actionBag.Add(new AimAction(soldier, soldier.Aim.Item1, soldier.Aim.Item2, _log));
                     }
                 }
             }
+            // need to aim or shoot at a new target
             else
             {
-                int closestEnemyId;
-                float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
-                BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-                // decide whether to shoot or aim
-                RangedWeapon weapon = ShouldShootAtRange(soldier, oppSquad, range, false, false, 0);
-                if(weapon == null)
-                {
-                    // aim with longest ranged weapon
-                    _actionBag.Add(new AimAction(soldier, oppSquad.GetRandomSquadMember(), soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
-
-                }
-                else
-                {
-                    BattleSoldier target = oppSquad.GetRandomSquadMember();
-                    range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
-                    Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, target, weapon, range, 0);
-                    int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
-                    _actionBag.Add(new ShootAction(soldier, weapon, target, range, shotsToFire, false, _woundBag));
-                }
+                ShootIfReasonable(soldier, false);
             }
         }
 
@@ -230,17 +215,7 @@ namespace Iam.Scripts.Helpers.Battle
                 _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
 
                 // should the soldier shoot along the way?
-                float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
-                BattleSquad targetSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-                RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
-                if (weapon != null)
-                {
-                    BattleSoldier target = targetSquad.GetRandomSquadMember();
-                    range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
-                    Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, target, weapon, range, 0);
-                    int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
-                    _actionBag.Add(new ShootAction(soldier, weapon, target, range, shotsToFire, true, _woundBag));
-                }
+                ShootIfReasonable(soldier, true);
             }
         }
 
@@ -250,23 +225,11 @@ namespace Iam.Scripts.Helpers.Battle
 
             float moveSpeed = soldier.GetMoveSpeed();
 
-            int newY = (int)(soldierSquad.IsPlayerSquad ? currentPosition.Item2 - moveSpeed : currentPosition.Item2 + moveSpeed);
-
-            _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(0, newY), _moveBag));
+            int newY = (int)(soldierSquad.IsPlayerSquad ? -moveSpeed : moveSpeed);
+            _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(currentPosition.Item1, currentPosition.Item2 + newY), _moveBag));
 
             // determine if soldier will shoot as he falls back
-            int closestEnemyId;
-            float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
-            BattleSquad targetSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-            RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
-            if(weapon != null)
-            {
-                BattleSoldier target = targetSquad.GetRandomSquadMember();
-                range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
-                Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, target, weapon, range, 0);
-                int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
-                _actionBag.Add(new ShootAction(soldier, weapon, target, range, shotsToFire, true, _woundBag));
-            }
+            ShootIfReasonable(soldier, true);
         }
 
         private void AddMeleeActionsToBag(BattleSoldier soldier)
@@ -283,7 +246,7 @@ namespace Iam.Scripts.Helpers.Battle
                 float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _actionBag.Add(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundBag));
+                _actionBag.Add(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundBag, _log));
             }
         }
 
@@ -346,26 +309,16 @@ namespace Iam.Scripts.Helpers.Battle
         private void AddChargeActionsHelper(BattleSoldier soldier, int closestEnemyId, Tuple<int, int> currentPosition, float distance, BattleSquad oppSquad, Tuple<int, int> newPos)
         {
             Tuple<int, int> move = new Tuple<int, int>(newPos.Item1 - currentPosition.Item1, newPos.Item2 - currentPosition.Item2);
-            float distanceSq = ((move.Item1 * move.Item1) + (move.Item2 + move.Item2));
+            float distanceSq = ((move.Item1 * move.Item1) + (move.Item2 * move.Item2));
             float moveSpeed = soldier.GetMoveSpeed();
             if (distanceSq > moveSpeed * moveSpeed)
             {
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(move, moveSpeed);
                 _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
-                
+
                 // should the soldier shoot along the way?
-                float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
-                BattleSquad targetSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-                RangedWeapon weapon = ShouldShootAtRange(soldier, targetSquad, range, false, true, 0);
-                if (weapon != null)
-                {
-                    BattleSoldier target = oppSquad.GetRandomSquadMember();
-                    range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
-                    Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, target, weapon, range, 0);
-                    int shotsToFire = DetermineShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
-                    _actionBag.Add(new ShootAction(soldier, weapon, target, range, shotsToFire, true, _woundBag));
-                }
+                ShootIfReasonable(soldier, true);
             }
             else if (soldier.EquippedMeleeWeapons.Count == 0 && soldier.MeleeWeapons.Count > 0)
             {
@@ -373,13 +326,35 @@ namespace Iam.Scripts.Helpers.Battle
             }
             else
             {
+                Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
                 _actionBag.Add(new MoveAction(soldier, _grid, move, _moveBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance <= 2, _woundBag));
+                _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance <= 2, _woundBag, _log));
             }
         }
 
-        private float GetOptimalDistance(BattleSoldier soldier, float targetSize, float targetArmor, float targetCon)
+        private void ShootIfReasonable(BattleSoldier soldier, bool isMoving)
+        {
+            int closestEnemyId;
+            float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+            BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
+            BattleSoldier target = oppSquad.GetRandomSquadMember();
+            range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
+            // decide whether to shoot or aim
+            Tuple<float, float, RangedWeapon> weaponProfile = ShouldShootAtRange(soldier, target, range, isMoving);
+            if (weaponProfile.Item3 != null)
+            {
+                int shotsToFire = CalculateShotsToFire(weaponProfile.Item3, weaponProfile.Item1, weaponProfile.Item2);
+                _actionBag.Add(new ShootAction(soldier, weaponProfile.Item3, target, range, shotsToFire, isMoving, _woundBag, _log));
+            }
+            else if (!isMoving)
+            {
+                // aim with longest ranged weapon
+                _actionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First(), _log));
+            }
+        }
+
+        private float CalculateOptimalDistance(BattleSoldier soldier, float targetSize, float targetArmor, float targetCon)
         {
             int freeHands = soldier.Soldier.FunctioningHands;
             if(freeHands == 0)
@@ -391,15 +366,15 @@ namespace Iam.Scripts.Helpers.Battle
             var weapons = soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance);
             foreach(RangedWeapon weapon in weapons)
             {
-                float hitRange = GetHitDistance(soldier.Soldier, weapon, targetSize, freeHands);
-                float damRange = GetKillDistance(weapon, targetArmor, targetCon);
+                float hitRange = EstimateHitDistance(soldier.Soldier, weapon, targetSize, freeHands);
+                float damRange = EstimateKillDistance(weapon, targetArmor, targetCon);
                 float minVal = Mathf.Min(hitRange, damRange);
                 if (minVal > range) range = minVal;
             }
             return range;
         }
 
-        private float GetHitDistance(Soldier soldier, RangedWeapon weapon, float targetSize, int freeHands)
+        private float EstimateHitDistance(Soldier soldier, RangedWeapon weapon, float targetSize, int freeHands)
         {
             var skill = soldier.Skills[weapon.Template.RelatedSkill.Id];
             float baseTotal = BattleHelpers.GetStatForSkill(soldier, skill.BaseSkill) + skill.SkillBonus + BattleHelpers.CalculateSizeModifier(targetSize);
@@ -414,16 +389,18 @@ namespace Iam.Scripts.Helpers.Battle
                 }
             }
 
-            // we'd like to get to a range where at least 1 bullet will hit more often than not
+            // we'd like to get to a range where at least 1 bullet will hit more often than not when we aim
             // +1 for all-out attack, - ROF after the first shot
             // z value of 0.43 is 
             baseTotal = baseTotal + 1 + weapon.Template.Accuracy;
             baseTotal += BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
+            // if the total doesn't get to 10.5, there will be no range where there's a good chance of hitting, so just keep getting closer
             if (baseTotal < 10.5) return 0;
+
             return BattleHelpers.GetRangeForModifier(10.5f - baseTotal);
         }
 
-        private float GetKillDistance(RangedWeapon weapon, float targetArmor, float targetCon)
+        private float EstimateKillDistance(RangedWeapon weapon, float targetArmor, float targetCon)
         {
             // if range doesn't matter for damage, we can just limit on hitting 
             if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
@@ -439,43 +416,27 @@ namespace Iam.Scripts.Helpers.Battle
             return weapon.Template.MaximumDistance * distanceRatio;
         }
 
-        private RangedWeapon ShouldShootAtRange(BattleSoldier soldier, BattleSquad opposingSquad, float range, bool useAccuracy, bool useBulk, float modifiers)
+        private Tuple<float, float, RangedWeapon> ShouldShootAtRange(BattleSoldier soldier, BattleSoldier target, float range, bool useBulk)
         {
-            float sizeMod = BattleHelpers.CalculateSizeModifier(opposingSquad.GetAverageSize());
-            float armor = opposingSquad.GetAverageArmor();
-            float con = opposingSquad.GetAverageConstitution();
             RangedWeapon bestWeapon = null;
-            float bestAccuracy = -1000;
-            float bestDamage = -1000;
+            float bestAccuracy = 0;
+            float bestDamage = -0;
             foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.BaseStrength))
             {
-                float expectedDamage = CalculateExpectedDamage(weapon, range, armor, con);
+                Tuple<float, float> hitAndDamage = EstimateHitAndDamage(soldier, target, weapon, range, useBulk ? -2 : 0);
                 // if not likely to break through armor, there's little point
-                if (expectedDamage > 0)
+                if (hitAndDamage.Item1 > 6.66f && hitAndDamage.Item2 > bestDamage)
                 {
-                    // see if the hit chance is reasonable
-                    float rangeMod = BattleHelpers.CalculateRangeModifier(range);
-                    float rofMod = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
-                    float weaponSkill = BattleHelpers.GetWeaponSkillPlusStat(soldier.Soldier, weapon.Template);
-                    if (useAccuracy) modifiers += weapon.Template.Accuracy;
-                    if (useBulk) modifiers -= weapon.Template.Bulk;
-                    float total = weaponSkill + rofMod + rangeMod + modifiers;
-                    if (total >= -12.5f)
-                    {
-                        // about a 1/4 chance of hitting
-                        if (expectedDamage > bestDamage)
-                        {
-                            bestAccuracy = total;
-                            bestDamage = expectedDamage;
-                            bestWeapon = weapon;
-                        }
-                    }
+                    // about a 1/10 chance of hitting
+                    bestAccuracy = hitAndDamage.Item1;
+                    bestDamage = hitAndDamage.Item2;
+                    bestWeapon = weapon;
                 }
             }
-            return bestWeapon;
+            return new Tuple<float, float, RangedWeapon>(bestAccuracy, bestDamage, bestWeapon);
         }
 
-        private int DetermineShotsToFire(RangedWeapon weapon, float toHitAtMaximumRateOfFire, float damagePerShot)
+        private int CalculateShotsToFire(RangedWeapon weapon, float toHitAtMaximumRateOfFire, float damagePerShot)
         {
             float benefit = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             int minRoF = 1;
@@ -486,7 +447,7 @@ namespace Iam.Scripts.Helpers.Battle
                 minRoF = weapon.Template.RateOfFire / 4;
             }
 
-            if (toHitAtMaximumRateOfFire < -15.5)
+            if (toHitAtMaximumRateOfFire < 6.66)
             {
                 // don't waste ammo on impossible shots
                 return minRoF;

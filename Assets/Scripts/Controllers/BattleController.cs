@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
-using Iam.Scripts.Helpers;
 using Iam.Scripts.Helpers.Battle;
 using Iam.Scripts.Helpers.Battle.Actions;
 using Iam.Scripts.Models;
@@ -37,12 +36,9 @@ namespace Iam.Scripts.Controllers
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
 
-
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
         private const bool VERBOSE = false;
-        private const int GRID_SCALE = 1;
-
 
         public BattleController()
         {
@@ -50,6 +46,7 @@ namespace Iam.Scripts.Controllers
             _opposingSquads = new Dictionary<int, BattleSquad>();;
             _soldierSquadMap = new Dictionary<int, BattleSquad>();
             _moveResolver = new MoveResolver();
+            _moveResolver.OnRetreat.AddListener(MoveResolver_OnRetreat);
             _woundResolver = new WoundResolver(VERBOSE);
             _woundResolver.OnSoldierDeath.AddListener(WoundResolver_OnSoldierDeath);
             _woundResolver.OnSoldierFall.AddListener(WoundResolver_OnSoldierFall);
@@ -86,43 +83,31 @@ namespace Iam.Scripts.Controllers
             {
                 _turnNumber++;
                 BattleView.ClearBattleLog();
+                _casualtyMap.Clear();
                 Log(false, "Turn " + _turnNumber.ToString());
                 // this is a three step process: plan, execute, and apply
 
-                // PLAN
-                // use the thread pool to handle the BattleSquadPlanner classes;
-                // these look at the current game state to figure out the actions each soldier should take
-                // the planners populate the actionBag with what they want to do
                 ConcurrentBag<IAction> actionBag = new ConcurrentBag<IAction>();
-                Parallel.ForEach(_playerSquads.Values, (squad) =>
+                ConcurrentQueue<string> log = new ConcurrentQueue<string>();
+                Plan(actionBag, log);
+                while(!log.IsEmpty)
                 {
-                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue);
-                    planner.PrepareActions(squad);
-                });
-                Parallel.ForEach(_opposingSquads.Values, (squad) =>
-                {
-                    BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue);
-                    planner.PrepareActions(squad);
-                });
-
-                // EXECUTE
-                // once the squads have all finished planning actions, we use the thread pool to process the execution logic. 
-                // These use the command pattern to allow the controller to execute each without having any knowledge of what the internal implementation is
-                // this also allows us to separate the concerns of the planner and the executor
-                // we take the results/side effects of each execution that impact the outside world and put those results into queues
-                // (movement and wounding are the only things that fit this category, today, but there will be others in the future)
-                Parallel.ForEach(actionBag, (action) => action.Execute());
-
-                // APPLY
-                // the move resolver and wound resolver should now be populated
-                // because movement and wounding may have race conditions, resolution has to be handled serially
-                _moveResolver.Resolve();
-                _woundResolver.Resolve();
-                foreach(BattleSoldier soldier in _casualtyMap.Values)
-                {
-                    RemoveSoldier(soldier, _soldierSquadMap[soldier.Soldier.Id]);
+                    string line;
+                    log.TryDequeue(out line);
+                    Log(false, line);
                 }
-                _casualtyMap.Clear();
+                Execute(actionBag);
+
+                while (!log.IsEmpty)
+                {
+                    string line;
+                    log.TryDequeue(out line);
+                    Log(false, line);
+                }
+
+                Apply();
+
+                RedrawSquadPositions();
 
                 if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
                 {
@@ -149,6 +134,69 @@ namespace Iam.Scripts.Controllers
             {
                 _selectedBattleSquad = _opposingSquads[squadId];
                 BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
+            }
+        }
+
+        private void Plan(ConcurrentBag<IAction> actionBag, ConcurrentQueue<string> log)
+        {
+            // PLAN
+            // use the thread pool to handle the BattleSquadPlanner classes;
+            // these look at the current game state to figure out the actions each soldier should take
+            // the planners populate the actionBag with what they want to do
+            //Parallel.ForEach(_playerSquads.Values, (squad) =>
+            foreach(BattleSquad squad in _playerSquads.Values)
+            {
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                planner.PrepareActions(squad);
+            };
+            //Parallel.ForEach(_opposingSquads.Values, (squad) =>
+            foreach(BattleSquad squad in _opposingSquads.Values)
+            {
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                planner.PrepareActions(squad);
+            };
+        }
+
+        private static void Execute(ConcurrentBag<IAction> actionBag)
+        {
+            // EXECUTE
+            // once the squads have all finished planning actions, we use the thread pool to process the execution logic. 
+            // These use the command pattern to allow the controller to execute each without having any knowledge of what the internal implementation is
+            // this also allows us to separate the concerns of the planner and the executor
+            // we take the results/side effects of each execution that impact the outside world and put those results into queues
+            // (movement and wounding are the only things that fit this category, today, but there will be others in the future)
+            //Parallel.ForEach(actionBag, (action) => action.Execute());
+            foreach(IAction action in actionBag)
+            {
+                action.Execute();
+            }
+        }
+
+        private void Apply()
+        {
+            // APPLY
+            // the move resolver and wound resolver should now be populated
+            // because movement and wounding may have race conditions, resolution has to be handled serially
+            _moveResolver.Resolve();
+            _woundResolver.Resolve();
+            Log(false, _woundResolver.ResolutionLog);
+            foreach (BattleSoldier soldier in _casualtyMap.Values)
+            {
+                RemoveSoldier(soldier, _soldierSquadMap[soldier.Soldier.Id]);
+            }
+        }
+
+        private void RedrawSquadPositions()
+        {
+            foreach(BattleSquad squad in _playerSquads.Values)
+            {
+                var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
+                BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
+            }
+            foreach(BattleSquad squad in _opposingSquads.Values)
+            {
+                var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
+                BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
             }
         }
 
@@ -197,7 +245,7 @@ namespace Iam.Scripts.Controllers
             string report = "\n" + squad.Name + "\n" + squad.Soldiers.Count.ToString() + " soldiers standing\n\n";
             foreach(BattleSoldier soldier in squad.Soldiers)
             {
-                report += soldier.ToString() + "\n";
+                report += soldier.Soldier.ToString() + "\n";
                 foreach (RangedWeapon weapon in soldier.RangedWeapons)
                 {
                     report += weapon.Template.Name + "\n";
@@ -225,48 +273,6 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private float GetStatForSkill(Soldier soldier, Skill skill)
-        {
-            switch(skill.BaseSkill.BaseAttribute)
-            {
-                case SkillAttribute.Dexterity:
-                    return soldier.Dexterity;
-                case SkillAttribute.Intelligence:
-                    return soldier.Intelligence;
-                case SkillAttribute.Ego:
-                    return soldier.Ego;
-                case SkillAttribute.Presence:
-                    return soldier.Presence;
-                default:
-                    return soldier.Dexterity;
-            }
-        }
-
-        private void ResolveHit(ChosenRangedWeapon weapon, BattleSoldier hitSoldier, BattleSquad target, float range)
-        {
-            // TODO: handle hit location
-            HitLocation location = DetermineHitLocation(hitSoldier.Soldier);
-            Log(false, "<b>" + hitSoldier.ToString() + " hit in " + location.Template.Name + "</b>");
-            if ((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
-            {
-                Log(true, location.Template.Name + " already shot off");
-            }
-            else
-            {
-                // TODO: should hit margin of success affect damage? If so, how much?
-                float damage = weapon.GetStrengthAtRange(range) * (3.5f + ((float)Gaussian.NextGaussianDouble() * 1.75f));
-                Log(true, damage.ToString("F0") + " damage rolled");
-                float effectiveArmor = hitSoldier.Armor.Template.ArmorProvided * weapon.ActiveWeapon.Template.ArmorMultiplier;
-                if (effectiveArmor < 0) effectiveArmor = 0;
-                float penDamage = damage - effectiveArmor;
-                if (penDamage > 0)
-                {
-                    float totalDamage = penDamage * weapon.ActiveWeapon.Template.PenetrationMultiplier;
-                    HandleWound(totalDamage, hitSoldier, location, target);
-                }
-            }
-        }
-
         private void WoundResolver_OnSoldierDeath(BattleSoldier soldier)
         {
             _casualtyMap[soldier.Soldier.Id] = soldier;
@@ -274,6 +280,12 @@ namespace Iam.Scripts.Controllers
 
         private void WoundResolver_OnSoldierFall(BattleSoldier soldier)
         {
+            _casualtyMap[soldier.Soldier.Id] = soldier;
+        }
+
+        private void MoveResolver_OnRetreat(BattleSoldier soldier)
+        {
+            Log(false, "<b>" + soldier.Soldier.ToString() + " has retreated from the battlefield</b>");
             _casualtyMap[soldier.Soldier.Id] = soldier;
         }
 

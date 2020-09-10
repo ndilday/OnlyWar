@@ -35,12 +35,12 @@ namespace Iam.Scripts.Helpers
 
         public void GenerateGalaxy(int seed)
         {
-            Random.InitState(seed);
+            UnityEngine.Random.InitState(seed);
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
                 {
-                    if (Random.Range(0.0f, 1.0f) <= 0.05f)
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.05f)
                     {
                         Planet p = new Planet(new Vector2(i, j));
                         if (Planets.Count < 60)
@@ -53,7 +53,7 @@ namespace Iam.Scripts.Helpers
                             p.Name = i.ToString() + j.ToString();
                             p.PlanetType = PlanetType.Death;
                         }
-                        if(Random.Range(0.0f, 1.0f) <= 0.1f)
+                        if(UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
                             p.ControllingFaction = TempFactions.Instance.Tyranids;
                         }

@@ -53,7 +53,7 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // there's not enough room; move "up"
                 bottom = top + 2;
-                top += squadSize.Item2 + 4;
+                top += squadSize.Item2 + 2;
                 left = (_grid.GridWidth / 2) - 2;
                 right = left + squadSize.Item1 + 2;
 
@@ -64,7 +64,7 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // place to the right of the current box
                 placeLeft = right + 2;
-                placeBottom = bottom + 2;
+                placeBottom = bottom;
                 right += squadSize.Item1 + 5;
                 if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
             }
@@ -73,7 +73,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // place to the left of the current box
                 left -= squadSize.Item1 + 2;
                 placeLeft = left;
-                placeBottom = bottom + 2;
+                placeBottom = bottom;
                 if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
             }
 

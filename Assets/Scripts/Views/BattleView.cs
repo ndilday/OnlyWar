@@ -74,10 +74,13 @@ namespace Iam.Scripts.Views
             _squadMap[id] = squad;
         }
 
-        public void MoveSquad(int id, Vector2 newPosition)
+        public void MoveSquad(int id, Vector2 newPosition, Vector2 newSize)
         {
+            var rt = _squadMap[id].GetComponent<RectTransform>();
             newPosition.Scale(GameSettings.BattleMapScale);
-            _squadMap[id].GetComponent<RectTransform>().anchoredPosition = newPosition;
+            rt.anchoredPosition = newPosition;
+            newSize.Scale(GameSettings.BattleMapScale);
+            rt.sizeDelta = newSize;
         }
 
         public void RemoveSquad(int id)

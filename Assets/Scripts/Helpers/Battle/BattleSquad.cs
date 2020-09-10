@@ -50,7 +50,7 @@ namespace Iam.Scripts.Helpers.Battle
 
         public BattleSoldier GetRandomSquadMember()
         {
-            return Soldiers[UnityEngine.Random.Range(0, Soldiers.Count)];
+            return Soldiers[Random.GetIntBelowMax(0, Soldiers.Count)];
         }
 
         public List<ChosenRangedWeapon> GetWeaponsForRange(float range)
@@ -148,13 +148,12 @@ namespace Iam.Scripts.Helpers.Battle
         private void AllocateEquipment()
         {
             List<BattleSoldier> tempSquad = new List<BattleSoldier>(Soldiers);
-            var wsList = _squad.Loadout.OrderByDescending(l => l.PrimaryRangedWeapon.MaximumDistance).ToList();
+            var wsList = _squad.Loadout.ToList();
             // need to allocate weapons from squad weapon sets
             if (Soldiers[0].Soldier == _squad.SquadLeader)
             {
                 // for now, sgt always gets default weapons
-                Soldiers[0].RangedWeapons.AddRange(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons());
-                Soldiers[0].MeleeWeapons.AddRange(_squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
+                Soldiers[0].AddWeapons(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), _squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
                 // TODO: personalize armor and weapons
                 Soldiers[0].Armor = new Armor(_squad.SquadTemplate.Armor);
                 tempSquad.RemoveAt(0);
@@ -162,17 +161,26 @@ namespace Iam.Scripts.Helpers.Battle
             foreach (WeaponSet ws in wsList)
             {
                 // TODO: we'll want to stop assuming Dex as the base stat at some point
-                var bestShooter = tempSquad.OrderByDescending(s => s.Soldier.Dexterity + s.Soldier.Skills[ws.PrimaryRangedWeapon.RelatedSkill.Id].SkillBonus).First();
-                bestShooter.RangedWeapons.AddRange(ws.GetRangedWeapons());
-                bestShooter.Armor = new Armor(_squad.SquadTemplate.Armor);
-                tempSquad.Remove(bestShooter);
+                if (ws.PrimaryRangedWeapon != null)
+                {
+                    var bestShooter = tempSquad.OrderByDescending(s => s.Soldier.Dexterity + s.Soldier.Skills[ws.PrimaryRangedWeapon.RelatedSkill.Id].SkillBonus).First();
+                    bestShooter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
+                    bestShooter.Armor = new Armor(_squad.SquadTemplate.Armor);
+                    tempSquad.Remove(bestShooter);
+                }
+                else
+                {
+                    var bestHitter = tempSquad.OrderByDescending(s => s.Soldier.Dexterity + s.Soldier.Skills[ws.PrimaryMeleeWeapon.RelatedSkill.Id].SkillBonus).First();
+                    bestHitter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
+                    bestHitter.Armor = new Armor(_squad.SquadTemplate.Armor);
+                    tempSquad.Remove(bestHitter);
+                }
             }
             if(tempSquad.Count() > 0)
             {
-                Debug.Log("BattleSquad.AllocateEquipment: how did we get here?");
                 foreach(BattleSoldier soldier in tempSquad)
                 {
-                    soldier.RangedWeapons.AddRange(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons());
+                    soldier.AddWeapons(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), _squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
                     // TODO: personalize armor and weapons
                     soldier.Armor = new Armor(_squad.SquadTemplate.Armor);
                 }

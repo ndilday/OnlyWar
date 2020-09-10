@@ -18,14 +18,14 @@ namespace Iam.Scripts.Models.Units
 
         private TempTyranidUnitTemplates() 
         {
-            TyranidArmy = new UnitTemplate(1000, "Tyranid Ranged Army");
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TermagauntSquadTemplate);
+            TyranidArmy = new UnitTemplate(1000, "Tyranid Melee Army");
+            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
             TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TermagauntSquadTemplate);
+            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
             TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TermagauntSquadTemplate);
+            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
             TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TermagauntSquadTemplate);
+            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
             TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
         }
 

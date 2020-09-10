@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Unity.VisualStudio.Editor;
+using System;
 using System.Collections.Generic;
 
 namespace Iam.Scripts.Models.Equippables
@@ -12,6 +13,7 @@ namespace Iam.Scripts.Models.Equippables
         public MeleeWeaponTemplate SecondaryMeleeWeapon { get; set; }
         public List<RangedWeapon> GetRangedWeapons()
         {
+            if (PrimaryRangedWeapon == null) return null;
             List<RangedWeapon> list = new List<RangedWeapon>
             {
                 new RangedWeapon(PrimaryRangedWeapon)
@@ -24,6 +26,7 @@ namespace Iam.Scripts.Models.Equippables
         }
         public List<MeleeWeapon> GetMeleeWeapons()
         {
+            if (PrimaryMeleeWeapon == null) return null;
             List<MeleeWeapon> list = new List<MeleeWeapon>
             {
                 new MeleeWeapon(PrimaryMeleeWeapon)

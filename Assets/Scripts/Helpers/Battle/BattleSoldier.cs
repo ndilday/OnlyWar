@@ -63,8 +63,14 @@ namespace Iam.Scripts.Helpers.Battle
         
         public void AddWeapons(List<RangedWeapon> rangedWeapons, List<MeleeWeapon> meleeWeapons)
         {
-            RangedWeapons.AddRange(rangedWeapons);
-            MeleeWeapons.AddRange(meleeWeapons);
+            if (rangedWeapons != null && rangedWeapons.Count > 0)
+            {
+                RangedWeapons.AddRange(rangedWeapons);
+            }
+            if (meleeWeapons != null && meleeWeapons.Count > 0)
+            {
+                MeleeWeapons.AddRange(meleeWeapons);
+            }
 
             if (RangedWeapons.Count > 0)
             {

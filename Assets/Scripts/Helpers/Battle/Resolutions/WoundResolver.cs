@@ -20,12 +20,17 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             WoundQueue = new ConcurrentBag<WoundResolution>();
             _allowVerbose = allowVerbose;
             ResolutionLog = "";
+            OnSoldierDeath = new UnityEvent<BattleSoldier>();
+            OnSoldierFall = new UnityEvent<BattleSoldier>();
         }
 
         public void Resolve()
         {
-            foreach(WoundResolution wound in WoundQueue)
+            ResolutionLog = "";
+            while(!WoundQueue.IsEmpty)
             {
+                WoundResolution wound;
+                WoundQueue.TryTake(out wound);
                 HandleWound(wound.Damage, wound.Soldier, wound.HitLocation);
             }
         }
@@ -72,11 +77,11 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             {
                 wound = Wounds.Negligible;
             }
-            Log(true, "The hit causes a " + wound.ToFriendlyString() + " wound");
+            //Log(true, wound.ToFriendlyString() + " wound");
             location.Wounds = (byte)location.Wounds + wound;
             if ((short)location.Wounds >= (short)location.Template.WoundLimit * 2)
             {
-                Log(false, "<b>" + location.Template.Name + " is blown off</b>");
+                //Log(false, "<b>" + _ + " " + location.Template.Name + " is blown off</b>");
                 location.Wounds = (Wounds)((short)location.Template.WoundLimit * 2);
                 if ((short)wound > (short)location.Template.WoundLimit * 2)
                 {
@@ -85,7 +90,8 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             }
             else if ((short)location.Wounds >= (short)location.Template.WoundLimit)
             {
-                Log(false, "<b>" + location.Template.Name + " is crippled</b>");
+                // TODO: if arm or hand, handle unequipping a weapon
+                //Log(false, "<b>" + location.Template.Name + " is crippled</b>");
             }
 
             if (location.Template.Name == "Left Foot" || location.Template.Name == "Right Foot"
@@ -93,7 +99,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             {
                 if (location.Wounds >= location.Template.WoundLimit)
                 {
-                    Log(false, "<b>" + hitSoldier.ToString() + " has fallen and can't get up</b>");
+                    Log(false, "<b>" + hitSoldier.Soldier.ToString() + " has fallen and can't get up</b>");
                     OnSoldierFall.Invoke(hitSoldier);
                 }
             }
@@ -105,7 +111,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             {
                 // make additional death check
                 OnSoldierDeath.Invoke(hitSoldier);
-                Log(false, "<b>" + hitSoldier.ToString() + " died</b>");
+                Log(false, "<b>" + hitSoldier.Soldier.ToString() + " died</b>");
             }
             else if (wound >= Wounds.Critical)
             {
@@ -117,10 +123,10 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
 
         private void CheckForDeath(BattleSoldier soldier)
         {
-            float roll = 10.5f + (3.0f * (float)Gaussian.NextGaussianDouble());
+            float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());
             if (roll > soldier.Soldier.Constitution)
             {
-                Log(false, soldier.ToString() + " died");
+                Log(false, "<b>" + soldier.Soldier.ToString() + " died</b>");
                 OnSoldierDeath.Invoke(soldier);
             }
         }
@@ -129,7 +135,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
         {
             if (!isVerboseMessage || _allowVerbose)
             {
-                ResolutionLog += text;
+                ResolutionLog += text + "\n";
             }
         }
     }

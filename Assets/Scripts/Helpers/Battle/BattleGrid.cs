@@ -26,10 +26,22 @@ namespace Iam.Scripts.Helpers.Battle
             GridWidth = gridWidth;
             GridHeight = gridHeight;
             _soldierLocationMap = new Dictionary<int, Tuple<int, int>>();
+            OnSquadPlaced = new UnityEvent<BattleSquad, Tuple<int, int>>();
+            OnSquadMoved = new UnityEvent<BattleSquad, Tuple<int, int>>();
+            _playerSoldierIds = new HashSet<int>();
+            _opposingSoldierIds = new HashSet<int>();
         }
 
         public void RemoveSoldier(int soldierId)
         {
+            if(_playerSoldierIds.Contains(soldierId))
+            {
+                _playerSoldierIds.Remove(soldierId);
+            }
+            else if(_opposingSoldierIds.Contains(soldierId))
+            {
+                _opposingSoldierIds.Remove(soldierId);
+            }
             _soldierLocationMap.Remove(soldierId);
         }
 
@@ -65,6 +77,27 @@ namespace Iam.Scripts.Helpers.Battle
                 }
             }
             return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, top), new Tuple<int, int>(right, bottom));
+        }
+
+        public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBottomLeftAndSize(IEnumerable<BattleSoldier> soldiers)
+        {
+            int top = int.MinValue;
+            int bottom = int.MaxValue;
+            int left = int.MaxValue;
+            int right = int.MinValue;
+
+            foreach (BattleSoldier soldier in soldiers)
+            {
+                if (_soldierLocationMap.ContainsKey(soldier.Soldier.Id))
+                {
+                    var location = _soldierLocationMap[soldier.Soldier.Id];
+                    if (location.Item1 < left) left = location.Item1;
+                    if (location.Item1 > right) right = location.Item1;
+                    if (location.Item2 > top) top = location.Item2;
+                    if (location.Item2 < bottom) bottom = location.Item2;
+                }
+            }
+            return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, top), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
         }
 
         public float GetNearestEnemy(Soldier soldier, out int closestEnemy)
@@ -113,10 +146,12 @@ namespace Iam.Scripts.Helpers.Battle
                 int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
                 if (squad.IsPlayerSquad)
                 {
+                    _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
                     _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
                 }
                 else
                 {
+                    _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
                     _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
                 }
             }
@@ -131,7 +166,7 @@ namespace Iam.Scripts.Helpers.Battle
         public Tuple<int, int> GetClosestOpenAdjacency(Tuple<int, int> startingPoint, Tuple<int, int> target)
         {
             Tuple<int, int> bestPosition = null;
-            float bestDistance = 10000;
+            float bestDistance = 2500000;
             float disSq;
             Tuple<int, int>[] testPositions = new Tuple<int, int>[4]
                 {
