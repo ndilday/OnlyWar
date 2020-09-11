@@ -56,14 +56,15 @@ namespace Iam.Scripts.Helpers.Battle
             return _soldierLocationMap[soldierId];
         }
 
-        public Tuple<int, int> MoveSoldier(int soldierId, Tuple<int, int> movement)
+        public void MoveSoldier(BattleSoldier soldier, Tuple<int, int> movement)
         {
+            int soldierId = soldier.Soldier.Id;
             Tuple<int, int> currentLocation = _soldierLocationMap[soldierId];
             Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + movement.Item1, currentLocation.Item2 + movement.Item2);
             _soldierLocationMap[soldierId] = newLocation;
             _locationSoldierMap[newLocation] = soldierId;
             _locationSoldierMap.Remove(currentLocation);
-            return newLocation;
+            soldier.Location = newLocation;
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBoxCorners(IEnumerable<BattleSoldier> soldiers)
@@ -155,17 +156,16 @@ namespace Iam.Scripts.Helpers.Battle
                 if (squad.IsPlayerSquad)
                 {
                     _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                    Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
-                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
-                    _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                    
                 }
                 else
                 {
                     _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                    Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
-                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
-                    _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
                 }
+                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
+                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                squad.Soldiers[i].Location = location;
             }
             OnSquadPlaced.Invoke(squad, startingLocation);
         }

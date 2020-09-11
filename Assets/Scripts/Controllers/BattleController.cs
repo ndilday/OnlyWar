@@ -93,16 +93,14 @@ namespace Iam.Scripts.Controllers
                 Plan(actionBag, log);
                 while(!log.IsEmpty)
                 {
-                    string line;
-                    log.TryDequeue(out line);
+                    log.TryDequeue(out string line);
                     Log(false, line);
                 }
                 Execute(actionBag);
 
                 while (!log.IsEmpty)
                 {
-                    string line;
-                    log.TryDequeue(out line);
+                    log.TryDequeue(out string line);
                     Log(false, line);
                 }
 

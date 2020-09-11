@@ -65,7 +65,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // place to the right of the current box
                 placeLeft = right + 2;
                 placeBottom = bottom;
-                right += squadSize.Item1 + 5;
+                right += squadSize.Item1 + 2;
                 if (top < bottom + squadSize.Item2 + 2) top = bottom + squadSize.Item2 + 2;
             }
             else

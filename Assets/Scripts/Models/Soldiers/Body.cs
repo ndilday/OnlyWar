@@ -158,202 +158,204 @@ namespace Iam.Scripts.Models.Soldiers
 
         private HumanBodyTemplate()
         {
-            List<HitLocationTemplate> list = new List<HitLocationTemplate>();
-            list.Add(new HitLocationTemplate
+            List<HitLocationTemplate> list = new List<HitLocationTemplate>
             {
-                Id = 0,
-                Name = "Brain",
-                NaturalArmor = 2,
-                DamageMultiplier = 4,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 0,
+                    Name = "Brain",
+                    NaturalArmor = 2,
+                    DamageMultiplier = 4,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 30 },
                     {Stance.Kneeling, 30 },
                     { Stance.Prone, 30 }
                 },
-                WoundLimit = Wounds.Unsurvivable,
+                    WoundLimit = Wounds.Unsurvivable,
 
-            });
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 1,
-                Name = "Eyes",
-                NaturalArmor = 0,
-                DamageMultiplier = 4,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 1,
+                    Name = "Eyes",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 4,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 1 },
                     {Stance.Kneeling, 1 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 2,
-                Name = "Face",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 2,
+                    Name = "Face",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 75 },
                     {Stance.Kneeling, 75 },
                     { Stance.Prone, 75 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 3,
-                Name = "Torso",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 3,
+                    Name = "Torso",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 480 },
                     {Stance.Kneeling, 480 },
                     { Stance.Prone, 30 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 4,
-                Name = "Left Arm",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 4,
+                    Name = "Left Arm",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 96 },
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 5,
-                Name = "Right Arm",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 5,
+                    Name = "Right Arm",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 96 },
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 6,
-                Name = "Left Hand",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 6,
+                    Name = "Left Hand",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 20 },
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 7,
-                Name = "Right Hand",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 7,
+                    Name = "Right Hand",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 20 },
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 8,
-                Name = "Vitals",
-                NaturalArmor = 2,
-                DamageMultiplier = 1.5f,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 8,
+                    Name = "Vitals",
+                    NaturalArmor = 2,
+                    DamageMultiplier = 1.5f,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 100 },
                     {Stance.Kneeling, 100 },
                     { Stance.Prone, 10 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 9,
-                Name = "Left Leg",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 9,
+                    Name = "Left Leg",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 160 },
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Severe
-            });
+                    WoundLimit = Wounds.Severe
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 10,
-                Name = "Right Leg",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 10,
+                    Name = "Right Leg",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 160 },
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Severe
-            });
+                    WoundLimit = Wounds.Severe
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 11,
-                Name = "Left Foot",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 11,
+                    Name = "Left Foot",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 15 },
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add( new HitLocationTemplate
-            {
-                Id = 12,
-                Name = "Right Foot",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 12,
+                    Name = "Right Foot",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 15 },
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                }
+            };
 
             Initialize(list);
         }
@@ -376,232 +378,234 @@ namespace Iam.Scripts.Models.Soldiers
         }
         private TyranidWarriorBodyTemplate()
         {
-            List<HitLocationTemplate> list = new List<HitLocationTemplate>();
-            list.Add(new HitLocationTemplate
+            List<HitLocationTemplate> list = new List<HitLocationTemplate>
             {
-                Id = 0,
-                Name = "Brain",
-                NaturalArmor = 2,
-                DamageMultiplier = 4,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 0,
+                    Name = "Brain",
+                    NaturalArmor = 2,
+                    DamageMultiplier = 4,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 30 },
                     {Stance.Kneeling, 30 },
                     { Stance.Prone, 30 }
                 },
-                WoundLimit = Wounds.Unsurvivable,
+                    WoundLimit = Wounds.Unsurvivable,
 
-            });
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 1,
-                Name = "Eyes",
-                NaturalArmor = 0,
-                DamageMultiplier = 4,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 1,
+                    Name = "Eyes",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 4,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 1 },
                     {Stance.Kneeling, 1 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 2,
-                Name = "Face",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 2,
+                    Name = "Face",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 75 },
                     {Stance.Kneeling, 75 },
                     { Stance.Prone, 75 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 3,
-                Name = "Torso",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 3,
+                    Name = "Torso",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 480 },
                     {Stance.Kneeling, 480 },
                     { Stance.Prone, 30 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 4,
-                Name = "Left Arm",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 4,
+                    Name = "Left Arm",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 96 },
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 5,
-                Name = "Left Talon",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 5,
+                    Name = "Left Talon",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 72 },
                     {Stance.Kneeling, 72 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 6,
-                Name = "Right Arm",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 6,
+                    Name = "Right Arm",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 96 },
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 7,
-                Name = "Right Talon",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 7,
+                    Name = "Right Talon",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 72 },
                     {Stance.Kneeling, 72 },
                     { Stance.Prone, 15 }
                 },
-                WoundLimit = Wounds.Serious
-            });
+                    WoundLimit = Wounds.Serious
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 8,
-                Name = "Left Hand",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 8,
+                    Name = "Left Hand",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 20 },
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 9,
-                Name = "Right Hand",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 9,
+                    Name = "Right Hand",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 20 },
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 10,
-                Name = "Vitals",
-                NaturalArmor = 2,
-                DamageMultiplier = 1.5f,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 10,
+                    Name = "Vitals",
+                    NaturalArmor = 2,
+                    DamageMultiplier = 1.5f,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 100 },
                     {Stance.Kneeling, 100 },
                     { Stance.Prone, 10 }
                 },
-                WoundLimit = Wounds.Unsurvivable
-            });
+                    WoundLimit = Wounds.Unsurvivable
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 11,
-                Name = "Left Leg",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 11,
+                    Name = "Left Leg",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 160 },
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Severe
-            });
+                    WoundLimit = Wounds.Severe
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 12,
-                Name = "Right Leg",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 12,
+                    Name = "Right Leg",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 160 },
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                WoundLimit = Wounds.Severe
-            });
+                    WoundLimit = Wounds.Severe
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 13,
-                Name = "Left Foot",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 13,
+                    Name = "Left Foot",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 15 },
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                },
 
-            list.Add(new HitLocationTemplate
-            {
-                Id = 14,
-                Name = "Right Foot",
-                NaturalArmor = 0,
-                DamageMultiplier = 1,
-                HitProbabilityMap = new Dictionary<Stance, int>()
+                new HitLocationTemplate
+                {
+                    Id = 14,
+                    Name = "Right Foot",
+                    NaturalArmor = 0,
+                    DamageMultiplier = 1,
+                    HitProbabilityMap = new Dictionary<Stance, int>()
                 {
                     { Stance.Standing, 15 },
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                WoundLimit = Wounds.Major
-            });
+                    WoundLimit = Wounds.Major
+                }
+            };
 
             Initialize(list);
         }
@@ -615,10 +619,12 @@ namespace Iam.Scripts.Models.Soldiers
         public Body(BodyTemplate template)
         {
             HitLocations = template.HitLocations.Select(hlt => new HitLocation(hlt)).ToArray();
-            TotalProbabilityMap = new Dictionary<Stance, int>();
-            TotalProbabilityMap[Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Standing]);
-            TotalProbabilityMap[Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Kneeling]);
-            TotalProbabilityMap[Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Prone]);
+            TotalProbabilityMap = new Dictionary<Stance, int>
+            {
+                [Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Standing]),
+                [Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Kneeling]),
+                [Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Prone])
+            };
         }
     }
 }

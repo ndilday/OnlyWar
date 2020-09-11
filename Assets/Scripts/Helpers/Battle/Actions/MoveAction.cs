@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers.Battle.Actions
 {

@@ -21,13 +21,13 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
         {
             while(!MoveQueue.IsEmpty)
             {
-                MoveResolution resolution;
-                MoveQueue.TryTake(out resolution);
+                MoveQueue.TryTake(out MoveResolution resolution);
                 Tuple<int, int> currentPosition = resolution.Grid.GetSoldierPosition(resolution.Soldier.Soldier.Id);
                 Tuple<int, int> newPosition = new Tuple<int, int>(currentPosition.Item1 + resolution.Movement.Item1, currentPosition.Item2 + resolution.Movement.Item2);
                 if(resolution.Grid.IsEmpty(newPosition))
                 {
-                    Tuple<int, int> newLocation = resolution.Grid.MoveSoldier(resolution.Soldier.Soldier.Id, resolution.Movement);
+                    resolution.Grid.MoveSoldier(resolution.Soldier, resolution.Movement);
+                    Tuple<int, int> newLocation = resolution.Soldier.Location;
                     if(newLocation.Item1 < 0 || newLocation.Item1 > resolution.Grid.GridWidth || newLocation.Item2 < 0 || newLocation.Item2 > resolution.Grid.GridHeight)
                     {
                         OnRetreat.Invoke(resolution.Soldier);
@@ -54,7 +54,8 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                         } while (!resolution.Grid.IsEmpty(newPosition));
                     }
                     Tuple<int, int> finalMovement = new Tuple<int, int>(newPosition.Item1 - currentPosition.Item1, newPosition.Item2 - currentPosition.Item2);
-                    Tuple<int, int> newLocation = resolution.Grid.MoveSoldier(resolution.Soldier.Soldier.Id, finalMovement);
+                    resolution.Grid.MoveSoldier(resolution.Soldier, finalMovement);
+                    Tuple<int, int> newLocation = resolution.Soldier.Location;
                     if (newLocation.Item1 < 0 || newLocation.Item1 > resolution.Grid.GridWidth || newLocation.Item2 < 0 || newLocation.Item2 > resolution.Grid.GridHeight)
                     {
                         OnRetreat.Invoke(resolution.Soldier);

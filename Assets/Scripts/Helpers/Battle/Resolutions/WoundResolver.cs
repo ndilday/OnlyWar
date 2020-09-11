@@ -11,7 +11,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
         public UnityEvent<BattleSoldier> OnSoldierDeath;
         public UnityEvent<BattleSoldier> OnSoldierFall;
 
-        private bool _allowVerbose;
+        private readonly bool _allowVerbose;
         public string ResolutionLog { get; private set; }
         public ConcurrentBag<WoundResolution> WoundQueue { get; private set; }
 
@@ -29,8 +29,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             ResolutionLog = "";
             while(!WoundQueue.IsEmpty)
             {
-                WoundResolution wound;
-                WoundQueue.TryTake(out wound);
+                WoundQueue.TryTake(out WoundResolution wound);
                 HandleWound(wound.Damage, wound.Soldier, wound.HitLocation);
             }
         }

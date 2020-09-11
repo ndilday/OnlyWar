@@ -63,8 +63,7 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 foreach (BattleSoldier soldier in squad.Soldiers)
                 {
-                    int closestSoldierId;
-                    float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestSoldierId);
+                    float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestSoldierId);
                     BattleSquad closestSquad = _opposingSoldierIdSquadMap[closestSoldierId];
                     float targetSize = closestSquad.GetAverageSize();
                     float targetArmor = closestSquad.GetAverageArmor();
@@ -210,10 +209,9 @@ namespace Iam.Scripts.Helpers.Battle
         {
             // for now advance toward closest enemy;
             // down the road, we may want to advance toward a rearward enemy, ignoring the closest enemy
-            
-            int closestEnemyId;
+
             Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
-            float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+            float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
             float moveSpeed = soldier.GetMoveSpeed();
             if(distance < moveSpeed)
             {
@@ -258,8 +256,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
             else
             {
-                int closestEnemyId;
-                float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+                float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
@@ -280,9 +277,8 @@ namespace Iam.Scripts.Helpers.Battle
                 // move adjacent to nearest enemy
                 // TODO: handle when someone else in the same squad wants to use the same spot
                 // TODO: probably by letting the one with the lower id have it, and the higher id has to 
-                int closestEnemyId;
                 Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
-                float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+                float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
                 float moveSpeed = soldier.GetMoveSpeed();
                 Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
                 if (distance > moveSpeed + 1)
@@ -372,9 +368,8 @@ namespace Iam.Scripts.Helpers.Battle
 
         private void ShootIfReasonable(BattleSoldier soldier, bool isMoving)
         {
-            int closestEnemyId;
             if (soldier.RangedWeapons.Count == 0) return;
-            float range = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
+            float range = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
             BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
             BattleSoldier target = oppSquad.GetRandomSquadMember();
             range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
@@ -476,7 +471,6 @@ namespace Iam.Scripts.Helpers.Battle
 
         private int CalculateShotsToFire(RangedWeapon weapon, float toHitAtMaximumRateOfFire, float damagePerShot)
         {
-            float benefit = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             int minRoF = 1;
             int maxRof = weapon.Template.RateOfFire;
             // assume all machine guns have to fire at at least 1/4 their max

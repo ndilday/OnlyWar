@@ -10,12 +10,6 @@ namespace Iam.Scripts.Componets
         private Vector3 _origin;
         public GameSettings GameSettings;
 
-        // Start is called before the first frame update
-        void Start()
-        {
-            //Camera.main.orthographicSize = Screen.height / 8;
-        }
-
         void LateUpdate()
         {
             Vector3 difference = Vector3.zero;

@@ -30,23 +30,36 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         }
         public void Execute()
         {
-            for (int i = 0; i <= _weapon.Template.ExtraAttacks; i++)
+            if (IsAdjacentToTarget())
             {
-                _attacker.IsInMelee = true;
-                _target.IsInMelee = true;
-                _attacker.Squad.IsInMelee = true;
-                _target.Squad.IsInMelee = true;
-                float modifier = _weapon.Template.Accuracy + (_didMove ? -2 : 0);
-                float skill = BattleHelpers.GetWeaponSkillPlusStat(_attacker.Soldier, _weapon.Template);
-                float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());
-                float total = skill + modifier - roll;
-                _log.Enqueue(_attacker.Soldier.ToString() + " swings at " + _target.Soldier.ToString());
-                if (total > 0)
+                for (int i = 0; i <= _weapon.Template.ExtraAttacks; i++)
                 {
-                    _log.Enqueue(_attacker.Soldier.ToString() + " strikes " + _target.Soldier.ToString());
-                    HandleHit();
+                    _attacker.IsInMelee = true;
+                    _target.IsInMelee = true;
+                    _attacker.Squad.IsInMelee = true;
+                    _target.Squad.IsInMelee = true;
+                    float modifier = _weapon.Template.Accuracy + (_didMove ? -2 : 0);
+                    float skill = BattleHelpers.GetWeaponSkillPlusStat(_attacker.Soldier, _weapon.Template);
+                    float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());
+                    float total = skill + modifier - roll;
+                    _log.Enqueue(_attacker.Soldier.ToString() + " swings at " + _target.Soldier.ToString());
+                    if (total > 0)
+                    {
+                        _log.Enqueue(_attacker.Soldier.ToString() + " strikes " + _target.Soldier.ToString());
+                        HandleHit();
+                    }
                 }
             }
+            else
+            {
+                _log.Enqueue("<color=orange>" + _attacker.Soldier.ToString() + " did not get close enough to attack</color>");
+            }
+        }
+
+        private bool IsAdjacentToTarget()
+        {
+            int quickDistance = _attacker.Location.Item1 - _target.Location.Item1 + _attacker.Location.Item2 - _target.Location.Item2;
+            return quickDistance == 1 || quickDistance == -1;
         }
 
         private void HandleHit()

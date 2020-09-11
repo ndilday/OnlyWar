@@ -4,7 +4,7 @@ namespace Iam.Scripts.Helpers
 {
     public static class Random
     {
-        private static System.Random _random = new System.Random(1);
+        private readonly static System.Random _random = new System.Random(1);
         public static double NextGaussianDouble()
         {
             double u1 = 1.0 - _random.NextDouble(); //uniform(0,1] random doubles

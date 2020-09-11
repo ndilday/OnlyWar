@@ -18,7 +18,7 @@ namespace Iam.Scripts.Helpers.Battle
         public bool IsPlayerSquad { get; private set; }
         public bool IsInMelee { get; set; }
 
-        private Squad _squad;
+        private readonly Squad _squad;
 
         public BattleSquad(bool isPlayerSquad, Squad squad)
         {

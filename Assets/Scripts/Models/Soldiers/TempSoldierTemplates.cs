@@ -53,36 +53,38 @@ namespace Iam.Scripts.Models.Soldiers
             Size = new AttributeTemplate { BaseValue = 2.4f, StandardDeviation = 0.1f };
             PsychicPower = new AttributeTemplate { BaseValue = -2.5f, StandardDeviation = 1 };
 
-            SkillTemplates = new List<SkillTemplate>();
-            SkillTemplates.Add(new SkillTemplate { BaseSkill= TempBaseSkillList.Instance.Piety, BaseValue = 2.5f, StandardDeviation = 0.5f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Ritual, BaseValue = -1.285f, StandardDeviation = 1f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Persuade, BaseValue = -1.285f, StandardDeviation = 1f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Leadership, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Tactics, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Marine, BaseValue = 2.5f, StandardDeviation = 0.5f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.ArmorySmallArms, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.ArmoryVehicle, BaseValue = -1.285f, StandardDeviation = 1f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.FirstAid, BaseValue = 2.5f, StandardDeviation = 0.5f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Diagnosis, BaseValue = 0.5f, StandardDeviation = 1f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.PowerArmor, BaseValue = -0.5f, StandardDeviation = 0.5f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Rhino, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.LandSpeeder, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryBeam, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryBolter, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryCannon, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryRocket, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.JumpPack, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Bolter, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Lascannon, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Plasma, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.MissileLauncher, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Flamer, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Throwing, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Shield, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Sword, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Axe, BaseValue = 1.6f, StandardDeviation = 0.2f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Fist, BaseValue = 2.5f, StandardDeviation = 0.5f });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Stealth, BaseValue = 0.5f, StandardDeviation = 1f });
+            SkillTemplates = new List<SkillTemplate>
+            {
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Piety, BaseValue = 2.5f, StandardDeviation = 0.5f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Ritual, BaseValue = -1.285f, StandardDeviation = 1f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Persuade, BaseValue = -1.285f, StandardDeviation = 1f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Leadership, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Tactics, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Marine, BaseValue = 2.5f, StandardDeviation = 0.5f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.ArmorySmallArms, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.ArmoryVehicle, BaseValue = -1.285f, StandardDeviation = 1f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.FirstAid, BaseValue = 2.5f, StandardDeviation = 0.5f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Diagnosis, BaseValue = 0.5f, StandardDeviation = 1f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.PowerArmor, BaseValue = -0.5f, StandardDeviation = 0.5f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Rhino, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.LandSpeeder, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryBeam, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryBolter, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryCannon, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.GunneryRocket, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.JumpPack, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Bolter, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Lascannon, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Plasma, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.MissileLauncher, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Flamer, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Throwing, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Shield, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Sword, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Axe, BaseValue = 1.6f, StandardDeviation = 0.2f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Fist, BaseValue = 2.5f, StandardDeviation = 0.5f },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.Stealth, BaseValue = 0.5f, StandardDeviation = 1f }
+            };
 
             BodyTemplate = HumanBodyTemplate.Instance;
         }
@@ -123,9 +125,11 @@ namespace Iam.Scripts.Models.Soldiers
 
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;
 
-            SkillTemplates = new List<SkillTemplate>();
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
+            SkillTemplates = new List<SkillTemplate>
+            {
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 }
+            };
         }
     }
 
@@ -165,8 +169,10 @@ namespace Iam.Scripts.Models.Soldiers
 
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;
 
-            SkillTemplates = new List<SkillTemplate>();
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
+            SkillTemplates = new List<SkillTemplate>
+            {
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 }
+            };
         }
     }
 
@@ -206,9 +212,11 @@ namespace Iam.Scripts.Models.Soldiers
 
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;
 
-            SkillTemplates = new List<SkillTemplate>();
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 });
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 });
+            SkillTemplates = new List<SkillTemplate>
+            {
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 1, StandardDeviation = 0 },
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentRanged, BaseValue = 1, StandardDeviation = 0 }
+            };
         }
     }
 
@@ -248,8 +256,10 @@ namespace Iam.Scripts.Models.Soldiers
 
             BodyTemplate = TyranidWarriorBodyTemplate.Instance;
 
-            SkillTemplates = new List<SkillTemplate>();
-            SkillTemplates.Add(new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 16, StandardDeviation = 0 });
+            SkillTemplates = new List<SkillTemplate>
+            {
+                new SkillTemplate { BaseSkill = TempBaseSkillList.Instance.OpponentMelee, BaseValue = 16, StandardDeviation = 0 }
+            };
         }
     }
 }
