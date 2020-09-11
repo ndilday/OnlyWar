@@ -13,11 +13,13 @@ namespace Iam.Scripts.Helpers.Battle
         // I'm not using these events yet, but I probably will
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadPlaced;
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadMoved;
+        public HashSet<Tuple<int, int>> ReservedSpaces { get; private set; }
         // TODO: allow multiple friendlies in single grid location?
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
 
         private readonly Dictionary<int, Tuple<int, int>> _soldierLocationMap;
+        private readonly Dictionary<Tuple<int, int>, int> _locationSoldierMap;
         private readonly HashSet<int> _playerSoldierIds;
         private readonly HashSet<int> _opposingSoldierIds;
 
@@ -26,10 +28,12 @@ namespace Iam.Scripts.Helpers.Battle
             GridWidth = gridWidth;
             GridHeight = gridHeight;
             _soldierLocationMap = new Dictionary<int, Tuple<int, int>>();
+            _locationSoldierMap = new Dictionary<Tuple<int, int>, int>();
             OnSquadPlaced = new UnityEvent<BattleSquad, Tuple<int, int>>();
             OnSquadMoved = new UnityEvent<BattleSquad, Tuple<int, int>>();
             _playerSoldierIds = new HashSet<int>();
             _opposingSoldierIds = new HashSet<int>();
+            ReservedSpaces = new HashSet<Tuple<int, int>>();
         }
 
         public void RemoveSoldier(int soldierId)
@@ -42,7 +46,9 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 _opposingSoldierIds.Remove(soldierId);
             }
+            Tuple<int, int> tuple = _soldierLocationMap[soldierId];
             _soldierLocationMap.Remove(soldierId);
+            _locationSoldierMap.Remove(tuple);
         }
 
         public Tuple<int, int> GetSoldierPosition(int soldierId)
@@ -55,6 +61,8 @@ namespace Iam.Scripts.Helpers.Battle
             Tuple<int, int> currentLocation = _soldierLocationMap[soldierId];
             Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + movement.Item1, currentLocation.Item2 + movement.Item2);
             _soldierLocationMap[soldierId] = newLocation;
+            _locationSoldierMap[newLocation] = soldierId;
+            _locationSoldierMap.Remove(currentLocation);
             return newLocation;
         }
 
@@ -147,12 +155,16 @@ namespace Iam.Scripts.Helpers.Battle
                 if (squad.IsPlayerSquad)
                 {
                     _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                    Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
+                    _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
                 }
                 else
                 {
                     _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                    Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                    _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
+                    _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
                 }
             }
             OnSquadPlaced.Invoke(squad, startingLocation);
@@ -160,7 +172,7 @@ namespace Iam.Scripts.Helpers.Battle
 
         public bool IsEmpty(Tuple<int, int> location)
         {
-            return !_soldierLocationMap.Values.Any(l => l == location);
+            return !_locationSoldierMap.ContainsKey(location);
         }
 
         public Tuple<int, int> GetClosestOpenAdjacency(Tuple<int, int> startingPoint, Tuple<int, int> target)
@@ -188,6 +200,36 @@ namespace Iam.Scripts.Helpers.Battle
                 }
             }
             return bestPosition;
+        }
+
+        public bool IsAdjacentToEnemy(Soldier soldier)
+        {
+            Tuple<int, int> location = _soldierLocationMap[soldier.Id];
+            Tuple<int, int>[] testPositions = new Tuple<int, int>[4]
+                {
+                    new Tuple<int, int>(location.Item1, location.Item2 - 1),
+                    new Tuple<int, int>(location.Item1, location.Item2 + 1),
+                    new Tuple<int, int>(location.Item1 - 1, location.Item2),
+                    new Tuple<int, int>(location.Item1 + 1, location.Item2)
+                };
+            foreach(Tuple<int, int> testPosition in testPositions)
+            {
+                if (_locationSoldierMap.ContainsKey(testPosition))
+                {
+                    int adjacentSoldierId = _locationSoldierMap[testPosition];
+                    if((_playerSoldierIds.Contains(soldier.Id) && _opposingSoldierIds.Contains(adjacentSoldierId)) 
+                        || _opposingSoldierIds.Contains(soldier.Id) && _playerSoldierIds.Contains(adjacentSoldierId))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsSpaceReserved(Tuple<int, int> location)
+        {
+            return ReservedSpaces.Contains(location);
         }
 
         private float CalculateDistanceSq(Tuple<int, int> pos1, Tuple<int, int> pos2)

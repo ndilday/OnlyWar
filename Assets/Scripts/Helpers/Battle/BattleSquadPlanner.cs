@@ -49,7 +49,14 @@ namespace Iam.Scripts.Helpers.Battle
                 // it doesn't really matter what the soldiers want to do, it's time to fight
                 foreach(BattleSoldier soldier in squad.Soldiers)
                 {
-                    AddChargeActionsToBag(soldier);
+                    if (_grid.IsAdjacentToEnemy(soldier.Soldier))
+                    {
+                        AddMeleeActionsToBag(soldier);
+                    }
+                    else
+                    {
+                        AddChargeActionsToBag(soldier);
+                    }
                 }
             }
             else
