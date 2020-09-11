@@ -51,7 +51,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 
         private void HandleHit()
         {
-            HitLocation hitLocation = DetermineHitLocation(_target.Soldier);
+            HitLocation hitLocation = DetermineHitLocation(_target);
             // make sure this body part hasn't already been shot off
             if (!hitLocation.IsSevered)
             {
@@ -66,23 +66,24 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             }
         }
 
-        private HitLocation DetermineHitLocation(Soldier soldier)
+        private HitLocation DetermineHitLocation(BattleSoldier soldier)
         {
             // we're using the "lottery ball" approach to randomness here, where each point of probability
             // for each available body party defines the size of the random linear distribution
             // TODO: factor in cover/body position
             // 
-            int roll = Random.GetIntBelowMax(0, soldier.Body.TotalProbability);
-            foreach (HitLocation location in soldier.Body.HitLocations)
+            int roll = Random.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
+            foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
-                if (roll < location.Template.HitProbability)
+                int locationChance = location.Template.HitProbabilityMap[soldier.Stance];
+                if (roll < locationChance)
                 {
                     return location;
                 }
                 else
                 {
                     // this is basically an easy iterative way to figure out which body part on the "chart" the roll matches
-                    roll -= location.Template.HitProbability;
+                    roll -= locationChance;
                 }
             }
             // this should never happen

@@ -5,6 +5,13 @@ using System.Linq;
 
 namespace Iam.Scripts.Models.Soldiers
 {
+    public enum Stance
+    {
+        Standing,
+        Kneeling, 
+        Prone
+    }
+
     [Flags]
     public enum Wounds : byte
     {
@@ -64,7 +71,7 @@ namespace Iam.Scripts.Models.Soldiers
         public int NaturalArmor;
         public float DamageMultiplier;
         public Wounds WoundLimit;
-        public int HitProbability;
+        public Dictionary<Stance, int> HitProbabilityMap;
     }
 
     public class HitLocation
@@ -152,14 +159,20 @@ namespace Iam.Scripts.Models.Soldiers
         private HumanBodyTemplate()
         {
             List<HitLocationTemplate> list = new List<HitLocationTemplate>();
-            list.Add( new HitLocationTemplate
+            list.Add(new HitLocationTemplate
             {
                 Id = 0,
                 Name = "Brain",
                 NaturalArmor = 2,
                 DamageMultiplier = 4,
-                HitProbability = 30,
-                WoundLimit = Wounds.Unsurvivable
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 30 },
+                    {Stance.Kneeling, 30 },
+                    { Stance.Prone, 30 }
+                },
+                WoundLimit = Wounds.Unsurvivable,
+
             });
 
             list.Add( new HitLocationTemplate
@@ -168,7 +181,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Eyes",
                 NaturalArmor = 0,
                 DamageMultiplier = 4,
-                HitProbability = 1,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 1 },
+                    {Stance.Kneeling, 1 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -178,7 +196,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Face",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 75,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 75 },
+                    {Stance.Kneeling, 75 },
+                    { Stance.Prone, 75 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -188,7 +211,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Torso",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 480,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 480 },
+                    {Stance.Kneeling, 480 },
+                    { Stance.Prone, 30 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -198,7 +226,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 96,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 96 },
+                    {Stance.Kneeling, 96 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -208,7 +241,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 96,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 96 },
+                    {Stance.Kneeling, 96 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -218,7 +256,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 20,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 20 },
+                    {Stance.Kneeling, 20 },
+                    { Stance.Prone, 20 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -228,7 +271,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 20,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 20 },
+                    {Stance.Kneeling, 20 },
+                    { Stance.Prone, 20 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -238,7 +286,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Vitals",
                 NaturalArmor = 2,
                 DamageMultiplier = 1.5f,
-                HitProbability = 100,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 100 },
+                    {Stance.Kneeling, 100 },
+                    { Stance.Prone, 10 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -248,7 +301,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 160,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 160 },
+                    {Stance.Kneeling, 80 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Severe
             });
 
@@ -258,7 +316,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 160,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 160 },
+                    {Stance.Kneeling, 80 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Severe
             });
 
@@ -268,7 +331,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 15,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 15 },
+                    {Stance.Kneeling, 7 },
+                    { Stance.Prone, 0 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -278,7 +346,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 15,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 15 },
+                    {Stance.Kneeling, 7 },
+                    { Stance.Prone, 0 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -310,8 +383,14 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Brain",
                 NaturalArmor = 2,
                 DamageMultiplier = 4,
-                HitProbability = 30,
-                WoundLimit = Wounds.Unsurvivable
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 30 },
+                    {Stance.Kneeling, 30 },
+                    { Stance.Prone, 30 }
+                },
+                WoundLimit = Wounds.Unsurvivable,
+
             });
 
             list.Add(new HitLocationTemplate
@@ -320,7 +399,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Eyes",
                 NaturalArmor = 0,
                 DamageMultiplier = 4,
-                HitProbability = 1,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 1 },
+                    {Stance.Kneeling, 1 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -330,7 +414,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Face",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 75,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 75 },
+                    {Stance.Kneeling, 75 },
+                    { Stance.Prone, 75 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -340,7 +429,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Torso",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 480,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 480 },
+                    {Stance.Kneeling, 480 },
+                    { Stance.Prone, 30 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -350,7 +444,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 96,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 96 },
+                    {Stance.Kneeling, 96 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -360,7 +459,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Talon",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 72,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 72 },
+                    {Stance.Kneeling, 72 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -370,7 +474,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Arm",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 96,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 96 },
+                    {Stance.Kneeling, 96 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -380,7 +489,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Talon",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 72,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 72 },
+                    {Stance.Kneeling, 72 },
+                    { Stance.Prone, 15 }
+                },
                 WoundLimit = Wounds.Serious
             });
 
@@ -390,7 +504,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 20,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 20 },
+                    {Stance.Kneeling, 20 },
+                    { Stance.Prone, 20 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -400,7 +519,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Hand",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 20,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 20 },
+                    {Stance.Kneeling, 20 },
+                    { Stance.Prone, 20 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -410,7 +534,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Vitals",
                 NaturalArmor = 2,
                 DamageMultiplier = 1.5f,
-                HitProbability = 100,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 100 },
+                    {Stance.Kneeling, 100 },
+                    { Stance.Prone, 10 }
+                },
                 WoundLimit = Wounds.Unsurvivable
             });
 
@@ -420,7 +549,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 160,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 160 },
+                    {Stance.Kneeling, 80 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Severe
             });
 
@@ -430,7 +564,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Leg",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 160,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 160 },
+                    {Stance.Kneeling, 80 },
+                    { Stance.Prone, 1 }
+                },
                 WoundLimit = Wounds.Severe
             });
 
@@ -440,7 +579,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Left Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 15,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 15 },
+                    {Stance.Kneeling, 7 },
+                    { Stance.Prone, 0 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -450,7 +594,12 @@ namespace Iam.Scripts.Models.Soldiers
                 Name = "Right Foot",
                 NaturalArmor = 0,
                 DamageMultiplier = 1,
-                HitProbability = 15,
+                HitProbabilityMap = new Dictionary<Stance, int>()
+                {
+                    { Stance.Standing, 15 },
+                    {Stance.Kneeling, 7 },
+                    { Stance.Prone, 0 }
+                },
                 WoundLimit = Wounds.Major
             });
 
@@ -461,12 +610,15 @@ namespace Iam.Scripts.Models.Soldiers
     public class Body
     {
         public HitLocation[] HitLocations { get; private set; }
-        public int TotalProbability { get; private set; }
+        public Dictionary<Stance, int> TotalProbabilityMap { get; private set; }
 
         public Body(BodyTemplate template)
         {
             HitLocations = template.HitLocations.Select(hlt => new HitLocation(hlt)).ToArray();
-            TotalProbability = HitLocations.Sum(hl => hl.Template.HitProbability);
+            TotalProbabilityMap = new Dictionary<Stance, int>();
+            TotalProbabilityMap[Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Standing]);
+            TotalProbabilityMap[Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Kneeling]);
+            TotalProbabilityMap[Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Prone]);
         }
     }
 }

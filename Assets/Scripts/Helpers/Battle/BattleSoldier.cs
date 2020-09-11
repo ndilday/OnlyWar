@@ -6,14 +6,6 @@ using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers.Battle
 {
-    public enum Posture
-    {
-        Standing, 
-        Crouching, 
-        Kneeling,
-        Prone
-    }
-
     public class BattleSoldier
     {
         public Soldier Soldier { get; private set; }
@@ -29,7 +21,7 @@ namespace Iam.Scripts.Helpers.Battle
         public List<RangedWeapon> RangedWeapons { get; private set; }
         public Armor Armor { get; set; }
         public bool IsInMelee { get; set; }
-        
+        public Stance Stance { get; set; }
         public int HandsFree
         {
             get
@@ -59,6 +51,7 @@ namespace Iam.Scripts.Helpers.Battle
             Location = null;
             Aim = null;
             IsInMelee = false;
+            Stance = Stance.Standing;
         }
         
         public void AddWeapons(List<RangedWeapon> rangedWeapons, List<MeleeWeapon> meleeWeapons)
