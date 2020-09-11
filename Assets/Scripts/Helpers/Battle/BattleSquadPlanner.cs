@@ -149,12 +149,14 @@ namespace Iam.Scripts.Helpers.Battle
                 if(soldier.RangedWeapons.Count == 1 && handsFree >= 1)
                 {
                     // the easiest case... ready our one ranged weapon
+                    soldier.CurrentSpeed = 0;
                     _actionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons[0]));
                 }
                 else if(soldier.RangedWeapons.Count > 1 && handsFree >= 1)
                 {
                     // ugh, this is a decision with a lot of factors that will only come up rarely
                     // for now, let's go with the longer ranged weapon
+                    soldier.CurrentSpeed = 0;
                     _actionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
 
                 }
@@ -168,6 +170,7 @@ namespace Iam.Scripts.Helpers.Battle
                     float range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, soldier.Aim.Item1.Soldier.Id);
                     Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, soldier.Aim.Item1, soldier.Aim.Item2, range, soldier.Aim.Item2.Template.Accuracy + 3);
                     int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
+                    soldier.CurrentSpeed = 0;
                     _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
                 }
                 else
@@ -184,11 +187,13 @@ namespace Iam.Scripts.Helpers.Battle
                         || (resultEstimate.Item2 >= 1 && resultEstimate.Item1 >= -8.7f))
                     {
                         int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, resultEstimate.Item1, resultEstimate.Item2);
+                        soldier.CurrentSpeed = 0;
                         _actionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
                     }
                     else
                     {
                         // keep aiming
+                        soldier.CurrentSpeed = 0;
                         _actionBag.Add(new AimAction(soldier, soldier.Aim.Item1, soldier.Aim.Item2, _log));
                     }
                 }
@@ -196,6 +201,7 @@ namespace Iam.Scripts.Helpers.Battle
             // need to aim or shoot at a new target
             else
             {
+                soldier.CurrentSpeed = 0;
                 ShootIfReasonable(soldier, false);
             }
         }
@@ -219,6 +225,7 @@ namespace Iam.Scripts.Helpers.Battle
                 Tuple<int, int> line = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(line, moveSpeed);
+                soldier.CurrentSpeed = moveSpeed;
                 _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
 
                 // should the soldier shoot along the way?
@@ -233,6 +240,7 @@ namespace Iam.Scripts.Helpers.Battle
             float moveSpeed = soldier.GetMoveSpeed();
 
             int newY = (int)(soldierSquad.IsPlayerSquad ? -moveSpeed : moveSpeed);
+            soldier.CurrentSpeed = moveSpeed;
             _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(currentPosition.Item1, currentPosition.Item2 + newY), _moveBag));
 
             // determine if soldier will shoot as he falls back
@@ -245,6 +253,7 @@ namespace Iam.Scripts.Helpers.Battle
             // if we have melee weapons but none are equipped, we should change that
             if (soldier.EquippedMeleeWeapons.Count == 0 && soldier.MeleeWeapons.Count > 0)
             {
+                soldier.CurrentSpeed = 0;
                 _actionBag.Add(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
             }
             else
@@ -253,6 +262,7 @@ namespace Iam.Scripts.Helpers.Battle
                 float distance = _grid.GetNearestEnemy(soldier.Soldier, out closestEnemyId);
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
+                soldier.CurrentSpeed = 0;
                 _actionBag.Add(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundBag, _log));
             }
         }
@@ -281,6 +291,7 @@ namespace Iam.Scripts.Helpers.Battle
                     // we can't make it to an enemy in one move
                     // soldier can't get there in one move, advance as far as possible
                     Tuple<int, int> realMove = CalculateMovementAlongLine(moveVector, moveSpeed);
+                    soldier.CurrentSpeed = moveSpeed;
                     _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
 
                     // should the soldier shoot along the way?
@@ -338,6 +349,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // we can't make it to an enemy in one move
                 // soldier can't get there in one move, advance as far as possible
                 Tuple<int, int> realMove = CalculateMovementAlongLine(move, moveSpeed);
+                soldier.CurrentSpeed = moveSpeed;
                 _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
 
                 // should the soldier shoot along the way?
@@ -345,6 +357,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
             else if (soldier.EquippedMeleeWeapons.Count == 0 && soldier.MeleeWeapons.Count > 0)
             {
+                soldier.CurrentSpeed = 0;
                 _actionBag.Add(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
             }
             else
@@ -352,6 +365,7 @@ namespace Iam.Scripts.Helpers.Battle
                 Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
                 _actionBag.Add(new MoveAction(soldier, _grid, move, _moveBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
+                soldier.CurrentSpeed = moveSpeed;
                 _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundBag, _log));
             }
         }
@@ -489,7 +503,7 @@ namespace Iam.Scripts.Helpers.Battle
             float armor = target.Armor.Template.ArmorProvided;
             float con = target.Soldier.Constitution;
             float expectedDamage = CalculateExpectedDamage(weapon, range, armor, con);
-            float rangeMod = BattleHelpers.CalculateRangeModifier(range);
+            float rangeMod = BattleHelpers.CalculateRangeModifier(range, target.CurrentSpeed);
             float rofMod = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             float weaponSkill = BattleHelpers.GetWeaponSkillPlusStat(soldier.Soldier, weapon.Template);
             float total = weaponSkill + rofMod + rangeMod + sizeMod + moveAndAimMod;

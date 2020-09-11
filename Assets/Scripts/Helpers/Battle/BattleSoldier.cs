@@ -22,6 +22,7 @@ namespace Iam.Scripts.Helpers.Battle
         public Armor Armor { get; set; }
         public bool IsInMelee { get; set; }
         public Stance Stance { get; set; }
+        public float CurrentSpeed { get; set; }
         public int HandsFree
         {
             get
@@ -52,6 +53,7 @@ namespace Iam.Scripts.Helpers.Battle
             Aim = null;
             IsInMelee = false;
             Stance = Stance.Standing;
+            CurrentSpeed = 0;
         }
         
         public void AddWeapons(List<RangedWeapon> rangedWeapons, List<MeleeWeapon> meleeWeapons)

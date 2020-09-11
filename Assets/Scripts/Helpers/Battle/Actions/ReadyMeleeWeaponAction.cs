@@ -15,13 +15,14 @@ namespace Iam.Scripts.Helpers.Battle.Actions
 
         public void Execute()
         {
-            if(_weapon.Template.Location == EquipLocation.TwoHand && _soldier.HandsFree < 2)
+            int handsFree = _soldier.HandsFree;
+            if(_weapon.Template.Location == EquipLocation.TwoHand && handsFree < 2)
             {
                 // unequip any equipped weapons
                 _soldier.EquippedRangedWeapons.Clear();
                 _soldier.EquippedMeleeWeapons.Clear();
             }
-            if(_weapon.Template.Location == EquipLocation.OneHand && _soldier.HandsFree < 1)
+            if(_weapon.Template.Location == EquipLocation.OneHand && handsFree < 1)
             {
                 if(_soldier.EquippedRangedWeapons.Count > 0)
                 {

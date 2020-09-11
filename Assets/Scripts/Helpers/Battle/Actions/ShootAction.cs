@@ -64,7 +64,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             }
             totalModifier += BattleHelpers.CalculateRateOfFireModifier(_numberOfShots);
             totalModifier += BattleHelpers.CalculateSizeModifier(_target.Soldier.Size);
-            totalModifier += BattleHelpers.CalculateRangeModifier(_range);
+            totalModifier += BattleHelpers.CalculateRangeModifier(_range, _target.CurrentSpeed);
 
             return totalModifier;
         }

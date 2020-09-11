@@ -35,16 +35,16 @@ namespace Iam.Scripts.Helpers.Battle
             return 2 * Mathf.Exp(-modifier / 2.4663f);
         }
 
-        public static float CalculateRangeModifier(float range)
+        public static float CalculateRangeModifier(float range, float relativeTargetSpeed)
         {
             // 
-            return 2.4663f * Mathf.Log(2 / range);
+            return 2.4663f * Mathf.Log(2 / (range + relativeTargetSpeed));
         }
 
         public static float CalculateSizeModifier(float size)
         {
             // this is just the opposite of the range modifier
-            return -CalculateRangeModifier(size);
+            return -CalculateRangeModifier(size, 0);
         }
 
         public static float CalculateRateOfFireModifier(int rateOfFire)
