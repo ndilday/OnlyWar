@@ -186,7 +186,7 @@ namespace Iam.Scripts.Helpers.Battle
                 };
             foreach (Tuple<int, int> testPosition in testPositions)
             {
-                if (IsEmpty(testPosition))
+                if (IsEmpty(testPosition) && !IsSpaceReserved(testPosition))
                 {
                     disSq = CalculateDistanceSq(startingPoint, testPosition);
                     if (disSq < bestDistance)

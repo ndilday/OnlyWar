@@ -66,7 +66,7 @@ namespace Iam.Scripts.Models.Equippables
             Location = EquipLocation.OneHand,
             ParryModifier = 0,
             PenetrationMultiplier = 1,
-            StrengthMultiplier = 1,
+            StrengthMultiplier = 0.25f,
             RequiredStrength = 8,
             RelatedSkill = TempBaseSkillList.Instance.OpponentMelee
         };
@@ -81,8 +81,8 @@ namespace Iam.Scripts.Models.Equippables
             ExtraDamage = 0,
             Location = EquipLocation.OneHand,
             ParryModifier = 0,
-            PenetrationMultiplier = 1,
-            StrengthMultiplier = 1,
+            PenetrationMultiplier = 3,
+            StrengthMultiplier = 0.25f,
             RequiredStrength = 8,
             RelatedSkill = TempBaseSkillList.Instance.OpponentMelee
         };

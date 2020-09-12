@@ -84,11 +84,12 @@ namespace Iam.Scripts.Controllers
                 _turnNumber++;
                 BattleView.UpdateNextStepButton("Next Turn", false);
                 BattleView.ClearBattleLog();
+                _grid.ClearReservations();
                 _casualtyMap.Clear();
                 Log(false, "Turn " + _turnNumber.ToString());
                 // this is a three step process: plan, execute, and apply
 
-                ConcurrentBag<IAction> actionBag = new ConcurrentBag<IAction>();
+                ConcurrentQueue<IAction> actionBag = new ConcurrentQueue<IAction>();
                 ConcurrentQueue<string> log = new ConcurrentQueue<string>();
                 Plan(actionBag, log);
                 while(!log.IsEmpty)
@@ -107,6 +108,17 @@ namespace Iam.Scripts.Controllers
                 Apply();
 
                 RedrawSquadPositions();
+                if(_selectedBattleSquad != null)
+                {
+                    if(_selectedBattleSquad.IsPlayerSquad)
+                    {
+                        BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
+                    }
+                    else
+                    {
+                        BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
+                    }
+                }
 
                 if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
                 {
@@ -140,7 +152,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void Plan(ConcurrentBag<IAction> actionBag, ConcurrentQueue<string> log)
+        private void Plan(ConcurrentQueue<IAction> actionBag, ConcurrentQueue<string> log)
         {
             // PLAN
             // use the thread pool to handle the BattleSquadPlanner classes;
@@ -160,7 +172,7 @@ namespace Iam.Scripts.Controllers
             };
         }
 
-        private static void Execute(ConcurrentBag<IAction> actionBag)
+        private static void Execute(ConcurrentQueue<IAction> actionBag)
         {
             // EXECUTE
             // once the squads have all finished planning actions, we use the thread pool to process the execution logic. 
@@ -256,7 +268,10 @@ namespace Iam.Scripts.Controllers
                 report += soldier.Armor.Template.Name + "\n";
                 foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                 {
-                    report += hl.ToString() + "\n";
+                    if (hl.Wounds != Wounds.None)
+                    {
+                        report += hl.ToString() + "\n";
+                    }
                 }
                 report += "\n";
             }
