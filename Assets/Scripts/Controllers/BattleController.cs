@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Events;
@@ -89,28 +88,37 @@ namespace Iam.Scripts.Controllers
                 Log(false, "Turn " + _turnNumber.ToString());
                 // this is a three step process: plan, execute, and apply
 
-                ConcurrentQueue<IAction> actionBag = new ConcurrentQueue<IAction>();
+                ConcurrentBag<IAction> moveSegmentActions = new ConcurrentBag<IAction>();
+                ConcurrentBag<IAction> shootSegmentActions = new ConcurrentBag<IAction>();
+                ConcurrentBag<IAction> meleeSegmentActions = new ConcurrentBag<IAction>();
                 ConcurrentQueue<string> log = new ConcurrentQueue<string>();
-                Plan(actionBag, log);
-                while(!log.IsEmpty)
+                Plan(shootSegmentActions, moveSegmentActions, meleeSegmentActions, log);
+                while (!log.IsEmpty)
                 {
                     log.TryDequeue(out string line);
                     Log(false, line);
                 }
-                Execute(actionBag);
-
+                
+                HandleShootingAndMoving(shootSegmentActions, moveSegmentActions);
                 while (!log.IsEmpty)
                 {
                     log.TryDequeue(out string line);
                     Log(false, line);
                 }
 
-                Apply();
-
-                RedrawSquadPositions();
-                if(_selectedBattleSquad != null)
+                HandleMelee(meleeSegmentActions);
+                while (!log.IsEmpty)
                 {
-                    if(_selectedBattleSquad.IsPlayerSquad)
+                    log.TryDequeue(out string line);
+                    Log(false, line);
+                }
+
+                ProcessWounds();
+                CleanupAtEndOfTurn();
+                
+                if (_selectedBattleSquad != null)
+                {
+                    if (_selectedBattleSquad.IsPlayerSquad)
                     {
                         BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
                     }
@@ -152,7 +160,10 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void Plan(ConcurrentQueue<IAction> actionBag, ConcurrentQueue<string> log)
+        private void Plan(ConcurrentBag<IAction> shootSegmentActions, 
+                          ConcurrentBag<IAction> moveSegmentActions, 
+                          ConcurrentBag<IAction> meleeSegmentActions,
+                          ConcurrentQueue<string> log)
         {
             // PLAN
             // use the thread pool to handle the BattleSquadPlanner classes;
@@ -161,44 +172,86 @@ namespace Iam.Scripts.Controllers
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
                 planner.PrepareActions(squad);
             };
             //Parallel.ForEach(_opposingSquads.Values, (squad) =>
             foreach(BattleSquad squad in _opposingSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, actionBag, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
                 planner.PrepareActions(squad);
             };
         }
 
-        private static void Execute(ConcurrentQueue<IAction> actionBag)
+        private void HandleShootingAndMoving(ConcurrentBag<IAction> shootActions,
+                                    ConcurrentBag<IAction> moveActions)
         {
             // EXECUTE
-            // once the squads have all finished planning actions, we use the thread pool to process the execution logic. 
-            // These use the command pattern to allow the controller to execute each without having any knowledge of what the internal implementation is
+            // once the squads have all finished planning actions, we process the execution logic. 
+            // These use the command pattern to allow the controller to execute each without 
+            // having any knowledge of what the internal implementation is
             // this also allows us to separate the concerns of the planner and the executor
-            // we take the results/side effects of each execution that impact the outside world and put those results into queues
-            // (movement and wounding are the only things that fit this category, today, but there will be others in the future)
+            // we take the results/side effects of each execution that impact the outside world 
+            // and put those results into queues
+            // (movement and wounding are the only things that fit this category, today, 
+            // but there will be others in the future)
             //Parallel.ForEach(actionBag, (action) => action.Execute());
-            foreach(IAction action in actionBag)
+            foreach(IAction action in shootActions)
+            {
+                action.Execute();
+            }
+            foreach (IAction action in moveActions)
+            {
+                action.Execute();
+            }
+            _moveResolver.Resolve();
+        }
+
+        private void HandleMelee(ConcurrentBag<IAction> meleeActions)
+        {
+            foreach (IAction action in meleeActions)
             {
                 action.Execute();
             }
         }
 
-        private void Apply()
+        private void ProcessWounds()
         {
-            // APPLY
-            // the move resolver and wound resolver should now be populated
-            // because movement and wounding may have race conditions, resolution has to be handled serially
-            _moveResolver.Resolve();
             _woundResolver.Resolve();
             Log(false, _woundResolver.ResolutionLog);
+        }
+
+        private void CleanupAtEndOfTurn()
+        {
+            // handle casualties
             foreach (BattleSoldier soldier in _casualtyMap.Values)
             {
                 RemoveSoldier(soldier, _soldierSquadMap[soldier.Soldier.Id]);
             }
+
+            // redraw map
+            RedrawSquadPositions();
+            
+            // update who's in melee
+            foreach(BattleSquad squad in _playerSquads.Values)
+            {
+                UpdateSquadMeleeStatus(squad);
+            }
+            foreach (BattleSquad squad in _opposingSquads.Values)
+            {
+                UpdateSquadMeleeStatus(squad);
+            }
+        }
+
+        private void UpdateSquadMeleeStatus(BattleSquad squad)
+        {
+            bool atLeastOneSoldierInMelee = false;
+            foreach (BattleSoldier soldier in squad.Soldiers)
+            {
+                soldier.IsInMelee = _grid.IsAdjacentToEnemy(soldier.Soldier.Id);
+                if (soldier.IsInMelee) atLeastOneSoldierInMelee = true;
+            }
+            squad.IsInMelee = atLeastOneSoldierInMelee;
         }
 
         private void RedrawSquadPositions()

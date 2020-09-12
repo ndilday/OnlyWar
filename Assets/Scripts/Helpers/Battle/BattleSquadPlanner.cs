@@ -15,20 +15,30 @@ namespace Iam.Scripts.Helpers.Battle
     public class BattleSquadPlanner
     {
         private readonly BattleGrid _grid;
-        private readonly ConcurrentQueue<IAction> _actionBag;
+        private readonly ConcurrentBag<IAction> _shootActionBag;
+        private readonly ConcurrentBag<IAction> _moveActionBag;
+        private readonly ConcurrentBag<IAction> _meleeActionBag;
         private readonly Dictionary<int, BattleSquad> _opposingSoldierIdSquadMap;
-        private readonly ConcurrentBag<WoundResolution> _woundBag;
-        private readonly ConcurrentBag<MoveResolution> _moveBag;
+        private readonly ConcurrentBag<WoundResolution> _woundResolutionBag;
+        private readonly ConcurrentBag<MoveResolution> _moveResolutionBag;
         private readonly ConcurrentQueue<string> _log;
 
-        public BattleSquadPlanner(BattleGrid grid, Dictionary<int, BattleSquad> opposingSoldierIdSquadMap, 
-            ConcurrentQueue<IAction> actionBag, ConcurrentBag<WoundResolution> woundBag, ConcurrentBag<MoveResolution> moveBag, ConcurrentQueue<string> log)
+        public BattleSquadPlanner(BattleGrid grid, 
+                                  Dictionary<int, BattleSquad> opposingSoldierIdSquadMap, 
+                                  ConcurrentBag<IAction> shootActionBag,
+                                  ConcurrentBag<IAction> moveActionBag,
+                                  ConcurrentBag<IAction> meleeActionBag,
+                                  ConcurrentBag<WoundResolution> woundBag, 
+                                  ConcurrentBag<MoveResolution> moveBag, 
+                                  ConcurrentQueue<string> log)
         {
             _grid = grid;
             _opposingSoldierIdSquadMap = opposingSoldierIdSquadMap;
-            _actionBag = actionBag;
-            _moveBag = moveBag;
-            _woundBag = woundBag;
+            _shootActionBag = shootActionBag;
+            _moveActionBag = moveActionBag;
+            _meleeActionBag = meleeActionBag;
+            _moveResolutionBag = moveBag;
+            _woundResolutionBag = woundBag;
             _log = log;
         }
 
@@ -49,7 +59,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // it doesn't really matter what the soldiers want to do, it's time to fight
                 foreach(BattleSoldier soldier in squad.Soldiers)
                 {
-                    if (_grid.IsAdjacentToEnemy(soldier.Soldier))
+                    if (_grid.IsAdjacentToEnemy(soldier.Soldier.Id))
                     {
                         AddMeleeActionsToBag(soldier);
                     }
@@ -159,7 +169,7 @@ namespace Iam.Scripts.Helpers.Battle
                     Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, soldier.Aim.Item1, soldier.Aim.Item2, range, soldier.Aim.Item2.Template.Accuracy + 3);
                     int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, effectEstimate.Item1, effectEstimate.Item2);
                     soldier.CurrentSpeed = 0;
-                    _actionBag.Enqueue(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
+                    _shootActionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundResolutionBag, _log));
                 }
                 else
                 {
@@ -176,13 +186,13 @@ namespace Iam.Scripts.Helpers.Battle
                     {
                         int shotsToFire = CalculateShotsToFire(soldier.Aim.Item2, resultEstimate.Item1, resultEstimate.Item2);
                         soldier.CurrentSpeed = 0;
-                        _actionBag.Enqueue(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundBag, _log));
+                        _shootActionBag.Add(new ShootAction(soldier, soldier.Aim.Item2, soldier.Aim.Item1, range, shotsToFire, false, _woundResolutionBag, _log));
                     }
                     else
                     {
                         // keep aiming
                         soldier.CurrentSpeed = 0;
-                        _actionBag.Enqueue(new AimAction(soldier, soldier.Aim.Item1, soldier.Aim.Item2, _log));
+                        _shootActionBag.Add(new AimAction(soldier, soldier.Aim.Item1, soldier.Aim.Item2, _log));
                     }
                 }
             }
@@ -202,14 +212,14 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // the easiest case... ready our one ranged weapon
                 soldier.CurrentSpeed = 0;
-                _actionBag.Enqueue(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons[0]));
+                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons[0]));
             }
             else if (soldier.RangedWeapons.Count > 1 && handsFree >= 1)
             {
                 // ugh, this is a decision with a lot of factors that will only come up rarely
                 // for now, let's go with the longer ranged weapon
                 soldier.CurrentSpeed = 0;
-                _actionBag.Enqueue(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
+                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
 
             }
         }
@@ -256,7 +266,7 @@ namespace Iam.Scripts.Helpers.Battle
             if (soldier.EquippedMeleeWeapons.Count == 0 && soldier.MeleeWeapons.Count > 0)
             {
                 soldier.CurrentSpeed = 0;
-                _actionBag.Enqueue(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
+                _shootActionBag.Add(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
             }
             else
             {
@@ -264,7 +274,7 @@ namespace Iam.Scripts.Helpers.Battle
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
-                _actionBag.Enqueue(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundBag, _log));
+                _meleeActionBag.Add(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundResolutionBag, _log));
             }
         }
 
@@ -356,16 +366,16 @@ namespace Iam.Scripts.Helpers.Battle
             else if (soldier.EquippedMeleeWeapons.Count == 0 && soldier.MeleeWeapons.Count > 0)
             {
                 soldier.CurrentSpeed = 0;
-                _actionBag.Enqueue(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
+                _shootActionBag.Add(new ReadyMeleeWeaponAction(soldier, soldier.MeleeWeapons[0]));
             }
             else
             {
                 Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
                 soldier.CurrentSpeed = moveSpeed;
                 _grid.ReserveSpace(newPos);
-                _actionBag.Enqueue(new MoveAction(soldier, _grid, newPos, _moveBag));
+                _moveActionBag.Add(new MoveAction(soldier, _grid, newPos, _moveResolutionBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _actionBag.Enqueue(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundBag, _log));
+                _meleeActionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundResolutionBag, _log));
             }
         }
 
@@ -381,12 +391,12 @@ namespace Iam.Scripts.Helpers.Battle
             if (weaponProfile.Item3 != null)
             {
                 int shotsToFire = CalculateShotsToFire(weaponProfile.Item3, weaponProfile.Item1, weaponProfile.Item2);
-                _actionBag.Enqueue(new ShootAction(soldier, weaponProfile.Item3, target, range, shotsToFire, isMoving, _woundBag, _log));
+                _shootActionBag.Add(new ShootAction(soldier, weaponProfile.Item3, target, range, shotsToFire, isMoving, _woundResolutionBag, _log));
             }
             else if (!isMoving)
             {
                 // aim with longest ranged weapon
-                _actionBag.Enqueue(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First(), _log));
+                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First(), _log));
             }
         }
 
@@ -517,7 +527,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
             soldier.CurrentSpeed = moveSpeed;
             _grid.ReserveSpace(newLocation);
-            _actionBag.Enqueue(new MoveAction(soldier, _grid, newLocation, _moveBag));
+            _moveActionBag.Add(new MoveAction(soldier, _grid, newLocation, _moveResolutionBag));
         }
 
         private Tuple<int, int> CalculateMovementAlongLine(Tuple<int, int> line, float moveSpeed)

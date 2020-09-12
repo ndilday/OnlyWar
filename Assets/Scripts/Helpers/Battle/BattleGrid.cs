@@ -199,9 +199,9 @@ namespace Iam.Scripts.Helpers.Battle
             return bestPosition;
         }
 
-        public bool IsAdjacentToEnemy(Soldier soldier)
+        public bool IsAdjacentToEnemy(int soldierId)
         {
-            Tuple<int, int> location = _soldierLocationMap[soldier.Id];
+            Tuple<int, int> location = _soldierLocationMap[soldierId];
             Tuple<int, int>[] testPositions = new Tuple<int, int>[4]
                 {
                     new Tuple<int, int>(location.Item1, location.Item2 - 1),
@@ -214,8 +214,8 @@ namespace Iam.Scripts.Helpers.Battle
                 if (_locationSoldierMap.ContainsKey(testPosition))
                 {
                     int adjacentSoldierId = _locationSoldierMap[testPosition];
-                    if((_playerSoldierIds.Contains(soldier.Id) && _opposingSoldierIds.Contains(adjacentSoldierId)) 
-                        || _opposingSoldierIds.Contains(soldier.Id) && _playerSoldierIds.Contains(adjacentSoldierId))
+                    if((_playerSoldierIds.Contains(soldierId) && _opposingSoldierIds.Contains(adjacentSoldierId)) 
+                        || _opposingSoldierIds.Contains(soldierId) && _playerSoldierIds.Contains(adjacentSoldierId))
                     {
                         return true;
                     }
