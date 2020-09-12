@@ -1,6 +1,4 @@
-﻿using Microsoft.Unity.VisualStudio.Editor;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Iam.Scripts.Models.Equippables
 {
