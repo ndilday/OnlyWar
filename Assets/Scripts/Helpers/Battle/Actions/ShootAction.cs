@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using Iam.Scripts.Helpers.Battle.Resolutions;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
+using UnityEngine;
 
 namespace Iam.Scripts.Helpers.Battle.Actions
 {
@@ -40,7 +41,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             _log.Enqueue(_soldier.Soldier.ToString() + " fires a " + _weapon.Template.Name + " at " + _target.Soldier.ToString());
             if(total > 0)
             {
-                _log.Enqueue("<color=red>" + _soldier.Soldier.ToString() + " hits " + _target.Soldier.ToString() + " " + ((int)total + 1).ToString() + " times</color>");
+                _log.Enqueue("<color=red>" + _soldier.Soldier.ToString() + " hits " + _target.Soldier.ToString() + " " + Mathf.Min((int)(total/_weapon.Template.Recoil) + 1, _numberOfShots) + " times</color>");
                 // there were hits, determine how many
                 do
                 {

@@ -13,7 +13,6 @@ namespace Iam.Scripts.Helpers.Battle
         // I'm not using these events yet, but I probably will
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadPlaced;
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadMoved;
-        public HashSet<Tuple<int, int>> ReservedSpaces { get; private set; }
         // TODO: allow multiple friendlies in single grid location?
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
@@ -22,6 +21,7 @@ namespace Iam.Scripts.Helpers.Battle
         private readonly Dictionary<Tuple<int, int>, int> _locationSoldierMap;
         private readonly HashSet<int> _playerSoldierIds;
         private readonly HashSet<int> _opposingSoldierIds;
+        private readonly HashSet<Tuple<int, int>> _reservedSpaces;
 
         public BattleGrid(int gridWidth, int gridHeight)
         {
@@ -33,7 +33,7 @@ namespace Iam.Scripts.Helpers.Battle
             OnSquadMoved = new UnityEvent<BattleSquad, Tuple<int, int>>();
             _playerSoldierIds = new HashSet<int>();
             _opposingSoldierIds = new HashSet<int>();
-            ReservedSpaces = new HashSet<Tuple<int, int>>();
+            _reservedSpaces = new HashSet<Tuple<int, int>>();
         }
 
         public void RemoveSoldier(int soldierId)
@@ -56,15 +56,12 @@ namespace Iam.Scripts.Helpers.Battle
             return _soldierLocationMap[soldierId];
         }
 
-        public void MoveSoldier(BattleSoldier soldier, Tuple<int, int> movement)
+        public void MoveSoldier(int soldierId, Tuple<int, int> newLocation)
         {
-            int soldierId = soldier.Soldier.Id;
             Tuple<int, int> currentLocation = _soldierLocationMap[soldierId];
-            Tuple<int, int> newLocation = new Tuple<int, int>(currentLocation.Item1 + movement.Item1, currentLocation.Item2 + movement.Item2);
             _soldierLocationMap[soldierId] = newLocation;
             _locationSoldierMap[newLocation] = soldierId;
             _locationSoldierMap.Remove(currentLocation);
-            soldier.Location = newLocation;
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBoxCorners(IEnumerable<BattleSoldier> soldiers)
@@ -229,7 +226,17 @@ namespace Iam.Scripts.Helpers.Battle
 
         public bool IsSpaceReserved(Tuple<int, int> location)
         {
-            return ReservedSpaces.Contains(location);
+            return _reservedSpaces.Contains(location);
+        }
+
+        public void ReserveSpace(Tuple<int, int> location)
+        {
+            _reservedSpaces.Add(location);
+        }
+
+        public void ClearReservations()
+        {
+            _reservedSpaces.Clear();
         }
 
         private float CalculateDistanceSq(Tuple<int, int> pos1, Tuple<int, int> pos2)

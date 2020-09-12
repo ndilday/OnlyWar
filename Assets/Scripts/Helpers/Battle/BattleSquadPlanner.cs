@@ -222,9 +222,7 @@ namespace Iam.Scripts.Helpers.Battle
                 Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
                 Tuple<int, int> line = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
                 // soldier can't get there in one move, advance as far as possible
-                Tuple<int, int> realMove = CalculateMovementAlongLine(line, moveSpeed);
-                soldier.CurrentSpeed = moveSpeed;
-                _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
+                AddMoveAction(soldier, moveSpeed, line);
 
                 // should the soldier shoot along the way?
                 ShootIfReasonable(soldier, true);
@@ -233,13 +231,10 @@ namespace Iam.Scripts.Helpers.Battle
 
         private void AddRetreatingActionsToBag(BattleSoldier soldier, BattleSquad soldierSquad)
         {
-            Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
-
             float moveSpeed = soldier.GetMoveSpeed();
 
             int newY = (int)(soldierSquad.IsPlayerSquad ? -moveSpeed : moveSpeed);
-            soldier.CurrentSpeed = moveSpeed;
-            _actionBag.Add(new MoveAction(soldier, _grid, new Tuple<int, int>(currentPosition.Item1, currentPosition.Item2 + newY), _moveBag));
+            AddMoveAction(soldier, moveSpeed, new Tuple<int, int>(0, newY));
 
             // determine if soldier will shoot as he falls back
             ShootIfReasonable(soldier, true);
@@ -286,9 +281,7 @@ namespace Iam.Scripts.Helpers.Battle
                     Tuple<int, int> moveVector = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
                     // we can't make it to an enemy in one move
                     // soldier can't get there in one move, advance as far as possible
-                    Tuple<int, int> realMove = CalculateMovementAlongLine(moveVector, moveSpeed);
-                    soldier.CurrentSpeed = moveSpeed;
-                    _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
+                    AddMoveAction(soldier, moveSpeed, moveVector);
 
                     // should the soldier shoot along the way?
                     ShootIfReasonable(soldier, true);
@@ -344,9 +337,9 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 // we can't make it to an enemy in one move
                 // soldier can't get there in one move, advance as far as possible
+                
                 Tuple<int, int> realMove = CalculateMovementAlongLine(move, moveSpeed);
-                soldier.CurrentSpeed = moveSpeed;
-                _actionBag.Add(new MoveAction(soldier, _grid, realMove, _moveBag));
+                AddMoveAction(soldier, moveSpeed, realMove);
 
                 // should the soldier shoot along the way?
                 ShootIfReasonable(soldier, true);
@@ -359,9 +352,9 @@ namespace Iam.Scripts.Helpers.Battle
             else
             {
                 Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
-                _actionBag.Add(new MoveAction(soldier, _grid, move, _moveBag));
-                BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = moveSpeed;
+                _actionBag.Add(new MoveAction(soldier, _grid, newPos, _moveBag));
+                BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 _actionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundBag, _log));
             }
         }
@@ -504,26 +497,40 @@ namespace Iam.Scripts.Helpers.Battle
             return new Tuple<float, float>(total, expectedDamage);
         }
 
+        private void AddMoveAction(BattleSoldier soldier, float moveSpeed, Tuple<int, int> line)
+        {
+            Tuple<int, int> desiredMove = CalculateMovementAlongLine(line, moveSpeed);
+            Tuple<int, int> newLocation = new Tuple<int, int>(soldier.Location.Item1 + desiredMove.Item1, soldier.Location.Item2 + desiredMove.Item2);
+            if (_grid.IsSpaceReserved(newLocation) || !_grid.IsEmpty(newLocation))
+            {
+                newLocation = FindBestLocation(soldier.Location, newLocation, moveSpeed);
+            }
+            soldier.CurrentSpeed = moveSpeed;
+            _grid.ReserveSpace(newLocation);
+            _actionBag.Add(new MoveAction(soldier, _grid, newLocation, _moveBag));
+        }
+
         private Tuple<int, int> CalculateMovementAlongLine(Tuple<int, int> line, float moveSpeed)
         {
+            Tuple<int, int> targetLocation;
             if (moveSpeed <= 0) return new Tuple<int, int>(0, 0);   // this shouldn't happen
-            else if(line.Item1 == 0 || line.Item2 == 0)
+            else if(line.Item1 == 0)
             {
-                if(line.Item1 == 0)
-                {
-                    return new Tuple<int, int>(0, line.Item2 < 0 ? -(int)moveSpeed : (int)moveSpeed);
-                }
-                else
-                {
-                    return new Tuple<int, int>(line.Item1 < 0 ? -(int)moveSpeed : (int)moveSpeed, 0);
-                }
+                targetLocation = new Tuple<int, int>(0, line.Item2 < 0 ? -(int)moveSpeed : (int)moveSpeed);
+                if (!_grid.IsSpaceReserved(targetLocation) && _grid.IsEmpty(targetLocation)) return targetLocation;
             }
+            else if(line.Item2 == 0)
+            {
+                targetLocation = new Tuple<int, int>(line.Item1 < 0 ? -(int)moveSpeed : (int)moveSpeed, 0);
+                if (!_grid.IsSpaceReserved(targetLocation) && _grid.IsEmpty(targetLocation)) return targetLocation;
+            }
+
             // multiply line by the square root of moveSpeed^2/line^2
             int lineLengthSq = (line.Item1 * line.Item1) + (line.Item2 * line.Item2);
             float speedSq = moveSpeed * moveSpeed;
             float multiplier = Mathf.Sqrt(speedSq / lineLengthSq);
 
-            // if they sent us something that moves faster than the line, just return the line
+            // if we're fast enough to get to the destination, just go there
             if (multiplier >= 1.0f) return line;
 
             float xDistance = line.Item1 * multiplier;
@@ -568,6 +575,63 @@ namespace Iam.Scripts.Helpers.Battle
                 }
             }
             return new Tuple<int, int> ((int)xDistance, (int)yDistance);
+        }
+
+        private Tuple<int, int> FindBestLocation(Tuple<int, int> startingPoint, Tuple<int, int> targetPoint, float speed)
+        {
+            float speedSq = speed * speed;
+            int xMove = targetPoint.Item1 - startingPoint.Item1;
+            int xMoveSq = xMove * xMove;
+            int yMove = targetPoint.Item2 - startingPoint.Item2;
+            int yMoveSq = yMove * yMove;
+            // try shifting around the shorter axis first
+            if (xMoveSq > yMoveSq)
+            {
+
+                while (xMoveSq > 0)
+                {
+                    int direction = yMove < 0 ? -1 : 1;
+                    int i = 2;
+                    int newY = yMove + ((i / 2) * direction * (i % 1 == 1 ? -1 : 1));
+                    while (newY * newY <= speedSq - xMoveSq)
+                    {
+                        Tuple<int, int> newTarget = new Tuple<int, int>(startingPoint.Item1 + xMove, startingPoint.Item2 + newY);
+                        if (!_grid.IsSpaceReserved(newTarget) && _grid.IsEmpty(newTarget))
+                        {
+                            return newTarget;
+                        }
+                        i++;
+                        newY = yMove + ((i / 2) * direction * (i % 1 == 1 ? -1 : 1));
+                    }
+                    // if we can't find a lateral move that works, start over with the main axis reduced by 1
+                    xMove -= xMove > 0 ? 1 : -1;
+                    xMoveSq = xMove * xMove;
+                }
+                throw new InvalidOperationException("There is no place in the world for this move");
+            }
+            else
+            {
+                while (yMoveSq > 0)
+                {
+                    int direction = xMove < 0 ? -1 : 1;
+                    int i = 2;
+                    int newX = xMove + ((i / 2) * direction * (i % 1 == 1 ? -1 : 1));
+                    while (newX * newX <= speedSq - yMoveSq)
+                    {
+                        Tuple<int, int> newTarget = new Tuple<int, int>(startingPoint.Item1 + newX, startingPoint.Item2 + yMove);
+                        if (!_grid.IsSpaceReserved(newTarget) && _grid.IsEmpty(newTarget))
+                        {
+                            return newTarget;
+                        }
+                        i++;
+                        newX = xMove + ((i / 2) * direction * (i % 1 == 1 ? -1 : 1));
+                    }
+                    // if we can't find a lateral move that works, start over with the main axis reduced by 1
+                    yMove -= yMove > 0 ? 1 : -1;
+                    yMoveSq = yMove * yMove;
+                }
+                throw new InvalidOperationException("There is no place in the world for this move");
+            }
         }
 
         private float CalculateExpectedDamage(RangedWeapon weapon, float range, float armor, float con)
