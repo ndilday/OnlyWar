@@ -10,10 +10,10 @@ namespace Iam.Scripts.Helpers
 {
     public static class NewChapterBuilder
     {
-        public static Unit AssignSoldiersToChapter(SpaceMarine[] soldiers, UnitTemplate rootTemplate, string year)
+        public static Chapter AssignSoldiersToChapter(SpaceMarine[] soldiers, UnitTemplate rootTemplate, string year)
         {
             Dictionary<int, SpaceMarine> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
-            Unit chapter = BuildUnitTreeFromTemplate(rootTemplate);
+            Chapter chapter = BuildUnitTreeFromTemplate(rootTemplate);
 
             // first, assign the Librarians
             AssignLibrarians(unassignedSoldierMap, chapter, year);
@@ -40,10 +40,10 @@ namespace Iam.Scripts.Helpers
             return chapter;
         }
 
-        private static Unit BuildUnitTreeFromTemplate(UnitTemplate rootTemplate)
+        private static Chapter BuildUnitTreeFromTemplate(UnitTemplate rootTemplate)
         {
             int i = 1;
-            Unit root = rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor");
+            Chapter root = (Chapter)rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor");
             BuildUnitTreeHelper(root, rootTemplate, ref i);
             return root;
         }
@@ -638,17 +638,6 @@ namespace Iam.Scripts.Helpers
             }
             unassignedSoldierMap.Remove(soldier.Id);
             soldierList.RemoveAt(0);
-            return soldier;
-        }
-
-        private static SpaceMarine AssignSoldier(Dictionary<int, SpaceMarine> unassignedSoldierMap, Squad squad, SpaceMarineRank rank, string year)
-        {
-            var soldier = unassignedSoldierMap.Values.First();
-            soldier.Rank = rank;
-            soldier.AssignedSquad = squad;
-            soldier.SoldierHistory.Add(year + ": promoted to " + soldier.Rank.Name + " and assigned to " + soldier.AssignedSquad.Name);
-            squad.Members.Add(soldier);
-            unassignedSoldierMap.Remove(soldier.Id);
             return soldier;
         }
 

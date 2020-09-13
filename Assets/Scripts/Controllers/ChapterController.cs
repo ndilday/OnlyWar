@@ -175,6 +175,7 @@ namespace Iam.Scripts.Controllers
                     // add psychic specific training here
                 }
                 EvaluateSoldier(marine, basicTrainingEndDate);
+                marine.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
             }
             GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, 
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());

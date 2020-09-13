@@ -57,6 +57,8 @@ namespace Iam.Scripts.Models.Soldiers
         public float PietyScore;
         public float AncientScore;
 
+        public Date ProgenoidImplantDate;
+
         public Skill GetBestMeleeSkill()
         {
             return Skills.Values.Where(s => s.BaseSkill.Category == SkillCategory.Melee).OrderByDescending(s => s.SkillBonus).First();

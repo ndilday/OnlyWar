@@ -122,7 +122,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
 
         private void CheckForDeath(BattleSoldier soldier)
         {
-            float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());
+            float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
             if (roll > soldier.Soldier.Constitution)
             {
                 Log(false, "<b>" + soldier.Soldier.ToString() + " died</b>");

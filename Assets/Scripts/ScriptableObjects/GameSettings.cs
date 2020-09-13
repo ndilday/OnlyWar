@@ -19,7 +19,7 @@ public class GameSettings : ScriptableObject
 
     [Header("Chapter Definitions")]
     public UnitTemplate ChapterTemplate = TempSpaceMarineUnitTemplates.Instance.ChapterTemplate;
-    public Unit Chapter;
+    public Chapter Chapter;
     public int ChapterPlanetId;
 
     [Header("Date")]

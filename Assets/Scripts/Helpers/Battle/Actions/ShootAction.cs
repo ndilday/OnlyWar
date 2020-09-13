@@ -35,7 +35,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         {
             float modifier = CalculateToHitModifiers();
             float skill = BattleHelpers.GetWeaponSkillPlusStat(_soldier.Soldier, _weapon.Template);
-            float roll = 10.5f + (3.0f * (float)Random.NextGaussianDouble());
+            float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
             float total = skill + modifier - roll;
             _soldier.Aim = null;
             _log.Enqueue(_soldier.Soldier.ToString() + " fires a " + _weapon.Template.Name + " at " + _target.Soldier.ToString());
@@ -76,7 +76,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             // make sure this body part hasn't already been shot off
             if(!hitLocation.IsSevered)
             {
-                float damage = BattleHelpers.CalculateDamageAtRange(_weapon, _range) * (3.5f + ((float)Random.NextGaussianDouble() * 1.75f));
+                float damage = BattleHelpers.CalculateDamageAtRange(_weapon, _range) * (3.5f + ((float)RNG.NextGaussianDouble() * 1.75f));
                 float effectiveArmor = _target.Armor.Template.ArmorProvided * _weapon.Template.ArmorMultiplier;
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)
@@ -93,7 +93,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             // for each available body party defines the size of the random linear distribution
             // TODO: factor in cover/body position
             // 
-            int roll = Random.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
+            int roll = RNG.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
             foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
                 int locationChance = location.Template.HitProbabilityMap[soldier.Stance];

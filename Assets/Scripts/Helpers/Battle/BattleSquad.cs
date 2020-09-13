@@ -50,7 +50,7 @@ namespace Iam.Scripts.Helpers.Battle
 
         public BattleSoldier GetRandomSquadMember()
         {
-            return Soldiers[Random.GetIntBelowMax(0, Soldiers.Count)];
+            return Soldiers[RNG.GetIntBelowMax(0, Soldiers.Count)];
         }
 
         public List<ChosenRangedWeapon> GetWeaponsForRange(float range)

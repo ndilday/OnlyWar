@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Iam.Scripts.Models.Soldiers
@@ -12,56 +10,127 @@ namespace Iam.Scripts.Models.Soldiers
         Prone
     }
 
-    [Flags]
-    public enum Wounds : byte
+    public class Wounds
     {
-        None = 0,
-        [Description("Negligible")]
-        Negligible = 0x1,
-        [Description("Minor")]
-        Minor = 0x2,
-        [Description("Moderate")]
-        Moderate = 0x4,
-        [Description("Major")]
-        Major = 0x8,
-        [Description("Serious")]
-        Serious = 0x10,
-        [Description("Severe")]
-        Severe = 0x20,
-        [Description("Critical")]
-        Critical = 0x40,
-        [Description("Unsurvivable")]
-        Unsurvivable = 0x80
-    }
-
-    public static class WoundsExtensions
-    {
-        public static string ToFriendlyString(this Wounds me)
+        public uint WoundLevel { get; private set; }
+        public const byte WOUND_MAX = 5;
+        
+        public byte NegligibleWounds
         {
-            switch (me)
+            get
             {
-                case Wounds.None:
-                    return "No";
-                case Wounds.Negligible:
-                    return "Negligible";
-                case Wounds.Minor:
-                    return "Minor";
-                case Wounds.Moderate:
-                    return "Moderate";
-                case Wounds.Major:
-                    return "Major";
-                case Wounds.Serious:
-                    return "Serious";
-                case Wounds.Severe:
-                    return "Severe";
-                case Wounds.Critical:
-                    return "Critical";
-                case Wounds.Unsurvivable:
-                    return "Unsurvivable";
-                default:
-                    return "What happen?";
+                return (byte)(WoundLevel % 0xf);
             }
         }
+
+        public byte MinorWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x10) % 0xf);
+            }
+        }
+
+        public byte ModerateWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x100) % 0xf);
+            }
+        }
+
+        public byte MajorWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x1000) % 0xf);
+            }
+        }
+
+        public byte SeriousWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x10000) % 0xf);
+            }
+        }
+
+        public byte SevereWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x100000) % 0xf);
+            }
+        }
+
+        public byte CriticalWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x1000000) % 0xf);
+            }
+        }
+
+        public byte UnsurvivableWounds
+        {
+            get
+            {
+                return (byte)((WoundLevel / 0x10000000) % 0xf);
+            }
+        }
+
+        public void AddWound(WoundType wound)
+        {
+            WoundLevel += (uint)wound;
+            if(NegligibleWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xfffffff0;
+                WoundLevel += (uint)WoundType.Minor;
+            }
+            if (MinorWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xffffff0f;
+                WoundLevel += (uint)WoundType.Moderate;
+            }
+            if (ModerateWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xfffff0ff;
+                WoundLevel += (uint)WoundType.Major;
+            }
+            if (MajorWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xffff0fff;
+                WoundLevel += (uint)WoundType.Serious;
+            }
+            if (SeriousWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xfff0ffff;
+                WoundLevel += (uint)WoundType.Severe;
+            }
+            if (SevereWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xff0fffff;
+                WoundLevel += (uint)WoundType.Critical;
+            }
+            if (CriticalWounds > WOUND_MAX)
+            {
+                WoundLevel &= 0xf0ffffff;
+                WoundLevel += (uint)WoundType.Unsurvivable;
+            }
+        }
+    }
+
+    public enum WoundType
+    {
+        None = 0,
+        Negligible = 0x1,
+        Minor = 0x10,
+        Moderate = 0x100,
+        Major = 0x1000,
+        Serious = 0x10000,
+        Severe = 0x100000,
+        Critical = 0x1000000,
+        Unsurvivable = 0x10000000
     }
 
     public class HitLocationTemplate
@@ -70,7 +139,7 @@ namespace Iam.Scripts.Models.Soldiers
         public string Name;
         public int NaturalArmor;
         public float DamageMultiplier;
-        public Wounds WoundLimit;
+        public WoundType WoundLimit;
         public Dictionary<Stance, int> HitProbabilityMap;
     }
 
@@ -83,46 +152,46 @@ namespace Iam.Scripts.Models.Soldiers
         public HitLocationTemplate Template { get; private set; }
         public HitLocation(HitLocationTemplate template)
         {
-            Wounds = Wounds.None;
+            Wounds = new Wounds();
             IsCybernetic = false;
             Template = template;
         }
 
         public override string ToString()
         {
-            if(Wounds >= Template.WoundLimit)
+            if(Wounds.WoundLevel >= (uint)Template.WoundLimit)
             {
                 return Template.Name + ": <color=red>Crippled</color>";
             }
-            if(Wounds >= Wounds.Unsurvivable)
+            if(Wounds.WoundLevel >= (uint)WoundType.Unsurvivable)
             {
                 return Template.Name + ": <color=red>Unsurvivable</color>";
             }
-            if (Wounds >= Wounds.Critical)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Critical)
             {
                 return Template.Name + ":<color=maroon> Critical</color>";
             }
-            if (Wounds >= Wounds.Severe)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Severe)
             {
                 return Template.Name + ": <color=maroon>Severe</color>";
             }
-            if (Wounds >= Wounds.Serious)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Serious)
             {
                 return Template.Name + ": <color=orange>Serious</color>";
             }
-            if (Wounds >= Wounds.Major)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Major)
             {
                 return Template.Name + ": <color=orange>Major</color>";
             }
-            if (Wounds >= Wounds.Moderate)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Moderate)
             {
                 return Template.Name + ": <color=olive>Moderate</color>";
             }
-            if (Wounds >= Wounds.Minor)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Minor)
             {
                 return Template.Name + ": <color=teal>Minor</color>";
             }
-            if (Wounds >= Wounds.Negligible)
+            else if (Wounds.WoundLevel >= (uint)WoundType.Negligible)
             {
                 return Template.Name + ": <color=teal>Negligible</color>";
             }
@@ -172,7 +241,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 30 },
                     { Stance.Prone, 30 }
                 },
-                    WoundLimit = Wounds.Unsurvivable,
+                    WoundLimit = WoundType.Unsurvivable,
 
                 },
 
@@ -188,7 +257,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 1 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -203,7 +272,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 75 },
                     { Stance.Prone, 75 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -218,7 +287,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 480 },
                     { Stance.Prone, 30 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -233,7 +302,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -248,7 +317,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -263,7 +332,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -278,7 +347,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -293,7 +362,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 100 },
                     { Stance.Prone, 10 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -308,7 +377,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Severe
+                    WoundLimit = WoundType.Severe
                 },
 
                 new HitLocationTemplate
@@ -323,7 +392,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Severe
+                    WoundLimit = WoundType.Severe
                 },
 
                 new HitLocationTemplate
@@ -338,7 +407,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -353,7 +422,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 }
             };
 
@@ -392,7 +461,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 30 },
                     { Stance.Prone, 30 }
                 },
-                    WoundLimit = Wounds.Unsurvivable,
+                    WoundLimit = WoundType.Unsurvivable,
 
                 },
 
@@ -408,7 +477,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 1 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -423,7 +492,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 75 },
                     { Stance.Prone, 75 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -438,7 +507,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 480 },
                     { Stance.Prone, 30 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -453,7 +522,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -468,7 +537,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 72 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -483,7 +552,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 96 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -498,7 +567,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 72 },
                     { Stance.Prone, 15 }
                 },
-                    WoundLimit = Wounds.Serious
+                    WoundLimit = WoundType.Serious
                 },
 
                 new HitLocationTemplate
@@ -513,7 +582,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -528,7 +597,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 20 },
                     { Stance.Prone, 20 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -543,7 +612,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 100 },
                     { Stance.Prone, 10 }
                 },
-                    WoundLimit = Wounds.Unsurvivable
+                    WoundLimit = WoundType.Unsurvivable
                 },
 
                 new HitLocationTemplate
@@ -558,7 +627,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Severe
+                    WoundLimit = WoundType.Severe
                 },
 
                 new HitLocationTemplate
@@ -573,7 +642,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 80 },
                     { Stance.Prone, 1 }
                 },
-                    WoundLimit = Wounds.Severe
+                    WoundLimit = WoundType.Severe
                 },
 
                 new HitLocationTemplate
@@ -588,7 +657,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 },
 
                 new HitLocationTemplate
@@ -603,7 +672,7 @@ namespace Iam.Scripts.Models.Soldiers
                     {Stance.Kneeling, 7 },
                     { Stance.Prone, 0 }
                 },
-                    WoundLimit = Wounds.Major
+                    WoundLimit = WoundType.Major
                 }
             };
 

@@ -28,23 +28,23 @@ namespace Iam.Scripts.Helpers
             soldier.Id = _nextId;
             _nextId++;
 
-            soldier.Strength = template.Strength.BaseValue + (float)(Random.NextGaussianDouble() * template.Strength.StandardDeviation);
-            soldier.Dexterity = template.Dexterity.BaseValue + (float)(Random.NextGaussianDouble() * template.Dexterity.StandardDeviation);
-            soldier.Constitution = template.Constitution.BaseValue + (float)(Random.NextGaussianDouble() * template.Constitution.StandardDeviation);
-            soldier.Ego = template.Ego.BaseValue + (float)(Random.NextGaussianDouble() * template.Ego.StandardDeviation);
-            soldier.Presence = template.Presence.BaseValue + (float)(Random.NextGaussianDouble() * template.Presence.StandardDeviation);
-            soldier.Perception = template.Perception.BaseValue + (float)(Random.NextGaussianDouble() * template.Perception.StandardDeviation);
-            soldier.Intelligence = template.Intelligence.BaseValue + (float)(Random.NextGaussianDouble() * template.Intelligence.StandardDeviation);
+            soldier.Strength = template.Strength.BaseValue + (float)(RNG.NextGaussianDouble() * template.Strength.StandardDeviation);
+            soldier.Dexterity = template.Dexterity.BaseValue + (float)(RNG.NextGaussianDouble() * template.Dexterity.StandardDeviation);
+            soldier.Constitution = template.Constitution.BaseValue + (float)(RNG.NextGaussianDouble() * template.Constitution.StandardDeviation);
+            soldier.Ego = template.Ego.BaseValue + (float)(RNG.NextGaussianDouble() * template.Ego.StandardDeviation);
+            soldier.Presence = template.Presence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Presence.StandardDeviation);
+            soldier.Perception = template.Perception.BaseValue + (float)(RNG.NextGaussianDouble() * template.Perception.StandardDeviation);
+            soldier.Intelligence = template.Intelligence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Intelligence.StandardDeviation);
 
-            soldier.AttackSpeed = template.AttackSpeed.BaseValue + (float)(Random.NextGaussianDouble() * template.AttackSpeed.StandardDeviation);
-            soldier.MoveSpeed = template.MoveSpeed.BaseValue + (float)(Random.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
-            soldier.Size = template.Size.BaseValue + (float)(Random.NextGaussianDouble() * template.Size.StandardDeviation);
-            soldier.PsychicPower = template.PsychicPower.BaseValue + (float)(Random.NextGaussianDouble() * template.PsychicPower.StandardDeviation);
+            soldier.AttackSpeed = template.AttackSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.AttackSpeed.StandardDeviation);
+            soldier.MoveSpeed = template.MoveSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
+            soldier.Size = template.Size.BaseValue + (float)(RNG.NextGaussianDouble() * template.Size.StandardDeviation);
+            soldier.PsychicPower = template.PsychicPower.BaseValue + (float)(RNG.NextGaussianDouble() * template.PsychicPower.StandardDeviation);
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
                 soldier.Skills[skillTemplate.BaseSkill.Id] = new Skill(skillTemplate.BaseSkill, 
-                    skillTemplate.BaseValue + (float)(Random.NextGaussianDouble() * skillTemplate.StandardDeviation) );
+                    skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation) );
             }
 
             return soldier;
