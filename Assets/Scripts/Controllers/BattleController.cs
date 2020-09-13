@@ -321,7 +321,7 @@ namespace Iam.Scripts.Controllers
                 report += soldier.Armor.Template.Name + "\n";
                 foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                 {
-                    if (hl.Wounds != Wounds.None)
+                    if (hl.Wounds.WoundTotal != 0)
                     {
                         report += hl.ToString() + "\n";
                     }

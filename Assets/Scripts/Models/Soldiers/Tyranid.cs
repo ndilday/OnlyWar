@@ -25,20 +25,16 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                int handsAvailable = 0;
-                HitLocation leftHand = Body.HitLocations.Single(hl => hl.Template.Name == "Left Hand");
-                HitLocation leftArm = Body.HitLocations.Single(hl => hl.Template.Name == "Left Arm");
-                HitLocation rightHand = Body.HitLocations.Single(hl => hl.Template.Name == "Right Hand");
-                HitLocation rightArm = Body.HitLocations.Single(hl => hl.Template.Name == "Right Arm");
-                if (leftHand.Wounds < leftHand.Template.WoundLimit && leftArm.Wounds < leftArm.Template.WoundLimit)
+                int functioningHands = 2;
+                if (Body.HitLocations.Any(hl => hl.Template.IsMeleeWeaponHolder && hl.IsCrippled))
                 {
-                    handsAvailable++;
+                    functioningHands--;
                 }
-                if (rightHand.Wounds < rightHand.Template.WoundLimit && rightArm.Wounds < rightArm.Template.WoundLimit)
+                if (Body.HitLocations.Any(hl => hl.Template.IsRangedWeaponHolder && hl.IsCrippled))
                 {
-                    handsAvailable++;
+                    functioningHands--;
                 }
-                return handsAvailable;
+                return functioningHands;
             }
         }
     }

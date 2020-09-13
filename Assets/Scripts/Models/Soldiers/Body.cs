@@ -12,14 +12,14 @@ namespace Iam.Scripts.Models.Soldiers
 
     public class Wounds
     {
-        public uint WoundLevel { get; private set; }
+        public uint WoundTotal { get; private set; }
         public const byte WOUND_MAX = 5;
         
         public byte NegligibleWounds
         {
             get
             {
-                return (byte)(WoundLevel % 0xf);
+                return (byte)(WoundTotal % 0xf);
             }
         }
 
@@ -27,7 +27,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return (byte)((WoundLevel / 0x10) % 0xf);
+                return (byte)((WoundTotal / 0x10) % 0xf);
             }
         }
 
@@ -35,7 +35,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return (byte)((WoundLevel / 0x100) % 0xf);
+                return (byte)((WoundTotal / 0x100) % 0xf);
             }
         }
 
@@ -43,23 +43,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return (byte)((WoundLevel / 0x1000) % 0xf);
-            }
-        }
-
-        public byte SeriousWounds
-        {
-            get
-            {
-                return (byte)((WoundLevel / 0x10000) % 0xf);
-            }
-        }
-
-        public byte SevereWounds
-        {
-            get
-            {
-                return (byte)((WoundLevel / 0x100000) % 0xf);
+                return (byte)((WoundTotal / 0x1000) % 0xf);
             }
         }
 
@@ -67,7 +51,23 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return (byte)((WoundLevel / 0x1000000) % 0xf);
+                return (byte)((WoundTotal / 0x10000) % 0xf);
+            }
+        }
+
+        public byte MassiveWounds
+        {
+            get
+            {
+                return (byte)((WoundTotal / 0x100000) % 0xf);
+            }
+        }
+
+        public byte MortalWounds
+        {
+            get
+            {
+                return (byte)((WoundTotal / 0x1000000) % 0xf);
             }
         }
 
@@ -75,61 +75,61 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return (byte)((WoundLevel / 0x10000000) % 0xf);
+                return (byte)((WoundTotal / 0x10000000) % 0xf);
             }
         }
 
-        public void AddWound(WoundType wound)
+        public void AddWound(WoundLevel wound)
         {
-            WoundLevel += (uint)wound;
+            WoundTotal += (uint)wound;
             if(NegligibleWounds > WOUND_MAX)
             {
-                WoundLevel &= 0xfffffff0;
-                WoundLevel += (uint)WoundType.Minor;
+                WoundTotal &= 0xfffffff0;
+                WoundTotal += (uint)WoundLevel.Minor;
             }
             if (MinorWounds > WOUND_MAX)
             {
-                WoundLevel &= 0xffffff0f;
-                WoundLevel += (uint)WoundType.Moderate;
+                WoundTotal &= 0xffffff0f;
+                WoundTotal += (uint)WoundLevel.Moderate;
             }
             if (ModerateWounds > WOUND_MAX)
             {
-                WoundLevel &= 0xfffff0ff;
-                WoundLevel += (uint)WoundType.Major;
+                WoundTotal &= 0xfffff0ff;
+                WoundTotal += (uint)WoundLevel.Major;
             }
             if (MajorWounds > WOUND_MAX)
             {
-                WoundLevel &= 0xffff0fff;
-                WoundLevel += (uint)WoundType.Serious;
-            }
-            if (SeriousWounds > WOUND_MAX)
-            {
-                WoundLevel &= 0xfff0ffff;
-                WoundLevel += (uint)WoundType.Severe;
-            }
-            if (SevereWounds > WOUND_MAX)
-            {
-                WoundLevel &= 0xff0fffff;
-                WoundLevel += (uint)WoundType.Critical;
+                WoundTotal &= 0xffff0fff;
+                WoundTotal += (uint)WoundLevel.Critical;
             }
             if (CriticalWounds > WOUND_MAX)
             {
-                WoundLevel &= 0xf0ffffff;
-                WoundLevel += (uint)WoundType.Unsurvivable;
+                WoundTotal &= 0xfff0ffff;
+                WoundTotal += (uint)WoundLevel.Massive;
+            }
+            if (MassiveWounds > WOUND_MAX)
+            {
+                WoundTotal &= 0xff0fffff;
+                WoundTotal += (uint)WoundLevel.Mortal;
+            }
+            if (MortalWounds > WOUND_MAX)
+            {
+                WoundTotal &= 0xf0ffffff;
+                WoundTotal += (uint)WoundLevel.Unsurvivable;
             }
         }
     }
 
-    public enum WoundType
+    public enum WoundLevel
     {
         None = 0,
         Negligible = 0x1,
         Minor = 0x10,
         Moderate = 0x100,
         Major = 0x1000,
-        Serious = 0x10000,
-        Severe = 0x100000,
-        Critical = 0x1000000,
+        Critical = 0x10000,
+        Massive = 0x100000,
+        Mortal = 0x1000000,
         Unsurvivable = 0x10000000
     }
 
@@ -139,7 +139,12 @@ namespace Iam.Scripts.Models.Soldiers
         public string Name;
         public int NaturalArmor;
         public float DamageMultiplier;
-        public WoundType WoundLimit;
+        public uint CrippleWound;
+        public uint SeverWound;
+        public bool IsMotive;
+        public bool IsRangedWeaponHolder;
+        public bool IsMeleeWeaponHolder;
+        public bool IsVital;
         public Dictionary<Stance, int> HitProbabilityMap;
     }
 
@@ -147,8 +152,23 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public Wounds Wounds;
         public bool IsCybernetic;
-        public bool IsSevered;
-        //public bool IsCrippled;
+        
+        public bool IsSevered
+        {
+            get
+            {
+                return Wounds.WoundTotal >= (uint)Template.SeverWound;
+            }
+        }
+
+        public bool IsCrippled
+        {
+            get
+            {
+                return Wounds.WoundTotal >= (uint)Template.CrippleWound;
+            }
+        }
+        
         public HitLocationTemplate Template { get; private set; }
         public HitLocation(HitLocationTemplate template)
         {
@@ -159,41 +179,45 @@ namespace Iam.Scripts.Models.Soldiers
 
         public override string ToString()
         {
-            if(Wounds.WoundLevel >= (uint)Template.WoundLimit)
+            if(IsSevered)
+            {
+                return Template.Name + ": <color=red>Severed</color>";
+            }
+            else if(IsCrippled)
             {
                 return Template.Name + ": <color=red>Crippled</color>";
             }
-            if(Wounds.WoundLevel >= (uint)WoundType.Unsurvivable)
+            else if(Wounds.WoundTotal >= (uint)WoundLevel.Unsurvivable)
             {
                 return Template.Name + ": <color=red>Unsurvivable</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Critical)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Mortal)
             {
-                return Template.Name + ":<color=maroon> Critical</color>";
+                return Template.Name + ":<color=red> Mortal</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Severe)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Massive)
             {
-                return Template.Name + ": <color=maroon>Severe</color>";
+                return Template.Name + ": <color=maroon>Massive</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Serious)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Critical)
             {
-                return Template.Name + ": <color=orange>Serious</color>";
+                return Template.Name + ": <color=maroon>Critical</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Major)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Major)
             {
                 return Template.Name + ": <color=orange>Major</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Moderate)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Moderate)
             {
-                return Template.Name + ": <color=olive>Moderate</color>";
+                return Template.Name + ": <color=orange>Moderate</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Minor)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Minor)
             {
-                return Template.Name + ": <color=teal>Minor</color>";
+                return Template.Name + ": <color=green>Minor</color>";
             }
-            else if (Wounds.WoundLevel >= (uint)WoundType.Negligible)
+            else if (Wounds.WoundTotal >= (uint)WoundLevel.Negligible)
             {
-                return Template.Name + ": <color=teal>Negligible</color>";
+                return Template.Name + ": <color=green>Negligible</color>";
             }
             return Template.Name + ": No wounds";
         }
@@ -236,13 +260,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 2,
                     DamageMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 30 },
-                    {Stance.Kneeling, 30 },
-                    { Stance.Prone, 30 }
-                },
-                    WoundLimit = WoundType.Unsurvivable,
-
+                    {
+                        { Stance.Standing, 30 },
+                        {Stance.Kneeling, 30 },
+                        { Stance.Prone, 30 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint) WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -252,12 +280,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 1 },
-                    {Stance.Kneeling, 1 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 1 },
+                        {Stance.Kneeling, 1 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Moderate,
+                    SeverWound = (uint)WoundLevel.Major,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -267,12 +300,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 75 },
-                    {Stance.Kneeling, 75 },
-                    { Stance.Prone, 75 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 75 },
+                        {Stance.Kneeling, 75 },
+                        { Stance.Prone, 75 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -282,12 +320,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 480 },
-                    {Stance.Kneeling, 480 },
-                    { Stance.Prone, 30 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 480 },
+                        {Stance.Kneeling, 480 },
+                        { Stance.Prone, 30 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Unsurvivable,
+                    SeverWound = (uint)WoundLevel.Unsurvivable,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -297,12 +340,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 96 },
-                    {Stance.Kneeling, 96 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 96 },
+                        {Stance.Kneeling, 96 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 3 * (uint)WoundLevel.Major,
+                    SeverWound = 3 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = true,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -312,12 +360,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 96 },
-                    {Stance.Kneeling, 96 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 96 },
+                        {Stance.Kneeling, 96 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 3 * (uint)WoundLevel.Major,
+                    SeverWound = 3 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = true,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -327,12 +380,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 20 },
-                    {Stance.Kneeling, 20 },
-                    { Stance.Prone, 20 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 20 },
+                        {Stance.Kneeling, 20 },
+                        { Stance.Prone, 20 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = true,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -342,12 +400,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 20 },
-                    {Stance.Kneeling, 20 },
-                    { Stance.Prone, 20 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 20 },
+                        {Stance.Kneeling, 20 },
+                        { Stance.Prone, 20 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = true,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -357,12 +420,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 2,
                     DamageMultiplier = 1.5f,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 100 },
-                    {Stance.Kneeling, 100 },
-                    { Stance.Prone, 10 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 100 },
+                        {Stance.Kneeling, 100 },
+                        { Stance.Prone, 10 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -372,12 +440,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 160 },
-                    {Stance.Kneeling, 80 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Severe
+                    {
+                        { Stance.Standing, 160 },
+                        {Stance.Kneeling, 80 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -387,12 +460,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 160 },
-                    {Stance.Kneeling, 80 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Severe
+                    {
+                        { Stance.Standing, 160 },
+                        {Stance.Kneeling, 80 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -402,12 +480,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 15 },
-                    {Stance.Kneeling, 7 },
-                    { Stance.Prone, 0 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 15 },
+                        {Stance.Kneeling, 7 },
+                        { Stance.Prone, 0 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -417,12 +500,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 15 },
-                    {Stance.Kneeling, 7 },
-                    { Stance.Prone, 0 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 15 },
+                        {Stance.Kneeling, 7 },
+                        { Stance.Prone, 0 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 }
             };
 
@@ -456,13 +544,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 2,
                     DamageMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 30 },
-                    {Stance.Kneeling, 30 },
-                    { Stance.Prone, 30 }
-                },
-                    WoundLimit = WoundType.Unsurvivable,
-
+                    {
+                        { Stance.Standing, 30 },
+                        {Stance.Kneeling, 30 },
+                        { Stance.Prone, 30 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint) WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -472,12 +564,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 1 },
-                    {Stance.Kneeling, 1 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 1 },
+                        {Stance.Kneeling, 1 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Moderate,
+                    SeverWound = (uint)WoundLevel.Major,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -487,12 +584,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 75 },
-                    {Stance.Kneeling, 75 },
-                    { Stance.Prone, 75 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 75 },
+                        {Stance.Kneeling, 75 },
+                        { Stance.Prone, 75 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -502,12 +604,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 480 },
-                    {Stance.Kneeling, 480 },
-                    { Stance.Prone, 30 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 480 },
+                        {Stance.Kneeling, 480 },
+                        { Stance.Prone, 30 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Unsurvivable,
+                    SeverWound = (uint)WoundLevel.Unsurvivable,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -517,12 +624,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 96 },
-                    {Stance.Kneeling, 96 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 96 },
+                        {Stance.Kneeling, 96 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 3 * (uint)WoundLevel.Major,
+                    SeverWound = 3 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = true,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -532,12 +644,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 72 },
-                    {Stance.Kneeling, 72 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 72 },
+                        {Stance.Kneeling, 72 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 2 * (uint)WoundLevel.Major,
+                    SeverWound = 2 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -547,12 +664,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 96 },
-                    {Stance.Kneeling, 96 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 96 },
+                        {Stance.Kneeling, 96 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 3 * (uint)WoundLevel.Major,
+                    SeverWound = 3 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = true,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -562,12 +684,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 72 },
-                    {Stance.Kneeling, 72 },
-                    { Stance.Prone, 15 }
-                },
-                    WoundLimit = WoundType.Serious
+                    {
+                        { Stance.Standing, 72 },
+                        {Stance.Kneeling, 72 },
+                        { Stance.Prone, 15 }
+                    },
+                    CrippleWound = 2 * (uint)WoundLevel.Major,
+                    SeverWound = 2 * (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -577,12 +704,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 20 },
-                    {Stance.Kneeling, 20 },
-                    { Stance.Prone, 20 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 20 },
+                        {Stance.Kneeling, 20 },
+                        { Stance.Prone, 20 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = true,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -592,12 +724,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 20 },
-                    {Stance.Kneeling, 20 },
-                    { Stance.Prone, 20 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 20 },
+                        {Stance.Kneeling, 20 },
+                        { Stance.Prone, 20 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = true,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -607,12 +744,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 2,
                     DamageMultiplier = 1.5f,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 100 },
-                    {Stance.Kneeling, 100 },
-                    { Stance.Prone, 10 }
-                },
-                    WoundLimit = WoundType.Unsurvivable
+                    {
+                        { Stance.Standing, 100 },
+                        {Stance.Kneeling, 100 },
+                        { Stance.Prone, 10 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = false,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = true
                 },
 
                 new HitLocationTemplate
@@ -622,12 +764,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 160 },
-                    {Stance.Kneeling, 80 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Severe
+                    {
+                        { Stance.Standing, 160 },
+                        {Stance.Kneeling, 80 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -637,12 +784,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 160 },
-                    {Stance.Kneeling, 80 },
-                    { Stance.Prone, 1 }
-                },
-                    WoundLimit = WoundType.Severe
+                    {
+                        { Stance.Standing, 160 },
+                        {Stance.Kneeling, 80 },
+                        { Stance.Prone, 1 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Critical,
+                    SeverWound = (uint)WoundLevel.Massive,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -652,12 +804,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 15 },
-                    {Stance.Kneeling, 7 },
-                    { Stance.Prone, 0 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 15 },
+                        {Stance.Kneeling, 7 },
+                        { Stance.Prone, 0 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 },
 
                 new HitLocationTemplate
@@ -667,12 +824,17 @@ namespace Iam.Scripts.Models.Soldiers
                     NaturalArmor = 0,
                     DamageMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
-                {
-                    { Stance.Standing, 15 },
-                    {Stance.Kneeling, 7 },
-                    { Stance.Prone, 0 }
-                },
-                    WoundLimit = WoundType.Major
+                    {
+                        { Stance.Standing, 15 },
+                        {Stance.Kneeling, 7 },
+                        { Stance.Prone, 0 }
+                    },
+                    CrippleWound = (uint)WoundLevel.Major,
+                    SeverWound = (uint)WoundLevel.Critical,
+                    IsMotive = true,
+                    IsRangedWeaponHolder = false,
+                    IsMeleeWeaponHolder = false,
+                    IsVital = false
                 }
             };
 
