@@ -143,9 +143,9 @@ namespace Iam.Scripts.Controllers
 
         private void PopulateUnitTree(List<Unit> unitList)
         {
-            if (unitList[0].Id == GameSettings.Chapter.Id)
+            if (unitList[0].Id == GameSettings.Chapter.OrderOfBattle.Id)
             {
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.HQSquad.Id, GameSettings.Chapter.HQSquad.Name);
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
                 foreach(Squad squad in unitList[0].Squads)
                 {
                     UnitTreeView.AddLeafUnit(squad.Id, squad.Name);

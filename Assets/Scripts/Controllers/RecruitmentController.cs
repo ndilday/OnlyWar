@@ -141,7 +141,7 @@ I await any further instructions you have on our recruiting and training efforts
         private void PopulateScoutSquadMap()
         {
             Dictionary<int, TrainingFocuses> newMap = new Dictionary<int, TrainingFocuses>();
-            foreach (Unit company in GameSettings.Chapter.ChildUnits)
+            foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
                 foreach (Squad squad in company.Squads)
                 {

@@ -1,12 +1,14 @@
 ﻿
 namespace Iam.Scripts.Models.Units
 {
-    public class Chapter : Unit
+    public class Chapter
     {
-        public ushort GeneseedStockpile;
-        public Chapter(int id, string name, UnitTemplate template) : base(id, name, template)
+        public ushort GeneseedStockpile { get; private set; }
+        public Unit OrderOfBattle { get; private set; }
+        public Chapter(Unit unit)
         {
             GeneseedStockpile = 0;
+            OrderOfBattle = unit;
         }
     }
 }

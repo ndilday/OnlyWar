@@ -145,6 +145,11 @@ namespace Iam.Scripts.Helpers.Battle
             Soldiers.Remove(soldier);
         }
 
+        public override string ToString()
+        {
+            return _squad.Name;
+        }
+
         private void AllocateEquipment()
         {
             List<BattleSoldier> tempSquad = new List<BattleSoldier>(Soldiers);

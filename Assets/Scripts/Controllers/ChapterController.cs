@@ -39,15 +39,15 @@ namespace Iam.Scripts.Controllers
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.HQSquad.Id, GameSettings.Chapter.HQSquad.Name);
-                _squadMap[GameSettings.Chapter.HQSquad.Id] = GameSettings.Chapter.HQSquad;
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
+                _squadMap[GameSettings.Chapter.OrderOfBattle.HQSquad.Id] = GameSettings.Chapter.OrderOfBattle.HQSquad;
 
-                foreach(Squad squad in GameSettings.Chapter.Squads)
+                foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
                 {
                     _squadMap[squad.Id] = squad;
                     UnitTreeView.AddLeafUnit(squad.Id, squad.Name);
                 }
-                foreach (Unit company in GameSettings.Chapter.ChildUnits)
+                foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
                 {
                     _squadMap[company.HQSquad.Id] = company.HQSquad;
                     if (company.Squads == null || company.Squads.Count == 0)
@@ -103,7 +103,7 @@ namespace Iam.Scripts.Controllers
 
         private void UnitSelected(int unitId)
         {
-            Unit selectedUnit = GameSettings.Chapter.ChildUnits.First(u => u.Id == unitId);
+            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             List<Tuple<int, string, string>> memberList = selectedUnit.HQSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
             SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));

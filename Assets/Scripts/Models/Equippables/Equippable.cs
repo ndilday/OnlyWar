@@ -73,11 +73,20 @@ namespace Iam.Scripts.Models.Equippables
     {
         public RangedWeaponTemplate Template { get; private set; }
         public RangedWeapon(RangedWeaponTemplate template) { Template = template; }
+
+        public override string ToString()
+        {
+            return Template.Name;
+        }
     }
 
     public class MeleeWeapon
     {
         public MeleeWeaponTemplate Template { get; private set; }
         public MeleeWeapon(MeleeWeaponTemplate template) { Template = template; }
+        public override string ToString()
+        {
+            return Template.Name;
+        }
     }
 }

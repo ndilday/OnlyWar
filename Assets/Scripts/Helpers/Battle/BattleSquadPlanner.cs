@@ -274,7 +274,8 @@ namespace Iam.Scripts.Helpers.Battle
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
-                _meleeActionBag.Add(new MeleeAttackAction(soldier, enemy, soldier.EquippedMeleeWeapons[0], false, _woundResolutionBag, _log));
+                MeleeWeapon weapon = soldier.EquippedMeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0];
+                _meleeActionBag.Add(new MeleeAttackAction(soldier, enemy, weapon, false, _woundResolutionBag, _log));
             }
         }
 

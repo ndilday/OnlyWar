@@ -79,11 +79,17 @@ namespace Iam.Scripts.Controllers
         {
             // For now, put the chapter on their home planet
             Planet planet = _galaxy.GetPlanet(GameSettings.ChapterPlanetId);
-            planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>();
-            planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id] = new List<Unit>();
-            planet.FactionGroundUnitListMap[TempFactions.Instance.SpaceMarines.Id].Add(GameSettings.Chapter);
-            planet.FactionGroundUnitListMap[TempFactions.Instance.Tyranids.Id] = new List<Unit>();
-            planet.FactionGroundUnitListMap[TempFactions.Instance.Tyranids.Id].Add(TempTyranidArmyGenerator.GenerateTyranidArmy());
+            planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+            {
+                [TempFactions.Instance.SpaceMarines.Id] = new List<Unit>
+                {
+                    GameSettings.Chapter.OrderOfBattle
+                },
+                [TempFactions.Instance.Tyranids.Id] = new List<Unit>
+                {
+                    TempTyranidArmyGenerator.GenerateTyranidArmy()
+                }
+            };
         }
 
         public void EndTurn_Clicked()

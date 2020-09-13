@@ -38,7 +38,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
             float total = skill + modifier - roll;
             _soldier.Aim = null;
-            _log.Enqueue(_soldier.Soldier.ToString() + " fires a " + _weapon.Template.Name + " at " + _target.Soldier.ToString());
+            _log.Enqueue(_soldier.Soldier.ToString() + " fires a " + _weapon.Template.Name + " at " + _target.Soldier.AssignedSquad.Name.ToString());
             if(total > 0)
             {
                 _log.Enqueue("<color=red>" + _soldier.Soldier.ToString() + " hits " + _target.Soldier.ToString() + " " + Mathf.Min((int)(total/_weapon.Template.Recoil) + 1, _numberOfShots) + " times</color>");

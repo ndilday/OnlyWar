@@ -16,35 +16,35 @@ namespace Iam.Scripts.Helpers
             Chapter chapter = BuildUnitTreeFromTemplate(rootTemplate);
 
             // first, assign the Librarians
-            AssignLibrarians(unassignedSoldierMap, chapter, year);
+            AssignLibrarians(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // then, assign up to the top 50 as Techmarines
-            AssignTechMarines(unassignedSoldierMap, chapter, year);
+            AssignTechMarines(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // then, assign the top leader as Chapter Master
-            AssignChapterMaster(unassignedSoldierMap, chapter, year);
+            AssignChapterMaster(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // then, assign Captains
-            AssignCaptains(unassignedSoldierMap, chapter, year);
+            AssignCaptains(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // then, assigned twenty apothecaries
-            AssignApothecaries(unassignedSoldierMap, chapter, year);
+            AssignApothecaries(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // then, assign twenty Chaplains
-            AssignChaplains(unassignedSoldierMap, chapter, year);
+            AssignChaplains(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // any dual gold awards are assigned to the first company
-            AssignVeterans(unassignedSoldierMap, chapter, year);
+            AssignVeterans(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // assign Champtions to the CM and each Company
-            AssignChampions(unassignedSoldierMap, chapter, year);
+            AssignChampions(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // assign Ancients to the CM and each Company
-            AssignAncients(unassignedSoldierMap, chapter, year);
+            AssignAncients(unassignedSoldierMap, chapter.OrderOfBattle, year);
             // assign all other marines who got at least bronze in one skill, starting with the second company
-            AssignMarines(unassignedSoldierMap, chapter, year);
+            AssignMarines(unassignedSoldierMap, chapter.OrderOfBattle, year);
             //Assign excess to scouts
-            AssignExcessToScouts(unassignedSoldierMap, chapter, year);
+            AssignExcessToScouts(unassignedSoldierMap, chapter.OrderOfBattle, year);
             return chapter;
         }
 
         private static Chapter BuildUnitTreeFromTemplate(UnitTemplate rootTemplate)
         {
             int i = 1;
-            Chapter root = (Chapter)rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor");
-            BuildUnitTreeHelper(root, rootTemplate, ref i);
+            Chapter root = new Chapter(rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor"));
+            BuildUnitTreeHelper(root.OrderOfBattle, rootTemplate, ref i);
             return root;
         }
 

@@ -103,7 +103,7 @@ namespace Iam.Scripts.Helpers.Battle
                     if (location.Item2 < bottom) bottom = location.Item2;
                 }
             }
-            return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, top), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
+            return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, bottom), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
         }
 
         public float GetNearestEnemy(Soldier soldier, out int closestEnemy)

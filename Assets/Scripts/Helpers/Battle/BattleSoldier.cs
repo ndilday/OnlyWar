@@ -125,6 +125,11 @@ namespace Iam.Scripts.Helpers.Battle
             return baseMoveSpeed;
         }
 
+        public override string ToString()
+        {
+            return Soldier.ToString();
+        }
+
         private int GetHandsForWeapon(WeaponTemplate template)
         {
             switch (template.Location)
