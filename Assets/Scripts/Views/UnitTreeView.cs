@@ -9,6 +9,8 @@ namespace Iam.Scripts.Views
     public class UnitTreeView : MonoBehaviour
     {
         public UnityEvent<int> OnUnitSelected;
+        
+        [HideInInspector]
         public bool Initialized = false;
 
         [SerializeField]

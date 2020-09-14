@@ -7,7 +7,6 @@ using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Controllers
 {
@@ -22,7 +21,7 @@ namespace Iam.Scripts.Controllers
         [SerializeField]
         private GameSettings GameSettings;
 
-        Squad _selectedSquad;
+        private Squad _selectedSquad;
 
         private readonly Dictionary<int, Squad> _squadMap = new Dictionary<int, Squad>();
         public void GalaxyController_OnPlanetSelected(Planet planet)
