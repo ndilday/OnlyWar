@@ -14,6 +14,7 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public uint WoundTotal { get; private set; }
         public const byte WOUND_MAX = 5;
+        public byte WeeksOfHealing { get; set; }
         
         public byte NegligibleWounds
         {
@@ -81,6 +82,7 @@ namespace Iam.Scripts.Models.Soldiers
 
         public void AddWound(WoundLevel wound)
         {
+            WeeksOfHealing = 0;
             WoundTotal += (uint)wound;
             if(NegligibleWounds > WOUND_MAX)
             {

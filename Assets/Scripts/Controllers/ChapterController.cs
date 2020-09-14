@@ -39,6 +39,7 @@ namespace Iam.Scripts.Controllers
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
+                UnitTreeView.ClearTree();
                 UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
                 _squadMap[GameSettings.Chapter.OrderOfBattle.HQSquad.Id] = GameSettings.Chapter.OrderOfBattle.HQSquad;
 
@@ -99,6 +100,12 @@ namespace Iam.Scripts.Controllers
                 newText += historyLine + "\n";
             }
             SquadMemberView.ReplaceSelectedUnitText(newText);
+        }
+
+        public void EndTurnButton_OnClick()
+        {
+            // set the unit tree view to dirty as there may be casualties between turns
+            UnitTreeView.Initialized = false;
         }
 
         private void UnitSelected(int unitId)
@@ -187,7 +194,7 @@ namespace Iam.Scripts.Controllers
             return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
         }
 
-        public void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)
+        private void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)
         {
             SpaceMarineEvaluator.Instance.EvaluateMarine(marine);
 

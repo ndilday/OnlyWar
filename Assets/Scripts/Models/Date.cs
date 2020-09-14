@@ -39,5 +39,32 @@ namespace Iam.Scripts.Models
         {
             return Week.ToString() + "." + Year.ToString() + ".M" + Millenium.ToString();
         }
+
+        public bool IsBetweenInclusive(Date earlierDate, Date laterDate)
+        {
+            return IsAfterOrEqual(earlierDate) && IsBeforeOrEqual(laterDate);
+        }
+
+        public bool IsBeforeOrEqual(Date otherDate)
+        {
+            if(Millenium > otherDate.Millenium
+                || (Millenium == otherDate.Millenium && Year > otherDate.Year)
+                || (Millenium == otherDate.Millenium && Year == otherDate.Year && Week > otherDate.Week))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public bool IsAfterOrEqual(Date otherDate)
+        {
+            if (Millenium < otherDate.Millenium
+                || (Millenium == otherDate.Millenium && Year < otherDate.Year)
+                || (Millenium == otherDate.Millenium && Year == otherDate.Year && Week < otherDate.Week))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
