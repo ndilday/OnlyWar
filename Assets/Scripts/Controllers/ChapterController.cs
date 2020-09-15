@@ -22,11 +22,14 @@ namespace Iam.Scripts.Controllers
         [SerializeField]
         private GameSettings GameSettings;
         private Dictionary<int, Squad> _squadMap;
-        private SpaceMarine[] _marines;
+        private Dictionary<int, SpaceMarine> _marineMap;
+        private SpaceMarineTrainingHelper _trainingHelper;
         // Start is called before the first frame update
         void Start()
         {
             _squadMap = new Dictionary<int, Squad>();
+            _trainingHelper = new SpaceMarineTrainingHelper();
+            _marineMap = new Dictionary<int, SpaceMarine>();
             Debug.Log("Creating Chapter");
             CreateChapter();
             Debug.Log("Done creating Chapter");
@@ -94,7 +97,7 @@ namespace Iam.Scripts.Controllers
         public void SoldierSelected(int soldierId)
         {
             string newText = "";
-            Soldier soldier = _marines[soldierId];
+            Soldier soldier = _marineMap[soldierId];
             foreach(string historyLine in soldier.SoldierHistory)
             {
                 newText += historyLine + "\n";
@@ -106,6 +109,13 @@ namespace Iam.Scripts.Controllers
         {
             // set the unit tree view to dirty as there may be casualties between turns
             UnitTreeView.Initialized = false;
+            // handle work experience
+            // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
+            // works out to 21 hours of training equivalent, call it 20, so 0.1 points
+            foreach (SpaceMarine marine in _marineMap.Values)
+            {
+                _trainingHelper.ApplyMarineWorkExperience(marine, 0.1f);
+            }
         }
 
         private void UnitSelected(int unitId)
@@ -170,8 +180,9 @@ namespace Iam.Scripts.Controllers
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            _marines = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance);
-            foreach (SpaceMarine marine in _marines)
+            _marineMap = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance)
+                .ToDictionary(m => m.Id);
+            foreach (SpaceMarine marine in _marineMap.Values)
             {
                 marine.FirstName = TempNameGenerator.GetName();
                 marine.LastName = TempNameGenerator.GetName();
@@ -184,7 +195,7 @@ namespace Iam.Scripts.Controllers
                 EvaluateSoldier(marine, basicTrainingEndDate);
                 marine.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
             }
-            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marines, GameSettings.ChapterTemplate, 
+            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marineMap.Values, GameSettings.ChapterTemplate, 
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
@@ -194,6 +205,7 @@ namespace Iam.Scripts.Controllers
             return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
         }
 
+        // TODO: this should probably live somewhere else
         private void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)
         {
             SpaceMarineEvaluator.Instance.EvaluateMarine(marine);

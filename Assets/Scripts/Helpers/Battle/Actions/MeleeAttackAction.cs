@@ -39,7 +39,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                     _attacker.Squad.IsInMelee = true;
                     _target.Squad.IsInMelee = true;
                     float modifier = _weapon.Template.Accuracy + (_didMove ? -2 : 0);
-                    float skill = BattleHelpers.GetWeaponSkillPlusStat(_attacker.Soldier, _weapon.Template);
+                    float skill = _attacker.Soldier.GetTotalSkillValue(_weapon.Template.RelatedSkill);
                     float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
                     float total = skill + modifier - roll;
                     _log.Enqueue(_attacker.Soldier.ToString() + " swings at " + _target.Soldier.ToString());

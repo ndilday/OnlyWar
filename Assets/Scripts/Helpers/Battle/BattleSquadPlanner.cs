@@ -454,8 +454,7 @@ namespace Iam.Scripts.Helpers.Battle
 
         private float EstimateHitDistance(Soldier soldier, RangedWeapon weapon, float targetSize, int freeHands)
         {
-            var skill = soldier.Skills[weapon.Template.RelatedSkill.Id];
-            float baseTotal = BattleHelpers.GetStatForSkill(soldier, skill.BaseSkill) + skill.SkillBonus + BattleHelpers.CalculateSizeModifier(targetSize);
+            float baseTotal = soldier.GetTotalSkillValue(weapon.Template.RelatedSkill);
 
             if (weapon.Template.Location == EquipLocation.TwoHand && freeHands == 1)
             {
@@ -472,6 +471,7 @@ namespace Iam.Scripts.Helpers.Battle
             // z value of 0.43 is 
             baseTotal = baseTotal + 1 + weapon.Template.Accuracy;
             baseTotal += BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
+            baseTotal += BattleHelpers.CalculateSizeModifier(targetSize);
             // if the total doesn't get to 10.5, there will be no range where there's a good chance of hitting, so just keep getting closer
             if (baseTotal < 10.5) return 0;
 
@@ -558,7 +558,7 @@ namespace Iam.Scripts.Helpers.Battle
             float expectedDamage = CalculateExpectedDamage(weapon, range, armor, con);
             float rangeMod = BattleHelpers.CalculateRangeModifier(range, target.CurrentSpeed);
             float rofMod = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
-            float weaponSkill = BattleHelpers.GetWeaponSkillPlusStat(soldier.Soldier, weapon.Template);
+            float weaponSkill = soldier.Soldier.GetTotalSkillValue(weapon.Template.RelatedSkill);
             float total = weaponSkill + rofMod + rangeMod + sizeMod + moveAndAimMod;
             return new Tuple<float, float>(total, expectedDamage);
         }

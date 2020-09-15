@@ -10,9 +10,9 @@ namespace Iam.Scripts.Helpers
 {
     public static class NewChapterBuilder
     {
-        public static Chapter AssignSoldiersToChapter(SpaceMarine[] soldiers, UnitTemplate rootTemplate, string year)
+        public static Chapter AssignSoldiersToChapter(IEnumerable<SpaceMarine> marines, UnitTemplate rootTemplate, string year)
         {
-            Dictionary<int, SpaceMarine> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
+            Dictionary<int, SpaceMarine> unassignedSoldierMap = marines.ToDictionary(s => s.Id);
             Chapter chapter = BuildUnitTreeFromTemplate(rootTemplate);
 
             // first, assign the Librarians

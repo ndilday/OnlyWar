@@ -7,29 +7,6 @@ namespace Iam.Scripts.Helpers.Battle
 {
     public static class BattleHelpers
     {
-        public static float GetWeaponSkillPlusStat(Soldier soldier, WeaponTemplate template)
-        {
-            Skill skill = soldier.Skills[template.RelatedSkill.Id];
-            return GetStatForSkill(soldier, skill.BaseSkill) + skill.SkillBonus;
-        }
-
-        public static float GetStatForSkill(Soldier soldier, BaseSkill skill)
-        {
-            switch (skill.BaseAttribute)
-            {
-                case SkillAttribute.Dexterity:
-                    return soldier.Dexterity;
-                case SkillAttribute.Intelligence:
-                    return soldier.Intelligence;
-                case SkillAttribute.Ego:
-                    return soldier.Ego;
-                case SkillAttribute.Presence:
-                    return soldier.Presence;
-                default:
-                    return soldier.Dexterity;
-            }
-        }
-
         public static float GetRangeForModifier(float modifier)
         {
             return 2 * Mathf.Exp(-modifier / 2.4663f);

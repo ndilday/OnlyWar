@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Units;
+using UnityEngine;
 
 namespace Iam.Scripts.Models.Soldiers
 {
@@ -55,6 +56,34 @@ namespace Iam.Scripts.Models.Soldiers
             else
             {
                 Skills[skill.Id].AddPoints(points);
+            }
+        }
+
+        public float GetTotalSkillValue(BaseSkill skill)
+        {
+            float attribute = GetStatForBaseAttribute(skill.BaseAttribute);
+            if(!Skills.ContainsKey(skill.Id))
+            {
+                return attribute - 4;
+            }
+
+            return Skills[skill.Id].SkillBonus + attribute;
+        }
+
+        private float GetStatForBaseAttribute(SkillAttribute attribute)
+        {
+            switch (attribute)
+            {
+                case SkillAttribute.Dexterity:
+                    return Dexterity;
+                case SkillAttribute.Intelligence:
+                    return Intelligence;
+                case SkillAttribute.Ego:
+                    return Ego;
+                case SkillAttribute.Presence:
+                    return Presence;
+                default:
+                    return Dexterity;
             }
         }
 

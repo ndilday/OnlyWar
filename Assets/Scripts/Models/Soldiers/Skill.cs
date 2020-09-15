@@ -13,11 +13,13 @@ namespace Iam.Scripts.Models.Soldiers
     public enum SkillCategory
     {
         Ranged,
+        Gunnery,
         Melee,
         Military,
         Professional,
         Tech,
-        Apothecary
+        Apothecary,
+        Vehicle
     }
 
     public class BaseSkill
@@ -85,25 +87,27 @@ namespace Iam.Scripts.Models.Soldiers
             Ritual = new BaseSkill(2, SkillCategory.Professional, "Ritual", SkillAttribute.Presence, -2);
             Leadership = new BaseSkill(3, SkillCategory.Professional, "Leadership", SkillAttribute.Presence, -1);
             Persuade = new BaseSkill(4, SkillCategory.Professional, "Persuade", SkillAttribute.Presence, -2);
+            FirstAid = new BaseSkill(14, SkillCategory.Professional, "First Aid", SkillAttribute.Intelligence, 0);
+            Teaching = new BaseSkill(16, SkillCategory.Professional, "Teaching", SkillAttribute.Intelligence, -1);
 
             Tactics = new BaseSkill(10, SkillCategory.Military, "Tactics", SkillAttribute.Intelligence, -2);
             Marine = new BaseSkill(11, SkillCategory.Military, "Marine", SkillAttribute.Intelligence, -1);
             ArmorySmallArms = new BaseSkill(12, SkillCategory.Military, "Armory (Small Arms)", SkillAttribute.Intelligence, -1);
-            FirstAid = new BaseSkill(14, SkillCategory.Professional, "First Aid", SkillAttribute.Intelligence, 0);
-            Teaching = new BaseSkill(16, SkillCategory.Professional, "Teaching", SkillAttribute.Intelligence, -1);
             Explosives = new BaseSkill(17, SkillCategory.Military, "Explosives", SkillAttribute.Intelligence, -1);
+            Stealth = new BaseSkill(29, SkillCategory.Military, "Stealth", SkillAttribute.Dexterity, -1);
 
             PowerArmor = new BaseSkill(20, SkillCategory.Military, "Power Armor", SkillAttribute.Dexterity, -1);
-            Rhino = new BaseSkill(21, SkillCategory.Military, "Drive (Rhino)", SkillAttribute.Dexterity, -1);
-            LandSpeeder = new BaseSkill(22, SkillCategory.Military, "Pilot (Land Speeder)", SkillAttribute.Dexterity, -1);
-            GunneryBeam = new BaseSkill(23, SkillCategory.Military, "Gunnery (Beam)", SkillAttribute.Dexterity, 0);
-            GunneryBolter = new BaseSkill(24, SkillCategory.Ranged, "Gunnery (Bolter)", SkillAttribute.Dexterity, 0);
-            GunneryCannon = new BaseSkill(25, SkillCategory.Military, "Gunnery (Cannon)", SkillAttribute.Dexterity, 0);
-            GunneryRocket = new BaseSkill(26, SkillCategory.Military, "Gunnery (Rocket)", SkillAttribute.Dexterity, 0);
-            JumpPack = new BaseSkill(27, SkillCategory.Military, "Jump Pack", SkillAttribute.Dexterity, 0);
-            Bike = new BaseSkill(28, SkillCategory.Military, "Drive (Bike)", SkillAttribute.Dexterity, 0);
-            Stealth = new BaseSkill(29, SkillCategory.Military, "Stealth", SkillAttribute.Dexterity,-1);
 
+            Rhino = new BaseSkill(21, SkillCategory.Vehicle, "Drive (Rhino)", SkillAttribute.Dexterity, -1);
+            LandSpeeder = new BaseSkill(22, SkillCategory.Vehicle, "Pilot (Land Speeder)", SkillAttribute.Dexterity, -1);
+            JumpPack = new BaseSkill(27, SkillCategory.Vehicle, "Jump Pack", SkillAttribute.Dexterity, 0);
+            Bike = new BaseSkill(28, SkillCategory.Vehicle, "Drive (Bike)", SkillAttribute.Dexterity, 0);
+
+            GunneryBeam = new BaseSkill(23, SkillCategory.Gunnery, "Gunnery (Beam)", SkillAttribute.Dexterity, 0);
+            GunneryBolter = new BaseSkill(24, SkillCategory.Gunnery, "Gunnery (Bolter)", SkillAttribute.Dexterity, 0);
+            GunneryCannon = new BaseSkill(25, SkillCategory.Gunnery, "Gunnery (Cannon)", SkillAttribute.Dexterity, 0);
+            GunneryRocket = new BaseSkill(26, SkillCategory.Gunnery, "Gunnery (Rocket)", SkillAttribute.Dexterity, 0);
+            
             Bolter = new BaseSkill(30, SkillCategory.Ranged, "Bolter", SkillAttribute.Dexterity, 0);
             Lascannon = new BaseSkill(31, SkillCategory.Ranged, "Lascannon", SkillAttribute.Dexterity, 0);
             Plasma = new BaseSkill(32, SkillCategory.Ranged, "Plasma", SkillAttribute.Dexterity, 0);

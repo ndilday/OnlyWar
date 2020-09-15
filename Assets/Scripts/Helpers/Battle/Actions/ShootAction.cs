@@ -34,7 +34,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         public void Execute()
         {
             float modifier = CalculateToHitModifiers();
-            float skill = BattleHelpers.GetWeaponSkillPlusStat(_soldier.Soldier, _weapon.Template);
+            float skill = _soldier.Soldier.GetTotalSkillValue(_weapon.Template.RelatedSkill); 
             float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
             float total = skill + modifier - roll;
             _soldier.Aim = null;
