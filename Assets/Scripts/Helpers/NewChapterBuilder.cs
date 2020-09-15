@@ -351,8 +351,10 @@ namespace Iam.Scripts.Helpers
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 4);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 2);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
+                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
+                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Sniper, 1);
+                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Shotgun, 1);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);

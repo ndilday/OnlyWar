@@ -47,7 +47,10 @@ namespace Iam.Scripts.Controllers
             SquadArmamentView.SetIsFrontLine(!_selectedSquad.IsInReserve);
             if(_selectedSquad.SquadTemplate.DefaultWeapons != null)
             {
-                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve, _selectedSquad.GetAllMembers().Count(), _selectedSquad.SquadTemplate.DefaultWeapons.Name, GetSquadWeaponSelectionSections(_selectedSquad));
+                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve, 
+                                             _selectedSquad.GetAllMembers().Count(), 
+                                             _selectedSquad.SquadTemplate.DefaultWeapons.Name, 
+                                             GetSquadWeaponSelectionSections(_selectedSquad));
             }
         }
 
@@ -121,6 +124,7 @@ namespace Iam.Scripts.Controllers
             {
                 foreach (UnitWeaponOption option in squad.SquadTemplate.WeaponOptions)
                 {
+                    int optionCount = 0;
                     WeaponSelectionSection section = new WeaponSelectionSection
                     {
                         Label = option.Name,
@@ -131,8 +135,10 @@ namespace Iam.Scripts.Controllers
                     foreach (WeaponSet weaponSet in option.Options)
                     {
                         int currentCount = squad.Loadout.Where(l => l == weaponSet).Count();
+                        optionCount += currentCount;
                         section.Selections.Add(new Tuple<string, int>(weaponSet.Name, currentCount));
                     }
+                    section.CurrentCount = optionCount;
                     list.Add(section);
                 }
             }

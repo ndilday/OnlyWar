@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Iam.Scripts.Models
 {
     [Serializable]
-    public class Date
+    public class Date : IComparable
     {
         public int Millenium;
         public int Year;
@@ -65,6 +65,30 @@ namespace Iam.Scripts.Models
                 return false;
             }
             return true;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj == null) return 1;
+            if (!(obj is Date otherDate))
+            {
+                throw new ArgumentException("Object is not a Date");
+            }
+            if (this == otherDate) return 0;
+            if (this.IsBeforeOrEqual(otherDate)) return -1;
+            return 1;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is Date otherDate))
+            {
+                return false;
+            }
+            return Millenium == otherDate.Millenium
+                && Year == otherDate.Year
+                && Week == otherDate.Week;
         }
     }
 }

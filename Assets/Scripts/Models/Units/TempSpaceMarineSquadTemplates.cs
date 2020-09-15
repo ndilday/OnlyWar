@@ -231,7 +231,7 @@ namespace Iam.Scripts.Models.Units
                 ws.Shotgun,
                 ws.SniperRifle
             };
-            UnitWeaponOption uwo1 = new UnitWeaponOption("Optional Armament", 0, 9, options1);
+            UnitWeaponOption uwo1 = new UnitWeaponOption("Optional Armament", 0, 8, options1);
 
             List<WeaponSet> options2 = new List<WeaponSet>
             {

@@ -57,6 +57,16 @@ It will require approximately {4} weeks before all marines in the squad (other t
         public void EndTurnButton_OnClick()
         {
             // heal wounds by one week
+            foreach(Soldier soldier in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
+            {
+                foreach(HitLocation hitLocation in soldier.Body.HitLocations)
+                {
+                    if(hitLocation.Wounds.WoundTotal > 0 && !hitLocation.IsSevered)
+                    {
+                        hitLocation.Wounds.ApplyWeekOfHealing();
+                    }
+                }
+            }
         }
 
         private void InitializeUnitTree()
@@ -154,7 +164,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
                     else if(hitLocation.Wounds.WoundTotal > 0)
                     {
                         isWounded = true;
-                        byte healTime = RecoveryTimeLeft(hitLocation.Wounds);
+                        byte healTime = hitLocation.Wounds.RecoveryTimeLeft();
                         if(healTime > greatestWoundHealTime)
                         {
                             greatestWoundHealTime = healTime;
@@ -164,22 +174,22 @@ It will require approximately {4} weeks before all marines in the squad (other t
                             isUnfit = true;
                         }
                     }
-                    if(isWounded)
-                    {
-                        woundedSoldiers++;
-                    }
-                    if(isMissingParts)
-                    {
-                        soldiersMissingBodyParts++;
-                    }
-                    if(greatestWoundHealTime > maxRecoveryTime)
-                    {
-                        maxRecoveryTime = greatestWoundHealTime;
-                    }
-                    if(isUnfit)
-                    {
-                        unfitSoldiers++;
-                    }
+                }
+                if (isWounded)
+                {
+                    woundedSoldiers++;
+                }
+                if (isMissingParts)
+                {
+                    soldiersMissingBodyParts++;
+                }
+                if (greatestWoundHealTime > maxRecoveryTime)
+                {
+                    maxRecoveryTime = greatestWoundHealTime;
+                }
+                if (isUnfit)
+                {
+                    unfitSoldiers++;
                 }
             }
             if(woundedSoldiers == 0)
@@ -194,42 +204,43 @@ It will require approximately {4} weeks before all marines in the squad (other t
                                  maxRecoveryTime);
         }
 
-        private byte RecoveryTimeLeft(Wounds wound)
-        {
-            if(wound.UnsurvivableWounds > 0)
-            {
-                return (byte)(28 - wound.WeeksOfHealing);
-            }
-            if(wound.MortalWounds > 0)
-            {
-                return (byte)(21 - wound.WeeksOfHealing);
-            }
-            if (wound.MassiveWounds > 0)
-            {
-                return (byte)(15 - wound.WeeksOfHealing);
-            }
-            if (wound.CriticalWounds > 0)
-            {
-                return (byte)(10 - wound.WeeksOfHealing);
-            }
-            if (wound.MajorWounds > 0)
-            {
-                return (byte)(6 - wound.WeeksOfHealing);
-            }
-            if (wound.ModerateWounds > 0)
-            {
-                return (byte)(3 - wound.WeeksOfHealing);
-            }
-            if (wound.MinorWounds > 0)
-            {
-                return 1;
-            }
-            return 0;
-        }
-
         private string GenerateSoldierSummary(Soldier selectedSoldier)
         {
-            return selectedSoldier.ToString();
+            string summary = selectedSoldier.ToString() + "\n";
+            byte recoveryTime = 0;
+            bool isSevered = false;
+            foreach (HitLocation hl in selectedSoldier.Body.HitLocations)
+            {
+                if (hl.Wounds.WoundTotal != 0)
+                {
+                    if(hl.IsSevered)
+                    {
+                        isSevered = true;
+                    }
+                    byte woundTime = hl.Wounds.RecoveryTimeLeft();
+                    if(woundTime > recoveryTime)
+                    {
+                        recoveryTime = woundTime;
+                    }
+                    summary += hl.ToString() + "\n";
+                }
+            }
+            if(isSevered)
+            {
+                summary += selectedSoldier.ToString() +
+                    " will be unable to perform field duties until receiving cybernetic replacements\n";
+            }
+            else if(recoveryTime > 0)
+            {
+                summary += selectedSoldier.ToString() +
+                    " requires " + recoveryTime.ToString() + " to be fully fit for duty\n";
+            }
+            else
+            {
+                summary += selectedSoldier.ToString() +
+                    " is fully fit and ready to serve the Emperor\n";
+            }
+            return summary;
         }
     }
 }

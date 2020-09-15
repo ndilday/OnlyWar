@@ -20,13 +20,17 @@ namespace Iam.Scripts.Controllers
     public class BattleController : MonoBehaviour
     {
         public UnityEvent OnBattleComplete;
-        
+
+        [SerializeField]
+        private GameSettings GameSettings;
         [SerializeField]
         private BattleView BattleView;
         
-        private readonly Dictionary<int, BattleSquad> _playerSquads;
-        private readonly Dictionary<int, BattleSquad> _opposingSquads;
-        private readonly Dictionary<int, BattleSquad> _soldierSquadMap;
+        private readonly Dictionary<int, BattleSquad> _playerBattleSquads;
+        private readonly Dictionary<int, BattleSquad> _opposingBattleSquads;
+        private readonly Dictionary<int, BattleSquad> _soldierBattleSquadMap;
+        private readonly List<Squad> _playerSquads;
+        private readonly List<Squad> _opposingSquads;
         private readonly Dictionary<int, BattleSoldier> _casualtyMap;
 
         private BattleSquad _selectedBattleSquad;
@@ -34,6 +38,7 @@ namespace Iam.Scripts.Controllers
         private int _turnNumber;
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
+        private Planet _planet;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -41,44 +46,47 @@ namespace Iam.Scripts.Controllers
 
         public BattleController()
         {
-            _playerSquads = new Dictionary<int, BattleSquad>();
-            _opposingSquads = new Dictionary<int, BattleSquad>();;
-            _soldierSquadMap = new Dictionary<int, BattleSquad>();
+            _playerBattleSquads = new Dictionary<int, BattleSquad>();
+            _opposingBattleSquads = new Dictionary<int, BattleSquad>();;
+            _soldierBattleSquadMap = new Dictionary<int, BattleSquad>();
             _moveResolver = new MoveResolver();
             _moveResolver.OnRetreat.AddListener(MoveResolver_OnRetreat);
             _woundResolver = new WoundResolver(VERBOSE);
             _woundResolver.OnSoldierDeath.AddListener(WoundResolver_OnSoldierDeath);
             _woundResolver.OnSoldierFall.AddListener(WoundResolver_OnSoldierFall);
             _casualtyMap = new Dictionary<int, BattleSoldier>();
+            _playerSquads = new List<Squad>();
+            _opposingSquads = new List<Squad>();
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
         {
             ResetValues();
+            _planet = planet;
 
             foreach(KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
             {
                 if(kvp.Key == TempFactions.Instance.SpaceMarines.Id)
                 {
-                    PopulateMapsFromUnitList(_playerSquads, kvp.Value, true);
+                    PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
-                    PopulateMapsFromUnitList(_opposingSquads, kvp.Value, false);
+                    PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
 
             BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
-            var playerPlacements = placer.PlaceSquads(_playerSquads.Values);
+            var playerPlacements = placer.PlaceSquads(_playerBattleSquads.Values);
             PopulateBattleViewSquads(playerPlacements);
-            var oppPlacements = placer.PlaceSquads(_opposingSquads.Values);
+            var oppPlacements = placer.PlaceSquads(_opposingBattleSquads.Values);
             PopulateBattleViewSquads(oppPlacements);
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
         public void NextStepButton_OnClick()
         {
-            if (_playerSquads.Count() > 0 && _opposingSquads.Count() > 0)
+            if (_playerBattleSquads.Count() > 0 && _opposingBattleSquads.Count() > 0)
             {
                 _turnNumber++;
                 BattleView.UpdateNextStepButton("Next Turn", false);
@@ -128,7 +136,7 @@ namespace Iam.Scripts.Controllers
                     }
                 }
 
-                if (_playerSquads.Count() == 0 && _opposingSquads.Count() == 0)
+                if (_playerBattleSquads.Count() == 0 || _opposingBattleSquads.Count() == 0)
                 {
                     Log(false, "One side destroyed, battle over");
                     BattleView.UpdateNextStepButton("End Battle", true);
@@ -141,6 +149,8 @@ namespace Iam.Scripts.Controllers
             else
             {
                 Debug.Log("Battle completed");
+                List<Soldier> dead = RemoveSoldiersKilledInBattle();
+                LogBattleToChapterHistory(dead);
                 BattleView.gameObject.SetActive(false);
                 OnBattleComplete.Invoke();
             }
@@ -148,16 +158,32 @@ namespace Iam.Scripts.Controllers
 
         public void BattleView_OnSquadSelected(int squadId)
         {
-            if (_playerSquads.ContainsKey(squadId))
+            if (_playerBattleSquads.ContainsKey(squadId))
             {
-                _selectedBattleSquad = _playerSquads[squadId];
+                _selectedBattleSquad = _playerBattleSquads[squadId];
                 BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
             }
             else
             {
-                _selectedBattleSquad = _opposingSquads[squadId];
+                _selectedBattleSquad = _opposingBattleSquads[squadId];
                 BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
             }
+        }
+
+        private void WoundResolver_OnSoldierDeath(BattleSoldier soldier)
+        {
+            _casualtyMap[soldier.Soldier.Id] = soldier;
+        }
+
+        private void WoundResolver_OnSoldierFall(BattleSoldier soldier)
+        {
+            _casualtyMap[soldier.Soldier.Id] = soldier;
+        }
+
+        private void MoveResolver_OnRetreat(BattleSoldier soldier)
+        {
+            Log(false, "<b>" + soldier.Soldier.ToString() + " has retreated from the battlefield</b>");
+            _casualtyMap[soldier.Soldier.Id] = soldier;
         }
 
         private void Plan(ConcurrentBag<IAction> shootSegmentActions, 
@@ -170,15 +196,15 @@ namespace Iam.Scripts.Controllers
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
-            foreach(BattleSquad squad in _playerSquads.Values)
+            foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
                 planner.PrepareActions(squad);
             };
             //Parallel.ForEach(_opposingSquads.Values, (squad) =>
-            foreach(BattleSquad squad in _opposingSquads.Values)
+            foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
                 planner.PrepareActions(squad);
             };
         }
@@ -226,18 +252,18 @@ namespace Iam.Scripts.Controllers
             // handle casualties
             foreach (BattleSoldier soldier in _casualtyMap.Values)
             {
-                RemoveSoldier(soldier, _soldierSquadMap[soldier.Soldier.Id]);
+                RemoveSoldier(soldier, _soldierBattleSquadMap[soldier.Soldier.Id]);
             }
 
             // redraw map
             RedrawSquadPositions();
             
             // update who's in melee
-            foreach(BattleSquad squad in _playerSquads.Values)
+            foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
                 UpdateSquadMeleeStatus(squad);
             }
-            foreach (BattleSquad squad in _opposingSquads.Values)
+            foreach (BattleSquad squad in _opposingBattleSquads.Values)
             {
                 UpdateSquadMeleeStatus(squad);
             }
@@ -256,12 +282,12 @@ namespace Iam.Scripts.Controllers
 
         private void RedrawSquadPositions()
         {
-            foreach(BattleSquad squad in _playerSquads.Values)
+            foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
                 var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
                 BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
             }
-            foreach(BattleSquad squad in _opposingSquads.Values)
+            foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
                 var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
                 BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
@@ -275,8 +301,10 @@ namespace Iam.Scripts.Controllers
             BattleView.SetMapSize(new Vector2(MAP_WIDTH, MAP_HEIGHT));
             _turnNumber = 0;
 
+            _playerBattleSquads.Clear();
+            _soldierBattleSquadMap.Clear();
+            _opposingBattleSquads.Clear();
             _playerSquads.Clear();
-            _soldierSquadMap.Clear();
             _opposingSquads.Clear();
 
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
@@ -286,13 +314,23 @@ namespace Iam.Scripts.Controllers
         {
             foreach (Unit unit in units)
             {
-                var battleSquads = unit.GetAllSquads().Where(s => !s.IsInReserve).Select(s => new BattleSquad(isPlayerSquad, s));
-                foreach (BattleSquad bs in battleSquads)
+                var activeSquads = unit.GetAllSquads().Where(s => !s.IsInReserve);
+                foreach (Squad squad in activeSquads)
                 {
+                    BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
+
                     map[bs.Id] = bs;
                     foreach(BattleSoldier soldier in bs.Soldiers)
                     {
-                        _soldierSquadMap[soldier.Soldier.Id] = bs;
+                        _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
+                    }
+                    if(isPlayerSquad)
+                    {
+                        _playerSquads.Add(squad);
+                    }
+                    else
+                    {
+                        _opposingSquads.Add(squad);
                     }
                 }
             }
@@ -344,27 +382,11 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void WoundResolver_OnSoldierDeath(BattleSoldier soldier)
-        {
-            _casualtyMap[soldier.Soldier.Id] = soldier;
-        }
-
-        private void WoundResolver_OnSoldierFall(BattleSoldier soldier)
-        {
-            _casualtyMap[soldier.Soldier.Id] = soldier;
-        }
-
-        private void MoveResolver_OnRetreat(BattleSoldier soldier)
-        {
-            Log(false, "<b>" + soldier.Soldier.ToString() + " has retreated from the battlefield</b>");
-            _casualtyMap[soldier.Soldier.Id] = soldier;
-        }
-
         private void RemoveSoldier(BattleSoldier soldier, BattleSquad squad)
         {
             squad.RemoveSoldier(soldier);
             _grid.RemoveSoldier(soldier.Soldier.Id);
-            _soldierSquadMap.Remove(soldier.Soldier.Id);
+            _soldierBattleSquadMap.Remove(soldier.Soldier.Id);
             if(squad.Soldiers.Count == 0)
             {
                 RemoveSquad(squad);
@@ -378,16 +400,77 @@ namespace Iam.Scripts.Controllers
             
             if(squad.IsPlayerSquad)
             {
-                _playerSquads.Remove(squad.Id);
+                _playerBattleSquads.Remove(squad.Id);
             }
             else
             {
-                _opposingSquads.Remove(squad.Id);
+                _opposingBattleSquads.Remove(squad.Id);
             }
 
             if(_selectedBattleSquad == squad)
             {
                 _selectedBattleSquad = null;
+            }
+        }
+    
+        private List<Soldier> RemoveSoldiersKilledInBattle()
+        {
+            List<Soldier> dead = new List<Soldier>();
+            foreach(Squad squad in _playerSquads)
+            {
+                foreach(Soldier soldier in squad.GetAllMembers())
+                {
+                    foreach(HitLocation hl in soldier.Body.HitLocations)
+                    {
+                        if(hl.Template.IsVital && hl.IsSevered)
+                        {
+                            // if a vital part is severed, they're dead
+                            dead.Add(soldier);
+                            break;
+                        }
+                    }
+                }
+            }
+            return dead;
+        }
+
+        private void LogBattleToChapterHistory(List<Soldier> killedInBattle)
+        {
+            List<EventHistory> eventHistories;
+            if (!GameSettings.Chapter.BattleHistory.ContainsKey(GameSettings.Date))
+            {
+                eventHistories = new List<EventHistory>();
+                GameSettings.Chapter.BattleHistory[GameSettings.Date] = eventHistories;
+            }
+            else
+            {
+                eventHistories = GameSettings.Chapter.BattleHistory[GameSettings.Date];
+            }
+            EventHistory battleLog = new EventHistory();
+            eventHistories.Add(battleLog);
+
+            WriteBattleLog(battleLog, killedInBattle);
+        }
+
+        private void WriteBattleLog(EventHistory battleLog, List<Soldier> killedInBattle)
+        {
+            battleLog.EventTitle = "A skirmish on " + _planet.Name;
+            int marineCount = _playerSquads.Sum(s => s.GetAllMembers().Count());
+            int enemyCount = _opposingSquads.Sum(s => s.GetAllMembers().Count());
+            battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + enemyCount.ToString() + " enemies");
+            foreach(Soldier soldier in killedInBattle)
+            {
+                SpaceMarine marine = (SpaceMarine)soldier;
+                battleLog.SubEvents.Add(marine.Rank.Name + " " + marine.ToString() + " fell in battle");
+                if(marine.AssignedSquad.SquadLeader == marine)
+                {
+                    marine.AssignedSquad.SquadLeader = null;
+                }
+                else
+                {
+                    marine.AssignedSquad.Members.Remove(marine);
+                }
+                marine.AssignedSquad = null;
             }
         }
     }

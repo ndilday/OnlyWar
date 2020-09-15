@@ -103,9 +103,11 @@ public class SquadArmamentView : MonoBehaviour
 
     public List<Tuple<string, int>> GetSelections()
     {
-        List<Tuple<string, int>> list = new List<Tuple<string, int>>();
-        list.Add(new Tuple<string, int>(_default.Label.text, _default.CurrentValue));
-        foreach(NumberPicker child in _default.Children)
+        List<Tuple<string, int>> list = new List<Tuple<string, int>>
+        {
+            new Tuple<string, int>(_default.Label.text, _default.CurrentValue)
+        };
+        foreach (NumberPicker child in _default.Children)
         {
             foreach(NumberPicker leaf in child.Children)
             {

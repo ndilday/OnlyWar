@@ -185,6 +185,7 @@ namespace Iam.Scripts.Models.Equippables
             Location = EquipLocation.TwoHand,
             PenetrationMultiplier = 3f,
             RateOfFire = 1,
+            Recoil = 1,
             BaseStrength = 12f,
             MaximumDistance = 2000,
             DoesDamageDegradeWithRange = false,

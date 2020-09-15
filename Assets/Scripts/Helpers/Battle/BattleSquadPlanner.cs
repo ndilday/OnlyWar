@@ -86,8 +86,39 @@ namespace Iam.Scripts.Helpers.Battle
                     }
                     else if (preferredHitDistance == 0)
                     {
-                        advanceVotes++;
-                        chargeVotes++;
+                        if (soldier.EquippedRangedWeapons.Count >= 1)
+                        {
+                            float desperateHitDistance = EstimateArmorPenDistance(soldier.EquippedRangedWeapons[0], targetArmor);
+                            desperateHitDistance = Mathf.Min(desperateHitDistance, EstimateHitDistance(soldier.Soldier, soldier.EquippedRangedWeapons[0], targetSize, soldier.HandsFree));
+                            if (desperateHitDistance > 0)
+                            {
+                                float targetPreferredDistance = CalculateOptimalDistance(closestSquad.GetRandomSquadMember(),
+                                                                           soldier.Soldier.Size,
+                                                                           soldier.Armor.Template.ArmorProvided,
+                                                                           soldier.Soldier.Constitution);
+
+                                if (desperateHitDistance < targetPreferredDistance)
+                                {
+                                    // advance
+                                    advanceVotes++;
+                                }
+                                else
+                                {
+                                    // don't advance
+                                    standVotes++;
+                                }
+                            }
+                            else
+                            {
+                                advanceVotes++;
+                                chargeVotes++;
+                            }
+                        }
+                        else
+                        {
+                            advanceVotes++;
+                            chargeVotes++;
+                        }
                     }
                     else if (distance > preferredHitDistance * 3)
                     {
@@ -459,6 +490,20 @@ namespace Iam.Scripts.Helpers.Battle
             if ((weapon.Template.BaseStrength * 6 - effectiveArmor) * weapon.Template.PenetrationMultiplier < targetCon) return 0;
             // find the range with a 1/3 chance of a killshot
             float distanceRatio = 1 - (((targetCon / weapon.Template.PenetrationMultiplier) + effectiveArmor) / (4.25f * weapon.Template.BaseStrength));
+            if (distanceRatio < 0) return 0;
+            return weapon.Template.MaximumDistance * distanceRatio;
+        }
+
+        private float EstimateArmorPenDistance(RangedWeapon weapon, float targetArmor)
+        {
+            // if range doesn't matter for damage, we can just limit on hitting 
+            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
+            float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
+
+            // if there's no chance of doing a wound, maybe we should run?
+            if (weapon.Template.BaseStrength * 6 < effectiveArmor) return -1;
+            // find the range with a 1/3 chance of armor pen
+            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.BaseStrength));
             if (distanceRatio < 0) return 0;
             return weapon.Template.MaximumDistance * distanceRatio;
         }

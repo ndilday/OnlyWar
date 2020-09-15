@@ -14,7 +14,7 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public uint WoundTotal { get; private set; }
         public const byte WOUND_MAX = 5;
-        public byte WeeksOfHealing { get; set; }
+        public uint WeeksOfHealing { get; set; }
         
         public byte NegligibleWounds
         {
@@ -119,6 +119,88 @@ namespace Iam.Scripts.Models.Soldiers
                 WoundTotal &= 0xf0ffffff;
                 WoundTotal += (uint)WoundLevel.Unsurvivable;
             }
+        }
+
+        public void ApplyWeekOfHealing()
+        {
+            WeeksOfHealing += 0x11111100;
+            // negligible and minor wounds heal automatically
+            WoundTotal &= 0xffffff00;
+            if(UnsurvivableWounds > 0 && (WeeksOfHealing & 0xf0000000) > 0x60000000)
+            {
+                byte newMortalWounds = UnsurvivableWounds;
+                WeeksOfHealing &= 0x0fffffff;
+                WoundTotal &= 0x0fffffff;
+                WoundTotal += (uint)(newMortalWounds * 0x01000000);
+            }
+            if (MortalWounds > 0 && (WeeksOfHealing & 0x0f000000) > 0x05000000)
+            {
+                byte newMassiveWounds = MortalWounds;
+                WeeksOfHealing &= 0xf0ffffff;
+                WoundTotal &= 0xf0ffffff;
+                WoundTotal += (uint)(newMassiveWounds * 0x00100000);
+            }
+            if (MassiveWounds > 0 && (WeeksOfHealing & 0x00f00000) > 0x00400000)
+            {
+                byte newCriticalWounds = MassiveWounds;
+                WeeksOfHealing &= 0xff0fffff;
+                WoundTotal &= 0xff0fffff;
+                WoundTotal += (uint)(newCriticalWounds * 0x00010000);
+            }
+            if (CriticalWounds > 0 && (WeeksOfHealing & 0x000f0000) > 0x00030000)
+            {
+                byte newMajorWounds = CriticalWounds;
+                WeeksOfHealing &= 0xfff0ffff;
+                WoundTotal &= 0xfff0ffff;
+                WoundTotal += (uint)(newMajorWounds * 0x00001000);
+            }
+            if (MajorWounds > 0 && (WeeksOfHealing & 0x0000f000) > 0x00002000)
+            {
+                byte newModerateWounds = MajorWounds;
+                WeeksOfHealing &= 0xffff0fff;
+                WoundTotal &= 0xffff0fff;
+                WoundTotal += (uint)(newModerateWounds * 0x00000100);
+            }
+            if (ModerateWounds > 0 && (WeeksOfHealing & 0x00000f00) > 0x00000100)
+            {
+                byte newMinorWounds = ModerateWounds;
+                WeeksOfHealing &= 0xfffff0ff;
+                WoundTotal &= 0xfffff0ff;
+                WoundTotal += (uint)(newMinorWounds * 0x00000010);
+            }
+        }
+
+        public byte RecoveryTimeLeft()
+        {
+            if (UnsurvivableWounds > 0)
+            {
+                return (byte)(28 - (WeeksOfHealing & 0xf0000000) / 0x10000000);
+            }
+            if (MortalWounds > 0)
+            {
+                return (byte)(21 - (WeeksOfHealing & 0x0f000000) / 0x01000000);
+            }
+            if (MassiveWounds > 0)
+            {
+                return (byte)(15 - (WeeksOfHealing & 0x00f00000) / 0x00100000);
+            }
+            if (CriticalWounds > 0)
+            {
+                return (byte)(10 - (WeeksOfHealing & 0x000f0000) / 0x00010000);
+            }
+            if (MajorWounds > 0)
+            {
+                return (byte)(6 - (WeeksOfHealing & 0x0000f000) / 0x00001000);
+            }
+            if (ModerateWounds > 0)
+            {
+                return (byte)(3 - (WeeksOfHealing & 0x00000f00) / 0x00000100);
+            }
+            if (MinorWounds > 0)
+            {
+                return 1;
+            }
+            return 0;
         }
     }
 
