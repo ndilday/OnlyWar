@@ -85,7 +85,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
                 foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
                 {
                     _squadMap[company.HQSquad.Id] = company.HQSquad;
-                    if (company.Squads == null || company.Squads.Count == 0)
+                    if (company.Squads?.Count == 0)
                     {
                         // this is unexpected, currently
                         Debug.Log("We have a company with no squads?");

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Units;
-using UnityEngine;
 
 namespace Iam.Scripts.Models.Soldiers
 {
@@ -10,7 +9,6 @@ namespace Iam.Scripts.Models.Soldiers
         public int Id;
         public abstract string JobRole { get; }
         public Squad AssignedSquad;
-        public List<Equippable> Equipment;
 
         public float Strength;
         public float Dexterity;
@@ -30,16 +28,18 @@ namespace Iam.Scripts.Models.Soldiers
         // in fiction, Impys and Marines move at the same speed, 6"
         // with 2s turns, a double time move of 6yd would match the 6" speed of double time
         public float MoveSpeed;
-
+        private readonly Dictionary<WeaponTemplate, ushort> _weaponCasualtyCountMap;
+        private readonly Dictionary<Faction, ushort> _factionCasualtyCountMap;
         public Dictionary<int, Skill> Skills;
         public List<string> SoldierHistory;
         public Body Body { get; private set; }
 
         public Soldier()
         {
-            Equipment = new List<Equippable>();
             SoldierHistory = new List<string>();
             Skills = new Dictionary<int, Skill>();
+            _weaponCasualtyCountMap = new Dictionary<WeaponTemplate, ushort>();
+            _factionCasualtyCountMap = new Dictionary<Faction, ushort>();
         }
 
         public void InitializeBody(BodyTemplate bodyTemplate)
@@ -68,6 +68,27 @@ namespace Iam.Scripts.Models.Soldiers
             }
 
             return Skills[skill.Id].SkillBonus + attribute;
+        }
+
+        public void AddKill(Faction faction, WeaponTemplate weapon)
+        {
+            if(_weaponCasualtyCountMap.ContainsKey(weapon))
+            {
+                _weaponCasualtyCountMap[weapon]++;
+            }
+            else
+            {
+                _weaponCasualtyCountMap[weapon] = 1;
+            }
+
+            if (_factionCasualtyCountMap.ContainsKey(faction))
+            {
+                _factionCasualtyCountMap[faction]++;
+            }
+            else
+            {
+                _factionCasualtyCountMap[faction] = 1;
+            }
         }
 
         private float GetStatForBaseAttribute(SkillAttribute attribute)

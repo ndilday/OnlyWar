@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 
@@ -8,6 +9,7 @@ namespace Iam.Scripts.Helpers.Battle
 {
     public class BattleSoldier
     {
+        private ushort _enemiesTakenOut;
         public Soldier Soldier { get; private set; }
 
         public Tuple<int, int> Location { get; set; }
@@ -23,6 +25,20 @@ namespace Iam.Scripts.Helpers.Battle
         public bool IsInMelee { get; set; }
         public Stance Stance { get; set; }
         public float CurrentSpeed { get; set; }
+
+        public float TurnsRunning { get; set; }
+        public ushort TurnsShooting { get; set; }
+        public ushort TurnsSwinging { get; set; } 
+        public ushort TurnsAiming { get; set; }
+        public uint WoundsTaken { get; set; }
+
+        public ushort EnemiesTakenDown 
+        { 
+            get
+            {
+                return _enemiesTakenOut;
+            }
+        }
         public int HandsFree
         {
             get
@@ -54,15 +70,16 @@ namespace Iam.Scripts.Helpers.Battle
             IsInMelee = false;
             Stance = Stance.Standing;
             CurrentSpeed = 0;
+            _enemiesTakenOut = 0;
         }
         
         public void AddWeapons(List<RangedWeapon> rangedWeapons, List<MeleeWeapon> meleeWeapons)
         {
-            if (rangedWeapons != null && rangedWeapons.Count > 0)
+            if (rangedWeapons?.Count > 0)
             {
                 RangedWeapons.AddRange(rangedWeapons);
             }
-            if (meleeWeapons != null && meleeWeapons.Count > 0)
+            if (meleeWeapons?.Count > 0)
             {
                 MeleeWeapons.AddRange(meleeWeapons);
             }
@@ -123,6 +140,12 @@ namespace Iam.Scripts.Helpers.Battle
             float baseMoveSpeed = Soldier.MoveSpeed;
             //soldier.Body.HitLocations.Where(hl => hl)
             return baseMoveSpeed;
+        }
+
+        public void AddKill(Faction faction, WeaponTemplate weapon)
+        {
+            _enemiesTakenOut++;
+            Soldier.AddKill(faction, weapon);
         }
 
         public override string ToString()

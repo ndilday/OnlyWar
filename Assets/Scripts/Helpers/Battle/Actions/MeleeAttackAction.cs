@@ -49,6 +49,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                         HandleHit();
                     }
                 }
+                _attacker.TurnsSwinging++;
             }
             else
             {
@@ -74,7 +75,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 if (penDamage > 0)
                 {
                     float totalDamage = penDamage * _weapon.Template.PenetrationMultiplier;
-                    _resultList.Add(new WoundResolution(_target, totalDamage, hitLocation));
+                    _resultList.Add(new WoundResolution(_attacker, _weapon.Template, _target, totalDamage, hitLocation));
                 }
             }
         }

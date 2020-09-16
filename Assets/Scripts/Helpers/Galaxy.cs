@@ -7,9 +7,9 @@ namespace Iam.Scripts.Helpers
 {
     public class Galaxy
     {
-        private int _galaxySize;
-        public List<Planet> Planets;
-        public List<Fleet> Fleets;
+        private readonly int _galaxySize;
+        public readonly List<Planet> Planets;
+        public readonly List<Fleet> Fleets;
 
         public Galaxy(int galaxySize)
         {
@@ -68,9 +68,11 @@ namespace Iam.Scripts.Helpers
         public void AddFleet()
         {
             int startingPlanet = Planets.Count / 2;
-            Fleet fleet = new Fleet();
-            fleet.Planet = Planets[startingPlanet];
-            fleet.Destination = null;
+            Fleet fleet = new Fleet
+            {
+                Planet = Planets[startingPlanet],
+                Destination = null
+            };
             fleet.Position = fleet.Planet.Position;
             Planets[startingPlanet].LocalFleet = fleet;
             Planets[startingPlanet].ControllingFaction = TempFactions.Instance.SpaceMarines;

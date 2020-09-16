@@ -281,7 +281,7 @@ namespace Iam.Scripts.Controllers
             while (i < _galaxy.Planets.Count)
             {
                 Planet planet = _galaxy.GetPlanet(i);
-                if (planet.FactionGroundUnitListMap != null && planet.FactionGroundUnitListMap.Keys.Count > 1)
+                if (planet.FactionGroundUnitListMap?.Keys.Count > 1)
                 {
                     // a battle breaks out on this planet
                     Debug.Log("Battle breaks out on " + planet.Name);

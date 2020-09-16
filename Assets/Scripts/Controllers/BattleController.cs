@@ -39,6 +39,7 @@ namespace Iam.Scripts.Controllers
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
+        private Faction _opposingFaction;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -61,26 +62,24 @@ namespace Iam.Scripts.Controllers
 
         public void GalaxyController_OnBattleStarted(Planet planet)
         {
-            ResetValues();
             _planet = planet;
+            ResetBattleValues();
 
-            foreach(KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
             {
-                if(kvp.Key == TempFactions.Instance.SpaceMarines.Id)
+                if (kvp.Key == TempFactions.Instance.SpaceMarines.Id)
                 {
                     PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
+                    // TODO: clean this up when we add more factions
+                    _opposingFaction = TempFactions.Instance.Tyranids;
                     PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
 
-            BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
-            var playerPlacements = placer.PlaceSquads(_playerBattleSquads.Values);
-            PopulateBattleViewSquads(playerPlacements);
-            var oppPlacements = placer.PlaceSquads(_opposingBattleSquads.Values);
-            PopulateBattleViewSquads(oppPlacements);
+            PopulateBattleView();
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
@@ -88,71 +87,11 @@ namespace Iam.Scripts.Controllers
         {
             if (_playerBattleSquads.Count() > 0 && _opposingBattleSquads.Count() > 0)
             {
-                _turnNumber++;
-                BattleView.UpdateNextStepButton("Next Turn", false);
-                BattleView.ClearBattleLog();
-                _grid.ClearReservations();
-                _casualtyMap.Clear();
-                Log(false, "Turn " + _turnNumber.ToString());
-                // this is a three step process: plan, execute, and apply
-
-                ConcurrentBag<IAction> moveSegmentActions = new ConcurrentBag<IAction>();
-                ConcurrentBag<IAction> shootSegmentActions = new ConcurrentBag<IAction>();
-                ConcurrentBag<IAction> meleeSegmentActions = new ConcurrentBag<IAction>();
-                ConcurrentQueue<string> log = new ConcurrentQueue<string>();
-                Plan(shootSegmentActions, moveSegmentActions, meleeSegmentActions, log);
-                while (!log.IsEmpty)
-                {
-                    log.TryDequeue(out string line);
-                    Log(false, line);
-                }
-                
-                HandleShootingAndMoving(shootSegmentActions, moveSegmentActions);
-                while (!log.IsEmpty)
-                {
-                    log.TryDequeue(out string line);
-                    Log(false, line);
-                }
-
-                HandleMelee(meleeSegmentActions);
-                while (!log.IsEmpty)
-                {
-                    log.TryDequeue(out string line);
-                    Log(false, line);
-                }
-
-                ProcessWounds();
-                CleanupAtEndOfTurn();
-                
-                if (_selectedBattleSquad != null)
-                {
-                    if (_selectedBattleSquad.IsPlayerSquad)
-                    {
-                        BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
-                    }
-                    else
-                    {
-                        BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
-                    }
-                }
-
-                if (_playerBattleSquads.Count() == 0 || _opposingBattleSquads.Count() == 0)
-                {
-                    Log(false, "One side destroyed, battle over");
-                    BattleView.UpdateNextStepButton("End Battle", true);
-                }
-                else
-                {
-                    BattleView.UpdateNextStepButton("Next Turn", true);
-                }
+                ProcessNextTurn();
             }
             else
             {
-                Debug.Log("Battle completed");
-                List<Soldier> dead = RemoveSoldiersKilledInBattle();
-                LogBattleToChapterHistory(dead);
-                BattleView.gameObject.SetActive(false);
-                OnBattleComplete.Invoke();
+                ProcessEndOfBattle();
             }
         }
 
@@ -170,20 +109,120 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void WoundResolver_OnSoldierDeath(BattleSoldier soldier)
+        private void WoundResolver_OnSoldierDeath(BattleSoldier casualty, BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            _casualtyMap[soldier.Soldier.Id] = soldier;
+            _casualtyMap[casualty.Soldier.Id] = casualty;
+            if(casualty.Squad.IsPlayerSquad)
+            {
+                // add death note to soldier history, though we currently just delete it 
+                // we'll probably want it later
+                casualty.Soldier.SoldierHistory.Add($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
+            }
+            else
+            {
+                // give the inflicter credit for downing this enemy
+                // WARNING: this will lead to multi-counting in some cases
+                // I may later try to divide credit, but having multiple soldiers 
+                // claim credit feels pseudo-realistic for now
+                CreditSoldierForKill(inflicter, weapon);
+            }
         }
 
-        private void WoundResolver_OnSoldierFall(BattleSoldier soldier)
+        private void WoundResolver_OnSoldierFall(BattleSoldier fallenSoldier, BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            _casualtyMap[soldier.Soldier.Id] = soldier;
+            _casualtyMap[fallenSoldier.Soldier.Id] = fallenSoldier;
+            if(!fallenSoldier.Squad.IsPlayerSquad)
+            {
+                // give the inflicter credit for downing this enemy
+                // WARNING: this will lead to multi-counting in some cases
+                // I may later try to divide credit, but having multiple soldiers 
+                // claim credit feels pseudo-realistic for now
+                CreditSoldierForKill(inflicter, weapon);
+            }
         }
 
         private void MoveResolver_OnRetreat(BattleSoldier soldier)
         {
             Log(false, "<b>" + soldier.Soldier.ToString() + " has retreated from the battlefield</b>");
             _casualtyMap[soldier.Soldier.Id] = soldier;
+        }
+
+        private void ProcessNextTurn()
+        {
+            _turnNumber++;
+            BattleView.UpdateNextStepButton("Next Turn", false);
+            BattleView.ClearBattleLog();
+            _grid.ClearReservations();
+            _casualtyMap.Clear();
+            Log(false, "Turn " + _turnNumber.ToString());
+            // this is a three step process: plan, execute, and apply
+
+            ConcurrentBag<IAction> moveSegmentActions = new ConcurrentBag<IAction>();
+            ConcurrentBag<IAction> shootSegmentActions = new ConcurrentBag<IAction>();
+            ConcurrentBag<IAction> meleeSegmentActions = new ConcurrentBag<IAction>();
+            ConcurrentQueue<string> log = new ConcurrentQueue<string>();
+            Plan(shootSegmentActions, moveSegmentActions, meleeSegmentActions, log);
+            while (!log.IsEmpty)
+            {
+                log.TryDequeue(out string line);
+                Log(false, line);
+            }
+
+            HandleShootingAndMoving(shootSegmentActions, moveSegmentActions);
+            while (!log.IsEmpty)
+            {
+                log.TryDequeue(out string line);
+                Log(false, line);
+            }
+
+            HandleMelee(meleeSegmentActions);
+            while (!log.IsEmpty)
+            {
+                log.TryDequeue(out string line);
+                Log(false, line);
+            }
+
+            ProcessWounds();
+            CleanupAtEndOfTurn();
+
+            if (_selectedBattleSquad?.IsPlayerSquad == true)
+            {
+                BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
+            }
+            else
+            {
+                BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
+            }
+
+            if (_playerBattleSquads.Count() == 0 || _opposingBattleSquads.Count() == 0)
+            {
+                Log(false, "One side destroyed, battle over");
+                BattleView.UpdateNextStepButton("End Battle", true);
+            }
+            else
+            {
+                BattleView.UpdateNextStepButton("Next Turn", true);
+            }
+        }
+
+        private void ProcessEndOfBattle()
+        {
+            Debug.Log("Battle completed");
+            ProcessSoldierHistoryForBattle();
+            ApplySoldierExperienceForBattle();
+            List<Soldier> dead = RemoveSoldiersKilledInBattle();
+            LogBattleToChapterHistory(dead);
+            BattleView.gameObject.SetActive(false);
+            OnBattleComplete.Invoke();
+        }
+
+        private void PopulateBattleView()
+        {
+            BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
+            var playerPlacements = placer.PlaceSquads(_playerBattleSquads.Values);
+            PopulateBattleViewSquads(playerPlacements);
+            var oppPlacements = placer.PlaceSquads(_opposingBattleSquads.Values);
+            PopulateBattleViewSquads(oppPlacements);
         }
 
         private void Plan(ConcurrentBag<IAction> shootSegmentActions, 
@@ -294,7 +333,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void ResetValues()
+        private void ResetBattleValues()
         {
             BattleView.gameObject.SetActive(true);
             BattleView.Clear();
@@ -412,7 +451,81 @@ namespace Iam.Scripts.Controllers
                 _selectedBattleSquad = null;
             }
         }
-    
+
+        private void ProcessSoldierHistoryForBattle()
+        {
+            foreach (BattleSquad squad in _playerBattleSquads.Values)
+            {
+                foreach (BattleSoldier soldier in squad.Soldiers)
+                {
+                    string historyEntry = GameSettings.Date.ToString() + ": Fought in a skirmish on " + _planet.Name;
+                    if(soldier.EnemiesTakenDown > 0)
+                    {
+                        historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}.";
+                    }
+                    if(soldier.WoundsTaken > 0)
+                    {
+                        foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
+                        {
+                            if(hl.IsSevered)
+                            {
+                                historyEntry += $" Lost his {hl.Template.Name} in the fighting.";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ApplySoldierExperienceForBattle()
+        {
+            // each wound is .005 CON, for now
+            // each turn shooting is .0005 for both DEX and the gun skill
+            // each turn aiming is .0005 for the gun skill
+            // each turn swinging is .0005 for ST and the melee skill
+            foreach(BattleSquad squad in _playerBattleSquads.Values)
+            {
+                foreach(BattleSoldier soldier in squad.Soldiers)
+                {
+                    if (soldier.RangedWeapons.Count > 0)
+                    {
+                        if (soldier.TurnsAiming > 0)
+                        {
+                            soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill, 
+                                                           soldier.TurnsAiming * 0.0005f);
+                        }
+                        if (soldier.TurnsShooting > 0)
+                        {
+                            soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill,
+                                                           soldier.TurnsShooting * 0.0005f);
+                            float curPoints = Mathf.Pow(2, soldier.Soldier.Dexterity - 11) * 10;
+                            soldier.Soldier.Dexterity = Mathf.Log((curPoints + (0.0005f * soldier.TurnsShooting)) / 10.0f, 2) + 11;
+                        }
+                    }
+                    if (soldier.WoundsTaken > 0)
+                    {
+                        float curPoints = Mathf.Pow(2, soldier.Soldier.Constitution - 11) * 10;
+                        soldier.Soldier.Constitution = Mathf.Log((curPoints + (0.0005f * soldier.WoundsTaken)) / 10.0f, 2) + 11;
+                    }
+                    if (soldier.TurnsSwinging > 0)
+                    {
+                        if (soldier.MeleeWeapons.Count > 0)
+                        {
+                            soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill,
+                                                               soldier.TurnsSwinging * 0.0005f);
+                        }
+                        else
+                        {
+                            soldier.Soldier.AddSkillPoints(TempBaseSkillList.Instance.Fist,
+                                                               soldier.TurnsSwinging * 0.0005f);
+                        }
+                        float curPoints = Mathf.Pow(2, soldier.Soldier.Strength - 11) * 10;
+                        soldier.Soldier.Strength = Mathf.Log((curPoints + (0.0005f * soldier.TurnsSwinging)) / 10.0f, 2) + 11;
+                    }
+                }
+            }
+        }
+
         private List<Soldier> RemoveSoldiersKilledInBattle()
         {
             List<Soldier> dead = new List<Soldier>();
@@ -472,6 +585,11 @@ namespace Iam.Scripts.Controllers
                 }
                 marine.AssignedSquad = null;
             }
+        }
+    
+        private void CreditSoldierForKill(BattleSoldier inflicter, WeaponTemplate weapon)
+        {
+            inflicter.AddKill(_opposingFaction, weapon);
         }
     }
 }

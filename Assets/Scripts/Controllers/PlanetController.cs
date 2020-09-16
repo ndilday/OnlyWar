@@ -32,7 +32,7 @@ namespace Iam.Scripts.Controllers
             UnitTreeView.ClearTree();
             _squadMap.Clear();
             CreateScoutingReport(planet);
-            if(unitList != null && unitList.Count > 0)
+            if(unitList?.Count > 0)
             {
                 PopulateUnitTree(unitList);
             }

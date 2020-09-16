@@ -9,8 +9,8 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
 {
     public class WoundResolver : IResolver
     {
-        public UnityEvent<BattleSoldier> OnSoldierDeath;
-        public UnityEvent<BattleSoldier> OnSoldierFall;
+        public UnityEvent<BattleSoldier, BattleSoldier, WeaponTemplate> OnSoldierDeath;
+        public UnityEvent<BattleSoldier, BattleSoldier, WeaponTemplate> OnSoldierFall;
 
         private readonly bool _allowVerbose;
         public string ResolutionLog { get; private set; }
@@ -21,8 +21,8 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             WoundQueue = new ConcurrentBag<WoundResolution>();
             _allowVerbose = allowVerbose;
             ResolutionLog = "";
-            OnSoldierDeath = new UnityEvent<BattleSoldier>();
-            OnSoldierFall = new UnityEvent<BattleSoldier>();
+            OnSoldierDeath = new UnityEvent<BattleSoldier, BattleSoldier, WeaponTemplate>();
+            OnSoldierFall = new UnityEvent<BattleSoldier, BattleSoldier, WeaponTemplate>();
         }
 
         public void Resolve()
@@ -31,88 +31,89 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
             while(!WoundQueue.IsEmpty)
             {
                 WoundQueue.TryTake(out WoundResolution wound);
-                HandleWound(wound.Damage, wound.Soldier, wound.HitLocation);
+                HandleWound(wound);
             }
         }
 
-        private void HandleWound(float totalDamage, BattleSoldier hitSoldier, HitLocation location)
+        private void HandleWound(WoundResolution wound)
         {
-            if (location.IsSevered)
+            if (wound.HitLocation.IsSevered)
             {
                 // this shouldn't happen, as we check elsewhere
-                Log(true, location.Template.Name + " was previously severed");
+                Log(true, wound.HitLocation.Template.Name + " was previously severed");
             }
             else
             {
-                WoundLevel wound;
-                // check location for natural armor
-                totalDamage -= location.Template.NaturalArmor;
+                float totalDamage = wound.Damage;
+                WoundLevel woundLevel;
+                // check wound.HitLocation for natural armor
+                totalDamage -= wound.HitLocation.Template.NaturalArmor;
                 // for now, natural armor reducing the damange below 0 will still cause a Negligible injury
-                // multiply damage by location modifier
-                totalDamage *= location.Template.DamageMultiplier;
+                // multiply damage by wound.HitLocation modifier
+                totalDamage *= wound.HitLocation.Template.DamageMultiplier;
                 // compare total damage to soldier Constitution
-                float ratio = totalDamage / hitSoldier.Soldier.Constitution;
+                float ratio = totalDamage / wound.Suffererer.Soldier.Constitution;
                 if (ratio >= 8.0f)
                 {
-                    wound = WoundLevel.Unsurvivable;
+                    woundLevel = WoundLevel.Unsurvivable;
                 }
                 else if (ratio >= 4.0f)
                 {
-                    wound = WoundLevel.Mortal;
+                    woundLevel = WoundLevel.Mortal;
                 }
                 else if (ratio >= 2f)
                 {
-                    wound = WoundLevel.Massive;
+                    woundLevel = WoundLevel.Massive;
                 }
                 else if (ratio >= 1f)
                 {
-                    wound = WoundLevel.Critical;
+                    woundLevel = WoundLevel.Critical;
                 }
                 else if (ratio >= 0.5f)
                 {
-                    wound = WoundLevel.Major;
+                    woundLevel = WoundLevel.Major;
                 }
                 else if (ratio >= 0.25f)
                 {
-                    wound = WoundLevel.Moderate;
+                    woundLevel = WoundLevel.Moderate;
                 }
                 else if (ratio >= 0.125f)
                 {
-                    wound = WoundLevel.Minor;
+                    woundLevel = WoundLevel.Minor;
                 }
                 else
                 {
-                    wound = WoundLevel.Negligible;
+                    woundLevel = WoundLevel.Negligible;
                 }
-                location.Wounds.AddWound(wound);
+                wound.HitLocation.Wounds.AddWound(woundLevel);
 
-                // see if location is now severed
-                if (location.IsSevered || location.IsCrippled)
+                // see if wound.HitLocation is now severed
+                if (wound.HitLocation.IsSevered || wound.HitLocation.IsCrippled)
                 {
                     // if severed, see if it's an arm or leg
-                    if (location.Template.IsMotive)
+                    if (wound.HitLocation.Template.IsMotive)
                     {
-                        Log(false, "<b>" + hitSoldier.Soldier.ToString() + " can no longer walk</b>");
-                        OnSoldierFall.Invoke(hitSoldier);
+                        Log(false, "<b>" + wound.Suffererer.Soldier.ToString() + " can no longer walk</b>");
+                        OnSoldierFall.Invoke(wound.Suffererer, wound.Inflicter, wound.Weapon);
                     }
-                    else if(location.Template.IsRangedWeaponHolder)
+                    else if(wound.HitLocation.Template.IsRangedWeaponHolder)
                     {
-                        if(hitSoldier.EquippedRangedWeapons.Count > 0 && hitSoldier.EquippedRangedWeapons[0].Template.Location == EquipLocation.OneHand)
+                        if(wound.Suffererer.EquippedRangedWeapons.Count > 0 && wound.Suffererer.EquippedRangedWeapons[0].Template.Location == EquipLocation.OneHand)
                         {
-                            hitSoldier.EquippedRangedWeapons.RemoveAt(0);
+                            wound.Suffererer.EquippedRangedWeapons.RemoveAt(0);
                         }
                     }
-                    else if(location.Template.IsMeleeWeaponHolder)
+                    else if(wound.HitLocation.Template.IsMeleeWeaponHolder)
                     {
-                        if (hitSoldier.EquippedMeleeWeapons.Count > 0 && hitSoldier.EquippedMeleeWeapons[0].Template.Location == EquipLocation.OneHand)
+                        if (wound.Suffererer.EquippedMeleeWeapons.Count > 0 && wound.Suffererer.EquippedMeleeWeapons[0].Template.Location == EquipLocation.OneHand)
                         {
-                            hitSoldier.EquippedMeleeWeapons.RemoveAt(0);
+                            wound.Suffererer.EquippedMeleeWeapons.RemoveAt(0);
                         }
                     }
-                    if(location.Template.IsVital && location.IsSevered)
+                    if(wound.HitLocation.Template.IsVital && wound.HitLocation.IsSevered)
                     {
-                        Log(false, "<b>" + hitSoldier.Soldier.ToString() + " has succumbed to their wounds</b>");
-                        OnSoldierFall.Invoke(hitSoldier);
+                        Log(false, "<b>" + wound.Suffererer.Soldier.ToString() + " has succumbed to their wounds</b>");
+                        OnSoldierFall.Invoke(wound.Suffererer, wound.Inflicter, wound.Weapon);
                     }
                 }
             }

@@ -50,6 +50,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                     _numberOfShots--;
                 } while (total > 1 && _numberOfShots > 0);
             }
+            _soldier.TurnsShooting++;
         }
 
         private float CalculateToHitModifiers()
@@ -59,7 +60,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             {
                 totalModifier -= _weapon.Template.Bulk;
             }
-            if(_soldier.Aim != null && _soldier.Aim.Item1 == _target && _soldier.Aim.Item2 == _weapon)
+            if(_soldier.Aim?.Item1 == _target && _soldier.Aim?.Item2 == _weapon)
             {
                 totalModifier += _soldier.Aim.Item3 + _weapon.Template.Accuracy + 1;
             }
@@ -82,7 +83,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 if (penDamage > 0)
                 {
                     float totalDamage = penDamage * _weapon.Template.PenetrationMultiplier;
-                    _resultList.Add(new WoundResolution(_target, totalDamage, hitLocation));
+                    _resultList.Add(new WoundResolution(_soldier, _weapon.Template, _target, totalDamage, hitLocation));
                 }
             }
         }

@@ -21,6 +21,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         public void Execute()
         {
             _resultList.Add(new MoveResolution(_soldier, _grid, _newLocation));
+            _soldier.TurnsShooting++;
         }
     }
 }

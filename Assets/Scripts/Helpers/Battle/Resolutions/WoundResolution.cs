@@ -1,16 +1,21 @@
-﻿using Iam.Scripts.Models.Soldiers;
+﻿using Iam.Scripts.Models.Equippables;
+using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers.Battle.Resolutions
 {
     public class WoundResolution
     {
-        public BattleSoldier Soldier { get; private set; }
-        public float Damage { get; private set; }
-        public HitLocation HitLocation { get; private set; }
+        public BattleSoldier Inflicter { get; }
+        public WeaponTemplate Weapon { get; }
+        public BattleSoldier Suffererer { get; }
+        public float Damage { get; }
+        public HitLocation HitLocation { get; }
 
-        public WoundResolution(BattleSoldier soldier, float damage, HitLocation hitLocation)
+        public WoundResolution(BattleSoldier inflicter, WeaponTemplate weapon, BattleSoldier sufferer, float damage, HitLocation hitLocation)
         {
-            Soldier = soldier;
+            Inflicter = inflicter;
+            Weapon = weapon;
+            Suffererer = sufferer;
             Damage = damage;
             HitLocation = hitLocation;
         }

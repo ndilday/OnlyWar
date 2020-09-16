@@ -86,7 +86,7 @@ namespace Iam.Scripts.Helpers.Battle
             int squadSize = 0;
             foreach(BattleSoldier soldier in Soldiers)
             {
-                if(soldier != null && soldier.Armor != null)
+                if(soldier.Armor != null)
                 {
                     runningTotal += soldier.Armor.Template.ArmorProvided;
                     squadSize++;
@@ -102,11 +102,8 @@ namespace Iam.Scripts.Helpers.Battle
             float runningTotal = 0;
             foreach(BattleSoldier soldier in Soldiers)
             {
-                if(soldier != null)
-                {
-                    runningTotal += soldier.Soldier.Size;
-                    squadSize += 1.0f;
-                }
+                runningTotal += soldier.Soldier.Size;
+                squadSize += 1.0f;
             }
             return runningTotal / squadSize;
         }
@@ -117,24 +114,21 @@ namespace Iam.Scripts.Helpers.Battle
             float runningTotal = 0;
             foreach (BattleSoldier soldier in Soldiers)
             {
-                if (soldier != null)
-                {
-                    runningTotal += soldier.Soldier.Constitution;
-                    squadSize += 1.0f;
-                }
+                runningTotal += soldier.Soldier.Constitution;
+                squadSize += 1.0f;
             }
             return runningTotal / squadSize;
         }
 
-        public int GetSquadMove()
+        public float GetSquadMove()
         {
-            int runningTotal = int.MaxValue;
+            float runningTotal = float.MaxValue;
             foreach (BattleSoldier soldier in Soldiers)
             {
                 // TODO: take leg wounds into account
-                if (soldier != null && soldier.GetMoveSpeed() < runningTotal)
+                if (soldier.GetMoveSpeed() < runningTotal)
                 {
-                    runningTotal = (int)soldier.Soldier.MoveSpeed;
+                    runningTotal = soldier.Soldier.MoveSpeed;
                 }
             }
             return runningTotal;

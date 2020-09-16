@@ -1,8 +1,6 @@
 ﻿using Iam.Scripts.Models.Equippables;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Iam.Scripts.Helpers.Battle.Actions
 {
@@ -22,7 +20,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         }
         public void Execute()
         {
-            if(_soldier.Aim == null || _soldier.Aim.Item1 != _target)
+            if(_soldier.Aim?.Item1 != _target)
             {
                 // this is a new aim
                 _log.Enqueue(_soldier.Soldier.ToString() + " aims");
@@ -35,6 +33,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 int curAim = _soldier.Aim.Item3;
                 _soldier.Aim = new Tuple<BattleSoldier, RangedWeapon, int>(_target, _weapon, curAim + 1);
             }
+            _soldier.TurnsAiming++;
         }
     }
 }
