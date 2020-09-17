@@ -189,7 +189,7 @@ namespace Iam.Scripts.Controllers
             {
                 BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
             }
-            else
+            else if(_selectedBattleSquad != null)
             {
                 BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
             }

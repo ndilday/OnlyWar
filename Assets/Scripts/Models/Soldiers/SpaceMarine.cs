@@ -59,14 +59,9 @@ namespace Iam.Scripts.Models.Soldiers
 
         public Date ProgenoidImplantDate;
 
-        public Skill GetBestMeleeSkill()
+        public Skill GetBestSkillByCategory(SkillCategory category)
         {
-            return Skills.Values.Where(s => s.BaseSkill.Category == SkillCategory.Melee).OrderByDescending(s => s.SkillBonus).First();
-        }
-
-        public Skill GetBestRangedSkill()
-        {
-            return Skills.Values.Where(s => s.BaseSkill.Category == SkillCategory.Ranged).OrderByDescending(s => s.SkillBonus).First();
+            return _skills.Values.Where(s => s.BaseSkill.Category == category).OrderByDescending(s => s.SkillBonus).First();
         }
 
         public override string ToString()

@@ -43,8 +43,8 @@ namespace Iam.Scripts.Helpers
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
-                soldier.Skills[skillTemplate.BaseSkill.Id] = new Skill(skillTemplate.BaseSkill, 
-                    skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation) );
+                soldier.AddSkillPoints(skillTemplate.BaseSkill, 
+                    skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation));
             }
 
             return soldier;

@@ -5922,8 +5922,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DateTreeView: {fileID: 9189671294825969871}
-  ArchiveView: {fileID: 0}
-  GameSettings: {fileID: 0}
+  ArchiveView: {fileID: 6375907273369337701}
+  GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
 --- !u!1 &1093336694
 GameObject:
   m_ObjectHideFlags: 0

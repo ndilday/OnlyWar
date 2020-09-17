@@ -30,14 +30,14 @@ namespace Iam.Scripts.Models.Soldiers
         public float MoveSpeed;
         private readonly Dictionary<WeaponTemplate, ushort> _weaponCasualtyCountMap;
         private readonly Dictionary<Faction, ushort> _factionCasualtyCountMap;
-        public Dictionary<int, Skill> Skills;
+        protected readonly Dictionary<int, Skill> _skills;
         public List<string> SoldierHistory;
         public Body Body { get; private set; }
 
         public Soldier()
         {
             SoldierHistory = new List<string>();
-            Skills = new Dictionary<int, Skill>();
+            _skills = new Dictionary<int, Skill>();
             _weaponCasualtyCountMap = new Dictionary<WeaponTemplate, ushort>();
             _factionCasualtyCountMap = new Dictionary<Faction, ushort>();
         }
@@ -49,25 +49,25 @@ namespace Iam.Scripts.Models.Soldiers
 
         public void AddSkillPoints(BaseSkill skill, float points)
         {
-            if(!Skills.ContainsKey(skill.Id))
+            if(!_skills.ContainsKey(skill.Id))
             {
-                Skills[skill.Id] = new Skill(skill, points);
+                _skills[skill.Id] = new Skill(skill, points);
             }
             else
             {
-                Skills[skill.Id].AddPoints(points);
+                _skills[skill.Id].AddPoints(points);
             }
         }
 
         public float GetTotalSkillValue(BaseSkill skill)
         {
             float attribute = GetStatForBaseAttribute(skill.BaseAttribute);
-            if(!Skills.ContainsKey(skill.Id))
+            if(!_skills.ContainsKey(skill.Id))
             {
                 return attribute - 4;
             }
 
-            return Skills[skill.Id].SkillBonus + attribute;
+            return _skills[skill.Id].SkillBonus + attribute;
         }
 
         public void AddKill(Faction faction, WeaponTemplate weapon)

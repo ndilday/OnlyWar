@@ -215,9 +215,9 @@ namespace Iam.Scripts.Controllers
             else if (marine.MeleeScore > 500) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Sword of the Emperor badge during training");
             else if (marine.MeleeScore > 400) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Sword of the Emperor badge during training");
 
-            if (marine.RangedScore > 75) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
-            else if (marine.RangedScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
-            else if (marine.RangedScore > 60) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Marksman badge during training with " + marine.GetBestRangedSkill().BaseSkill.Name);
+            if (marine.RangedScore > 75) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
+            else if (marine.RangedScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
+            else if (marine.RangedScore > 60) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
 
             if (marine.LeadershipScore > 235) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Voice of the Emperor badge during training");
             else if (marine.LeadershipScore > 160) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Voice of the Emperor badge during training");

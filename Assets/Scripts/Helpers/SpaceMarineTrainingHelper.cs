@@ -25,22 +25,20 @@ namespace Iam.Scripts.Helpers
         {
             float powerArmorSkill = marine.GetTotalSkillValue(TempBaseSkillList.Instance.PowerArmor);
             // if any gunnery, ranged, melee, or vehicle skill is below the PA skill, focus on improving PA
-            foreach(Skill skill in marine.Skills.Values)
+            float gunnerySkill = marine.GetTotalSkillValue(marine.GetBestSkillByCategory(SkillCategory.Gunnery).BaseSkill);
+            float meleeSkill = marine.GetTotalSkillValue(marine.GetBestSkillByCategory(SkillCategory.Melee).BaseSkill);
+            float rangedSkill = marine.GetTotalSkillValue(marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill);
+            float vehicleSkill = marine.GetTotalSkillValue(marine.GetBestSkillByCategory(SkillCategory.Vehicle).BaseSkill);
+            float[] floatArray = { gunnerySkill, meleeSkill, rangedSkill, vehicleSkill };
+            float totalMax = Mathf.Max(floatArray);
+            if (totalMax > powerArmorSkill)
             {
-                if(skill.BaseSkill.Category == SkillCategory.Gunnery 
-                    || skill.BaseSkill.Category == SkillCategory.Melee
-                    || skill.BaseSkill.Category == SkillCategory.Ranged
-                    || skill.BaseSkill.Category == SkillCategory.Vehicle)
-                {
-                    float skillTotal = marine.GetTotalSkillValue(skill.BaseSkill);
-                    if(skillTotal > powerArmorSkill)
-                    {
-                        marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, points);
-                        return;
-                    }
-                }
+                marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, points);
             }
-            ApplyMarineWorkExperienceBySquadType(marine, points);
+            else
+            {
+                ApplyMarineWorkExperienceBySquadType(marine, points);
+            }
         }
 
         public void ApplyMarineWorkExperienceBySquadType(SpaceMarine marine, float points)
@@ -65,87 +63,89 @@ namespace Iam.Scripts.Helpers
         public void ApplyVeteranWorkExperience(SpaceMarine marine, float points)
         {
             float pointShare = points / 7.0f;
-            marine.Skills[TempBaseSkillList.Instance.Marine.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.PowerArmor.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.ArmorySmallArms.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Bike.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.JumpPack.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Marine, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.ArmorySmallArms, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bike, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, pointShare);
             if (marine.Rank == TempSpaceMarineRanks.VeteranSquadSergeant)
             {
-                marine.Skills[TempBaseSkillList.Instance.Tactics.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Leadership.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Tactics, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Leadership, pointShare);
             }
             else
             {
-                marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Sword.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Sword, pointShare);
             }
         }
 
         public void ApplyTacticalWorkExperience(SpaceMarine marine, float points)
         {
             float pointShare = points / 9.0f;
-            marine.Skills[TempBaseSkillList.Instance.Marine.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.PowerArmor.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.ArmorySmallArms.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Sword.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Marine, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.ArmorySmallArms, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Sword, pointShare);
+
             if (marine.Rank == TempSpaceMarineRanks.TacticalSergeant)
             {
-                marine.Skills[TempBaseSkillList.Instance.Tactics.Id].AddPoints(pointShare * 2);
-                marine.Skills[TempBaseSkillList.Instance.Leadership.Id].AddPoints(pointShare * 2);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Tactics, pointShare * 2);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Leadership, pointShare * 2);
             }
             else
             {
-                marine.Skills[TempBaseSkillList.Instance.MissileLauncher.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.GunneryBolter.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Plasma.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Flamer.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.MissileLauncher, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.GunneryBolter, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Plasma, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Flamer, pointShare);
             }
         }
 
         public void ApplyAssaultWorkExperience(SpaceMarine marine, float points)
         {
             float pointShare = points / 9.0f;
-            marine.Skills[TempBaseSkillList.Instance.Marine.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.PowerArmor.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.ArmorySmallArms.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Bike.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.JumpPack.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Sword.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Marine, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.ArmorySmallArms, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bike, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Sword, pointShare);
+
             if (marine.Rank == TempSpaceMarineRanks.VeteranSquadSergeant)
             {
-                marine.Skills[TempBaseSkillList.Instance.Tactics.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Leadership.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Tactics, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Leadership, pointShare);
             }
             else
             {
-                marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Sword.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Sword, pointShare);
             }
         }
 
         public void ApplyDevastatorWorkExperience(SpaceMarine marine, float points)
         {
             float pointShare = points / 9.0f;
-            marine.Skills[TempBaseSkillList.Instance.Marine.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.PowerArmor.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.ArmorySmallArms.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.GunneryBolter.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Marine, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.ArmorySmallArms, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.GunneryBolter, pointShare);
 
             if (marine.Rank == TempSpaceMarineRanks.TacticalSergeant)
             {
-                marine.Skills[TempBaseSkillList.Instance.Tactics.Id].AddPoints(pointShare * 2);
-                marine.Skills[TempBaseSkillList.Instance.Leadership.Id].AddPoints(pointShare * 2);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Tactics, pointShare * 2);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Leadership, pointShare * 2);
             }
             else
             {
-                marine.Skills[TempBaseSkillList.Instance.Plasma.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Flamer.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.MissileLauncher.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Lascannon.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Plasma, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Flamer, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.MissileLauncher, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Lascannon, pointShare);
             }
         }
 
@@ -155,24 +155,24 @@ namespace Iam.Scripts.Helpers
             if (!marine.AssignedSquad.IsInReserve)
             {
                 float pointShare = points / 9.0f;
-                marine.Skills[TempBaseSkillList.Instance.Marine.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.PowerArmor.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.ArmorySmallArms.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.GunneryBolter.Id].AddPoints(pointShare);
-                marine.Skills[TempBaseSkillList.Instance.Stealth.Id].AddPoints(pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Marine, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.ArmorySmallArms, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.GunneryBolter, pointShare);
+                marine.AddSkillPoints(TempBaseSkillList.Instance.Stealth, pointShare);
 
                 if (marine.Rank == TempSpaceMarineRanks.TacticalSergeant)
                 {
-                    marine.Skills[TempBaseSkillList.Instance.Tactics.Id].AddPoints(pointShare);
-                    marine.Skills[TempBaseSkillList.Instance.Leadership.Id].AddPoints(pointShare);
-                    marine.Skills[TempBaseSkillList.Instance.Teaching.Id].AddPoints(pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.Tactics, pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.Leadership, pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.Teaching, pointShare);
                 }
                 else
                 {
-                    marine.Skills[TempBaseSkillList.Instance.Sniper.Id].AddPoints(pointShare);
-                    marine.Skills[TempBaseSkillList.Instance.Shotgun.Id].AddPoints(pointShare);
-                    marine.Skills[TempBaseSkillList.Instance.GunneryBolter.Id].AddPoints(pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.Sniper, pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.Shotgun, pointShare);
+                    marine.AddSkillPoints(TempBaseSkillList.Instance.GunneryBolter, pointShare);
                 }
             }
         }
@@ -198,44 +198,34 @@ namespace Iam.Scripts.Helpers
                     }
                     // 200 hours per point means about 5 weeks, so about 1/5 point per week
                     float baseLearning = 0.2f;
-                    foreach (Soldier soldier in squad.GetAllMembers())
+                    squad.SquadLeader.AddSkillPoints(TempBaseSkillList.Instance.Teaching, 0.05f);
+                    if (squad.SquadLeader.GetTotalSkillValue(TempBaseSkillList.Instance.Teaching) >= 12.0f)
                     {
-                        SpaceMarine marine = (SpaceMarine)soldier;
-                        if (marine.Rank == TempSpaceMarineRanks.ScoutSergeant)
-                        {
-                            // he's working as a teacher, give him quarter credit toward teaching
-                            Skill learnedSkill = marine.Skills[TempBaseSkillList.Instance.Teaching.Id];
-                            learnedSkill.AddPoints(0.05f);
-                            if (marine.Intelligence + learnedSkill.SkillBonus >= 12.0f) goodTeacher = true;
-                            break;
-                        }
+                        goodTeacher = true;
                     }
                     if (!goodTeacher)
                     {
                         // with a sub-par teacher, learning is halfway between teaching and practicing
                         baseLearning *= 0.75f;
                     }
-                    foreach (Soldier soldier in squad.GetAllMembers())
+                    foreach (Soldier soldier in squad.Members)
                     {
                         SpaceMarine marine = (SpaceMarine)soldier;
-                        if (marine.Rank != TempSpaceMarineRanks.ScoutSergeant)
+                        if ((focuses & TrainingFocuses.Melee) != TrainingFocuses.None)
                         {
-                            if ((focuses & TrainingFocuses.Melee) != TrainingFocuses.None)
-                            {
-                                TrainMelee(marine, baseLearning / numberOfAreas);
-                            }
-                            if ((focuses & TrainingFocuses.Physical) != TrainingFocuses.None)
-                            {
-                                TrainPhysical(marine, baseLearning / numberOfAreas);
-                            }
-                            if ((focuses & TrainingFocuses.Ranged) != TrainingFocuses.None)
-                            {
-                                TrainRanged(marine, baseLearning / numberOfAreas);
-                            }
-                            if ((focuses & TrainingFocuses.Vehicles) != TrainingFocuses.None)
-                            {
-                                TrainVehicles(marine, baseLearning / numberOfAreas);
-                            }
+                            TrainMelee(marine, baseLearning / numberOfAreas);
+                        }
+                        if ((focuses & TrainingFocuses.Physical) != TrainingFocuses.None)
+                        {
+                            TrainPhysical(marine, baseLearning / numberOfAreas);
+                        }
+                        if ((focuses & TrainingFocuses.Ranged) != TrainingFocuses.None)
+                        {
+                            TrainRanged(marine, baseLearning / numberOfAreas);
+                        }
+                        if ((focuses & TrainingFocuses.Vehicles) != TrainingFocuses.None)
+                        {
+                            TrainVehicles(marine, baseLearning / numberOfAreas);
                         }
                     }
                 }
@@ -245,10 +235,10 @@ namespace Iam.Scripts.Helpers
         private void TrainMelee(SpaceMarine marine, float points)
         {
             float pointShare = points / 4;
-            marine.Skills[TempBaseSkillList.Instance.Sword.Id].AddPoints(pointShare * 2);
-            marine.Skills[TempBaseSkillList.Instance.Shield.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Axe.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Fist.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Sword, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Shield, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Axe, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Fist, pointShare);
         }
 
         private void TrainPhysical(SpaceMarine marine, float points)
@@ -265,20 +255,20 @@ namespace Iam.Scripts.Helpers
         private void TrainRanged(SpaceMarine marine, float points)
         {
             float pointShare = points / 5;
-            marine.Skills[TempBaseSkillList.Instance.Bolter.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Lascannon.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Flamer.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Sniper.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Shotgun.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bolter, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Lascannon, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Flamer, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Sniper, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Shotgun, pointShare);
         }
 
         private void TrainVehicles(SpaceMarine marine, float points)
         {
             float pointShare = points / 4;
-            marine.Skills[TempBaseSkillList.Instance.Bike.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.LandSpeeder.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.Rhino.Id].AddPoints(pointShare);
-            marine.Skills[TempBaseSkillList.Instance.GunneryBolter.Id].AddPoints(pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Bike, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.LandSpeeder, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.Rhino, pointShare);
+            marine.AddSkillPoints(TempBaseSkillList.Instance.GunneryBolter, pointShare);
         }
 
         private float GetModifiedStat(float currentValue, float points)

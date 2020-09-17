@@ -128,6 +128,7 @@ namespace Iam.Scripts.Controllers
             }
             // TODO: Update resources
             _planetBattleStartedId = -1;
+            Map.gameObject.SetActive(false);
             HandleBattles();
 
         }
@@ -292,6 +293,7 @@ namespace Iam.Scripts.Controllers
                 i++;
             }
             // if we've scanned through the whole galaxy, battles are done, start a new turn
+            Map.gameObject.SetActive(true);
             OnTurnStart.Invoke();
         }
     }

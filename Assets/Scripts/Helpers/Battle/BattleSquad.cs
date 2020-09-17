@@ -162,14 +162,14 @@ namespace Iam.Scripts.Helpers.Battle
                 // TODO: we'll want to stop assuming Dex as the base stat at some point
                 if (ws.PrimaryRangedWeapon != null)
                 {
-                    var bestShooter = tempSquad.OrderByDescending(s => s.Soldier.Dexterity + s.Soldier.Skills[ws.PrimaryRangedWeapon.RelatedSkill.Id].SkillBonus).First();
+                    var bestShooter = tempSquad.OrderByDescending(s => s.Soldier.GetTotalSkillValue(ws.PrimaryRangedWeapon.RelatedSkill)).First();
                     bestShooter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
                     bestShooter.Armor = new Armor(_squad.SquadTemplate.Armor);
                     tempSquad.Remove(bestShooter);
                 }
                 else
                 {
-                    var bestHitter = tempSquad.OrderByDescending(s => s.Soldier.Dexterity + s.Soldier.Skills[ws.PrimaryMeleeWeapon.RelatedSkill.Id].SkillBonus).First();
+                    var bestHitter = tempSquad.OrderByDescending(s => s.Soldier.GetTotalSkillValue(ws.PrimaryMeleeWeapon.RelatedSkill)).First();
                     bestHitter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
                     bestHitter.Armor = new Armor(_squad.SquadTemplate.Armor);
                     tempSquad.Remove(bestHitter);

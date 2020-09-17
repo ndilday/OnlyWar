@@ -308,12 +308,13 @@ namespace Iam.Scripts.Helpers
                         squad.Name = veteranLeaders[0].LastName + " Squad";
                         soldier = AssignSoldier(unassignedSoldierMap, veteranLeaders, squad, TempSpaceMarineRanks.VeteranSquadSergeant, true, year);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Leadership, 4);
-                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 4);
+                        soldier.AddSkillPoints(TempBaseSkillList.Instance.Tactics, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
                         soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
-                        soldier.GetBestMeleeSkill().AddPoints(2);
+                        soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
+                        soldier.GetBestSkillByCategory(SkillCategory.Melee).AddPoints(2);
 
                         while (squad.Members.Count < squadSize && vetList.Count > 0)
                         {
@@ -321,8 +322,9 @@ namespace Iam.Scripts.Helpers
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 4);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 4);
-                            soldier.GetBestMeleeSkill().AddPoints(4);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
+                            soldier.GetBestSkillByCategory(SkillCategory.Melee).AddPoints(4);
                         }
                     }
                 }
@@ -546,9 +548,10 @@ namespace Iam.Scripts.Helpers
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Explosives, 2);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Throwing, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Explosives, 1);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Throwing, 1);
                         }
                         int assSquadSize = CalculateSquadSize(assList, assSgtList);
                         while (assList.Count > 0 && squad.Members.Count < assSquadSize)
@@ -556,9 +559,12 @@ namespace Iam.Scripts.Helpers
                             SpaceMarine soldier = AssignSoldier(unassignedSoldierMap, assList, squad, TempSpaceMarineRanks.AssaultMarine, false, year);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Marine, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Flamer, 1);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Plasma, 1);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.PowerArmor, 8);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 4);
-                            soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 4);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.Bike, 2);
+                            soldier.AddSkillPoints(TempBaseSkillList.Instance.JumpPack, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Throwing, 2);
                             soldier.AddSkillPoints(TempBaseSkillList.Instance.Shield, 2);
                         }
