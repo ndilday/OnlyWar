@@ -18,13 +18,13 @@ namespace Iam.Scripts.Helpers.Battle
         public bool IsPlayerSquad { get; private set; }
         public bool IsInMelee { get; set; }
 
-        private readonly Squad _squad;
+        public Squad Squad { get; }
 
         public BattleSquad(bool isPlayerSquad, Squad squad)
         {
             Id = squad.Id;
             Name = squad.Name;
-            _squad = squad;
+            Squad = squad;
             Soldiers = squad.GetAllMembers().Select(s => new BattleSoldier(s, this)).ToList();
             IsPlayerSquad = isPlayerSquad;
             IsInMelee = false;
@@ -141,20 +141,20 @@ namespace Iam.Scripts.Helpers.Battle
 
         public override string ToString()
         {
-            return _squad.Name;
+            return Squad.Name;
         }
 
         private void AllocateEquipment()
         {
             List<BattleSoldier> tempSquad = new List<BattleSoldier>(Soldiers);
-            var wsList = _squad.Loadout.ToList();
+            var wsList = Squad.Loadout.ToList();
             // need to allocate weapons from squad weapon sets
-            if (Soldiers[0].Soldier == _squad.SquadLeader)
+            if (Soldiers[0].Soldier == Squad.SquadLeader)
             {
                 // for now, sgt always gets default weapons
-                Soldiers[0].AddWeapons(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), _squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
+                Soldiers[0].AddWeapons(Squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), Squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
                 // TODO: personalize armor and weapons
-                Soldiers[0].Armor = new Armor(_squad.SquadTemplate.Armor);
+                Soldiers[0].Armor = new Armor(Squad.SquadTemplate.Armor);
                 tempSquad.RemoveAt(0);
             }
             foreach (WeaponSet ws in wsList)
@@ -164,14 +164,14 @@ namespace Iam.Scripts.Helpers.Battle
                 {
                     var bestShooter = tempSquad.OrderByDescending(s => s.Soldier.GetTotalSkillValue(ws.PrimaryRangedWeapon.RelatedSkill)).First();
                     bestShooter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
-                    bestShooter.Armor = new Armor(_squad.SquadTemplate.Armor);
+                    bestShooter.Armor = new Armor(Squad.SquadTemplate.Armor);
                     tempSquad.Remove(bestShooter);
                 }
                 else
                 {
                     var bestHitter = tempSquad.OrderByDescending(s => s.Soldier.GetTotalSkillValue(ws.PrimaryMeleeWeapon.RelatedSkill)).First();
                     bestHitter.AddWeapons(ws.GetRangedWeapons(), ws.GetMeleeWeapons());
-                    bestHitter.Armor = new Armor(_squad.SquadTemplate.Armor);
+                    bestHitter.Armor = new Armor(Squad.SquadTemplate.Armor);
                     tempSquad.Remove(bestHitter);
                 }
             }
@@ -179,9 +179,9 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 foreach(BattleSoldier soldier in tempSquad)
                 {
-                    soldier.AddWeapons(_squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), _squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
+                    soldier.AddWeapons(Squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), Squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());
                     // TODO: personalize armor and weapons
-                    soldier.Armor = new Armor(_squad.SquadTemplate.Armor);
+                    soldier.Armor = new Armor(Squad.SquadTemplate.Armor);
                 }
             }
         }

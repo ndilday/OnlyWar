@@ -233,7 +233,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             else if(recoveryTime > 0)
             {
                 summary += selectedSoldier.ToString() +
-                    " requires " + recoveryTime.ToString() + " to be fully fit for duty\n";
+                    " requires " + recoveryTime.ToString() + " weeks to be fully fit for duty\n";
             }
             else
             {

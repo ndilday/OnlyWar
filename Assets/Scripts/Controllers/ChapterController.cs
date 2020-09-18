@@ -24,6 +24,7 @@ namespace Iam.Scripts.Controllers
         private Dictionary<int, Squad> _squadMap;
         private Dictionary<int, SpaceMarine> _marineMap;
         private SpaceMarineTrainingHelper _trainingHelper;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -203,6 +204,32 @@ namespace Iam.Scripts.Controllers
         {
             int headCount = squad.GetAllMembers().Count();
             return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
+        }
+
+        private void DetermineSquadOpenings()
+        {
+            // if a tech marine, can't be reassigned
+            // if an apoc or chaplain, can be assigned to a company HQ Squad
+            // should we allow specialists to take on "normal" leadership roles, like being captains?
+            // for now, no
+            // regular marines can only be sent to a company of lower number for a higher ranked position
+            // regular marines can only be demoted as part of joining the first company
+            // priority order for regular marines:
+            // chapter master, captain, Chapter HQ, Company HQ, Squad Sgt
+            // assume scout -> devestator -> assault -> tactical is the normal progression, and reserve -> battle
+            Unit chapterRoot = GameSettings.Chapter.OrderOfBattle;
+            if(chapterRoot.HQSquad.SquadLeader == null)
+            {
+
+            }
+            foreach(Unit company in chapterRoot.ChildUnits)
+            {
+                if(company.HQSquad.SquadLeader == null)
+                {
+
+                }
+            }
+            //if(chapterRoot.HQSquad.Members.Any(s))
         }
 
         // TODO: this should probably live somewhere else

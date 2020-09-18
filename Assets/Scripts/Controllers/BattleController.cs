@@ -29,13 +29,13 @@ namespace Iam.Scripts.Controllers
         private readonly Dictionary<int, BattleSquad> _playerBattleSquads;
         private readonly Dictionary<int, BattleSquad> _opposingBattleSquads;
         private readonly Dictionary<int, BattleSquad> _soldierBattleSquadMap;
-        private readonly List<Squad> _playerSquads;
-        private readonly List<Squad> _opposingSquads;
+        private readonly List<BattleSoldier> _startingPlayerBattleSoldiers;
         private readonly Dictionary<int, BattleSoldier> _casualtyMap;
 
         private BattleSquad _selectedBattleSquad;
         private BattleGrid _grid;
         private int _turnNumber;
+        private int _startingEnemyCount;
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
@@ -56,8 +56,7 @@ namespace Iam.Scripts.Controllers
             _woundResolver.OnSoldierDeath.AddListener(WoundResolver_OnSoldierDeath);
             _woundResolver.OnSoldierFall.AddListener(WoundResolver_OnSoldierFall);
             _casualtyMap = new Dictionary<int, BattleSoldier>();
-            _playerSquads = new List<Squad>();
-            _opposingSquads = new List<Squad>();
+            _startingPlayerBattleSoldiers = new List<BattleSoldier>();
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
@@ -343,8 +342,8 @@ namespace Iam.Scripts.Controllers
             _playerBattleSquads.Clear();
             _soldierBattleSquadMap.Clear();
             _opposingBattleSquads.Clear();
-            _playerSquads.Clear();
-            _opposingSquads.Clear();
+            _startingPlayerBattleSoldiers.Clear();
+            _startingEnemyCount = 0;
 
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
@@ -365,11 +364,12 @@ namespace Iam.Scripts.Controllers
                     }
                     if(isPlayerSquad)
                     {
-                        _playerSquads.Add(squad);
+                        // making a separate list 
+                        _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
                     }
                     else
                     {
-                        _opposingSquads.Add(squad);
+                        _startingEnemyCount += bs.Soldiers.Count;
                     }
                 }
             }
@@ -454,23 +454,20 @@ namespace Iam.Scripts.Controllers
 
         private void ProcessSoldierHistoryForBattle()
         {
-            foreach (BattleSquad squad in _playerBattleSquads.Values)
+            foreach (BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
-                foreach (BattleSoldier soldier in squad.Soldiers)
+                string historyEntry = GameSettings.Date.ToString() + ": Fought in a skirmish on " + _planet.Name;
+                if(soldier.EnemiesTakenDown > 0)
                 {
-                    string historyEntry = GameSettings.Date.ToString() + ": Fought in a skirmish on " + _planet.Name;
-                    if(soldier.EnemiesTakenDown > 0)
+                    historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}.";
+                }
+                if(soldier.WoundsTaken > 0)
+                {
+                    foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                     {
-                        historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}.";
-                    }
-                    if(soldier.WoundsTaken > 0)
-                    {
-                        foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
+                        if(hl.IsSevered)
                         {
-                            if(hl.IsSevered)
-                            {
-                                historyEntry += $" Lost his {hl.Template.Name} in the fighting.";
-                            }
+                            historyEntry += $" Lost his {hl.Template.Name} in the fighting.";
                         }
                     }
                 }
@@ -529,18 +526,15 @@ namespace Iam.Scripts.Controllers
         private List<Soldier> RemoveSoldiersKilledInBattle()
         {
             List<Soldier> dead = new List<Soldier>();
-            foreach(Squad squad in _playerSquads)
+            foreach(BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
-                foreach(Soldier soldier in squad.GetAllMembers())
+                foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                 {
-                    foreach(HitLocation hl in soldier.Body.HitLocations)
+                    if(hl.Template.IsVital && hl.IsSevered)
                     {
-                        if(hl.Template.IsVital && hl.IsSevered)
-                        {
-                            // if a vital part is severed, they're dead
-                            dead.Add(soldier);
-                            break;
-                        }
+                        // if a vital part is severed, they're dead
+                        dead.Add(soldier.Soldier);
+                        break;
                     }
                 }
             }
@@ -568,13 +562,12 @@ namespace Iam.Scripts.Controllers
         private void WriteBattleLog(EventHistory battleLog, List<Soldier> killedInBattle)
         {
             battleLog.EventTitle = "A skirmish on " + _planet.Name;
-            int marineCount = _playerSquads.Sum(s => s.GetAllMembers().Count());
-            int enemyCount = _opposingSquads.Sum(s => s.GetAllMembers().Count());
-            battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + enemyCount.ToString() + " enemies");
+            int marineCount = _startingPlayerBattleSoldiers.Count;
+            battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
             foreach(Soldier soldier in killedInBattle)
             {
                 SpaceMarine marine = (SpaceMarine)soldier;
-                battleLog.SubEvents.Add(marine.Rank.Name + " " + marine.ToString() + " fell in battle");
+                battleLog.SubEvents.Add(marine.Rank.Name + " " + marine.ToString() + " died in the service of the emperor");
                 if(marine.AssignedSquad.SquadLeader == marine)
                 {
                     marine.AssignedSquad.SquadLeader = null;

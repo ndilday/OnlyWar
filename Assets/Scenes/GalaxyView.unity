@@ -14360,6 +14360,6 @@ MonoBehaviour:
   Initialized: 0
   TreeNodePrefab: {fileID: 2665211793912963394, guid: fda6029737f1dec408a0fc70c4d96701,
     type: 3}
-  ChildLeafPrefab: {fileID: 1747290613267148590, guid: 2d3676a3404b57d4183d662f672053ad,
+  ChildLeafPrefab: {fileID: 8633168762155294532, guid: f5778d2fb2d883c47aceab9a7be01a6f,
     type: 3}
   NodeContent: {fileID: 7857040019322606810}
