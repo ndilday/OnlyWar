@@ -111,7 +111,7 @@ namespace Iam.Scripts.Controllers
         private void WoundResolver_OnSoldierDeath(BattleSoldier casualty, BattleSoldier inflicter, WeaponTemplate weapon)
         {
             _casualtyMap[casualty.Soldier.Id] = casualty;
-            if(casualty.Squad.IsPlayerSquad)
+            if(casualty.BattleSquad.IsPlayerSquad)
             {
                 // add death note to soldier history, though we currently just delete it 
                 // we'll probably want it later
@@ -130,7 +130,7 @@ namespace Iam.Scripts.Controllers
         private void WoundResolver_OnSoldierFall(BattleSoldier fallenSoldier, BattleSoldier inflicter, WeaponTemplate weapon)
         {
             _casualtyMap[fallenSoldier.Soldier.Id] = fallenSoldier;
-            if(!fallenSoldier.Squad.IsPlayerSquad)
+            if(!fallenSoldier.BattleSquad.IsPlayerSquad)
             {
                 // give the inflicter credit for downing this enemy
                 // WARNING: this will lead to multi-counting in some cases

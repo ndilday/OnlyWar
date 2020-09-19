@@ -13,7 +13,7 @@ namespace Iam.Scripts.Helpers.Battle
         public Soldier Soldier { get; private set; }
 
         public Tuple<int, int> Location { get; set; }
-        public BattleSquad Squad { get; private set; }
+        public BattleSquad BattleSquad { get; private set; }
 
         public List<RangedWeapon> EquippedRangedWeapons { get; private set; }
 
@@ -60,7 +60,7 @@ namespace Iam.Scripts.Helpers.Battle
         public BattleSoldier(Soldier soldier, BattleSquad squad)
         {
             Soldier = soldier;
-            Squad = squad;
+            BattleSquad = squad;
             MeleeWeapons = new List<MeleeWeapon>();
             RangedWeapons = new List<RangedWeapon>();
             EquippedMeleeWeapons = new List<MeleeWeapon>();
