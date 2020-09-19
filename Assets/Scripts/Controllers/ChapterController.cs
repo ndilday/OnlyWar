@@ -218,18 +218,30 @@ namespace Iam.Scripts.Controllers
             // chapter master, captain, Chapter HQ, Company HQ, Squad Sgt
             // assume scout -> devestator -> assault -> tactical is the normal progression, and reserve -> battle
             Unit chapterRoot = GameSettings.Chapter.OrderOfBattle;
-            if(chapterRoot.HQSquad.SquadLeader == null)
+            List<Tuple<byte, byte, SpaceMarineRank>> openSlotList = new List<Tuple<byte, byte, SpaceMarineRank>>();
+            DetermineChapterHQOpenings(chapterRoot, openSlotList);
+            for (int i = 1; i <= 10; i++)
             {
-
-            }
-            foreach(Unit company in chapterRoot.ChildUnits)
-            {
-                if(company.HQSquad.SquadLeader == null)
+                Unit company = chapterRoot.ChildUnits[i - 1];
+                if (company.HQSquad.SquadLeader == null)
                 {
-
+                    openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>((byte)i, 0, TempSpaceMarineRanks.Captain));
                 }
             }
             //if(chapterRoot.HQSquad.Members.Any(s))
+        }
+
+        private static void DetermineChapterHQOpenings(Unit chapterRoot, List<Tuple<byte, byte, SpaceMarineRank>> openSlotList)
+        {
+            if (chapterRoot.HQSquad.SquadLeader == null)
+            {
+                openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>(0, 0, TempSpaceMarineRanks.ChapterMaster));
+            }
+            var marines = chapterRoot.HQSquad.Members.Select(s => (SpaceMarine)s);
+            if(!marines.Any(m => m.Rank == TempSpaceMarineRanks.ChapterChampion))
+            {
+                openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>(0, 0, TempSpaceMarineRanks.ChapterChampion));
+            }
         }
 
         // TODO: this should probably live somewhere else
