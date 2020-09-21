@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
-using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Helpers;
+using Iam.Scripts.Models.Units;
+using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
+using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
 {
@@ -20,11 +19,11 @@ namespace Iam.Scripts.Controllers
         private RecruitmentView RecruitmentView;
 
         private readonly Dictionary<int, Squad> _scoutSquads;
-        private Dictionary<int, TrainingFocuses> _squadSkillFocusMap;
+        private readonly Dictionary<int, TrainingFocuses> _squadSkillFocusMap;
         private int _scoutCount;
         private int _squadCount;
         private int _readyCount;
-        private readonly SpaceMarineTrainingHelper _trainingHelper;
+        private readonly SoldierTrainingHelper _trainingHelper;
 
         private const string RECRUITER_FORMAT = @"Greetings, sir. My report on the current status of our Neophytes and Aspriants is as follows.
 
@@ -38,7 +37,7 @@ I await any further instructions you have on our recruiting and training efforts
         {
             _scoutSquads = new Dictionary<int, Squad>();
             _squadSkillFocusMap = new Dictionary<int, TrainingFocuses>();
-            _trainingHelper = new SpaceMarineTrainingHelper();
+            _trainingHelper = new SoldierTrainingHelper();
         }
 
         public void GalaxyController_OnChapterCreated()
@@ -50,7 +49,21 @@ I await any further instructions you have on our recruiting and training efforts
         public void EndTurnButton_OnClick()
         {
             // at the end of each week, scouts who are on ship or on home planet get trained and re-evaluated
-            _trainingHelper.TrainScouts(_scoutSquads.Values, _squadSkillFocusMap);
+            foreach(Squad scoutSquad in _scoutSquads.Values)
+            {
+                if (scoutSquad.IsInReserve)
+                {
+                    _trainingHelper.TrainScouts(_scoutSquads.Values, _squadSkillFocusMap);
+                }
+                else
+                {
+                    foreach (PlayerSoldier soldier in scoutSquad.Members)
+                    {
+                        _trainingHelper.ApplyScoutWorkExperience(soldier, 0.1f);
+                    }
+                }
+            }
+            
             if(GameSettings.Date.Week % 13 == 1)
             {
                 EvaluateScouts();
@@ -71,15 +84,14 @@ I await any further instructions you have on our recruiting and training efforts
             }
         }
 
-        public void SquadSelected(int squadId)
+        public void UnitTreeView_OnUnitSelected(int squadId)
         {
             string squadReport = "";
             Squad squad = _scoutSquads[squadId];
             // should we ignore the SGT here or not?
-            foreach(Soldier soldier in squad.Members)
+            foreach(PlayerSoldier soldier in squad.Members)
             {
-                SpaceMarine marine = (SpaceMarine)soldier;
-                squadReport += GetRecruiterDescription(marine);
+                squadReport += GetRecruiterDescription(soldier);
             }
             RecruitmentView.UpdateSquadDescription(squadReport);
             RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
@@ -91,66 +103,65 @@ I await any further instructions you have on our recruiting and training efforts
             _squadSkillFocusMap[squadId] = (TrainingFocuses)newFlags;
         }
 
-        private string GetRecruiterDescription(SpaceMarine marine)
+        private string GetRecruiterDescription(PlayerSoldier soldier)
         {
-            if (marine.MeleeScore > 400)
+            if (soldier.MeleeRating > 400)
             {
-                if (marine.RangedScore > 60)
+                if (soldier.RangedRating > 60)
                 {
-                    if (marine.MeleeScore > 500 && marine.RangedScore > 70)
+                    if (soldier.MeleeRating > 500 && soldier.RangedRating > 70)
                     {
-                        return marine.ToString() + " is ready to accept the Black Carapace and become a full Battle Brother in any squad required.\n";
+                        return soldier.Name + " is ready to accept the Black Carapace and join a Devastator Squad; I think he will rise through the ranks quickly.\n";
                     }
                     else
                     {
-                        return marine.ToString() + " could be promoted to Battle Brother if needed, but I would prefer he earn more seasoning first.\n";
+                        return soldier.Name + " could be promoted to a Devastator Squad if needed, but I would prefer he earn more seasoning first.\n";
                     }
                 }
-                else if (marine.MeleeScore > 500)
+                else if (soldier.MeleeRating > 500)
                 {
-                    return marine.ToString() + " would make an able assault marine, but I would prefer he continue to train until his ranged proficiency meets our standards.\n";
+                    return soldier.Name + " is able in hand to hand combat, but needs more training with the bolter to be ready to don the Black Carapace.\n";
                 }
                 else
                 {
-                    return marine.ToString() + " could be promoted to an assault squad in an emergency, but I would not recommend it.\n";
+                    return soldier.Name + " could be promoted in an emergency, but I would not recommend it.\n";
                 }
             }
-            else if (marine.RangedScore > 70)
+            else if (soldier.RangedRating > 70)
             {
-                return marine.ToString() + " could be assigned to devastator duties if necessary, but I would prefer he continue to train until his melee proficiency meets our standards.\n";
+                return soldier.Name + " could be assigned to devastator duties if necessary, but is underwhelming with the chainsword, and it may be some time before he is ready to leave the ranks of the Devastators.\n";
             }
-            else if (marine.RangedScore > 60)
+            else if (soldier.RangedRating > 60)
             {
-                return marine.ToString() + " could be promoted to a devastator squad in an emergency, but I would not recommend it.\n";
+                return soldier.Name + " could be promoted to a devastator squad in an emergency, but I would not recommend it, especially considering his poor melee skills.\n";
             }
             else
             {
-                return marine.ToString() + " is not ready to become a Battle Brother, and should acquire more seasoning before taking the Black Carapace.\n";
+                return soldier.Name + " is not ready to become a Battle Brother, and should acquire more seasoning before taking the Black Carapace.\n";
             }
         }
 
         private void PopulateScoutSquadMap()
         {
-            Dictionary<int, TrainingFocuses> newMap = new Dictionary<int, TrainingFocuses>();
+            _squadSkillFocusMap.Clear();
             foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
                 foreach (Squad squad in company.Squads)
                 {
-                    if (squad.SquadTemplate == TempSpaceMarineSquadTemplates.Instance.ScoutSquadTemplate)
+                    if ((squad.SquadTemplate.SquadType & SquadTypes.Scout) > 0)
                     {
                         _scoutSquads[squad.Id] = squad;
                         if(_squadSkillFocusMap.ContainsKey(squad.Id))
                         {
-                            newMap[squad.Id] = _squadSkillFocusMap[squad.Id];
+                            _squadSkillFocusMap[squad.Id] = _squadSkillFocusMap[squad.Id];
                         }
                         else
                         {
-                            newMap[squad.Id] = TrainingFocuses.Physical | TrainingFocuses.Vehicles | TrainingFocuses.Melee | TrainingFocuses.Ranged;
+                            _squadSkillFocusMap[squad.Id] = TrainingFocuses.Physical | TrainingFocuses.Vehicles | TrainingFocuses.Melee | TrainingFocuses.Ranged;
                         }
                     }
                 }
             }
-            _squadSkillFocusMap = newMap;
         }
 
         private void EvaluateScouts()
@@ -161,14 +172,13 @@ I await any further instructions you have on our recruiting and training efforts
             foreach(Squad squad in _scoutSquads.Values)
             {
                 _squadCount++;
-                foreach(Soldier soldier in squad.Members)
+                foreach(PlayerSoldier soldier in squad.Members)
                 {
-                    SpaceMarine marine = (SpaceMarine)soldier;
-                    SpaceMarineEvaluator.Instance.EvaluateMarine(marine);
-                    if(marine.Rank == TempSpaceMarineRanks.Scout)
+                    soldier.UpdateRatings();
+                    if(soldier.Type.Name == "Scout Marine")
                     {
                         _scoutCount++;
-                        if(marine.MeleeScore > 500 && marine.RangedScore > 70)
+                        if(soldier.MeleeRating > 500 && soldier.RangedRating > 70)
                         {
                             _readyCount++;
                         }

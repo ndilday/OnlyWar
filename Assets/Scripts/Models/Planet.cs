@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Units;
 
 namespace Iam.Scripts.Models
@@ -36,7 +37,7 @@ namespace Iam.Scripts.Models
         public PlanetType PlanetType;
         public Fleet LocalFleet;
         public Dictionary<int, List<Unit>> FactionGroundUnitListMap;
-        public Faction ControllingFaction;
+        public FactionTemplate ControllingFaction;
         // how to represent forces on planet?
     }
 }

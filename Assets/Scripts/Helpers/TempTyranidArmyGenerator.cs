@@ -1,5 +1,7 @@
 ﻿using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
+using System.Linq;
 
 namespace Iam.Scripts.Helpers
 {
@@ -7,20 +9,23 @@ namespace Iam.Scripts.Helpers
     {
         public static Unit GenerateTyranidArmy()
         {
-            Unit root = TempTyranidUnitTemplates.Instance.TyranidArmy.GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
+            Unit root = TempTyranidUnitTemplates.Instance.UnitTemplates[1000].GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
             foreach(Squad squad in root.Squads)
             {
                 squad.IsInReserve = false;
-                if(squad.SquadTemplate.SquadLeader != null)
+                foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
                 {
-                    squad.SquadLeader = SoldierFactory.Instance.GenerateNewSoldier<Tyranid>(squad.SquadTemplate.SquadLeader);
-                    squad.SquadLeader.AssignedSquad = squad;
-                }
-                foreach(SoldierTemplate soldier in squad.SquadTemplate.Members)
-                {
-                    Soldier s = SoldierFactory.Instance.GenerateNewSoldier<Tyranid>(soldier);
-                    squad.Members.Add(s);
-                    s.AssignedSquad = squad;
+                    // this is cheat... the soldier type id and the template ids match
+                    SoldierType type = element.AllowedSoldierTypes.First();
+                    SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
+                    Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
+
+                    squad.Members.AddRange(soldiers);
+                    foreach(Soldier soldier in soldiers)
+                    {
+                        soldier.Type = type;
+                        soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
+                    }
                 }
             }
             return root;

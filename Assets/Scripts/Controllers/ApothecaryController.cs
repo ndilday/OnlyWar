@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 using Iam.Scripts.Models.Soldiers;
@@ -57,7 +58,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
         public void EndTurnButton_OnClick()
         {
             // heal wounds by one week
-            foreach(Soldier soldier in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
+            foreach(PlayerSoldier soldier in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
             {
                 foreach(HitLocation hitLocation in soldier.Body.HitLocations)
                 {
@@ -115,7 +116,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             Date nineYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 9, GameSettings.Date.Week);
             Date tenYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 10, GameSettings.Date.Week);
             ushort inAYear = 0;
-            foreach(SpaceMarine marine in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
+            foreach(PlayerSoldier marine in GameSettings.Chapter.ChapterPlayerSoldierMap.Values)
             {
                 Date implantDate = marine.ProgenoidImplantDate;
                 if(implantDate.IsBetweenInclusive(fiveYearsAgo, fourYearsAgo)
@@ -130,14 +131,14 @@ It will require approximately {4} weeks before all marines in the squad (other t
         private void SquadSelected(Squad squad)
         {
             _selectedSquad = squad;
-            List<Tuple<int, string, string>> memberList = _selectedSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
+            List<Tuple<int, string, string>> memberList = _selectedSquad.Members.Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.ToString())).ToList();
             ApothecaryView.ReplaceSquadMemberContent(memberList);
             ApothecaryView.ReplaceSelectedSoldierText(GenerateSquadSummary(_selectedSquad));
         }
 
         private void SoldierSelected(int soldierId)
         {
-            Soldier selected = _selectedSquad.GetAllMembers().First(s => s.Id == soldierId);
+            ISoldier selected = _selectedSquad.Members.First(s => s.Id == soldierId);
             ApothecaryView.ReplaceSelectedSoldierText(GenerateSoldierSummary(selected));
         }
 
@@ -147,7 +148,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             byte soldiersMissingBodyParts = 0;
             byte maxRecoveryTime = 0;
             byte unfitSoldiers = 0;
-            foreach(Soldier soldier in selectedSquad.GetAllMembers())
+            foreach(ISoldier soldier in selectedSquad.Members)
             {
                 bool isWounded = false;
                 bool isMissingParts = false;
@@ -204,9 +205,9 @@ It will require approximately {4} weeks before all marines in the squad (other t
                                  maxRecoveryTime);
         }
 
-        private string GenerateSoldierSummary(Soldier selectedSoldier)
+        private string GenerateSoldierSummary(ISoldier selectedSoldier)
         {
-            string summary = selectedSoldier.ToString() + "\n";
+            string summary = selectedSoldier.Name + "\n";
             byte recoveryTime = 0;
             bool isSevered = false;
             foreach (HitLocation hl in selectedSoldier.Body.HitLocations)
@@ -227,17 +228,17 @@ It will require approximately {4} weeks before all marines in the squad (other t
             }
             if(isSevered)
             {
-                summary += selectedSoldier.ToString() +
+                summary += selectedSoldier.Name +
                     " will be unable to perform field duties until receiving cybernetic replacements\n";
             }
             else if(recoveryTime > 0)
             {
-                summary += selectedSoldier.ToString() +
+                summary += selectedSoldier.Name +
                     " requires " + recoveryTime.ToString() + " weeks to be fully fit for duty\n";
             }
             else
             {
-                summary += selectedSoldier.ToString() +
+                summary += selectedSoldier.Name +
                     " is fully fit and ready to serve the Emperor\n";
             }
             return summary;

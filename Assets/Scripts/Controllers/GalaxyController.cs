@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Units;
@@ -81,11 +82,11 @@ namespace Iam.Scripts.Controllers
             Planet planet = _galaxy.GetPlanet(GameSettings.ChapterPlanetId);
             planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
             {
-                [TempFactions.Instance.SpaceMarines.Id] = new List<Unit>
+                [TempFactions.Instance.SpaceMarineFaction.Id] = new List<Unit>
                 {
                     GameSettings.Chapter.OrderOfBattle
                 },
-                [TempFactions.Instance.Tyranids.Id] = new List<Unit>
+                [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
                 {
                     TempTyranidArmyGenerator.GenerateTyranidArmy()
                 }

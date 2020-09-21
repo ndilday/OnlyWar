@@ -10,51 +10,96 @@ namespace Iam.Scripts.Models.Equippables
         TwoHand
     }
 
-    [Flags]
-    public enum FireModes
-    {
-        SingleShot = 0x1,
-
-    }
     public class EquippableTemplate
     {
-        public int Id;
-        public string Name;
-        public EquipLocation Location;
+        public int Id { get; }
+        public string Name { get; }
+        public EquipLocation Location { get; }
+        public EquippableTemplate(int id, string name, EquipLocation location)
+        {
+            Id = id;
+            Name = name;
+            Location = location;
+        }
     }
 
     public class ArmorTemplate : EquippableTemplate
     {
-        public int ArmorProvided;
+        public byte ArmorProvided { get; }
+        public ArmorTemplate(int id, string name, byte armorProvided) : base(id, name, EquipLocation.Body)
+        {
+            ArmorProvided = armorProvided;
+        }
     }
 
     public class WeaponTemplate : EquippableTemplate
     {
-        public BaseSkill RelatedSkill;
-        public float Accuracy;
-        public float ArmorMultiplier;
-        public float PenetrationMultiplier;
-        public float RequiredStrength;
+        public BaseSkill RelatedSkill { get; }
+        public float Accuracy { get; }
+        public float ArmorMultiplier { get; }
+        public float PenetrationMultiplier { get; }
+        public float RequiredStrength { get; }
+        public WeaponTemplate(int id, string name, EquipLocation location,
+                              BaseSkill skill, float accuracy, 
+                              float armorMultiplier, float penetrationMultiplier,
+                              float requiredStrength) : base(id, name, location)
+        {
+            RelatedSkill = skill;
+            Accuracy = accuracy;
+            ArmorMultiplier = armorMultiplier;
+            PenetrationMultiplier = penetrationMultiplier;
+            RequiredStrength = requiredStrength;
+        }
     }
 
     public class RangedWeaponTemplate: WeaponTemplate
     {
-        public float BaseStrength;
-        public float MaximumDistance;
-        public int RateOfFire;
-        public ushort AmmoCapacity;
-        public ushort Recoil;
-        public ushort Bulk;
-        public bool DoesDamageDegradeWithRange;
+        public float BaseDamage { get; }
+        public float MaximumDistance { get; }
+        public byte RateOfFire { get; }
+        public ushort AmmoCapacity { get; }
+        public ushort Recoil { get; }
+        public ushort Bulk { get; }
+        public bool DoesDamageDegradeWithRange { get; }
+        public RangedWeaponTemplate(int id, string name, EquipLocation location,
+                              BaseSkill skill, float accuracy,
+                              float armorMultiplier, float penetrationMultiplier,
+                              float requiredStrength, float baseDamage,
+                              float maxDistance, byte rof, ushort ammo,
+                              ushort recoil, ushort bulk, bool doesDamageDegradeWithRange)
+                              : base(id, name, location, skill, accuracy, armorMultiplier, 
+                                     penetrationMultiplier, requiredStrength)
+        {
+            BaseDamage = baseDamage;
+            MaximumDistance = maxDistance;
+            RateOfFire = rof;
+            AmmoCapacity = ammo;
+            Recoil = recoil;
+            Bulk = bulk;
+            DoesDamageDegradeWithRange = doesDamageDegradeWithRange;
+        }
     }
 
     public class MeleeWeaponTemplate: WeaponTemplate
     {
-        public float StrengthMultiplier;
-        public float ExtraDamage;
-        public float ParryModifier;
+        public float StrengthMultiplier { get; }
+        public float ExtraDamage { get; }
+        public float ParryModifier { get; }
         //public float Reach;
-        public float ExtraAttacks;
+        public float ExtraAttacks { get; }
+        public MeleeWeaponTemplate(int id, string name, EquipLocation location,
+                              BaseSkill skill, float accuracy,
+                              float armorMultiplier, float penetrationMultiplier,
+                              float requiredStrength, float strengthMultiplier,
+                              float extraDamage, float parryMod, float extraAttacks)
+                              : base(id, name, location, skill, accuracy, armorMultiplier, 
+                                     penetrationMultiplier, requiredStrength)
+        {
+            StrengthMultiplier = strengthMultiplier;
+            ExtraDamage = extraDamage;
+            ParryModifier = parryMod;
+            ExtraAttacks = extraAttacks;
+        }
     }
 
     public class Equippable

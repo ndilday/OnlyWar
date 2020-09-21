@@ -106,12 +106,12 @@ namespace Iam.Scripts.Helpers.Battle
             return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, bottom), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
         }
 
-        public float GetNearestEnemy(Soldier soldier, out int closestEnemy)
+        public float GetNearestEnemy(int id, out int closestEnemy)
         {
-            if (_soldierLocationMap.ContainsKey(soldier.Id))
+            if (_soldierLocationMap.ContainsKey(id))
             {
-                var targetSet = _playerSoldierIds.Contains(soldier.Id) ? _opposingSoldierIds : _playerSoldierIds;
-                var location = _soldierLocationMap[soldier.Id];
+                var targetSet = _playerSoldierIds.Contains(id) ? _opposingSoldierIds : _playerSoldierIds;
+                var location = _soldierLocationMap[id];
                 closestEnemy = -1;
                 float distanceSq = int.MaxValue;
                 foreach (KeyValuePair<int, Tuple<int, int>> kvp in _soldierLocationMap)

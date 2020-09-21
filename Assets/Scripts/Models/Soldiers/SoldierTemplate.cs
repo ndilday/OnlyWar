@@ -13,29 +13,51 @@ namespace Iam.Scripts.Models.Soldiers
         public BaseSkill BaseSkill;
     }
 
-    public abstract class SoldierTemplate
+    public class SoldierTemplate
     {
-        public int Id;
-        public string Name;
+        public int Id { get; }
+        public string Name { get; }
+        public SoldierType Type { get; }
 
         // attributes
-        public AttributeTemplate Strength;
-        public AttributeTemplate Dexterity;
-        public AttributeTemplate Perception;
-        public AttributeTemplate Intelligence;
-        public AttributeTemplate Ego;
-        public AttributeTemplate Presence;
-        public AttributeTemplate Constitution;
-        public AttributeTemplate PsychicPower;
+        public AttributeTemplate Strength { get; }
+        public AttributeTemplate Dexterity { get; }
+        public AttributeTemplate Perception { get; }
+        public AttributeTemplate Intelligence { get; }
+        public AttributeTemplate Ego { get; }
+        public AttributeTemplate Presence { get; }
+        public AttributeTemplate Constitution { get; }
+        public AttributeTemplate PsychicPower { get; }
         
-        public AttributeTemplate AttackSpeed;
-        public AttributeTemplate MoveSpeed;
-        public AttributeTemplate Size;
+        public AttributeTemplate AttackSpeed { get; }
+        public AttributeTemplate MoveSpeed { get; }
+        public AttributeTemplate Size { get; }
+        public IReadOnlyCollection<SkillTemplate> SkillTemplates { get; }
+        public BodyTemplate BodyTemplate { get; }
 
-        public List<SkillTemplate> SkillTemplates;
-
-        // TODO: Need to factor psychic ability back in
-
-        public BodyTemplate BodyTemplate;
+        public SoldierTemplate(int id, string name, SoldierType type, AttributeTemplate strength,
+                               AttributeTemplate dex, AttributeTemplate per, AttributeTemplate intl,
+                               AttributeTemplate ego, AttributeTemplate pre, AttributeTemplate con,
+                               AttributeTemplate psy, AttributeTemplate atk, AttributeTemplate mov,
+                               AttributeTemplate siz, IReadOnlyCollection<SkillTemplate> skillTemplates,
+                               BodyTemplate bodyTemplate)
+        {
+            Id = id;
+            Name = name;
+            Type = type;
+            Strength = strength;
+            Dexterity = dex;
+            Perception = per;
+            Intelligence = intl;
+            Ego = ego;
+            Presence = pre;
+            Constitution = con;
+            PsychicPower = psy;
+            AttackSpeed = atk;
+            MoveSpeed = mov;
+            Size = siz;
+            SkillTemplates = skillTemplates;
+            BodyTemplate = bodyTemplate;
+        }
     }
 }

@@ -1,51 +1,52 @@
 ﻿using System.Collections.Generic;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Units;
+using System.Linq;
+
+using UnityEngine;
 
 namespace Iam.Scripts.Models.Soldiers
 {
-    public abstract class Soldier
+    public class Soldier : ISoldier
     {
-        public int Id;
-        public abstract string JobRole { get; }
-        public Squad AssignedSquad;
-
-        public float Strength;
-        public float Dexterity;
-        public float Perception;
-        public float Intelligence;
-        public float Ego;
-        public float Presence;
-        public float Constitution;
-        public float PsychicPower;
-
-        public float AttackSpeed;
-        public float Size;
-        // 1mph is approximately 0.5 yards/sec
-        // military walk is about 3-4mph, so say 2 yd/s
-        // military double-time is about 6mph, or 3 yd/s
-        // military sprint with equipment is about 8-9 yd/s
-        // in fiction, Impys and Marines move at the same speed, 6"
-        // with 2s turns, a double time move of 6yd would match the 6" speed of double time
-        public float MoveSpeed;
-        private readonly Dictionary<WeaponTemplate, ushort> _weaponCasualtyCountMap;
-        private readonly Dictionary<Faction, ushort> _factionCasualtyCountMap;
         protected readonly Dictionary<int, Skill> _skills;
-        public List<string> SoldierHistory;
-        public Body Body { get; private set; }
 
-        public Soldier()
+        public Soldier(BodyTemplate body)
         {
-            SoldierHistory = new List<string>();
             _skills = new Dictionary<int, Skill>();
-            _weaponCasualtyCountMap = new Dictionary<WeaponTemplate, ushort>();
-            _factionCasualtyCountMap = new Dictionary<Faction, ushort>();
+            Body = new Body(body);
         }
 
-        public void InitializeBody(BodyTemplate bodyTemplate)
+        public int FunctioningHands
         {
-            Body = new Body(bodyTemplate);
+            get
+            {
+                int functioningHands = 2;
+                if (Body.HitLocations.Any(hl => hl.Template.IsMeleeWeaponHolder && hl.IsCrippled))
+                {
+                    functioningHands--;
+                }
+                if (Body.HitLocations.Any(hl => hl.Template.IsRangedWeaponHolder && hl.IsCrippled))
+                {
+                    functioningHands--;
+                }
+                return functioningHands;
+            }
         }
+
+        public float Strength { get; set; }
+        public float Dexterity { get; set; }
+        public float Perception { get; set; }
+        public float Intelligence { get; set; }
+        public float Ego { get; set; }
+        public float Presence { get; set; }
+        public float Constitution { get; set; }
+        public float PsychicPower { get; set; }
+        public float AttackSpeed { get; set; }
+        public float Size { get; set; }
+        public float MoveSpeed { get; set; }
+        public Body Body { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public SoldierType Type { get; set; }
 
         public void AddSkillPoints(BaseSkill skill, float points)
         {
@@ -70,44 +71,63 @@ namespace Iam.Scripts.Models.Soldiers
             return _skills[skill.Id].SkillBonus + attribute;
         }
 
-        public void AddKill(Faction faction, WeaponTemplate weapon)
-        {
-            if(_weaponCasualtyCountMap.ContainsKey(weapon))
-            {
-                _weaponCasualtyCountMap[weapon]++;
-            }
-            else
-            {
-                _weaponCasualtyCountMap[weapon] = 1;
-            }
-
-            if (_factionCasualtyCountMap.ContainsKey(faction))
-            {
-                _factionCasualtyCountMap[faction]++;
-            }
-            else
-            {
-                _factionCasualtyCountMap[faction] = 1;
-            }
-        }
-
-        private float GetStatForBaseAttribute(SkillAttribute attribute)
+        public float GetStatForBaseAttribute(Attribute attribute)
         {
             switch (attribute)
             {
-                case SkillAttribute.Dexterity:
+                case Attribute.Dexterity:
                     return Dexterity;
-                case SkillAttribute.Intelligence:
+                case Attribute.Intelligence:
                     return Intelligence;
-                case SkillAttribute.Ego:
+                case Attribute.Ego:
                     return Ego;
-                case SkillAttribute.Presence:
+                case Attribute.Presence:
                     return Presence;
+                case Attribute.Strength:
+                    return Strength;
+                case Attribute.Constitution:
+                    return Constitution;
                 default:
                     return Dexterity;
             }
         }
 
-        public abstract int FunctioningHands { get; }
+        public void AddAttributePoints(Attribute attribute, float points)
+        {
+            float curPoints;
+            switch(attribute)
+            {
+                case Attribute.Constitution:
+                    curPoints = Mathf.Pow(2, Constitution - 11) * 10;
+                    Constitution = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+                case Attribute.Dexterity:
+                    curPoints = Mathf.Pow(2, Dexterity - 11) * 10;
+                    Dexterity = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+                case Attribute.Ego:
+                    curPoints = Mathf.Pow(2, Ego - 11) * 10;
+                    Ego = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+                case Attribute.Intelligence:
+                    curPoints = Mathf.Pow(2, Intelligence - 11) * 10;
+                    Intelligence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+                case Attribute.Presence:
+                    curPoints = Mathf.Pow(2, Presence - 11) * 10;
+                    Presence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+                case Attribute.Strength:
+                    curPoints = Mathf.Pow(2, Strength - 11) * 10;
+                    Strength = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    break;
+            }
+
+        }
+    
+        public Skill GetBestSkillInCategory(SkillCategory category)
+        {
+            return _skills.Values.Where(s => s.BaseSkill.Category == category).OrderByDescending(s => s.SkillBonus).First();
+        }
     }
 }

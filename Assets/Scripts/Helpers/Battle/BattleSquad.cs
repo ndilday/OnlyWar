@@ -5,7 +5,7 @@ using UnityEngine;
 
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Units;
+using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Helpers.Battle
 {
@@ -25,7 +25,7 @@ namespace Iam.Scripts.Helpers.Battle
             Id = squad.Id;
             Name = squad.Name;
             Squad = squad;
-            Soldiers = squad.GetAllMembers().Select(s => new BattleSoldier(s, this)).ToList();
+            Soldiers = squad.Members.Select(s => new BattleSoldier(s, this)).ToList();
             IsPlayerSquad = isPlayerSquad;
             IsInMelee = false;
             // order weapon sets by strength of primary weapon
@@ -149,7 +149,7 @@ namespace Iam.Scripts.Helpers.Battle
             List<BattleSoldier> tempSquad = new List<BattleSoldier>(Soldiers);
             var wsList = Squad.Loadout.ToList();
             // need to allocate weapons from squad weapon sets
-            if (Soldiers[0].Soldier == Squad.SquadLeader)
+            if (Soldiers[0].Soldier.Type.IsSquadLeader)
             {
                 // for now, sgt always gets default weapons
                 Soldiers[0].AddWeapons(Squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), Squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());

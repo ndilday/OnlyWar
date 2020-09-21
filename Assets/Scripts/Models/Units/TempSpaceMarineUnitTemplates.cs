@@ -1,28 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
+using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Models.Units
 {
     public sealed class TempSpaceMarineUnitTemplates
     {
         private static TempSpaceMarineUnitTemplates _instance = null;
-        public UnitTemplate VeteranCompanyTemplate { get; private set; }
-        public UnitTemplate BattleCompanyTemplate { get; private set; }
-        public UnitTemplate TacticalCompanyTemplate { get; private set; }
-        public UnitTemplate AssaultCompanyTemplate { get; private set; }
-        public UnitTemplate DevestatorCompanyTemplate { get; private set; }
-        public UnitTemplate ScoutCompanyTemplate { get; private set; }
-        public UnitTemplate ChapterTemplate { get; private set; }
-
-        private TempSpaceMarineUnitTemplates()
-        {
-            VeteranCompanyTemplate = CreateVeteranCompany();
-            BattleCompanyTemplate = CreateBattleCompany();
-            TacticalCompanyTemplate = CreateTacticalCompany();
-            AssaultCompanyTemplate = CreateAssaultCompany();
-            DevestatorCompanyTemplate = CreateDevestatorCompany();
-            ScoutCompanyTemplate = CreateScoutCompany();
-            ChapterTemplate = CreateChapter();
-        }
 
         public static TempSpaceMarineUnitTemplates Instance
         {
@@ -36,133 +21,155 @@ namespace Iam.Scripts.Models.Units
             }
         }
 
+        public IReadOnlyDictionary<int, UnitTemplate> UnitTemplates { get; }
+
+        private TempSpaceMarineUnitTemplates()
+        {
+            UnitTemplates = new List<UnitTemplate>
+            {
+                CreateChapter(CreateVeteranCompany(),
+                CreateBattleCompany(),
+                CreateTacticalCompany(),
+                CreateAssaultCompany(),
+                CreateDevastatorCompany(),
+                CreateScoutCompany())
+            }.ToDictionary(ut => ut.Id);
+        }
+
         private UnitTemplate CreateVeteranCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate vetCompany = new UnitTemplate(1, "Veteran Company");
-            vetCompany.AddHQSquad(squads.CompanyHQSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            vetCompany.AddSquad(squads.VeteranSquadTemplate);
-            return vetCompany;
+            return new UnitTemplate(1, "Veteran Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[14],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[16]
+            });
         }
 
         private UnitTemplate CreateBattleCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate battleCompany = new UnitTemplate(2, "Battle Company");
-            battleCompany.AddHQSquad(squads.CompanyHQSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.TacticalSquadTemplate);
-            battleCompany.AddSquad(squads.AssaultSquadTemplate);
-            battleCompany.AddSquad(squads.DevastatorSquadTemplate);
-            return battleCompany;
+            return new UnitTemplate(2, "Battle Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21]
+            });
         }
 
         private UnitTemplate CreateTacticalCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate company = new UnitTemplate(3, "Tactical Company");
-            company.AddHQSquad(squads.CompanyHQSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            company.AddSquad(squads.TacticalSquadTemplate);
-            return company;
+            return new UnitTemplate(6, "Tactical Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[19]
+            });
         }
 
         private UnitTemplate CreateAssaultCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate company = new UnitTemplate(4, "Tactical Company");
-            company.AddHQSquad(squads.CompanyHQSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            company.AddSquad(squads.AssaultSquadTemplate);
-            return company;
+            return new UnitTemplate(8, "Assault Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[20]
+            });
         }
 
-        private UnitTemplate CreateDevestatorCompany()
+        private UnitTemplate CreateDevastatorCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate company = new UnitTemplate(5, "Devestator Company");
-            company.AddHQSquad(squads.CompanyHQSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            company.AddSquad(squads.DevastatorSquadTemplate);
-            return company;
+            return new UnitTemplate(9, "Devastator Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[21]
+            });
         }
 
         private UnitTemplate CreateScoutCompany()
         {
-            TempSpaceMarineSquadTemplates squads = TempSpaceMarineSquadTemplates.Instance;
-            UnitTemplate company = new UnitTemplate(6, "Scout Company");
-            company.AddHQSquad(squads.CompanyHQSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            company.AddSquad(squads.ScoutSquadTemplate);
-            return company;
+            return new UnitTemplate(8, "Assault Company", null, new List<SquadTemplate>
+            {
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22],
+                TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22]
+            });
         }
 
-        private UnitTemplate CreateChapter()
+        private UnitTemplate CreateChapter(UnitTemplate veteranCompany, UnitTemplate battleCompany,
+                                           UnitTemplate tactialCompany, UnitTemplate assaultCompany, 
+                                           UnitTemplate devastatorCompany, UnitTemplate scoutCompany)
         {
-            UnitTemplate chapter = new UnitTemplate(16, "Chapter");
-            chapter.AddHQSquad(TempSpaceMarineSquadTemplates.Instance.CompanyHQSquadTemplate);
-            chapter.AddSquad(TempSpaceMarineSquadTemplates.Instance.Armory);
-            chapter.AddSquad(TempSpaceMarineSquadTemplates.Instance.Librarius);
-            chapter.AddSquad(TempSpaceMarineSquadTemplates.Instance.Apothecarion);
-            chapter.AddSquad(TempSpaceMarineSquadTemplates.Instance.Reclusium);
-            chapter.AddChildUnit(VeteranCompanyTemplate);
-            chapter.AddChildUnit(BattleCompanyTemplate);
-            chapter.AddChildUnit(BattleCompanyTemplate);
-            chapter.AddChildUnit(BattleCompanyTemplate);
-            chapter.AddChildUnit(BattleCompanyTemplate);
-            chapter.AddChildUnit(TacticalCompanyTemplate);
-            chapter.AddChildUnit(TacticalCompanyTemplate);
-            chapter.AddChildUnit(AssaultCompanyTemplate);
-            chapter.AddChildUnit(DevestatorCompanyTemplate);
-            chapter.AddChildUnit(ScoutCompanyTemplate);
-            return chapter;
+            return new UnitTemplate(0, "Space Marine Chapter",
+                                    new List<UnitTemplate>
+                                    {
+                                        veteranCompany,
+                                        battleCompany,
+                                        battleCompany,
+                                        battleCompany,
+                                        battleCompany,
+                                        tactialCompany,
+                                        tactialCompany,
+                                        assaultCompany,
+                                        devastatorCompany,
+                                        scoutCompany
+                                    },
+                                    new List<SquadTemplate>
+                                    {
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[2],
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[3],
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[6],
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[10],
+                                    });
         }
     }
 

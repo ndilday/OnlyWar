@@ -1,5 +1,4 @@
-﻿using Iam.Scripts.Models;
-using Iam.Scripts.Models.Soldiers;
+﻿using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Helpers
 {
@@ -21,11 +20,12 @@ namespace Iam.Scripts.Helpers
 
         private int _nextId = 0;
 
-        public SoldierType GenerateNewSoldier<SoldierType>(SoldierTemplate template) where SoldierType : Soldier, new()
+        public Soldier GenerateNewSoldier(SoldierTemplate template)
         {
-            SoldierType soldier = new SoldierType();
-            soldier.InitializeBody(template.BodyTemplate);
-            soldier.Id = _nextId;
+            Soldier soldier = new Soldier(template.BodyTemplate)
+            {
+                Id = _nextId
+            };
             _nextId++;
 
             soldier.Strength = template.Strength.BaseValue + (float)(RNG.NextGaussianDouble() * template.Strength.StandardDeviation);
@@ -50,12 +50,12 @@ namespace Iam.Scripts.Helpers
             return soldier;
         }
 
-        public SoldierType[] GenerateNewSoldiers<SoldierType>(int count, SoldierTemplate template) where SoldierType : Soldier, new()
+        public Soldier[] GenerateNewSoldiers(int count, SoldierTemplate template)
         {
-            SoldierType[] soldierArray = new SoldierType[count];
+            Soldier[] soldierArray = new Soldier[count];
             for(int i = 0; i < count; i++)
             {
-                soldierArray[i] = GenerateNewSoldier<SoldierType>(template);
+                soldierArray[i] = GenerateNewSoldier(template);
             }
             return soldierArray;
         }

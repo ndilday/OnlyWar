@@ -1,6 +1,8 @@
-﻿using Iam.Scripts.Models.Soldiers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+
+using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Models.Units
 {
@@ -38,16 +40,16 @@ namespace Iam.Scripts.Models.Units
                 i++;
             }
         }
-        public IEnumerable<Soldier> GetAllMembers()
+        public IEnumerable<ISoldier> GetAllMembers()
         {
-            IEnumerable<Soldier> soldiers = null;
+            IEnumerable<ISoldier> soldiers = null;
             if(Squads != null)
             {
-                soldiers = Squads.SelectMany(s => s.GetAllMembers());
+                soldiers = Squads.SelectMany(s => s.Members);
             }
             if(HQSquad != null)
             {
-                soldiers = HQSquad.GetAllMembers().Union(soldiers);
+                soldiers = HQSquad.Members.Union(soldiers);
             }
             if(ChildUnits != null)
             {

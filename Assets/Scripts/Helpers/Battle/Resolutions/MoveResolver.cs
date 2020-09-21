@@ -34,7 +34,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                 }
                 else
                 {
-                    throw new InvalidOperationException("Soldier " + resolution.Soldier.Soldier.ToString() + " could not move to targeted position");
+                    throw new InvalidOperationException("Soldier " + resolution.Soldier.Soldier.Name + " could not move to targeted position");
                 }
             }
         }

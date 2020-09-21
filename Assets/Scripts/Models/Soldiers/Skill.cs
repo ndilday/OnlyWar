@@ -2,12 +2,14 @@
 
 namespace Iam.Scripts.Models.Soldiers
 {
-    public enum SkillAttribute
+    public enum Attribute
     {
         Dexterity,
         Intelligence,
         Presence,
-        Ego
+        Ego,
+        Strength,
+        Constitution
     }
 
     public enum SkillCategory
@@ -27,9 +29,9 @@ namespace Iam.Scripts.Models.Soldiers
         public int Id;
         public SkillCategory Category;
         public string Name;
-        public SkillAttribute BaseAttribute;
+        public Attribute BaseAttribute;
         public float Difficulty;
-        public BaseSkill(int id, SkillCategory category, string name, SkillAttribute baseAttribute, float difficulty)
+        public BaseSkill(int id, SkillCategory category, string name, Attribute baseAttribute, float difficulty)
         {
             Id = id;
             Category = category;
@@ -83,63 +85,63 @@ namespace Iam.Scripts.Models.Soldiers
 
         private TempBaseSkillList()
         {
-            Piety = new BaseSkill(1, SkillCategory.Professional, "Piety", SkillAttribute.Presence, -2);
-            Ritual = new BaseSkill(2, SkillCategory.Professional, "Ritual", SkillAttribute.Presence, -2);
-            Leadership = new BaseSkill(3, SkillCategory.Professional, "Leadership", SkillAttribute.Presence, -1);
-            Persuade = new BaseSkill(4, SkillCategory.Professional, "Persuade", SkillAttribute.Presence, -2);
-            FirstAid = new BaseSkill(14, SkillCategory.Professional, "First Aid", SkillAttribute.Intelligence, 0);
-            Teaching = new BaseSkill(16, SkillCategory.Professional, "Teaching", SkillAttribute.Intelligence, -1);
+            Piety = new BaseSkill(1, SkillCategory.Professional, "Piety", Attribute.Presence, -2);
+            Ritual = new BaseSkill(2, SkillCategory.Professional, "Ritual", Attribute.Presence, -2);
+            Leadership = new BaseSkill(3, SkillCategory.Professional, "Leadership", Attribute.Presence, -1);
+            Persuade = new BaseSkill(4, SkillCategory.Professional, "Persuade", Attribute.Presence, -2);
+            FirstAid = new BaseSkill(14, SkillCategory.Professional, "First Aid", Attribute.Intelligence, 0);
+            Teaching = new BaseSkill(16, SkillCategory.Professional, "Teaching", Attribute.Intelligence, -1);
 
-            Tactics = new BaseSkill(10, SkillCategory.Military, "Tactics", SkillAttribute.Intelligence, -2);
-            Marine = new BaseSkill(11, SkillCategory.Military, "Marine", SkillAttribute.Intelligence, -1);
-            ArmorySmallArms = new BaseSkill(12, SkillCategory.Military, "Armory (Small Arms)", SkillAttribute.Intelligence, -1);
-            Explosives = new BaseSkill(17, SkillCategory.Military, "Explosives", SkillAttribute.Intelligence, -1);
-            Stealth = new BaseSkill(29, SkillCategory.Military, "Stealth", SkillAttribute.Dexterity, -1);
+            Tactics = new BaseSkill(10, SkillCategory.Military, "Tactics", Attribute.Intelligence, -2);
+            Marine = new BaseSkill(11, SkillCategory.Military, "Marine", Attribute.Intelligence, -1);
+            ArmorySmallArms = new BaseSkill(12, SkillCategory.Military, "Armory (Small Arms)", Attribute.Intelligence, -1);
+            Explosives = new BaseSkill(17, SkillCategory.Military, "Explosives", Attribute.Intelligence, -1);
+            Stealth = new BaseSkill(29, SkillCategory.Military, "Stealth", Attribute.Dexterity, -1);
 
-            PowerArmor = new BaseSkill(20, SkillCategory.Military, "Power Armor", SkillAttribute.Dexterity, -1);
+            PowerArmor = new BaseSkill(20, SkillCategory.Military, "Power Armor", Attribute.Dexterity, -1);
 
-            Rhino = new BaseSkill(21, SkillCategory.Vehicle, "Drive (Rhino)", SkillAttribute.Dexterity, -1);
-            LandSpeeder = new BaseSkill(22, SkillCategory.Vehicle, "Pilot (Land Speeder)", SkillAttribute.Dexterity, -1);
-            JumpPack = new BaseSkill(27, SkillCategory.Vehicle, "Jump Pack", SkillAttribute.Dexterity, 0);
-            Bike = new BaseSkill(28, SkillCategory.Vehicle, "Drive (Bike)", SkillAttribute.Dexterity, 0);
+            Rhino = new BaseSkill(21, SkillCategory.Vehicle, "Drive (Rhino)", Attribute.Dexterity, -1);
+            LandSpeeder = new BaseSkill(22, SkillCategory.Vehicle, "Pilot (Land Speeder)", Attribute.Dexterity, -1);
+            JumpPack = new BaseSkill(27, SkillCategory.Vehicle, "Jump Pack", Attribute.Dexterity, 0);
+            Bike = new BaseSkill(28, SkillCategory.Vehicle, "Drive (Bike)", Attribute.Dexterity, 0);
 
-            GunneryBeam = new BaseSkill(23, SkillCategory.Gunnery, "Gunnery (Beam)", SkillAttribute.Dexterity, 0);
-            GunneryBolter = new BaseSkill(24, SkillCategory.Gunnery, "Gunnery (Bolter)", SkillAttribute.Dexterity, 0);
-            GunneryCannon = new BaseSkill(25, SkillCategory.Gunnery, "Gunnery (Cannon)", SkillAttribute.Dexterity, 0);
-            GunneryRocket = new BaseSkill(26, SkillCategory.Gunnery, "Gunnery (Rocket)", SkillAttribute.Dexterity, 0);
+            GunneryBeam = new BaseSkill(23, SkillCategory.Gunnery, "Gunnery (Beam)", Attribute.Dexterity, 0);
+            GunneryBolter = new BaseSkill(24, SkillCategory.Gunnery, "Gunnery (Bolter)", Attribute.Dexterity, 0);
+            GunneryCannon = new BaseSkill(25, SkillCategory.Gunnery, "Gunnery (Cannon)", Attribute.Dexterity, 0);
+            GunneryRocket = new BaseSkill(26, SkillCategory.Gunnery, "Gunnery (Rocket)", Attribute.Dexterity, 0);
             
-            Bolter = new BaseSkill(30, SkillCategory.Ranged, "Bolter", SkillAttribute.Dexterity, 0);
-            Lascannon = new BaseSkill(31, SkillCategory.Ranged, "Lascannon", SkillAttribute.Dexterity, 0);
-            Plasma = new BaseSkill(32, SkillCategory.Ranged, "Plasma", SkillAttribute.Dexterity, 0);
-            MissileLauncher = new BaseSkill(33, SkillCategory.Ranged, "Missile Launcher", SkillAttribute.Dexterity, 0);
-            Flamer = new BaseSkill(34, SkillCategory.Ranged, "Flamer", SkillAttribute.Dexterity, 0);
-            Sniper = new BaseSkill(35, SkillCategory.Ranged, "Sniper", SkillAttribute.Dexterity, 0);
-            Shotgun = new BaseSkill(36, SkillCategory.Ranged, "Shotgun", SkillAttribute.Dexterity, 0);
+            Bolter = new BaseSkill(30, SkillCategory.Ranged, "Bolter", Attribute.Dexterity, 0);
+            Lascannon = new BaseSkill(31, SkillCategory.Ranged, "Lascannon", Attribute.Dexterity, 0);
+            Plasma = new BaseSkill(32, SkillCategory.Ranged, "Plasma", Attribute.Dexterity, 0);
+            MissileLauncher = new BaseSkill(33, SkillCategory.Ranged, "Missile Launcher", Attribute.Dexterity, 0);
+            Flamer = new BaseSkill(34, SkillCategory.Ranged, "Flamer", Attribute.Dexterity, 0);
+            Sniper = new BaseSkill(35, SkillCategory.Ranged, "Sniper", Attribute.Dexterity, 0);
+            Shotgun = new BaseSkill(36, SkillCategory.Ranged, "Shotgun", Attribute.Dexterity, 0);
 
-            Throwing = new BaseSkill(40, SkillCategory.Melee, "Throwing", SkillAttribute.Dexterity, -1);
-            Shield = new BaseSkill(41, SkillCategory.Melee, "Shield", SkillAttribute.Dexterity, 0);
-            Sword = new BaseSkill(42, SkillCategory.Melee, "Sword", SkillAttribute.Dexterity, -1);
-            Axe = new BaseSkill(43, SkillCategory.Melee, "Axe", SkillAttribute.Dexterity, -1);
-            Fist = new BaseSkill(44, SkillCategory.Melee, "Fist", SkillAttribute.Dexterity, -1);
-            ServoArm = new BaseSkill(45, SkillCategory.Melee, "Servo-Arm", SkillAttribute.Dexterity, -1);
+            Throwing = new BaseSkill(40, SkillCategory.Melee, "Throwing", Attribute.Dexterity, -1);
+            Shield = new BaseSkill(41, SkillCategory.Melee, "Shield", Attribute.Dexterity, 0);
+            Sword = new BaseSkill(42, SkillCategory.Melee, "Sword", Attribute.Dexterity, -1);
+            Axe = new BaseSkill(43, SkillCategory.Melee, "Axe", Attribute.Dexterity, -1);
+            Fist = new BaseSkill(44, SkillCategory.Melee, "Fist", Attribute.Dexterity, -1);
+            ServoArm = new BaseSkill(45, SkillCategory.Melee, "Servo-Arm", Attribute.Dexterity, -1);
 
-            CyberEngineering = new BaseSkill(50, SkillCategory.Tech, "Engineering (Cybernetics)", SkillAttribute.Intelligence, -2);
-            MachineGod = new BaseSkill(51, SkillCategory.Tech, "Church of the Machine God", SkillAttribute.Presence, -2);
-            ArmoryForceShield = new BaseSkill(52, SkillCategory.Tech, "Armory (Force Shield)", SkillAttribute.Intelligence, -1);
-            ArmoryPowerArmor = new BaseSkill(53, SkillCategory.Tech, "Armory (Power Armor)", SkillAttribute.Intelligence, -1);
-            ArmoryVehicle = new BaseSkill(54, SkillCategory.Tech, "Armory (Vehicle)", SkillAttribute.Intelligence, -1);
-            RhinoMechanic = new BaseSkill(55, SkillCategory.Tech, "Mechanic (Rhino)", SkillAttribute.Intelligence, -1);
-            LandSpeederMechanic = new BaseSkill(56, SkillCategory.Tech, "Mechanic (Land Speeder)", SkillAttribute.Intelligence, -1);
-            LandRaiderMechanic = new BaseSkill(57, SkillCategory.Tech, "Mechanic (Land Raider)", SkillAttribute.Intelligence, -1);
-            LandRaider = new BaseSkill(58, SkillCategory.Tech, "Drive (Land Raider)", SkillAttribute.Dexterity, -1);
+            CyberEngineering = new BaseSkill(50, SkillCategory.Tech, "Engineering (Cybernetics)", Attribute.Intelligence, -2);
+            MachineGod = new BaseSkill(51, SkillCategory.Tech, "Church of the Machine God", Attribute.Presence, -2);
+            ArmoryForceShield = new BaseSkill(52, SkillCategory.Tech, "Armory (Force Shield)", Attribute.Intelligence, -1);
+            ArmoryPowerArmor = new BaseSkill(53, SkillCategory.Tech, "Armory (Power Armor)", Attribute.Intelligence, -1);
+            ArmoryVehicle = new BaseSkill(54, SkillCategory.Tech, "Armory (Vehicle)", Attribute.Intelligence, -1);
+            RhinoMechanic = new BaseSkill(55, SkillCategory.Tech, "Mechanic (Rhino)", Attribute.Intelligence, -1);
+            LandSpeederMechanic = new BaseSkill(56, SkillCategory.Tech, "Mechanic (Land Speeder)", Attribute.Intelligence, -1);
+            LandRaiderMechanic = new BaseSkill(57, SkillCategory.Tech, "Mechanic (Land Raider)", Attribute.Intelligence, -1);
+            LandRaider = new BaseSkill(58, SkillCategory.Tech, "Drive (Land Raider)", Attribute.Dexterity, -1);
 
-            Surgery = new BaseSkill(60, SkillCategory.Apothecary, "Surgery", SkillAttribute.Intelligence, -3);
-            Pharmacy = new BaseSkill(61, SkillCategory.Apothecary, "Pharmacy", SkillAttribute.Intelligence, -2);
-            Physician = new BaseSkill(62, SkillCategory.Apothecary, "Physician", SkillAttribute.Intelligence, -2);
-            Diagnosis = new BaseSkill(63, SkillCategory.Apothecary, "Diagnosis", SkillAttribute.Intelligence, -2);
+            Surgery = new BaseSkill(60, SkillCategory.Apothecary, "Surgery", Attribute.Intelligence, -3);
+            Pharmacy = new BaseSkill(61, SkillCategory.Apothecary, "Pharmacy", Attribute.Intelligence, -2);
+            Physician = new BaseSkill(62, SkillCategory.Apothecary, "Physician", Attribute.Intelligence, -2);
+            Diagnosis = new BaseSkill(63, SkillCategory.Apothecary, "Diagnosis", Attribute.Intelligence, -2);
 
-            OpponentMelee = new BaseSkill(100, SkillCategory.Melee, "Melee", SkillAttribute.Dexterity, 0);
-            OpponentRanged = new BaseSkill(100, SkillCategory.Ranged, "Ranged", SkillAttribute.Dexterity, 0);
+            OpponentMelee = new BaseSkill(100, SkillCategory.Melee, "Melee", Attribute.Dexterity, 0);
+            OpponentRanged = new BaseSkill(100, SkillCategory.Ranged, "Ranged", Attribute.Dexterity, 0);
         }
 
         public BaseSkill Piety { get; private set; }

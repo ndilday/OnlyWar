@@ -5,6 +5,8 @@ using UnityEngine;
 
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
+using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 
@@ -27,7 +29,7 @@ namespace Iam.Scripts.Controllers
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             // assume player is Space Marine
-            List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarines.Id];
+            List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
             PlanetView.gameObject.SetActive(true);
             UnitTreeView.ClearTree();
             _squadMap.Clear();
@@ -47,8 +49,8 @@ namespace Iam.Scripts.Controllers
             SquadArmamentView.SetIsFrontLine(!_selectedSquad.IsInReserve);
             if(_selectedSquad.SquadTemplate.DefaultWeapons != null)
             {
-                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve, 
-                                             _selectedSquad.GetAllMembers().Count(), 
+                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve,
+                                             _selectedSquad.Members.Count, 
                                              _selectedSquad.SquadTemplate.DefaultWeapons.Name, 
                                              GetSquadWeaponSelectionSections(_selectedSquad));
             }
@@ -74,26 +76,29 @@ namespace Iam.Scripts.Controllers
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            foreach(KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            if (planet.FactionGroundUnitListMap != null)
             {
-                string factionName = "Xenos";
-               if(kvp.Key == TempFactions.Instance.Tyranids.Id)
+                foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
-                    factionName = "Tyranid";
-                }
-                int factionSoldierCount = 0;
-                if (kvp.Key == TempFactions.Instance.SpaceMarines.Id) hasMarineForces = true;
-                else
-                {
-                    foreach (Unit unit in kvp.Value)
+                    string factionName = "Xenos";
+                    if (kvp.Key == TempFactions.Instance.TyranidFaction.Id)
                     {
-                        factionSoldierCount += unit.GetAllMembers().Count();
+                        factionName = "Tyranid";
                     }
-                    newReport = factionName + " forces on the planet number in the ";
-                    if (factionSoldierCount >= 2000) newReport += "thousands.";
-                    else if (factionSoldierCount >= 200) newReport += "hundreds.";
-                    else if (factionSoldierCount >= 24) newReport += "dozens.";
-                    else newReport = factionName + " forces on the planet are minimal, and should be easy to deal with.";
+                    int factionSoldierCount = 0;
+                    if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id) hasMarineForces = true;
+                    else
+                    {
+                        foreach (Unit unit in kvp.Value)
+                        {
+                            factionSoldierCount += unit.GetAllMembers().Count();
+                        }
+                        newReport = factionName + " forces on the planet number in the ";
+                        if (factionSoldierCount >= 2000) newReport += "thousands.";
+                        else if (factionSoldierCount >= 200) newReport += "hundreds.";
+                        else if (factionSoldierCount >= 24) newReport += "dozens.";
+                        else newReport = factionName + " forces on the planet are minimal, and should be easy to deal with.";
+                    }
                 }
             }
             if (!hasMarineForces) PlanetView.UpdateScoutingReport("With no forces on planet, we have no sense of what xenos or heretics may exist here.");
@@ -122,7 +127,7 @@ namespace Iam.Scripts.Controllers
             List<WeaponSelectionSection> list = new List<WeaponSelectionSection>();
             if (squad.SquadTemplate.WeaponOptions != null)
             {
-                foreach (UnitWeaponOption option in squad.SquadTemplate.WeaponOptions)
+                foreach (SquadWeaponOption option in squad.SquadTemplate.WeaponOptions)
                 {
                     int optionCount = 0;
                     WeaponSelectionSection section = new WeaponSelectionSection

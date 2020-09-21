@@ -1,25 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Models.Units
 {
-    public class UnitWeaponOption
-    {
-        public string Name { get; private set; }
-        public int MaxNumber { get; private set; }
-        public int MinNumber { get; private set; }
-        public List<WeaponSet> Options { get; private set; }
-
-        public UnitWeaponOption(string name, int min, int max, List<WeaponSet> options)
-        {
-            Name = name;
-            MinNumber = min;
-            MaxNumber = max;
-            Options = options;
-        }
-    }
-
     public class UnitTemplate
     {
         public int Id { get; private set; }
@@ -28,41 +13,33 @@ namespace Iam.Scripts.Models.Units
         public SquadTemplate HQSquad { get; private set; }
 
         //private UnitTemplate _parentUnit;
-        private readonly List<UnitTemplate> _childUnits;
-        private readonly List<SquadTemplate> _childSquads;
+        private readonly IReadOnlyCollection<UnitTemplate> _childUnits;
+        private readonly IReadOnlyCollection<SquadTemplate> _childSquads;
 
-        public UnitTemplate(int id, string name)
+        public UnitTemplate(int id, string name, 
+                            List<UnitTemplate> childUnits,
+                            List<SquadTemplate> childSquads)
         {
             Id = id;
             Name = name;
-            _childUnits = new List<UnitTemplate>();
-            _childSquads = new List<SquadTemplate>();
+            _childUnits = childUnits;
+            SquadTemplate hq = childSquads.FirstOrDefault(squad => (squad.SquadType & SquadTypes.HQ) > 0);
+            if (hq != null)
+            {
+                HQSquad = hq;
+                childSquads.Remove(hq);
+            }
+            _childSquads = childSquads;
         }
 
-        public IEnumerable<UnitTemplate> GetChildUnits()
+        public IReadOnlyCollection<UnitTemplate> GetChildUnits()
         {
-            return _childUnits;
+            return _childUnits ?? (IReadOnlyCollection<UnitTemplate>)Enumerable.Empty<UnitTemplate>();
         }
 
-        public IEnumerable<SquadTemplate> GetChildSquads()
+        public IReadOnlyCollection<SquadTemplate> GetChildSquads()
         {
-            return _childSquads;
-        }
-
-        public void AddChildUnit(UnitTemplate child)
-        {
-            _childUnits.Add(child);
-        }
-
-        public void AddHQSquad(SquadTemplate hq)
-        {
-            HQSquad = hq;
-        }
-
-        public void AddSquad(SquadTemplate squad)
-        {
-            squad.SetUnit(this);
-            _childSquads.Add(squad);
+            return _childSquads ?? (IReadOnlyCollection<SquadTemplate>)Enumerable.Empty<SquadTemplate>();
         }
 
         public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)

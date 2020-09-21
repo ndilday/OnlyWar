@@ -4,12 +4,13 @@ namespace Iam.Scripts.Models.Equippables
 {
     public class WeaponSet
     {
-        public string Name { get; set; }
-        public RangedWeaponTemplate PrimaryRangedWeapon { get; set; }
-        public RangedWeaponTemplate SecondaryRangedWeapon { get; set; }
-        public MeleeWeaponTemplate PrimaryMeleeWeapon { get; set; }
-        public MeleeWeaponTemplate SecondaryMeleeWeapon { get; set; }
-        public List<RangedWeapon> GetRangedWeapons()
+        public int Id { get; }
+        public string Name { get; }
+        public RangedWeaponTemplate PrimaryRangedWeapon { get; }
+        public RangedWeaponTemplate SecondaryRangedWeapon { get; }
+        public MeleeWeaponTemplate PrimaryMeleeWeapon { get; }
+        public MeleeWeaponTemplate SecondaryMeleeWeapon { get; }
+        public IReadOnlyCollection<RangedWeapon> GetRangedWeapons()
         {
             if (PrimaryRangedWeapon == null) return null;
             List<RangedWeapon> list = new List<RangedWeapon>
@@ -22,7 +23,7 @@ namespace Iam.Scripts.Models.Equippables
             }
             return list;
         }
-        public List<MeleeWeapon> GetMeleeWeapons()
+        public IReadOnlyCollection<MeleeWeapon> GetMeleeWeapons()
         {
             if (PrimaryMeleeWeapon == null) return null;
             List<MeleeWeapon> list = new List<MeleeWeapon>
@@ -34,6 +35,17 @@ namespace Iam.Scripts.Models.Equippables
                 list.Add(new MeleeWeapon(SecondaryMeleeWeapon));
             }
             return list;
+        }
+        public WeaponSet(int id, string name, 
+                         RangedWeaponTemplate primaryRanged = null, RangedWeaponTemplate secondaryRanged = null,
+                         MeleeWeaponTemplate primaryMelee = null, MeleeWeaponTemplate secondaryMelee = null)
+        {
+            Id = id;
+            Name = name;
+            PrimaryRangedWeapon = primaryRanged;
+            SecondaryRangedWeapon = secondaryRanged;
+            PrimaryMeleeWeapon = primaryMelee;
+            SecondaryMeleeWeapon = secondaryMelee;
         }
     }
 }

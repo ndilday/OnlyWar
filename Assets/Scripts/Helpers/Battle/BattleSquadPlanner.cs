@@ -73,7 +73,7 @@ namespace Iam.Scripts.Helpers.Battle
             {
                 foreach (BattleSoldier soldier in squad.Soldiers)
                 {
-                    float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestSoldierId);
+                    float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestSoldierId);
                     BattleSquad closestSquad = _opposingSoldierIdSquadMap[closestSoldierId];
                     float targetSize = closestSquad.GetAverageSize();
                     float targetArmor = closestSquad.GetAverageArmor();
@@ -183,7 +183,7 @@ namespace Iam.Scripts.Helpers.Battle
         {
             if(soldier.RangedWeapons.Count == 0)
             {
-                Debug.Log("Soldier with no ranged weapons just standing around");
+                Debug.Log("ISoldier with no ranged weapons just standing around");
             }
             // do we have a ranged weapon equipped
             else if(soldier.EquippedRangedWeapons.Count == 0 && soldier.RangedWeapons.Count > 0)
@@ -261,7 +261,7 @@ namespace Iam.Scripts.Helpers.Battle
             // down the road, we may want to advance toward a rearward enemy, ignoring the closest enemy
 
             Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
-            float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
+            float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
             float moveSpeed = soldier.GetMoveSpeed();
             if(distance < moveSpeed)
             {
@@ -301,7 +301,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
             else
             {
-                float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
+                float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
@@ -324,7 +324,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // TODO: handle when someone else in the same squad wants to use the same spot
                 // TODO: probably by letting the one with the lower id have it, and the higher id has to 
                 Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
-                float distance = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
+                float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
                 float moveSpeed = soldier.GetMoveSpeed();
                 Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
                 if (distance > moveSpeed + 1)
@@ -367,7 +367,7 @@ namespace Iam.Scripts.Helpers.Battle
                         if (newPos == null)
                         {
                             // we weren't able to find an enemy to get near, guess we try to find someone to shoot, instead?
-                            Debug.Log("Soldier in squad engaged in melee couldn't find anyone to attack");
+                            Debug.Log("ISoldier in squad engaged in melee couldn't find anyone to attack");
                             AddStandingActionsToBag(soldier);
                         }
                     }
@@ -402,7 +402,7 @@ namespace Iam.Scripts.Helpers.Battle
             }
             else
             {
-                Debug.Log(soldier.Soldier.ToString() + " charging " + moveSpeed.ToString("F0"));
+                Debug.Log(soldier.Soldier.Name + " charging " + moveSpeed.ToString("F0"));
                 soldier.CurrentSpeed = moveSpeed;
                 _grid.ReserveSpace(newPos);
                 _moveActionBag.Add(new MoveAction(soldier, _grid, newPos, _moveResolutionBag));
@@ -414,7 +414,7 @@ namespace Iam.Scripts.Helpers.Battle
         private void ShootIfReasonable(BattleSoldier soldier, bool isMoving)
         {
             if (soldier.RangedWeapons.Count == 0) return;
-            float range = _grid.GetNearestEnemy(soldier.Soldier, out int closestEnemyId);
+            float range = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
             BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
             BattleSoldier target = oppSquad.GetRandomSquadMember();
             range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
@@ -452,7 +452,7 @@ namespace Iam.Scripts.Helpers.Battle
             return range;
         }
 
-        private float EstimateHitDistance(Soldier soldier, RangedWeapon weapon, float targetSize, int freeHands)
+        private float EstimateHitDistance(ISoldier soldier, RangedWeapon weapon, float targetSize, int freeHands)
         {
             float baseTotal = soldier.GetTotalSkillValue(weapon.Template.RelatedSkill);
 
@@ -485,11 +485,11 @@ namespace Iam.Scripts.Helpers.Battle
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
             
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseStrength * 6 < effectiveArmor) return -1;
+            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
             //if we can't kill in one shot at point blank range, we still need to get as close as possible to have the best chance of taking the target down
-            if ((weapon.Template.BaseStrength * 6 - effectiveArmor) * weapon.Template.PenetrationMultiplier < targetCon) return 0;
+            if ((weapon.Template.BaseDamage * 6 - effectiveArmor) * weapon.Template.PenetrationMultiplier < targetCon) return 0;
             // find the range with a 1/3 chance of a killshot
-            float distanceRatio = 1 - (((targetCon / weapon.Template.PenetrationMultiplier) + effectiveArmor) / (4.25f * weapon.Template.BaseStrength));
+            float distanceRatio = 1 - (((targetCon / weapon.Template.PenetrationMultiplier) + effectiveArmor) / (4.25f * weapon.Template.BaseDamage));
             if (distanceRatio < 0) return 0;
             return weapon.Template.MaximumDistance * distanceRatio;
         }
@@ -501,9 +501,9 @@ namespace Iam.Scripts.Helpers.Battle
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
 
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseStrength * 6 < effectiveArmor) return -1;
+            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
             // find the range with a 1/3 chance of armor pen
-            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.BaseStrength));
+            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.BaseDamage));
             if (distanceRatio < 0) return 0;
             return weapon.Template.MaximumDistance * distanceRatio;
         }
@@ -513,7 +513,7 @@ namespace Iam.Scripts.Helpers.Battle
             RangedWeapon bestWeapon = null;
             float bestAccuracy = 0;
             float bestDamage = -0;
-            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.BaseStrength))
+            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.BaseDamage))
             {
                 Tuple<float, float> hitAndDamage = EstimateHitAndDamage(soldier, target, weapon, range, useBulk ? -2 : 0);
                 // if not likely to break through armor, there's little point

@@ -33,8 +33,8 @@ namespace Iam.Scripts.Helpers.Battle
         public static float CalculateDamageAtRange(RangedWeapon weapon, float range)
         {
             return weapon.Template.DoesDamageDegradeWithRange ?
-                                weapon.Template.BaseStrength * (1 - (range / weapon.Template.MaximumDistance)) :
-                                weapon.Template.BaseStrength;
+                                weapon.Template.BaseDamage * (1 - (range / weapon.Template.MaximumDistance)) :
+                                weapon.Template.BaseDamage;
         }
     }
 }

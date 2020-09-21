@@ -6,8 +6,10 @@ using UnityEngine.Events;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
+using TMPro;
 
 namespace Iam.Scripts.Controllers
 {
@@ -22,15 +24,16 @@ namespace Iam.Scripts.Controllers
         [SerializeField]
         private GameSettings GameSettings;
         private Dictionary<int, Squad> _squadMap;
-        private Dictionary<int, SpaceMarine> _marineMap;
-        private SpaceMarineTrainingHelper _trainingHelper;
+        private Dictionary<int, PlayerSoldier> _playerSoldierMap;
+        private SoldierTrainingHelper _trainingHelper;
+        private PlayerSoldier _selectedSoldier;
 
         // Start is called before the first frame update
         void Start()
         {
             _squadMap = new Dictionary<int, Squad>();
-            _trainingHelper = new SpaceMarineTrainingHelper();
-            _marineMap = new Dictionary<int, SpaceMarine>();
+            _trainingHelper = new SoldierTrainingHelper();
+            _playerSoldierMap = new Dictionary<int, PlayerSoldier>();
             Debug.Log("Creating Chapter");
             CreateChapter();
             Debug.Log("Done creating Chapter");
@@ -79,7 +82,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public void SquadSelected(int squadId)
+        public void UnitTreeView_OnUnitSelected(int squadId)
         {
             // populate view with members of selected squad
             if (!_squadMap.ContainsKey(squadId))
@@ -89,17 +92,18 @@ namespace Iam.Scripts.Controllers
             else
             {
                 Squad selectedSquad = _squadMap[squadId];
-                List<Tuple<int, string, string>> memberList = selectedSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
+                List<Tuple<int, string, string>> memberList = selectedSquad.Members
+                    .Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.Name)).ToList();
                 SquadMemberView.ReplaceSquadMemberContent(memberList);
                 SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
             }
         }
 
-        public void SoldierSelected(int soldierId)
+        public void SquadMemberView_OnSoldierSelected(int soldierId)
         {
             string newText = "";
-            Soldier soldier = _marineMap[soldierId];
-            foreach(string historyLine in soldier.SoldierHistory)
+            _selectedSoldier = _playerSoldierMap[soldierId];
+            foreach(string historyLine in _selectedSoldier.SoldierHistory)
             {
                 newText += historyLine + "\n";
             }
@@ -113,16 +117,17 @@ namespace Iam.Scripts.Controllers
             // handle work experience
             // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
             // works out to 21 hours of training equivalent, call it 20, so 0.1 points
-            foreach (SpaceMarine marine in _marineMap.Values)
+            foreach (PlayerSoldier soldier in _playerSoldierMap.Values)
             {
-                _trainingHelper.ApplyMarineWorkExperience(marine, 0.1f);
+                _trainingHelper.ApplySoldierWorkExperience(soldier, 0.1f);
             }
         }
 
         private void UnitSelected(int unitId)
         {
             Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
-            List<Tuple<int, string, string>> memberList = selectedUnit.HQSquad.GetAllMembers().Select(s => new Tuple<int, string, string>(s.Id, s.JobRole, s.ToString())).ToList();
+            List<Tuple<int, string, string>> memberList = selectedUnit.HQSquad.Members
+                .Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.Name)).ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
             SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
         }
@@ -130,147 +135,133 @@ namespace Iam.Scripts.Controllers
         private string GenerateUnitSummary(Unit unit)
         {
             string unitReport = unit.Name + " Order of Battle\n\n";
-            Dictionary<SpaceMarineRank, int> toe = new Dictionary<SpaceMarineRank, int>();
-            if(unit.HQSquad != null)
+            if (unit.HQSquad != null)
             {
-                if(unit.HQSquad.SquadLeader != null)
-                {
-                    unitReport += "Captain: " + unit.HQSquad.SquadLeader.ToString() + "\n";
-                }
-                else
-                {
-                    unitReport += "Needs a Captain Assigned!\n";
-                }
-
-                if(unit.Name != "Tenth Company")
-                {
-                    var marines = unit.HQSquad.Members.Select(m => (SpaceMarine)m);
-                    SpaceMarine ancient = marines.FirstOrDefault(m => m.Rank == TempSpaceMarineRanks.Ancient || m.Rank == TempSpaceMarineRanks.ChapterAncient);
-                    if(ancient != null)
-                    {
-                        unitReport += "Ancient: " + ancient.ToString() + "\n";
-                    }
-                    else
-                    {
-                        unitReport += "Needs an Ancient Assigned!\n";
-                    }
-                    SpaceMarine champion = marines.FirstOrDefault(m => m.Rank == TempSpaceMarineRanks.Champion || m.Rank == TempSpaceMarineRanks.ChapterChampion);
-                    if (champion != null)
-                    {
-                        unitReport += "Champion: " + champion.ToString() + "\n";
-                    }
-                    else
-                    {
-                        unitReport += "Needs a Champion Assigned!\n";
-                    }
-                }
+                unitReport += GenerateSquadSummary(unit.HQSquad);
             }
             else
             {
                 unitReport += "Entire HQ Missing\n";
             }
             unitReport += "\nCurrent Company size: " + unit.GetAllMembers().Count().ToString() + "\n\n";
-            foreach(Squad squad in unit.Squads)
+            List<Tuple<SoldierType, int, int>> toe = new List<Tuple<SoldierType, int, int>>();
+            foreach (Squad squad in unit.Squads)
             {
-                unitReport += GenerateSquadSummary(squad);
+                toe.AddRange(GetSquadHeadcounts(squad));
+            }
+            var summedList = toe.GroupBy(tuple => tuple.Item1)
+                    .Select(g => new Tuple<SoldierType, int, int>(g.Key, g.Sum(t => t.Item2), g.Sum(q => q.Item3)))
+                    .OrderBy(tuple => tuple.Item1.Id);
+            foreach(Tuple<SoldierType, int, int> tuple in summedList)
+            {
+                unitReport += $"{tuple.Item1.Name}: {tuple.Item2}/{tuple.Item3}\n";
             }
             return unitReport;
+        }
+
+        private string GenerateSquadSummary(Squad squad)
+        {
+            string report = "";
+            foreach(Tuple<SoldierType, int, int> tuple in GetSquadHeadcounts(squad))
+            {
+                report += $"{tuple.Item1.Name}: {tuple.Item2}/{tuple.Item3}\n";
+            }
+            
+            return report;
+        }
+
+        private List<Tuple<SoldierType, int, int>> GetSquadHeadcounts(Squad squad)
+        {
+            List<Tuple<SoldierType, int, int>> entryList = new List<Tuple<SoldierType, int, int>>();
+            IEnumerable<ISoldier> soldiers = squad.Members;
+            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                // get the members of the squad that match this element
+                var matches = soldiers.Where(s => element.AllowedSoldierTypes.Contains(s.Type));
+                int count = matches == null ? 0 : matches.Count();
+                entryList.Add(new Tuple<SoldierType, int, int>(element.AllowedSoldierTypes.First(), count, element.MaximumNumber));
+            }
+            return entryList;
         }
 
         private void CreateChapter()
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            _marineMap = SoldierFactory.Instance.GenerateNewSoldiers<SpaceMarine>(1000, TempSpaceMarineTemplate.Instance)
+            _playerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, TempSpaceMarineSoldierTemplate.Instance.SoldierTemplates[0])
+                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToDictionary(m => m.Id);
-            foreach (SpaceMarine marine in _marineMap.Values)
+            foreach (PlayerSoldier soldier in _playerSoldierMap.Values)
             {
-                marine.FirstName = TempNameGenerator.GetName();
-                marine.LastName = TempNameGenerator.GetName();
-                marine.SoldierHistory.Add(trainingStartDate + ": accepted into training");
-                if (marine.PsychicPower > 0)
+                soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
+                if (soldier.PsychicPower > 0)
                 {
-                    marine.SoldierHistory.Add(trainingStartDate + ": psychic ability detected, acolyte training initiated");
+                    soldier.AddEntryToHistory(trainingStartDate + ": psychic ability detected, acolyte training initiated");
                     // add psychic specific training here
                 }
-                EvaluateSoldier(marine, basicTrainingEndDate);
-                marine.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
+                _trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
+                //soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
             }
-            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_marineMap.Values, GameSettings.ChapterTemplate, 
+            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_playerSoldierMap.Values, GameSettings.ChapterTemplate, 
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
-        private string GenerateSquadSummary(Squad squad)
+        private List<Tuple<int, int, SoldierType>> AddOpeningsInUnit(Unit unit)
         {
-            int headCount = squad.GetAllMembers().Count();
-            return squad.Name + ": " + headCount.ToString() + "/" + (squad.SquadTemplate.Members.Count + 1).ToString() + " Marines\n";
-        }
-
-        private void DetermineSquadOpenings()
-        {
-            // if a tech marine, can't be reassigned
-            // if an apoc or chaplain, can be assigned to a company HQ Squad
-            // should we allow specialists to take on "normal" leadership roles, like being captains?
-            // for now, no
-            // regular marines can only be sent to a company of lower number for a higher ranked position
-            // regular marines can only be demoted as part of joining the first company
-            // priority order for regular marines:
-            // chapter master, captain, Chapter HQ, Company HQ, Squad Sgt
-            // assume scout -> devestator -> assault -> tactical is the normal progression, and reserve -> battle
-            Unit chapterRoot = GameSettings.Chapter.OrderOfBattle;
-            List<Tuple<byte, byte, SpaceMarineRank>> openSlotList = new List<Tuple<byte, byte, SpaceMarineRank>>();
-            DetermineChapterHQOpenings(chapterRoot, openSlotList);
-            for (int i = 1; i <= 10; i++)
+            List<Tuple<int, int, SoldierType>> openSlots = new List<Tuple<int, int, SoldierType>>();
+            IEnumerable<SoldierType> squadTypes;
+            if (unit.HQSquad != null)
             {
-                Unit company = chapterRoot.ChildUnits[i - 1];
-                if (company.HQSquad.SquadLeader == null)
+                squadTypes = GetOpeningsInSquad(unit.HQSquad);
+                if(squadTypes.Count() > 0)
                 {
-                    openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>((byte)i, 0, TempSpaceMarineRanks.Captain));
+                    foreach(SoldierType type in squadTypes)
+                    {
+                        openSlots.Add(new Tuple<int, int, SoldierType>(unit.Id, unit.HQSquad.Id,type));
+                    }
                 }
             }
-            //if(chapterRoot.HQSquad.Members.Any(s))
+            foreach(Squad squad in unit.Squads)
+            {
+                squadTypes = GetOpeningsInSquad(unit.HQSquad);
+                if (squadTypes.Count() > 0)
+                {
+                    foreach (SoldierType type in squadTypes)
+                    {
+                        openSlots.Add(new Tuple<int, int, SoldierType>(unit.Id, unit.HQSquad.Id, type));
+                    }
+                }
+            }
+            foreach(Unit childUnit in unit.ChildUnits)
+            {
+                openSlots.AddRange(AddOpeningsInUnit(childUnit));
+            }
+            return openSlots;
         }
 
-        private static void DetermineChapterHQOpenings(Unit chapterRoot, List<Tuple<byte, byte, SpaceMarineRank>> openSlotList)
+        private IEnumerable<SoldierType> GetOpeningsInSquad(Squad squad)
         {
-            if (chapterRoot.HQSquad.SquadLeader == null)
+            List<SoldierType> openTypes = new List<SoldierType>();
+            // get the count of each soldier type in the squad
+            // compare to the max count of each type
+            Dictionary<SoldierType, int> typeCountMap = 
+                squad.Members.GroupBy(s => s.Type).ToDictionary(g => g.Key, g => g.Count());
+            foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
-                openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>(0, 0, TempSpaceMarineRanks.ChapterMaster));
+                int existingHeadcount = 0;
+                foreach(SoldierType type in element.AllowedSoldierTypes)
+                {
+                    if(typeCountMap.ContainsKey(type))
+                    {
+                        existingHeadcount += typeCountMap[type];
+                    }
+                }
+                if(existingHeadcount < element.MaximumNumber)
+                {
+                    openTypes.AddRange(element.AllowedSoldierTypes);
+                }
             }
-            var marines = chapterRoot.HQSquad.Members.Select(s => (SpaceMarine)s);
-            if(!marines.Any(m => m.Rank == TempSpaceMarineRanks.ChapterChampion))
-            {
-                openSlotList.Add(new Tuple<byte, byte, SpaceMarineRank>(0, 0, TempSpaceMarineRanks.ChapterChampion));
-            }
-        }
-
-        // TODO: this should probably live somewhere else
-        private void EvaluateSoldier(SpaceMarine marine, Date trainingFinishedYear)
-        {
-            SpaceMarineEvaluator.Instance.EvaluateMarine(marine);
-
-            if (marine.MeleeScore > 700) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Adamantium Sword of the Emperor badge during training");
-            else if (marine.MeleeScore > 600) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Sword of the Emperor badge during training");
-            else if (marine.MeleeScore > 500) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Sword of the Emperor badge during training");
-            else if (marine.MeleeScore > 400) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Sword of the Emperor badge during training");
-
-            if (marine.RangedScore > 75) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
-            else if (marine.RangedScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
-            else if (marine.RangedScore > 60) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Marksman badge during training with " + marine.GetBestSkillByCategory(SkillCategory.Ranged).BaseSkill.Name);
-
-            if (marine.LeadershipScore > 235) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Voice of the Emperor badge during training");
-            else if (marine.LeadershipScore > 160) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Voice of the Emperor badge during training");
-            else if (marine.LeadershipScore > 135) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Voice of the Emperor badge during training");
-
-            if (marine.AncientScore > 72) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Gold Banner of the Emperor badge during training");
-            else if (marine.AncientScore > 65) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Silver Banner of the Emperor badge during training");
-            else if (marine.AncientScore > 57) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Bronze Banner of the Emperor badge during training");
-
-            if (marine.MedicalScore > 100) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Flagged for potential training as Apothecary");
-
-            if (marine.TechScore > 100) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Flagged for potential training as Techmarine");
-
-            if (marine.PietyScore > 110) marine.SoldierHistory.Add(trainingFinishedYear.ToString() + ": Awarded Devout badge and declared a Novice");
+            return openTypes;
         }
     }
 }

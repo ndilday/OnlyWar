@@ -93,7 +93,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                     // if severed, see if it's an arm or leg
                     if (wound.HitLocation.Template.IsMotive)
                     {
-                        Log(false, "<b>" + wound.Suffererer.Soldier.ToString() + " can no longer walk</b>");
+                        Log(false, "<b>" + wound.Suffererer.Soldier.Name + " can no longer walk</b>");
                         OnSoldierFall.Invoke(wound.Suffererer, wound.Inflicter, wound.Weapon);
                     }
                     else if(wound.HitLocation.Template.IsRangedWeaponHolder)
@@ -112,7 +112,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                     }
                     if(wound.HitLocation.Template.IsVital && wound.HitLocation.IsSevered)
                     {
-                        Log(false, "<b>" + wound.Suffererer.Soldier.ToString() + " has succumbed to their wounds</b>");
+                        Log(false, "<b>" + wound.Suffererer.Soldier.Name + " has succumbed to their wounds</b>");
                         OnSoldierFall.Invoke(wound.Suffererer, wound.Inflicter, wound.Weapon);
                     }
                 }

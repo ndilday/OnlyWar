@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
+using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models;
 
 namespace Iam.Scripts.Helpers
@@ -55,7 +57,7 @@ namespace Iam.Scripts.Helpers
                         }
                         if(UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
-                            p.ControllingFaction = TempFactions.Instance.Tyranids;
+                            p.ControllingFaction = TempFactions.Instance.TyranidFaction;
                         }
                         p.Id = Planets.Count;
                         Planets.Add(p);
@@ -75,7 +77,7 @@ namespace Iam.Scripts.Helpers
             };
             fleet.Position = fleet.Planet.Position;
             Planets[startingPlanet].LocalFleet = fleet;
-            Planets[startingPlanet].ControllingFaction = TempFactions.Instance.SpaceMarines;
+            Planets[startingPlanet].ControllingFaction = TempFactions.Instance.SpaceMarineFaction;
             Fleets.Add(fleet);
         }
     }

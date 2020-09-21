@@ -1,4 +1,8 @@
 ﻿
+using Iam.Scripts.Models.Squads;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Iam.Scripts.Models.Units
 {   
     public sealed class TempTyranidUnitTemplates
@@ -16,19 +20,28 @@ namespace Iam.Scripts.Models.Units
             }
         }
 
+        public IReadOnlyDictionary<int, UnitTemplate> UnitTemplates { get; }
+
         private TempTyranidUnitTemplates() 
         {
-            TyranidArmy = new UnitTemplate(1000, "Tyranid Melee Army");
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.HormagauntSquadTemplate);
-            TyranidArmy.AddSquad(TempTyranidSquadTemplates.Instance.TyranidWarriorSquadTemplate);
+            UnitTemplates = new List<UnitTemplate>
+            {
+                new UnitTemplate(1000, "Tyranid Melee Army", null, new List<SquadTemplate>
+                {
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[105],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[105],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[105],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[105],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[104],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[104],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[104],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[104],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[102],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[102],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[102],
+                    TempTyranidSquadTemplates.Instance.SquadTemplates[102]
+                })
+            }.ToDictionary(ut => ut.Id);
         }
-
-        public UnitTemplate TyranidArmy { get; private set; }
     }
 }

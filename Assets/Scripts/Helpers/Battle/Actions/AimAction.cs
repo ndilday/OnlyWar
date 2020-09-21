@@ -23,13 +23,13 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             if(_soldier.Aim?.Item1 != _target)
             {
                 // this is a new aim
-                _log.Enqueue(_soldier.Soldier.ToString() + " aims");
+                _log.Enqueue(_soldier.Soldier.Name + " aims");
                 _soldier.Aim = new Tuple<BattleSoldier, RangedWeapon, int>(_target, _weapon, 0);
             }
             else
             {
                 // increment the existing aim
-                _log.Enqueue(_soldier.Soldier.ToString() + " continues aiming");
+                _log.Enqueue(_soldier.Soldier.Name + " continues aiming");
                 int curAim = _soldier.Aim.Item3;
                 _soldier.Aim = new Tuple<BattleSoldier, RangedWeapon, int>(_target, _weapon, curAim + 1);
             }

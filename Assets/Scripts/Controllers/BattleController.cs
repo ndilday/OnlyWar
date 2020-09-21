@@ -10,7 +10,9 @@ using Iam.Scripts.Helpers.Battle;
 using Iam.Scripts.Helpers.Battle.Actions;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
+using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 using Iam.Scripts.Helpers.Battle.Resolutions;
@@ -39,7 +41,7 @@ namespace Iam.Scripts.Controllers
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
-        private Faction _opposingFaction;
+        private FactionTemplate _opposingFaction;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -66,14 +68,14 @@ namespace Iam.Scripts.Controllers
 
             foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
             {
-                if (kvp.Key == TempFactions.Instance.SpaceMarines.Id)
+                if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
                 {
                     PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
                     // TODO: clean this up when we add more factions
-                    _opposingFaction = TempFactions.Instance.Tyranids;
+                    _opposingFaction = TempFactions.Instance.TyranidFaction;
                     PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
@@ -115,7 +117,8 @@ namespace Iam.Scripts.Controllers
             {
                 // add death note to soldier history, though we currently just delete it 
                 // we'll probably want it later
-                casualty.Soldier.SoldierHistory.Add($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
+                GameSettings.Chapter.ChapterPlayerSoldierMap[casualty.Soldier.Id]
+                    .AddEntryToHistory($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
             }
             else
             {
@@ -142,7 +145,7 @@ namespace Iam.Scripts.Controllers
 
         private void MoveResolver_OnRetreat(BattleSoldier soldier)
         {
-            Log(false, "<b>" + soldier.Soldier.ToString() + " has retreated from the battlefield</b>");
+            Log(false, "<b>" + soldier.Soldier.Name + " has retreated from the battlefield</b>");
             _casualtyMap[soldier.Soldier.Id] = soldier;
         }
 
@@ -209,7 +212,7 @@ namespace Iam.Scripts.Controllers
             Debug.Log("Battle completed");
             ProcessSoldierHistoryForBattle();
             ApplySoldierExperienceForBattle();
-            List<Soldier> dead = RemoveSoldiersKilledInBattle();
+            List<ISoldier> dead = RemoveSoldiersKilledInBattle();
             LogBattleToChapterHistory(dead);
             BattleView.gameObject.SetActive(false);
             OnBattleComplete.Invoke();
@@ -390,7 +393,7 @@ namespace Iam.Scripts.Controllers
             string report = "\n" + squad.Name + "\n" + squad.Soldiers.Count.ToString() + " soldiers standing\n\n";
             foreach(BattleSoldier soldier in squad.Soldiers)
             {
-                report += soldier.Soldier.ToString() + "\n";
+                report += soldier.Soldier.Name + "\n";
                 foreach (RangedWeapon weapon in soldier.RangedWeapons)
                 {
                     report += weapon.Template.Name + "\n";
@@ -459,7 +462,7 @@ namespace Iam.Scripts.Controllers
                 string historyEntry = GameSettings.Date.ToString() + ": Fought in a skirmish on " + _planet.Name;
                 if(soldier.EnemiesTakenDown > 0)
                 {
-                    historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}.";
+                    historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}";
                 }
                 if(soldier.WoundsTaken > 0)
                 {
@@ -467,7 +470,7 @@ namespace Iam.Scripts.Controllers
                     {
                         if(hl.IsSevered)
                         {
-                            historyEntry += $" Lost his {hl.Template.Name} in the fighting.";
+                            historyEntry += $" Lost his {hl.Template.Name} in the fighting";
                         }
                     }
                 }
@@ -495,14 +498,14 @@ namespace Iam.Scripts.Controllers
                         {
                             soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill,
                                                            soldier.TurnsShooting * 0.0005f);
-                            float curPoints = Mathf.Pow(2, soldier.Soldier.Dexterity - 11) * 10;
-                            soldier.Soldier.Dexterity = Mathf.Log((curPoints + (0.0005f * soldier.TurnsShooting)) / 10.0f, 2) + 11;
+                            soldier.Soldier.AddAttributePoints(Models.Soldiers.Attribute.Dexterity,
+                                                               soldier.TurnsShooting * 0.0005f);
                         }
                     }
                     if (soldier.WoundsTaken > 0)
                     {
-                        float curPoints = Mathf.Pow(2, soldier.Soldier.Constitution - 11) * 10;
-                        soldier.Soldier.Constitution = Mathf.Log((curPoints + (0.0005f * soldier.WoundsTaken)) / 10.0f, 2) + 11;
+                        soldier.Soldier.AddAttributePoints(Models.Soldiers.Attribute.Constitution,
+                                                               soldier.WoundsTaken * 0.0005f);
                     }
                     if (soldier.TurnsSwinging > 0)
                     {
@@ -516,16 +519,16 @@ namespace Iam.Scripts.Controllers
                             soldier.Soldier.AddSkillPoints(TempBaseSkillList.Instance.Fist,
                                                                soldier.TurnsSwinging * 0.0005f);
                         }
-                        float curPoints = Mathf.Pow(2, soldier.Soldier.Strength - 11) * 10;
-                        soldier.Soldier.Strength = Mathf.Log((curPoints + (0.0005f * soldier.TurnsSwinging)) / 10.0f, 2) + 11;
+                        soldier.Soldier.AddAttributePoints(Models.Soldiers.Attribute.Strength,
+                                                               soldier.TurnsSwinging * 0.0005f);
                     }
                 }
             }
         }
 
-        private List<Soldier> RemoveSoldiersKilledInBattle()
+        private List<ISoldier> RemoveSoldiersKilledInBattle()
         {
-            List<Soldier> dead = new List<Soldier>();
+            List<ISoldier> dead = new List<ISoldier>();
             foreach(BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
                 foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
@@ -534,6 +537,10 @@ namespace Iam.Scripts.Controllers
                     {
                         // if a vital part is severed, they're dead
                         dead.Add(soldier.Soldier);
+                        PlayerSoldier playerSoldier = 
+                            GameSettings.Chapter.ChapterPlayerSoldierMap[soldier.Soldier.Id];
+                        playerSoldier.RemoveFromSquad();
+                        GameSettings.Chapter.ChapterPlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }
                 }
@@ -541,7 +548,7 @@ namespace Iam.Scripts.Controllers
             return dead;
         }
 
-        private void LogBattleToChapterHistory(List<Soldier> killedInBattle)
+        private void LogBattleToChapterHistory(List<ISoldier> killedInBattle)
         {
             List<EventHistory> eventHistories;
             if (!GameSettings.Chapter.BattleHistory.ContainsKey(GameSettings.Date))
@@ -559,30 +566,22 @@ namespace Iam.Scripts.Controllers
             WriteBattleLog(battleLog, killedInBattle);
         }
 
-        private void WriteBattleLog(EventHistory battleLog, List<Soldier> killedInBattle)
+        private void WriteBattleLog(EventHistory battleLog, List<ISoldier> killedInBattle)
         {
             battleLog.EventTitle = "A skirmish on " + _planet.Name;
             int marineCount = _startingPlayerBattleSoldiers.Count;
             battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
-            foreach(Soldier soldier in killedInBattle)
+            foreach(PlayerSoldier soldier in killedInBattle)
             {
-                SpaceMarine marine = (SpaceMarine)soldier;
-                battleLog.SubEvents.Add(marine.Rank.Name + " " + marine.ToString() + " died in the service of the emperor");
-                if(marine.AssignedSquad.SquadLeader == marine)
-                {
-                    marine.AssignedSquad.SquadLeader = null;
-                }
-                else
-                {
-                    marine.AssignedSquad.Members.Remove(marine);
-                }
-                marine.AssignedSquad = null;
+                battleLog.SubEvents.Add($"{soldier.Type.Name} {soldier.Name} died in the service of the emperor");
             }
         }
     
         private void CreditSoldierForKill(BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            inflicter.AddKill(_opposingFaction, weapon);
+            GameSettings.Chapter.ChapterPlayerSoldierMap[inflicter.Soldier.Id]
+                .AddKill(_opposingFaction.Id, weapon.Id);
+            inflicter.EnemiesTakenDown++;
         }
     }
 }

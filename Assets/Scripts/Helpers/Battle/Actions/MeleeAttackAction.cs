@@ -22,7 +22,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             _weapon = weapon;
             if(_weapon == null)
             {
-                _weapon = new MeleeWeapon(ImperialEquippables.Instance.Fist);
+                _weapon = new MeleeWeapon(TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[113]);
             }
             _didMove = didMove;
             _resultList = resultList;
@@ -42,10 +42,10 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                     float skill = _attacker.Soldier.GetTotalSkillValue(_weapon.Template.RelatedSkill);
                     float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
                     float total = skill + modifier - roll;
-                    _log.Enqueue(_attacker.Soldier.ToString() + " swings at " + _target.Soldier.ToString());
+                    _log.Enqueue(_attacker.Soldier.Name + " swings at " + _target.Soldier.ToString());
                     if (total > 0)
                     {
-                        _log.Enqueue(_attacker.Soldier.ToString() + " strikes " + _target.Soldier.ToString());
+                        _log.Enqueue(_attacker.Soldier.Name + " strikes " + _target.Soldier.ToString());
                         HandleHit();
                     }
                 }
@@ -53,7 +53,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             }
             else
             {
-                _log.Enqueue("<color=orange>" + _attacker.Soldier.ToString() + " did not get close enough to attack</color>");
+                _log.Enqueue("<color=orange>" + _attacker.Soldier.Name + " did not get close enough to attack</color>");
             }
         }
 

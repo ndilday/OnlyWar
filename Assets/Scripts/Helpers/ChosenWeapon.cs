@@ -7,8 +7,8 @@ namespace Iam.Scripts.Helpers
     public class ChosenRangedWeapon
     {
         public RangedWeapon ActiveWeapon { get; private set; }
-        public Soldier Soldier { get; private set; }
-        public ChosenRangedWeapon(RangedWeapon weapon, Soldier soldier)
+        public ISoldier Soldier { get; private set; }
+        public ChosenRangedWeapon(RangedWeapon weapon, ISoldier soldier)
         {
             ActiveWeapon = weapon;
             Soldier = soldier;
@@ -16,7 +16,7 @@ namespace Iam.Scripts.Helpers
 
         public float GetStrengthAtRange(float range)
         {
-            return ActiveWeapon.Template.BaseStrength * (1 - (range / ActiveWeapon.Template.MaximumDistance));
+            return ActiveWeapon.Template.BaseDamage * (1 - (range / ActiveWeapon.Template.MaximumDistance));
         }
 
         public float GetAccuracyAtRange(float range)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 
@@ -9,8 +8,7 @@ namespace Iam.Scripts.Helpers.Battle
 {
     public class BattleSoldier
     {
-        private ushort _enemiesTakenOut;
-        public Soldier Soldier { get; private set; }
+        public ISoldier Soldier { get; private set; }
 
         public Tuple<int, int> Location { get; set; }
         public BattleSquad BattleSquad { get; private set; }
@@ -32,13 +30,8 @@ namespace Iam.Scripts.Helpers.Battle
         public ushort TurnsAiming { get; set; }
         public uint WoundsTaken { get; set; }
 
-        public ushort EnemiesTakenDown 
-        { 
-            get
-            {
-                return _enemiesTakenOut;
-            }
-        }
+        public ushort EnemiesTakenDown { get; set; }
+
         public int HandsFree
         {
             get
@@ -57,7 +50,7 @@ namespace Iam.Scripts.Helpers.Battle
         }
         public Tuple<BattleSoldier, RangedWeapon, int> Aim { get; set; }
 
-        public BattleSoldier(Soldier soldier, BattleSquad squad)
+        public BattleSoldier(ISoldier soldier, BattleSquad squad)
         {
             Soldier = soldier;
             BattleSquad = squad;
@@ -70,10 +63,10 @@ namespace Iam.Scripts.Helpers.Battle
             IsInMelee = false;
             Stance = Stance.Standing;
             CurrentSpeed = 0;
-            _enemiesTakenOut = 0;
+            EnemiesTakenDown = 0;
         }
         
-        public void AddWeapons(List<RangedWeapon> rangedWeapons, List<MeleeWeapon> meleeWeapons)
+        public void AddWeapons(IReadOnlyCollection<RangedWeapon> rangedWeapons, IReadOnlyCollection<MeleeWeapon> meleeWeapons)
         {
             if (rangedWeapons?.Count > 0)
             {
@@ -142,15 +135,9 @@ namespace Iam.Scripts.Helpers.Battle
             return baseMoveSpeed;
         }
 
-        public void AddKill(Faction faction, WeaponTemplate weapon)
-        {
-            _enemiesTakenOut++;
-            Soldier.AddKill(faction, weapon);
-        }
-
         public override string ToString()
         {
-            return Soldier.ToString();
+            return Soldier.Name;
         }
 
         private int GetHandsForWeapon(WeaponTemplate template)

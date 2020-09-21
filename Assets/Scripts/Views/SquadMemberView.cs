@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Iam.Scripts.Models.Soldiers;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,6 +10,7 @@ namespace Iam.Scripts.Views
     public class SquadMemberView : MonoBehaviour
     {
         public UnityEvent<int> OnSoldierSelected;
+        public UnityEvent<int, Tuple<int, int, SoldierType>> OnSoldierTransferred;
 
         [SerializeField]
         private GameObject SquadMemberPrefab;
@@ -16,6 +18,11 @@ namespace Iam.Scripts.Views
         private GameObject SquadMemberContent;
         [SerializeField]
         private GameObject SelectedUnitHistoryContent;
+        [SerializeField]
+        private GameObject TransferPanel;
+
+        private Dropdown _transferDropdown;
+        private Button _transferConfirmationButton;
 
         private void SquadMemberButtonClicked(int id)
         {
@@ -49,6 +56,36 @@ namespace Iam.Scripts.Views
                     squadUnit.transform.GetComponent<Button>().onClick.AddListener(() => SquadMemberButtonClicked(squadMember.Item1));
                 }
             }
+        }
+
+        public void DisplayTransferPanel(bool isDisplayed)
+        {
+            TransferPanel.SetActive(isDisplayed);
+            if(isDisplayed && _transferDropdown == null)
+            {
+                _transferDropdown = TransferPanel.GetComponentInChildren<Dropdown>();
+                _transferConfirmationButton = TransferPanel.GetComponentInChildren<Button>();
+            }
+            _transferConfirmationButton.interactable = false;
+        }
+
+        public void PopulateTransferDropdown()
+        {
+            if(!TransferPanel.activeSelf)
+            {
+                DisplayTransferPanel(true);
+            }
+
+        }
+
+        public void Dropdown_OnValueChanged()
+        {
+            _transferConfirmationButton.interactable = true;
+        }
+
+        public void Button_OnClick()
+        {
+            //OnSoldierTransferred.Invoke()
         }
     }
 }
