@@ -397,7 +397,7 @@ namespace Iam.Scripts.Helpers
             {
                 int id = lastSquad.Id + 1;
                 // add a new Scout Squad to the company
-                Squad squad = new Squad(id, "Scout Squad", 
+                Squad squad = new Squad(id, "Scout Squad", lastCompany,
                     TempSpaceMarineSquadTemplates.Instance.SquadTemplates[22]);
                 lastCompany.Squads.Add(squad);
                 id++;

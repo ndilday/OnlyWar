@@ -9,7 +9,6 @@ using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using TMPro;
 
 namespace Iam.Scripts.Controllers
 {
@@ -108,6 +107,8 @@ namespace Iam.Scripts.Controllers
                 newText += historyLine + "\n";
             }
             SquadMemberView.ReplaceSelectedUnitText(newText);
+            var openings = GetOpeningsInUnit(GameSettings.Chapter.OrderOfBattle);
+            SquadMemberView.PopulateTransferDropdown(openings);
         }
 
         public void EndTurnButton_OnClick()
@@ -206,9 +207,10 @@ namespace Iam.Scripts.Controllers
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
-        private List<Tuple<int, int, SoldierType>> AddOpeningsInUnit(Unit unit)
+        private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit)
         {
-            List<Tuple<int, int, SoldierType>> openSlots = new List<Tuple<int, int, SoldierType>>();
+            List<Tuple<int, SoldierType, string>> openSlots = 
+                new List<Tuple<int, SoldierType, string>>();
             IEnumerable<SoldierType> squadTypes;
             if (unit.HQSquad != null)
             {
@@ -217,24 +219,26 @@ namespace Iam.Scripts.Controllers
                 {
                     foreach(SoldierType type in squadTypes)
                     {
-                        openSlots.Add(new Tuple<int, int, SoldierType>(unit.Id, unit.HQSquad.Id,type));
+                        openSlots.Add(new Tuple<int, SoldierType, string>(unit.HQSquad.Id,type,
+                            $"{type.Name}, {unit.HQSquad.Name}, {unit.Name}"));
                     }
                 }
             }
             foreach(Squad squad in unit.Squads)
             {
-                squadTypes = GetOpeningsInSquad(unit.HQSquad);
+                squadTypes = GetOpeningsInSquad(squad);
                 if (squadTypes.Count() > 0)
                 {
                     foreach (SoldierType type in squadTypes)
                     {
-                        openSlots.Add(new Tuple<int, int, SoldierType>(unit.Id, unit.HQSquad.Id, type));
+                        openSlots.Add(new Tuple<int, SoldierType, string>(unit.HQSquad.Id, type,
+                            $"{type.Name}, {squad.Name}, {unit.Name}"));
                     }
                 }
             }
             foreach(Unit childUnit in unit.ChildUnits)
             {
-                openSlots.AddRange(AddOpeningsInUnit(childUnit));
+                openSlots.AddRange(GetOpeningsInUnit(childUnit));
             }
             return openSlots;
         }

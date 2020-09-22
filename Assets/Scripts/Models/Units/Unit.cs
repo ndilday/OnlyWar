@@ -29,14 +29,14 @@ namespace Iam.Scripts.Models.Units
 
             if (template.HQSquad != null)
             {
-                HQSquad = new Squad(id * 100 + i, name + " HQ Squad", template.HQSquad);
+                HQSquad = new Squad(id * 100 + i, name + " HQ Squad", this, template.HQSquad);
                 i++;
             }
             
             Squads = new List<Squad>();
             foreach(SquadTemplate squadTemplate in template.GetChildSquads())
             {
-                Squads.Add(new Squad(id * 100 + i, squadTemplate.Name, squadTemplate));
+                Squads.Add(new Squad(id * 100 + i, squadTemplate.Name, this, squadTemplate));
                 i++;
             }
         }

@@ -30,6 +30,7 @@ namespace Iam.Scripts.Models.Squads
                 CreateLibrarius(),
                 CreateApothecarion(),
                 CreateReclusium(),
+                CreateChapterHQSquad(),
                 CreateCompanyHQSquad(),
                 CreateVeteranCompanyHQSquad(),
                 CreateVeteranSquad(),
@@ -227,7 +228,28 @@ namespace Iam.Scripts.Models.Squads
                                          }, 1, 1)
                                      }, SquadTypes.HQ | SquadTypes.Elite);
         }
-    
+
+        private SquadTemplate CreateChapterHQSquad()
+        {
+            return new SquadTemplate(1, "Chapter HQ Squad", TempSpaceMarineWeaponSets.Instance.WeaponSets[1],
+                                     null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
+                                     new List<SquadTemplateElement>
+                                     {
+                                         new SquadTemplateElement(new List<SoldierType>
+                                         {
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[1]
+                                         }, 1, 1),
+                                         new SquadTemplateElement(new List<SoldierType>
+                                         {
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14]
+                                         }, 1, 1),
+                                         new SquadTemplateElement(new List<SoldierType>
+                                         {
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15]
+                                         }, 1, 1)
+                                     }, SquadTypes.HQ);
+        }
+
         private SquadTemplate CreateCompanyHQSquad()
         {
             return new SquadTemplate(12, "Company HQ Squad", TempSpaceMarineWeaponSets.Instance.WeaponSets[1],

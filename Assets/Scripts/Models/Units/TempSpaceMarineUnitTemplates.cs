@@ -164,7 +164,7 @@ namespace Iam.Scripts.Models.Units
                                     },
                                     new List<SquadTemplate>
                                     {
-                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[12],
+                                        TempSpaceMarineSquadTemplates.Instance.SquadTemplates[1],
                                         TempSpaceMarineSquadTemplates.Instance.SquadTemplates[2],
                                         TempSpaceMarineSquadTemplates.Instance.SquadTemplates[3],
                                         TempSpaceMarineSquadTemplates.Instance.SquadTemplates[6],

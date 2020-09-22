@@ -2,6 +2,7 @@
 using System.Linq;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Units;
 
 namespace Iam.Scripts.Models.Squads
 {
@@ -9,6 +10,7 @@ namespace Iam.Scripts.Models.Squads
     {
         public int Id { get; private set; }
         public string Name { get; set; }
+        public Unit ParentUnit { get; }
         public SquadTemplate SquadTemplate { get; private set; }
         public bool IsInReserve { get; set; }
         public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Type.IsSquadLeader); }
@@ -16,10 +18,11 @@ namespace Iam.Scripts.Models.Squads
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<WeaponSet> Loadout { get; set; }
         //public List<int> AssignedVehicles;
-        public Squad(int id, string name, SquadTemplate template)
+        public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
         {
             Id = id;
             Name = name;
+            ParentUnit = parentUnit;
             SquadTemplate = template;
             IsInReserve = true;
             Members = new List<ISoldier>();

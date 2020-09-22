@@ -92,7 +92,7 @@ namespace Iam.Scripts.Views
             }
             _selectedButton = _buttonMap[id];
             colors = _selectedButton.colors;
-            colors.normalColor = Color.gray;
+            colors.normalColor = new Color(200, 200, 200);
             _selectedButton.colors = colors;
             OnUnitSelected.Invoke(id);
         }

@@ -1,6 +1,8 @@
 ﻿using Iam.Scripts.Models.Soldiers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -23,6 +25,7 @@ namespace Iam.Scripts.Views
 
         private Dropdown _transferDropdown;
         private Button _transferConfirmationButton;
+        private List<Tuple<int, SoldierType, string>> _openingsList;
 
         private void SquadMemberButtonClicked(int id)
         {
@@ -69,13 +72,16 @@ namespace Iam.Scripts.Views
             _transferConfirmationButton.interactable = false;
         }
 
-        public void PopulateTransferDropdown()
+        public void PopulateTransferDropdown(List<Tuple<int, SoldierType, string>> entries)
         {
             if(!TransferPanel.activeSelf)
             {
                 DisplayTransferPanel(true);
             }
-
+            _transferDropdown.ClearOptions();
+            _openingsList = entries;
+            _transferDropdown.AddOptions(_openingsList.Select(
+                tuple => new Dropdown.OptionData(tuple.Item3)).ToList());
         }
 
         public void Dropdown_OnValueChanged()
