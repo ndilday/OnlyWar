@@ -12,7 +12,7 @@ namespace Iam.Scripts.Views
     public class SquadMemberView : MonoBehaviour
     {
         public UnityEvent<int> OnSoldierSelected;
-        public UnityEvent<int, Tuple<int, int, SoldierType>> OnSoldierTransferred;
+        public UnityEvent<Tuple<int, SoldierType, string>> OnSoldierTransferred;
 
         [SerializeField]
         private GameObject SquadMemberPrefab;
@@ -25,7 +25,7 @@ namespace Iam.Scripts.Views
 
         private Dropdown _transferDropdown;
         private Button _transferConfirmationButton;
-        private IEnumerable<Tuple<int, SoldierType, string>> _openingsList;
+        private List<Tuple<int, SoldierType, string>> _openingsList;
 
         private void SquadMemberButtonClicked(int id)
         {
@@ -72,12 +72,13 @@ namespace Iam.Scripts.Views
             _transferConfirmationButton.interactable = false;
         }
 
-        public void PopulateTransferDropdown(IEnumerable<Tuple<int, SoldierType, string>> entries)
+        public void PopulateTransferDropdown(List<Tuple<int, SoldierType, string>> entries)
         {
             if(!TransferPanel.activeSelf)
             {
                 DisplayTransferPanel(true);
             }
+            _transferConfirmationButton.interactable = false;
             _transferDropdown.ClearOptions();
             _openingsList = entries;
             _transferDropdown.AddOptions(_openingsList.Select(
@@ -86,12 +87,13 @@ namespace Iam.Scripts.Views
 
         public void Dropdown_OnValueChanged()
         {
-            _transferConfirmationButton.interactable = true;
+            _transferConfirmationButton.interactable = _transferDropdown.value != 0;
         }
 
         public void Button_OnClick()
         {
-            //OnSoldierTransferred.Invoke()
+            OnSoldierTransferred.Invoke(_openingsList[_transferDropdown.value]);
+
         }
     }
 }

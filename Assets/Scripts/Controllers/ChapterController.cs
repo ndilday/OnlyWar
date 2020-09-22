@@ -118,6 +118,17 @@ namespace Iam.Scripts.Controllers
             SquadMemberView.PopulateTransferDropdown(openings);
         }
 
+        public void SquadMemberView_OnSoldierTransferred(Tuple<int, SoldierType, string> newPosition)
+        {
+            Squad currentSquad = _selectedSoldier.AssignedSquad;
+            // move soldier to his new role
+            _selectedSoldier.RemoveFromSquad();
+            _selectedSoldier.AssignToSquad(_squadMap[newPosition.Item1]);
+            _selectedSoldier.Type = newPosition.Item2;
+            // refresh the unit layout
+            UnitTreeView_OnUnitSelected(currentSquad.Id);
+        }
+
         public void EndTurnButton_OnClick()
         {
             // set the unit tree view to dirty as there may be casualties between turns
@@ -238,7 +249,7 @@ namespace Iam.Scripts.Controllers
                 {
                     foreach (SoldierType type in squadTypes)
                     {
-                        openSlots.Add(new Tuple<int, SoldierType, string>(unit.HQSquad.Id, type,
+                        openSlots.Add(new Tuple<int, SoldierType, string>(squad.Id, type,
                             $"{type.Name}, {squad.Name}, {unit.Name}"));
                     }
                 }

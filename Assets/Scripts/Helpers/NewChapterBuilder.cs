@@ -87,7 +87,6 @@ namespace Iam.Scripts.Helpers
         {
             var master = unassignedSoldierMap.Values.OrderByDescending(s => s.LeadershipRating).First();
             master.Type = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[1];
-            chapter.HQSquad.Members.Add(master);
             master.AssignToSquad(chapter.HQSquad);
             master.AddEntryToHistory(year + ": voted by the chapter to become the first Chapter Master");
             unassignedSoldierMap.Remove(master.Id);
@@ -123,7 +122,6 @@ namespace Iam.Scripts.Helpers
                 {
                     soldier.Type = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[9];
                 }
-                library.Members.Add(soldier);
                 soldier.AssignToSquad(library);
                 soldier.AddEntryToHistory(year + ": Promoted to " + soldier.Type.Name + " and assigned to " + soldier.AssignedSquad.Name);
                 unassignedSoldierMap.Remove(soldier.Id);
@@ -158,7 +156,6 @@ namespace Iam.Scripts.Helpers
                     soldier.Type = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[5];
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.GunneryBeam, 2);
                 }
-                armory.Members.Add(soldier);
                 soldier.AssignToSquad(armory);
                 soldier.AddEntryToHistory(year + ": Returned from Mars, promoted to " 
                     + soldier.Type.Name + " and assigned to " + soldier.AssignedSquad.Name);
@@ -192,7 +189,6 @@ namespace Iam.Scripts.Helpers
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Bolter, 2);
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Sword, 2);
                 }
-                apo.Members.Add(soldier);
                 soldier.AssignToSquad(apo);
                 soldier.AddEntryToHistory(year + ": finished medical and genetic training, promoted to " 
                     + soldier.Type.Name + " and assigned to " + soldier.AssignedSquad.Name);
@@ -224,7 +220,6 @@ namespace Iam.Scripts.Helpers
                     soldier.Type = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[17];
                     soldier.AddSkillPoints(TempBaseSkillList.Instance.Axe, 2);
                 }
-                reclusium.Members.Add(soldier);
                 soldier.AssignToSquad(reclusium);
                 soldier.AddEntryToHistory(year + ": promoted to " + soldier.Type.Name 
                     + " and assigned to " + soldier.AssignedSquad.Name);
@@ -678,7 +673,6 @@ namespace Iam.Scripts.Helpers
             soldier.AssignToSquad(squad);
             soldier.AddEntryToHistory(year + ": promoted to " + soldier.Type.Name 
                 + " and assigned to " + soldier.AssignedSquad.Name);
-            squad.Members.Add(soldier);
             unassignedSoldierMap.Remove(soldier.Id);
             soldierList.RemoveAt(0);
             return soldier;

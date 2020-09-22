@@ -19,9 +19,9 @@ namespace Iam.Scripts.Helpers
                     SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
-                    squad.Members.AddRange(soldiers);
                     foreach(Soldier soldier in soldiers)
                     {
+                        squad.AddSquadMember(soldier);
                         soldier.Type = type;
                         soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
                     }

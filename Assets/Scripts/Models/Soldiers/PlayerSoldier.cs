@@ -108,11 +108,12 @@ namespace Iam.Scripts.Models.Soldiers
                 RemoveFromSquad();
             }
             AssignedSquad = squad;
+            squad.AddSquadMember(this);
         }
 
         public void RemoveFromSquad()
         {
-            AssignedSquad.Members.Remove(_soldier);
+            AssignedSquad.RemoveSquadMember(this);
             AssignedSquad = null;
         }
 

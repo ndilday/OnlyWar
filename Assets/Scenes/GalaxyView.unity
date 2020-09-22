@@ -3427,7 +3427,19 @@ MonoBehaviour:
         m_CallState: 2
   OnSoldierTransferred:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066516931}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.ChapterController, Assembly-CSharp
+        m_MethodName: SquadMemberView_OnSoldierTransferred
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   SquadMemberPrefab: {fileID: 1536956609591016567, guid: f16bd3590ba92ec448d66c8d9324c97b,
     type: 3}
   SquadMemberContent: {fileID: 1094436043}
@@ -7310,7 +7322,19 @@ MonoBehaviour:
     m_Options: []
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 570941898}
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.SquadMemberView, Assembly-CSharp
+        m_MethodName: Dropdown_OnValueChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!114 &1238268840
 MonoBehaviour:
@@ -11687,11 +11711,23 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1954986517}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 570941898}
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.SquadMemberView, Assembly-CSharp
+        m_MethodName: Button_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1954986517
 MonoBehaviour:
   m_ObjectHideFlags: 0
