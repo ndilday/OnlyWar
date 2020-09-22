@@ -107,7 +107,14 @@ namespace Iam.Scripts.Controllers
                 newText += historyLine + "\n";
             }
             SquadMemberView.ReplaceSelectedUnitText(newText);
-            var openings = GetOpeningsInUnit(GameSettings.Chapter.OrderOfBattle);
+            var openings = GetOpeningsInUnit(GameSettings.Chapter.OrderOfBattle, 
+                                             _selectedSoldier.AssignedSquad,
+                                             _selectedSoldier.Type);
+            // insert current assignment at top
+            openings.Insert(0, new Tuple<int, SoldierType, string>(
+                _selectedSoldier.AssignedSquad.Id,
+                _selectedSoldier.Type,
+                $"{_selectedSoldier.Type.Name}, {_selectedSoldier.AssignedSquad.Name}, {_selectedSoldier.AssignedSquad.ParentUnit.Name}"));
             SquadMemberView.PopulateTransferDropdown(openings);
         }
 
@@ -178,9 +185,9 @@ namespace Iam.Scripts.Controllers
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
                 // get the members of the squad that match this element
-                var matches = soldiers.Where(s => element.AllowedSoldierTypes.Contains(s.Type));
+                var matches = soldiers.Where(s => element.SoldierType == s.Type);
                 int count = matches == null ? 0 : matches.Count();
-                entryList.Add(new Tuple<SoldierType, int, int>(element.AllowedSoldierTypes.First(), count, element.MaximumNumber));
+                entryList.Add(new Tuple<SoldierType, int, int>(element.SoldierType, count, element.MaximumNumber));
             }
             return entryList;
         }
@@ -207,14 +214,14 @@ namespace Iam.Scripts.Controllers
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
-        private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit)
+        private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit, Squad currentSquad, SoldierType soldierType)
         {
             List<Tuple<int, SoldierType, string>> openSlots = 
                 new List<Tuple<int, SoldierType, string>>();
             IEnumerable<SoldierType> squadTypes;
             if (unit.HQSquad != null)
             {
-                squadTypes = GetOpeningsInSquad(unit.HQSquad);
+                squadTypes = GetOpeningsInSquad(unit.HQSquad, currentSquad, soldierType);
                 if(squadTypes.Count() > 0)
                 {
                     foreach(SoldierType type in squadTypes)
@@ -226,7 +233,7 @@ namespace Iam.Scripts.Controllers
             }
             foreach(Squad squad in unit.Squads)
             {
-                squadTypes = GetOpeningsInSquad(squad);
+                squadTypes = GetOpeningsInSquad(squad, currentSquad, soldierType);
                 if (squadTypes.Count() > 0)
                 {
                     foreach (SoldierType type in squadTypes)
@@ -238,31 +245,43 @@ namespace Iam.Scripts.Controllers
             }
             foreach(Unit childUnit in unit.ChildUnits)
             {
-                openSlots.AddRange(GetOpeningsInUnit(childUnit));
+                openSlots.AddRange(GetOpeningsInUnit(childUnit, currentSquad, soldierType));
             }
             return openSlots;
         }
 
-        private IEnumerable<SoldierType> GetOpeningsInSquad(Squad squad)
+        private IEnumerable<SoldierType> GetOpeningsInSquad(Squad squad, Squad currentSquad, SoldierType soldierType)
         {
             List<SoldierType> openTypes = new List<SoldierType>();
+            bool hasSquadLeader = squad.SquadLeader != null;
             // get the count of each soldier type in the squad
             // compare to the max count of each type
             Dictionary<SoldierType, int> typeCountMap = 
                 squad.Members.GroupBy(s => s.Type).ToDictionary(g => g.Key, g => g.Count());
             foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
-                int existingHeadcount = 0;
-                foreach(SoldierType type in element.AllowedSoldierTypes)
+                // if the squad has no squad leader, only squad leader elements can be added now
+                if(!hasSquadLeader && !element.SoldierType.IsSquadLeader)
                 {
-                    if(typeCountMap.ContainsKey(type))
-                    {
-                        existingHeadcount += typeCountMap[type];
-                    }
+                    continue;
+                }
+                if(currentSquad == squad && element.SoldierType == soldierType)
+                {
+                    continue;
+                }
+                if(element.SoldierType.Rank < soldierType.Rank 
+                    || element.SoldierType.Rank > soldierType.Rank + 1)
+                {
+                    continue;
+                }
+                int existingHeadcount = 0;
+                if(typeCountMap.ContainsKey(element.SoldierType))
+                {
+                    existingHeadcount += typeCountMap[element.SoldierType];
                 }
                 if(existingHeadcount < element.MaximumNumber)
                 {
-                    openTypes.AddRange(element.AllowedSoldierTypes);
+                    openTypes.Add(element.SoldierType);
                 }
             }
             return openTypes;

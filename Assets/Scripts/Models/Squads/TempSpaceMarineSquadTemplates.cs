@@ -50,14 +50,10 @@ namespace Iam.Scripts.Models.Squads
                                      TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[16]
-                                         }, 4, 9)
+                                         new SquadTemplateElement(TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13],
+                                         1, 1),
+                                         new SquadTemplateElement(TempSoldierTypes.Instance.SpaceMarineSoldierTypes[16],
+                                         4, 9)
                                      }, SquadTypes.Elite);
         }
 
@@ -91,14 +87,10 @@ namespace Iam.Scripts.Models.Squads
                                      options, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[19]
-                                         }, 4, 9)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13],1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[19], 4, 9)
                                      }, SquadTypes.None);
         }
 
@@ -128,14 +120,10 @@ namespace Iam.Scripts.Models.Squads
                                      options, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[20]
-                                         }, 4, 9)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[20], 4, 9)
                                      }, SquadTypes.None);
         }
 
@@ -160,14 +148,10 @@ namespace Iam.Scripts.Models.Squads
                                      options, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[21]
-                                         }, 4, 9)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[21], 4, 9)
                                      }, SquadTypes.None);
         }
 
@@ -197,14 +181,10 @@ namespace Iam.Scripts.Models.Squads
                                      options, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[22]
-                                         }, 4, 9)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[13], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[22], 4, 9)
                                      }, SquadTypes.Scout);
         }
 
@@ -214,18 +194,12 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15]
-                                         }, 1, 1)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15], 1, 1)
                                      }, SquadTypes.HQ | SquadTypes.Elite);
         }
 
@@ -235,18 +209,12 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[1]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15]
-                                         }, 1, 1)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[1], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15], 1, 1)
                                      }, SquadTypes.HQ);
         }
 
@@ -256,18 +224,12 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15]
-                                         }, 1, 1)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15], 1, 1)
                                      }, SquadTypes.HQ);
         }
 
@@ -277,10 +239,8 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12]
-                                         }, 1, 1)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[12], 1, 1)
                                      }, SquadTypes.HQ);
         }
 
@@ -290,18 +250,12 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[3]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[4]
-                                         }, 0, 20),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[5]
-                                         }, 0, 50)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[3], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[4], 0, 20),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[5], 0, 50)
                                      }, SquadTypes.None);
         }
 
@@ -311,22 +265,14 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[6]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[7]
-                                         }, 0, 10),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[8]
-                                         }, 0, 10),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[9]
-                                         }, 0, 10)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[6], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[7], 0, 10),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[8], 0, 10),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[9], 0, 10)
                                      }, SquadTypes.None);
         }
 
@@ -336,14 +282,10 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[2]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[18]
-                                         }, 0, 50),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[2], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[18], 0, 50),
                                      }, SquadTypes.None);
         }
 
@@ -353,18 +295,12 @@ namespace Iam.Scripts.Models.Squads
                                      null, TempSpaceMarineEquippables.Instance.ArmorTemplates[200],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[10]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[11]
-                                         }, 1, 1),
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[17]
-                                         }, 0, 50)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[10], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[11], 1, 1),
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.SpaceMarineSoldierTypes[17], 0, 50)
                                      }, SquadTypes.None);
         }
     }

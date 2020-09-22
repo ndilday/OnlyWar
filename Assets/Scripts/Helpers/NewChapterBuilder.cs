@@ -469,7 +469,7 @@ namespace Iam.Scripts.Helpers
                 || sortedCandidates.Count == 0 
                 || (squad.SquadTemplate.SquadType & SquadTypes.Elite) > 0) return;
             IEnumerable<SquadTemplateElement> elements = squad.SquadTemplate.Elements
-                .Where(e => e.AllowedSoldierTypes.Contains(specialistType));
+                .Where(e => e.SoldierType == specialistType);
             foreach (SquadTemplateElement element in elements)
             {
                 if (sortedCandidates.Count == 0) return;

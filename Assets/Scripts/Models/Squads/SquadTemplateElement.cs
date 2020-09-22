@@ -6,13 +6,13 @@ namespace Iam.Scripts.Models.Squads
 {
     public class SquadTemplateElement
     {
-        public IReadOnlyCollection<SoldierType> AllowedSoldierTypes { get; }
+        public SoldierType SoldierType { get; }
         public byte MinimumNumber { get; }
         public byte MaximumNumber { get; }
 
-        public SquadTemplateElement(List<SoldierType> soldierTypes, byte minNumber, byte maxNumber)
+        public SquadTemplateElement(SoldierType soldierType, byte minNumber, byte maxNumber)
         {
-            AllowedSoldierTypes = soldierTypes.AsReadOnly();
+            SoldierType = soldierType;
             MinimumNumber = minNumber;
             MaximumNumber = maxNumber;
         }

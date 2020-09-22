@@ -40,10 +40,8 @@ namespace Iam.Scripts.Models.Squads
                                      TempTyranidEquippables.Instance.ArmorTemplates[203],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[102]
-                                         }, 3, 9)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[102], 3, 9)
                                      }, SquadTypes.None);
         }
         private SquadTemplate CreateTermagauntSquad()
@@ -54,10 +52,8 @@ namespace Iam.Scripts.Models.Squads
                                      TempTyranidEquippables.Instance.ArmorTemplates[201],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[104]
-                                         }, 10, 30)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[104], 10, 30)
                                      }, SquadTypes.None);
         }
 
@@ -69,10 +65,8 @@ namespace Iam.Scripts.Models.Squads
                                      TempTyranidEquippables.Instance.ArmorTemplates[201],
                                      new List<SquadTemplateElement>
                                      {
-                                         new SquadTemplateElement(new List<SoldierType>
-                                         {
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[105]
-                                         }, 10, 30)
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[105], 10, 30)
                                      }, SquadTypes.None);
         }
     }

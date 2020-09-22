@@ -1,7 +1,6 @@
 ﻿using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
-using System.Linq;
 
 namespace Iam.Scripts.Helpers
 {
@@ -16,7 +15,7 @@ namespace Iam.Scripts.Helpers
                 foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
                 {
                     // this is cheat... the soldier type id and the template ids match
-                    SoldierType type = element.AllowedSoldierTypes.First();
+                    SoldierType type = element.SoldierType;
                     SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 

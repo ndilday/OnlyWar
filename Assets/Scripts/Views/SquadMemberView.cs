@@ -25,7 +25,7 @@ namespace Iam.Scripts.Views
 
         private Dropdown _transferDropdown;
         private Button _transferConfirmationButton;
-        private List<Tuple<int, SoldierType, string>> _openingsList;
+        private IEnumerable<Tuple<int, SoldierType, string>> _openingsList;
 
         private void SquadMemberButtonClicked(int id)
         {
@@ -72,7 +72,7 @@ namespace Iam.Scripts.Views
             _transferConfirmationButton.interactable = false;
         }
 
-        public void PopulateTransferDropdown(List<Tuple<int, SoldierType, string>> entries)
+        public void PopulateTransferDropdown(IEnumerable<Tuple<int, SoldierType, string>> entries)
         {
             if(!TransferPanel.activeSelf)
             {
