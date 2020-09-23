@@ -12,7 +12,7 @@ using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
 {
-    class PlanetController : MonoBehaviour
+    class PlanetController : ChapterUnitTreeController
     {
         [SerializeField]
         private UnitTreeView UnitTreeView;
@@ -155,10 +155,13 @@ namespace Iam.Scripts.Controllers
             {
                 UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
                                          GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
-                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad));
+                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad, 
+                                                               GameSettings.PlayerSoldierMap));
                 foreach(Squad squad in unitList[0].Squads)
                 {
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad));
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, 
+                                             DetermineDisplayColor(squad, 
+                                                                   GameSettings.PlayerSoldierMap));
                 }
                 PopulateUnitTree(unitList[0].ChildUnits);
             }
@@ -168,45 +171,30 @@ namespace Iam.Scripts.Controllers
                 {
                     if (unit.Squads.Count > 0)
                     {
-                        List<Tuple<int, string>> squadList = new List<Tuple<int, string>>();
+                        List<Tuple<int, string, Color>> squadList = 
+                            new List<Tuple<int, string, Color>>();
                         foreach (Squad squad in unit.Squads)
                         {
 
-                            squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
+                            squadList.Add(
+                                new Tuple<int, string, Color>(squad.Id, squad.Name,
+                                                              DetermineDisplayColor(squad, 
+                                                                GameSettings.PlayerSoldierMap)));
                         }
-                        UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, squadList);
+                        UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, 
+                                                 DetermineDisplayColor(unit.HQSquad, 
+                                                                       GameSettings.PlayerSoldierMap),
+                                                 squadList);
                     }
                     else if(unit.HQSquad != null)
                     {
                         UnitTreeView.AddLeafUnit(unit.HQSquad.Id, 
                                                  unit.HQSquad.Name,
-                                                 DetermineDisplayColor(unit.HQSquad));
+                                                 DetermineDisplayColor(unit.HQSquad, 
+                                                                       GameSettings.PlayerSoldierMap));
                     }
                 }
             }
-        }
-
-        private Color DetermineDisplayColor(Squad squad)
-        {
-            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
-                                                        .Where(ps => ps.IsDeployable);
-            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
-            // if any element has less than the minimum number, display red
-            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
-            {
-                if (typeGroups.ContainsKey(element.SoldierType))
-                {
-                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
-                    {
-                        return Color.red;
-                    }
-                }
-            }
-            if (deployables.Count() < squad.Members.Count)
-            {
-                return Color.yellow;
-            }
-            return Color.white;
         }
     }
 }

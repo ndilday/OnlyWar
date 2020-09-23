@@ -45,20 +45,21 @@ namespace Iam.Scripts.Views
             _buttonMap[id] = button;
         }
 
-        public void AddTreeUnit(int id, string name, List<Tuple<int, string>> squadData)
+        public void AddTreeUnit(int id, string name, Color rootColor, List<Tuple<int, string, Color>> squadData)
         {
             GameObject unit = Instantiate(TreeUnitPrefab,
                                 new Vector3(0, 0, 0),
                                 Quaternion.identity,
                                 UnitContent.transform);
             Transform header = unit.transform.Find("Header");
+            header.GetComponent<Image>().color = rootColor;
             Button button = header.GetComponent<Button>();
             button.onClick.AddListener(() => UnitButton_OnClick(id));
             Transform squadList = unit.transform.Find("SquadList");
             Text companyName = header.Find("CompanyName").GetComponent<Text>();
             companyName.text = name;
             _buttonMap[id] = button;
-            foreach (Tuple<int, string> squad in squadData)
+            foreach (Tuple<int, string, Color> squad in squadData)
             {
                 GameObject squadUnit = Instantiate(ChildLeafPrefab,
                                 new Vector3(0, 0, 0),
@@ -66,7 +67,9 @@ namespace Iam.Scripts.Views
                                 squadList);
                 Text squadName = squadUnit.transform.Find("SquadName").GetComponent<Text>();
                 squadName.text = squad.Item2;
-                button = squadUnit.transform.Find("Image").GetComponent<Button>();
+                Transform imageTransform = squadUnit.transform.Find("Image");
+                imageTransform.GetComponent<Image>().color = squad.Item3;
+                button = imageTransform.GetComponent<Button>();
                 button.onClick.AddListener(() => UnitButton_OnClick(squad.Item1));
                 _buttonMap[squad.Item1] = button;
             }
@@ -82,7 +85,7 @@ namespace Iam.Scripts.Views
             _selectedButton = null;
         }
 
-        private void UnitButton_OnClick(int id)
+        public void UnitButton_OnClick(int id)
         {
             if(_selectedButton != null)
             {

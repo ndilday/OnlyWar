@@ -98,7 +98,11 @@ namespace Iam.Scripts.Controllers
             _selectedSoldier.AssignToSquad(GameSettings.SquadMap[newPosition.Item1]);
             _selectedSoldier.Type = newPosition.Item2;
             // refresh the unit layout
-            UnitTreeView_OnUnitSelected(currentSquad.Id);
+            BuildUnitTree(UnitTreeView,
+                              GameSettings.Chapter.OrderOfBattle,
+                              GameSettings.PlayerSoldierMap,
+                              GameSettings.SquadMap);
+            UnitTreeView.UnitButton_OnClick(currentSquad.Id);
         }
 
         public void EndTurnButton_OnClick()
@@ -136,42 +140,58 @@ namespace Iam.Scripts.Controllers
                 unitReport += "Entire HQ Missing\n";
             }
             unitReport += "\nCurrent Company size: " + unit.GetAllMembers().Count().ToString() + "\n\n";
-            List<Tuple<SoldierType, int, int>> toe = new List<Tuple<SoldierType, int, int>>();
+            List<Tuple<SquadTemplateElement, int, int>> toe = 
+                new List<Tuple<SquadTemplateElement, int, int>>();
             foreach (Squad squad in unit.Squads)
             {
                 toe.AddRange(GetSquadHeadcounts(squad));
             }
             var summedList = toe.GroupBy(tuple => tuple.Item1)
-                    .Select(g => new Tuple<SoldierType, int, int>(g.Key, g.Sum(t => t.Item2), g.Sum(q => q.Item3)))
-                    .OrderBy(tuple => tuple.Item1.Id);
-            foreach(Tuple<SoldierType, int, int> tuple in summedList)
+                    .Select(g => new Tuple<SquadTemplateElement, int, int>(g.Key, g.Sum(t => t.Item2), g.Sum(q => q.Item3)))
+                    .OrderBy(tuple => tuple.Item1.SoldierType.Id);
+            foreach(Tuple<SquadTemplateElement, int, int> tuple in summedList)
             {
-                unitReport += $"{tuple.Item1.Name}: {tuple.Item2}/{tuple.Item3}\n";
+                unitReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item3}\n";
             }
             return unitReport;
         }
 
         private string GenerateSquadSummary(Squad squad)
         {
-            string report = "";
-            foreach(Tuple<SoldierType, int, int> tuple in GetSquadHeadcounts(squad))
+            string alerts = "";
+            string popReport = "";
+            List<Tuple<SquadTemplateElement, int, int>> headcounts = GetSquadHeadcounts(squad);
+            
+            foreach (Tuple<SquadTemplateElement, int, int> tuple in headcounts)
             {
-                report += $"{tuple.Item1.Name}: {tuple.Item2}/{tuple.Item3}\n";
+                if(tuple.Item3 < tuple.Item1.MinimumNumber)
+                {
+                    alerts += $"Insufficient healthy {tuple.Item1.SoldierType.Name} to field this squad.\n";
+                }
+                popReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item1.MaximumNumber}";
+                if(tuple.Item3 != tuple.Item2)
+                {
+                    popReport += $" ({tuple.Item2 - tuple.Item3} unfit for duty)";
+                }
+                popReport += "\n";
             }
             
-            return report;
+            return alerts + popReport;
         }
 
-        private List<Tuple<SoldierType, int, int>> GetSquadHeadcounts(Squad squad)
+        private List<Tuple<SquadTemplateElement, int, int>> GetSquadHeadcounts(Squad squad)
         {
-            List<Tuple<SoldierType, int, int>> entryList = new List<Tuple<SoldierType, int, int>>();
+            List<Tuple<SquadTemplateElement, int, int>> entryList = 
+                new List<Tuple<SquadTemplateElement, int, int>>();
             IEnumerable<ISoldier> soldiers = squad.Members;
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
                 // get the members of the squad that match this element
-                var matches = soldiers.Where(s => element.SoldierType == s.Type);
+                var matches = soldiers?.Where(s => element.SoldierType == s.Type);
+                var healthyMatches = matches?.Where(s => GameSettings.PlayerSoldierMap[s.Id].IsDeployable);
                 int count = matches == null ? 0 : matches.Count();
-                entryList.Add(new Tuple<SoldierType, int, int>(element.SoldierType, count, element.MaximumNumber));
+                int healthyCount = healthyMatches == null ? 0 : healthyMatches.Count();
+                entryList.Add(new Tuple<SquadTemplateElement, int, int>(element, count, healthyCount));
             }
             return entryList;
         }

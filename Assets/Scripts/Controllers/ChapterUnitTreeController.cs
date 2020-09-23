@@ -41,16 +41,19 @@ namespace Iam.Scripts.Controllers
                 }
                 else
                 {
-                    List<Tuple<int, string>> squadList = new List<Tuple<int, string>>();
+                    List<Tuple<int, string, Color>> squadList = new List<Tuple<int, string, Color>>();
                     //squadList.Add(new Tuple<int, string>(company.Id + 1000, company.Name + " HQ Squad"));
                     //_squadMap[company.Id + 1000] = company;
                     foreach (Squad squad in company.Squads)
                     {
 
-                        squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
+                        squadList.Add(new Tuple<int, string, Color>(squad.Id, squad.Name,
+                                                                    DetermineDisplayColor(squad, soldierMap)));
                         squadMap[squad.Id] = squad;
                     }
-                    unitTreeView.AddTreeUnit(company.Id, company.Name, squadList);
+                    unitTreeView.AddTreeUnit(company.Id, company.Name, 
+                                             DetermineDisplayColor(company.HQSquad, soldierMap), 
+                                             squadList);
                 }
             }
         }
@@ -60,6 +63,7 @@ namespace Iam.Scripts.Controllers
             var deployables = squad.Members.Select(s => soldierMap[s.Id])
                                                         .Where(ps => ps.IsDeployable);
             var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            bool isFull = true;
             // if any element has less than the minimum number, display red
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
@@ -69,13 +73,21 @@ namespace Iam.Scripts.Controllers
                     {
                         return Color.red;
                     }
+                    else if(typeGroups[element.SoldierType].Count() < element.MaximumNumber)
+                    {
+                        isFull = false;
+                    }
+                }
+                else
+                {
+                    return Color.red;
                 }
             }
             if (deployables.Count() < squad.Members.Count)
             {
-                return Color.yellow;
+                return new Color(255, 200, 50);
             }
-            return Color.white;
+            return isFull ? Color.white : Color.yellow;
         }
     }
 }
