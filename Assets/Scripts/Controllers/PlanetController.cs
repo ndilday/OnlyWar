@@ -25,14 +25,12 @@ namespace Iam.Scripts.Controllers
 
         private Squad _selectedSquad;
 
-        private readonly Dictionary<int, Squad> _squadMap = new Dictionary<int, Squad>();
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             // assume player is Space Marine
             List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
             PlanetView.gameObject.SetActive(true);
             UnitTreeView.ClearTree();
-            _squadMap.Clear();
             CreateScoutingReport(planet);
             if(unitList?.Count > 0)
             {
@@ -44,7 +42,7 @@ namespace Iam.Scripts.Controllers
         public void UnitView_OnUnitSelected(int squadId)
         {
             // populate the SquadArmamentView
-            _selectedSquad = _squadMap[squadId];
+            _selectedSquad = GameSettings.SquadMap[squadId];
             SquadArmamentView.Clear();
             SquadArmamentView.SetIsFrontLine(!_selectedSquad.IsInReserve);
             if(_selectedSquad.SquadTemplate.DefaultWeapons != null)
@@ -175,17 +173,14 @@ namespace Iam.Scripts.Controllers
                         {
 
                             squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
-                            _squadMap[squad.Id] = squad;
                         }
                         UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, squadList);
-                        _squadMap[unit.HQSquad.Id] = unit.HQSquad;
                     }
                     else if(unit.HQSquad != null)
                     {
                         UnitTreeView.AddLeafUnit(unit.HQSquad.Id, 
                                                  unit.HQSquad.Name,
                                                  DetermineDisplayColor(unit.HQSquad));
-                        _squadMap[unit.HQSquad.Id] = unit.HQSquad;
                     }
                 }
             }

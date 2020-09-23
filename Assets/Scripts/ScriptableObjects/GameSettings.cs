@@ -5,6 +5,7 @@ using UnityEngine;
 
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 
 [Serializable]
@@ -26,6 +27,8 @@ public class GameSettings : ScriptableObject
     public Chapter Chapter;
     [HideInInspector]
     public Dictionary<int, PlayerSoldier> PlayerSoldierMap;
+    [HideInInspector]
+    public Dictionary<int, Squad> SquadMap;
     public int ChapterPlanetId;
 
     [Header("Date")]

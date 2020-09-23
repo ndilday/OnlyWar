@@ -12,7 +12,7 @@ using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
 {
-    public class ChapterController : MonoBehaviour
+    public class ChapterController : ChapterUnitTreeController
     {
         public UnityEvent OnChapterCreated;
 
@@ -22,14 +22,13 @@ namespace Iam.Scripts.Controllers
         private SquadMemberView SquadMemberView;
         [SerializeField]
         private GameSettings GameSettings;
-        private Dictionary<int, Squad> _squadMap;
         private SoldierTrainingHelper _trainingHelper;
         private PlayerSoldier _selectedSoldier;
 
         // Start is called before the first frame update
         void Start()
         {
-            _squadMap = new Dictionary<int, Squad>();
+            GameSettings.SquadMap = new Dictionary<int, Squad>();
             _trainingHelper = new SoldierTrainingHelper();
             GameSettings.PlayerSoldierMap = new Dictionary<int, PlayerSoldier>();
             Debug.Log("Creating Chapter");
@@ -45,41 +44,10 @@ namespace Iam.Scripts.Controllers
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
-                UnitTreeView.ClearTree();
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
-                                         GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
-                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad));
-                _squadMap[GameSettings.Chapter.OrderOfBattle.HQSquad.Id] = GameSettings.Chapter.OrderOfBattle.HQSquad;
-
-                foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
-                {
-                    _squadMap[squad.Id] = squad;
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad));
-                }
-                foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
-                {
-                    _squadMap[company.HQSquad.Id] = company.HQSquad;
-                    if (company.Squads?.Count == 0)
-                    {
-                        // this is unexpected, currently
-                        Debug.Log("We have a company with no squads?");
-                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name, 
-                                                 DetermineDisplayColor(company.HQSquad));
-                    }
-                    else
-                    {
-                        List<Tuple<int, string>> squadList = new List<Tuple<int, string>>();
-                        //squadList.Add(new Tuple<int, string>(company.Id + 1000, company.Name + " HQ Squad"));
-                        //_squadMap[company.Id + 1000] = company;
-                        foreach (Squad squad in company.Squads)
-                        {
-
-                            squadList.Add(new Tuple<int, string>(squad.Id, squad.Name));
-                            _squadMap[squad.Id] = squad;
-                        }
-                        UnitTreeView.AddTreeUnit(company.Id, company.Name, squadList);
-                    }
-                }
+                BuildUnitTree(UnitTreeView, 
+                              GameSettings.Chapter.OrderOfBattle,
+                              GameSettings.PlayerSoldierMap,
+                              GameSettings.SquadMap);
                 UnitTreeView.Initialized = true;
             }
         }
@@ -87,13 +55,13 @@ namespace Iam.Scripts.Controllers
         public void UnitTreeView_OnUnitSelected(int squadId)
         {
             // populate view with members of selected squad
-            if (!_squadMap.ContainsKey(squadId))
+            if (!GameSettings.SquadMap.ContainsKey(squadId))
             {
                 UnitSelected(squadId);
             }
             else
             {
-                Squad selectedSquad = _squadMap[squadId];
+                Squad selectedSquad = GameSettings.SquadMap[squadId];
                 List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
                     .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
                     .ToList();
@@ -127,7 +95,7 @@ namespace Iam.Scripts.Controllers
             Squad currentSquad = _selectedSoldier.AssignedSquad;
             // move soldier to his new role
             _selectedSoldier.RemoveFromSquad();
-            _selectedSoldier.AssignToSquad(_squadMap[newPosition.Item1]);
+            _selectedSoldier.AssignToSquad(GameSettings.SquadMap[newPosition.Item1]);
             _selectedSoldier.Type = newPosition.Item2;
             // refresh the unit layout
             UnitTreeView_OnUnitSelected(currentSquad.Id);
@@ -303,37 +271,14 @@ namespace Iam.Scripts.Controllers
             return openTypes;
         }
 
-        private Color DetermineDisplayColor(Squad squad)
-        {
-            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
-                                                        .Where(ps => ps.IsDeployable);
-            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
-            // if any element has less than the minimum number, display red
-            foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
-            {
-                if(typeGroups.ContainsKey(element.SoldierType))
-                {
-                    if(typeGroups[element.SoldierType].Count() < element.MinimumNumber)
-                    {
-                        return Color.red;
-                    }
-                }
-            }
-            if(deployables.Count() < squad.Members.Count)
-            {
-                return Color.yellow;
-            }
-            return Color.white;
-        }
-
-        private Color DetermineDisplayColor(ISoldier soldier)
+        protected Color DetermineDisplayColor(ISoldier soldier)
         {
             PlayerSoldier playerSoldier = GameSettings.PlayerSoldierMap[soldier.Id];
-            if(!playerSoldier.IsDeployable)
+            if (!playerSoldier.IsDeployable)
             {
                 return Color.red;
             }
-            if(playerSoldier.IsWounded)
+            if (playerSoldier.IsWounded)
             {
                 return Color.yellow;
             }
