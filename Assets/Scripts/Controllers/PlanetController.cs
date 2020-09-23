@@ -155,10 +155,12 @@ namespace Iam.Scripts.Controllers
         {
             if (unitList[0].Id == GameSettings.Chapter.OrderOfBattle.Id)
             {
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
+                                         GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
+                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad));
                 foreach(Squad squad in unitList[0].Squads)
                 {
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name);
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad));
                 }
                 PopulateUnitTree(unitList[0].ChildUnits);
             }
@@ -180,11 +182,36 @@ namespace Iam.Scripts.Controllers
                     }
                     else if(unit.HQSquad != null)
                     {
-                        UnitTreeView.AddLeafUnit(unit.HQSquad.Id, unit.HQSquad.Name);
+                        UnitTreeView.AddLeafUnit(unit.HQSquad.Id, 
+                                                 unit.HQSquad.Name,
+                                                 DetermineDisplayColor(unit.HQSquad));
                         _squadMap[unit.HQSquad.Id] = unit.HQSquad;
                     }
                 }
             }
+        }
+
+        private Color DetermineDisplayColor(Squad squad)
+        {
+            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+                                                        .Where(ps => ps.IsDeployable);
+            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            // if any element has less than the minimum number, display red
+            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                if (typeGroups.ContainsKey(element.SoldierType))
+                {
+                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    {
+                        return Color.red;
+                    }
+                }
+            }
+            if (deployables.Count() < squad.Members.Count)
+            {
+                return Color.yellow;
+            }
+            return Color.white;
         }
     }
 }

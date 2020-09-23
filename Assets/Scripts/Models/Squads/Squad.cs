@@ -8,7 +8,7 @@ namespace Iam.Scripts.Models.Squads
 {
     public class Squad
     {
-        private List<ISoldier> _members;
+        private readonly List<ISoldier> _members;
         public int Id { get; private set; }
         public string Name { get; set; }
         public Unit ParentUnit { get; }

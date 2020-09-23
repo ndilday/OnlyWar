@@ -1,11 +1,13 @@
-﻿using Iam.Scripts.Models.Soldiers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
+
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
+using Iam.Scripts.Models.Soldiers;
 
 namespace Iam.Scripts.Views
 {
@@ -23,13 +25,21 @@ namespace Iam.Scripts.Views
         [SerializeField]
         private GameObject TransferPanel;
 
+        private Dictionary<int, Button> _buttonMap;
+        private Button _selectedButton;
         private Dropdown _transferDropdown;
         private Button _transferConfirmationButton;
         private List<Tuple<int, SoldierType, string>> _openingsList;
 
-        private void SquadMemberButtonClicked(int id)
+        private void SquadMemberButton_OnClick(int id)
         {
+            if(_selectedButton != null)
+            {
+                _selectedButton.interactable = true;
+            }
             OnSoldierSelected.Invoke(id);
+            _selectedButton = _buttonMap[id];
+            _selectedButton.interactable = false;
         }
 
         public void ReplaceSelectedUnitText(string text)
@@ -38,25 +48,37 @@ namespace Iam.Scripts.Views
             selectedUnitText.text = text;
         }
 
-        public void ReplaceSquadMemberContent(List<Tuple<int, string, string>> squadMemberList)
+        public void ReplaceSquadMemberContent(List<Tuple<int, string, string, Color>> squadMemberList)
         {
+            _selectedButton = null;
             foreach(Transform child in SquadMemberContent.transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
             if (squadMemberList != null)
             {
-                foreach (Tuple<int, string, string> squadMember in squadMemberList)
+                foreach (Tuple<int, string, string, Color> squadMember in squadMemberList)
                 {
                     GameObject squadUnit = Instantiate(SquadMemberPrefab,
                                     new Vector3(0, 0, 0),
                                     Quaternion.identity,
                                     SquadMemberContent.transform);
+                    squadUnit.transform.GetComponent<Image>().color = squadMember.Item4;
                     Text rankText = squadUnit.transform.Find("Rank").GetComponent<Text>();
                     Text nameText = squadUnit.transform.Find("Name").GetComponent<Text>();
                     rankText.text = squadMember.Item2;
                     nameText.text = squadMember.Item3;
-                    squadUnit.transform.GetComponent<Button>().onClick.AddListener(() => SquadMemberButtonClicked(squadMember.Item1));
+                    if(_buttonMap == null)
+                    {
+                        _buttonMap = new Dictionary<int, Button>();
+                    }
+                    else
+                    {
+                        _buttonMap.Clear();
+                    }
+                    var button = squadUnit.transform.GetComponent<Button>();
+                    _buttonMap[squadMember.Item1] = button;
+                    button.onClick.AddListener(() => SquadMemberButton_OnClick(squadMember.Item1));
                 }
             }
         }

@@ -75,13 +75,15 @@ It will require approximately {4} weeks before all marines in the squad (other t
             if (!UnitTreeView.Initialized)
             {
                 UnitTreeView.ClearTree();
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
+                                         GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
+                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad));
                 _squadMap[GameSettings.Chapter.OrderOfBattle.HQSquad.Id] = GameSettings.Chapter.OrderOfBattle.HQSquad;
 
                 foreach (Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
                 {
                     _squadMap[squad.Id] = squad;
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name);
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad));
                 }
                 foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
                 {
@@ -90,7 +92,9 @@ It will require approximately {4} weeks before all marines in the squad (other t
                     {
                         // this is unexpected, currently
                         Debug.Log("We have a company with no squads?");
-                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name);
+                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, 
+                                                 company.HQSquad.Name, 
+                                                 DetermineDisplayColor(company.HQSquad));
                     }
                     else
                     {
@@ -242,6 +246,29 @@ It will require approximately {4} weeks before all marines in the squad (other t
                     " is fully fit and ready to serve the Emperor\n";
             }
             return summary;
+        }
+
+        private Color DetermineDisplayColor(Squad squad)
+        {
+            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+                                                        .Where(ps => ps.IsDeployable);
+            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            // if any element has less than the minimum number, display red
+            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                if (typeGroups.ContainsKey(element.SoldierType))
+                {
+                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    {
+                        return Color.red;
+                    }
+                }
+            }
+            if (deployables.Count() < squad.Members.Count)
+            {
+                return Color.yellow;
+            }
+            return Color.white;
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Iam.Scripts.Controllers
         [SerializeField]
         private GameSettings GameSettings;
         private Dictionary<int, Squad> _squadMap;
-        private Dictionary<int, PlayerSoldier> _playerSoldierMap;
         private SoldierTrainingHelper _trainingHelper;
         private PlayerSoldier _selectedSoldier;
 
@@ -32,7 +31,7 @@ namespace Iam.Scripts.Controllers
         {
             _squadMap = new Dictionary<int, Squad>();
             _trainingHelper = new SoldierTrainingHelper();
-            _playerSoldierMap = new Dictionary<int, PlayerSoldier>();
+            GameSettings.PlayerSoldierMap = new Dictionary<int, PlayerSoldier>();
             Debug.Log("Creating Chapter");
             CreateChapter();
             Debug.Log("Done creating Chapter");
@@ -41,18 +40,21 @@ namespace Iam.Scripts.Controllers
 
         public void ChapterButton_OnClick()
         {
+            GameSettings.PlayerSoldierMap.Values.First().Body.HitLocations[0].Wounds.AddWound(WoundLevel.Unsurvivable);
             UnitTreeView.gameObject.SetActive(true);
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
                 UnitTreeView.ClearTree();
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, GameSettings.Chapter.OrderOfBattle.HQSquad.Name);
+                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
+                                         GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
+                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad));
                 _squadMap[GameSettings.Chapter.OrderOfBattle.HQSquad.Id] = GameSettings.Chapter.OrderOfBattle.HQSquad;
 
                 foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
                 {
                     _squadMap[squad.Id] = squad;
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name);
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad));
                 }
                 foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
                 {
@@ -61,7 +63,8 @@ namespace Iam.Scripts.Controllers
                     {
                         // this is unexpected, currently
                         Debug.Log("We have a company with no squads?");
-                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name);
+                        UnitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name, 
+                                                 DetermineDisplayColor(company.HQSquad));
                     }
                     else
                     {
@@ -91,8 +94,9 @@ namespace Iam.Scripts.Controllers
             else
             {
                 Squad selectedSquad = _squadMap[squadId];
-                List<Tuple<int, string, string>> memberList = selectedSquad.Members
-                    .Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.Name)).ToList();
+                List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
+                    .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                    .ToList();
                 SquadMemberView.ReplaceSquadMemberContent(memberList);
                 SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
             }
@@ -101,7 +105,7 @@ namespace Iam.Scripts.Controllers
         public void SquadMemberView_OnSoldierSelected(int soldierId)
         {
             string newText = "";
-            _selectedSoldier = _playerSoldierMap[soldierId];
+            _selectedSoldier = GameSettings.PlayerSoldierMap[soldierId];
             foreach(string historyLine in _selectedSoldier.SoldierHistory)
             {
                 newText += historyLine + "\n";
@@ -136,7 +140,7 @@ namespace Iam.Scripts.Controllers
             // handle work experience
             // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
             // works out to 21 hours of training equivalent, call it 20, so 0.1 points
-            foreach (PlayerSoldier soldier in _playerSoldierMap.Values)
+            foreach (PlayerSoldier soldier in GameSettings.PlayerSoldierMap.Values)
             {
                 _trainingHelper.ApplySoldierWorkExperience(soldier, 0.1f);
             }
@@ -145,8 +149,9 @@ namespace Iam.Scripts.Controllers
         private void UnitSelected(int unitId)
         {
             Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
-            List<Tuple<int, string, string>> memberList = selectedUnit.HQSquad.Members
-                .Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.Name)).ToList();
+            List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
+                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                .ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
             SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
         }
@@ -207,10 +212,10 @@ namespace Iam.Scripts.Controllers
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            _playerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, TempSpaceMarineSoldierTemplate.Instance.SoldierTemplates[0])
+            GameSettings.PlayerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, TempSpaceMarineSoldierTemplate.Instance.SoldierTemplates[0])
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToDictionary(m => m.Id);
-            foreach (PlayerSoldier soldier in _playerSoldierMap.Values)
+            foreach (PlayerSoldier soldier in GameSettings.PlayerSoldierMap.Values)
             {
                 soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
                 if (soldier.PsychicPower > 0)
@@ -221,7 +226,7 @@ namespace Iam.Scripts.Controllers
                 _trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
                 //soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
             }
-            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(_playerSoldierMap.Values, GameSettings.ChapterTemplate, 
+            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(GameSettings.PlayerSoldierMap.Values, GameSettings.ChapterTemplate, 
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
         }
 
@@ -296,6 +301,43 @@ namespace Iam.Scripts.Controllers
                 }
             }
             return openTypes;
+        }
+
+        private Color DetermineDisplayColor(Squad squad)
+        {
+            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+                                                        .Where(ps => ps.IsDeployable);
+            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            // if any element has less than the minimum number, display red
+            foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                if(typeGroups.ContainsKey(element.SoldierType))
+                {
+                    if(typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    {
+                        return Color.red;
+                    }
+                }
+            }
+            if(deployables.Count() < squad.Members.Count)
+            {
+                return Color.yellow;
+            }
+            return Color.white;
+        }
+
+        private Color DetermineDisplayColor(ISoldier soldier)
+        {
+            PlayerSoldier playerSoldier = GameSettings.PlayerSoldierMap[soldier.Id];
+            if(!playerSoldier.IsDeployable)
+            {
+                return Color.red;
+            }
+            if(playerSoldier.IsWounded)
+            {
+                return Color.yellow;
+            }
+            return Color.white;
         }
     }
 }

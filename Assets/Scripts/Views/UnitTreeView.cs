@@ -30,7 +30,7 @@ namespace Iam.Scripts.Views
             _buttonMap = new Dictionary<int, Button>();
         }
 
-        public void AddLeafUnit(int id, string name)
+        public void AddLeafUnit(int id, string name, Color color)
         {
             GameObject unit = Instantiate(LeafSquadPrefab,
                                 new Vector3(0, 0, 0),
@@ -39,6 +39,7 @@ namespace Iam.Scripts.Views
             Text squadName = unit.transform.Find("SquadName").GetComponent<Text>();
             squadName.text = name;
             //GetInstanceID is guaranteed to be unique
+            unit.transform.Find("Image").GetComponent<Image>().color = color;
             Button button = unit.transform.Find("Image").GetComponent<Button>();
             button.onClick.AddListener(() => UnitButton_OnClick(id));
             _buttonMap[id] = button;
@@ -83,17 +84,12 @@ namespace Iam.Scripts.Views
 
         private void UnitButton_OnClick(int id)
         {
-            ColorBlock colors;
             if(_selectedButton != null)
             {
-                colors = _selectedButton.colors;
-                colors.normalColor = Color.white;
-                _selectedButton.colors = colors;
+                _selectedButton.interactable = true;
             }
             _selectedButton = _buttonMap[id];
-            colors = _selectedButton.colors;
-            colors.normalColor = new Color(200, 200, 200);
-            _selectedButton.colors = colors;
+            _selectedButton.interactable = false;
             OnUnitSelected.Invoke(id);
         }
     }

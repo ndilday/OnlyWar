@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Models.Soldiers
@@ -70,6 +70,23 @@ namespace Iam.Scripts.Models.Soldiers
         public Body Body => _soldier.Body;
 
         public int FunctioningHands => _soldier.FunctioningHands;
+
+        public bool IsWounded
+        {
+            get
+            {
+                return _soldier.Body.HitLocations.Any(hl => hl.Wounds.WoundTotal > 0);
+            }
+        }
+
+        public bool IsDeployable
+        {
+            get
+            {
+                return !_soldier.Body.HitLocations.Any(hl => hl.Template.IsMotive && hl.IsCrippled)
+                    && !_soldier.Body.HitLocations.Any(hl => hl.Template.IsVital && hl.IsCrippled);
+            }
+        }
 
         public void AddSkillPoints(BaseSkill skill, float points)
         {

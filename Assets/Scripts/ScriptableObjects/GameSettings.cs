@@ -1,6 +1,10 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
+
+using UnityEngine;
+
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 
 [Serializable]
@@ -20,6 +24,8 @@ public class GameSettings : ScriptableObject
     [Header("Chapter Definitions")]
     public UnitTemplate ChapterTemplate = TempSpaceMarineUnitTemplates.Instance.UnitTemplates[0];
     public Chapter Chapter;
+    [HideInInspector]
+    public Dictionary<int, PlayerSoldier> PlayerSoldierMap;
     public int ChapterPlanetId;
 
     [Header("Date")]
