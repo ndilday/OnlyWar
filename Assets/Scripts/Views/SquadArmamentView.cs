@@ -27,6 +27,7 @@ public class SquadArmamentView : MonoBehaviour
 
     private NumberPicker _default;
     private List<NumberPicker> _selections = new List<NumberPicker>();
+    
     public void Clear()
     {
         foreach(Transform child in Pane.transform)
@@ -38,15 +39,13 @@ public class SquadArmamentView : MonoBehaviour
         IsFrontLine.gameObject.SetActive(false);
     }
 
-    public void SetIsFrontLine(bool isFrontLine)
+    public void Initialize(bool displayFrontLine, bool isFrontLine, int defaultCount, string defaultLabel, List<WeaponSelectionSection> weaponSelections)
     {
-        IsFrontLine.isOn = isFrontLine;
-    }
-
-    public void Initialize(bool isFrontLine, int defaultCount, string defaultLabel, List<WeaponSelectionSection> weaponSelections)
-    {
-        IsFrontLine.gameObject.SetActive(true);
-        IsFrontLine.isOn = isFrontLine;
+        IsFrontLine.gameObject.SetActive(displayFrontLine);
+        if (displayFrontLine)
+        {
+            IsFrontLine.isOn = isFrontLine;
+        }
 
         int yPos = -5;
         GameObject defaultLine = Instantiate(NumberPickerPrefab,

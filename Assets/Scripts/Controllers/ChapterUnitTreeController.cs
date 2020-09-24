@@ -41,19 +41,21 @@ namespace Iam.Scripts.Controllers
                 }
                 else
                 {
-                    List<Tuple<int, string, Color>> squadList = new List<Tuple<int, string, Color>>();
+                    List<Tuple<int, string, Color, int>> squadList = 
+                        new List<Tuple<int, string, Color, int>>();
                     //squadList.Add(new Tuple<int, string>(company.Id + 1000, company.Name + " HQ Squad"));
                     //_squadMap[company.Id + 1000] = company;
                     foreach (Squad squad in company.Squads)
                     {
 
-                        squadList.Add(new Tuple<int, string, Color>(squad.Id, squad.Name,
-                                                                    DetermineDisplayColor(squad, soldierMap)));
+                        squadList.Add(new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                                         DetermineDisplayColor(squad, soldierMap),
+                                                                         -1));
                         squadMap[squad.Id] = squad;
                     }
-                    unitTreeView.AddTreeUnit(company.Id, company.Name, 
+                    unitTreeView.AddTreeUnit(company.Id, company.Name,
                                              DetermineDisplayColor(company.HQSquad, soldierMap), 
-                                             squadList);
+                                             -1, squadList);
                 }
             }
         }

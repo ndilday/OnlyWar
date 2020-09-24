@@ -1,5 +1,39 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &642119783865024485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2485320829428354844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
+--- !u!114 &6825948913880633689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2485320829428354844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 155
+  m_PreferredHeight: 30
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1001 &4169940791699206759
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7,6 +41,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 726812550382425988, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1252308097993851361, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
       propertyPath: m_Colors.m_HighlightedColor.r
@@ -80,7 +119,7 @@ PrefabInstance:
     - target: {fileID: 3979462115132398306, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 190
       objectReference: {fileID: 0}
     - target: {fileID: 3979462115132398306, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
@@ -122,10 +161,80 @@ PrefabInstance:
       propertyPath: m_Text
       value: HQ Squad
       objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_FontData.m_HorizontalOverflow
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_FontData.m_BestFit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_FontData.m_MaxSize
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 5034203687504752211, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_FontData.m_MinSize
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 5
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5486295410563447546, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6477418254129120475, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
@@ -137,10 +246,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6477418254129120475, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 8633168762155294532, guid: f5778d2fb2d883c47aceab9a7be01a6f,
         type: 3}
       propertyPath: m_Name
       value: HQSquadListing
       objectReference: {fileID: 0}
+    - target: {fileID: 9083975720951626143, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+        type: 3}
+      propertyPath: m_PreferredHeight
+      value: 35
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f5778d2fb2d883c47aceab9a7be01a6f, type: 3}
+--- !u!1 &2485320829428354844 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1991498333739335035, guid: f5778d2fb2d883c47aceab9a7be01a6f,
+    type: 3}
+  m_PrefabInstance: {fileID: 4169940791699206759}
+  m_PrefabAsset: {fileID: 0}

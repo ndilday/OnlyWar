@@ -24,42 +24,70 @@ namespace Iam.Scripts.Views
 
         private Button _selectedButton;
         private readonly Dictionary<int, Button> _buttonMap;
+        private readonly Dictionary<int, Badge> _badgeMap;
 
         UnitTreeView()
         {
             _buttonMap = new Dictionary<int, Button>();
+            _badgeMap = new Dictionary<int, Badge>();
         }
 
-        public void AddLeafUnit(int id, string name, Color color)
+        public void AddLeafUnit(int id, string name, Color color, int badgeVal = -1)
         {
             GameObject unit = Instantiate(LeafSquadPrefab,
                                 new Vector3(0, 0, 0),
                                 Quaternion.identity,
                                 UnitContent.transform);
+
             Text squadName = unit.transform.Find("SquadName").GetComponent<Text>();
             squadName.text = name;
-            //GetInstanceID is guaranteed to be unique
-            unit.transform.Find("Image").GetComponent<Image>().color = color;
-            Button button = unit.transform.Find("Image").GetComponent<Button>();
+
+            Transform backgroundImage = unit.transform.Find("BackgroundImage");
+            backgroundImage.GetComponent<Image>().color = color;
+
+            Button button = backgroundImage.GetComponent<Button>();
             button.onClick.AddListener(() => UnitButton_OnClick(id));
             _buttonMap[id] = button;
+
+            Badge badge = backgroundImage.Find("Badge").GetComponent<Badge>();
+            _badgeMap[id] = badge;
+            if (badgeVal != -1)
+            {
+                badge.gameObject.SetActive(true);
+                badge.SetBadge(badgeVal);
+            }
         }
 
-        public void AddTreeUnit(int id, string name, Color rootColor, List<Tuple<int, string, Color>> squadData)
+        public void AddTreeUnit(int id, string name, Color rootColor, int badgeVal, 
+                                List<Tuple<int, string, Color, int>> squadData)
         {
             GameObject unit = Instantiate(TreeUnitPrefab,
                                 new Vector3(0, 0, 0),
                                 Quaternion.identity,
                                 UnitContent.transform);
+
             Transform header = unit.transform.Find("Header");
             header.GetComponent<Image>().color = rootColor;
+            
             Button button = header.GetComponent<Button>();
             button.onClick.AddListener(() => UnitButton_OnClick(id));
+            _buttonMap[id] = button;
+
             Transform squadList = unit.transform.Find("SquadList");
+            
             Text companyName = header.Find("CompanyName").GetComponent<Text>();
             companyName.text = name;
-            _buttonMap[id] = button;
-            foreach (Tuple<int, string, Color> squad in squadData)
+
+            Badge badge = header.Find("Badge").GetComponent<Badge>();
+            _badgeMap[id] = badge;
+
+            if (badgeVal != -1)
+            {
+                badge.gameObject.SetActive(true);
+                badge.SetBadge(badgeVal);
+            }
+
+            foreach (Tuple<int, string, Color, int> squad in squadData)
             {
                 GameObject squadUnit = Instantiate(ChildLeafPrefab,
                                 new Vector3(0, 0, 0),
@@ -67,11 +95,22 @@ namespace Iam.Scripts.Views
                                 squadList);
                 Text squadName = squadUnit.transform.Find("SquadName").GetComponent<Text>();
                 squadName.text = squad.Item2;
-                Transform imageTransform = squadUnit.transform.Find("Image");
+
+                Transform imageTransform = squadUnit.transform.Find("BackgroundImage");
                 imageTransform.GetComponent<Image>().color = squad.Item3;
+                
                 button = imageTransform.GetComponent<Button>();
                 button.onClick.AddListener(() => UnitButton_OnClick(squad.Item1));
                 _buttonMap[squad.Item1] = button;
+                
+                badge = imageTransform.Find("Badge").GetComponent<Badge>();
+                _badgeMap[squad.Item1] = badge;
+
+                if (squad.Item4 != -1)
+                {    
+                    badge.gameObject.SetActive(true);
+                    badge.SetBadge(squad.Item4);
+                }
             }
         }
 
@@ -94,6 +133,20 @@ namespace Iam.Scripts.Views
             _selectedButton = _buttonMap[id];
             _selectedButton.interactable = false;
             OnUnitSelected.Invoke(id);
+        }
+
+        public void UpdateUnitBadge(int unitId, int badgeVal)
+        {
+            Badge badge = _badgeMap[unitId];
+            if (badgeVal == -1)
+            {
+                badge.gameObject.SetActive(false);
+            }
+            else
+            {
+                badge.gameObject.SetActive(true);
+                badge.SetBadge(badgeVal);
+            }
         }
     }
 }

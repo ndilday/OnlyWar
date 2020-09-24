@@ -6,7 +6,6 @@ using System.Linq;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
-using UnityEditor;
 
 namespace Iam.Scripts.Helpers
 {

@@ -5,3 +5,7 @@ So I started fiddling in Unity again, reminding myself of what I'd learned in my
 I was probably two weeks in when I realized I was actually committing code on a nightly basis, and feeling good about my progress. I made a trello board. At that point, I figured I was commited, at least to getting something I could put in front of people and have do a thing.
 
 No promises on how long that drive lasts, but I'm over a month in, have averaged about 1 commit a day, and have something I'm willing to call a pre-alpha tech demo. So, so far, so good.
+
+# Licenses
+Icons from: (https://game-icons.net/)
+Ranks from: [Kenney](www.kenney.nl)

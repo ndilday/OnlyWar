@@ -44,19 +44,19 @@ namespace Iam.Scripts.Controllers
             // populate the SquadArmamentView
             _selectedSquad = GameSettings.SquadMap[squadId];
             SquadArmamentView.Clear();
-            SquadArmamentView.SetIsFrontLine(!_selectedSquad.IsInReserve);
-            if(_selectedSquad.SquadTemplate.DefaultWeapons != null)
-            {
-                SquadArmamentView.Initialize(!_selectedSquad.IsInReserve,
-                                             _selectedSquad.Members.Count, 
-                                             _selectedSquad.SquadTemplate.DefaultWeapons.Name, 
-                                             GetSquadWeaponSelectionSections(_selectedSquad));
-            }
+            Tuple<Color, int> deployData = DetermineDisplayValues(_selectedSquad);
+            SquadArmamentView.Initialize(deployData.Item2 < 2,
+                                         !_selectedSquad.IsInReserve,
+                                         _selectedSquad.Members.Count, 
+                                         _selectedSquad.SquadTemplate.DefaultWeapons?.Name, 
+                                         GetSquadWeaponSelectionSections(_selectedSquad));
         }
 
         public void SquadArmamentView_OnIsFrontLineChanged(bool newVal)
         {
             _selectedSquad.IsInReserve = !newVal;
+            Tuple<Color, int> tuple = DetermineDisplayValues(_selectedSquad);
+            UnitTreeView.UpdateUnitBadge(_selectedSquad.Id, newVal ? 0 : tuple.Item2);
         }
 
         public void SquadArmamentView_OnArmamentChanged()
@@ -153,15 +153,15 @@ namespace Iam.Scripts.Controllers
         {
             if (unitList[0].Id == GameSettings.Chapter.OrderOfBattle.Id)
             {
+                Tuple<Color, int> tuple = 
+                    DetermineDisplayValues(GameSettings.Chapter.OrderOfBattle.HQSquad);
                 UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
                                          GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
-                                         DetermineDisplayColor(GameSettings.Chapter.OrderOfBattle.HQSquad, 
-                                                               GameSettings.PlayerSoldierMap));
+                                         tuple.Item1, tuple.Item2);
                 foreach(Squad squad in unitList[0].Squads)
                 {
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, 
-                                             DetermineDisplayColor(squad, 
-                                                                   GameSettings.PlayerSoldierMap));
+                    tuple = DetermineDisplayValues(squad);
+                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, tuple.Item1, tuple.Item2);
                 }
                 PopulateUnitTree(unitList[0].ChildUnits);
             }
@@ -171,20 +171,19 @@ namespace Iam.Scripts.Controllers
                 {
                     if (unit.Squads.Count > 0)
                     {
-                        List<Tuple<int, string, Color>> squadList = 
-                            new List<Tuple<int, string, Color>>();
+                        Tuple<Color, int> display;
+                        List<Tuple<int, string, Color, int>> squadList = 
+                            new List<Tuple<int, string, Color, int>>();
                         foreach (Squad squad in unit.Squads)
                         {
-
+                            display = DetermineDisplayValues(squad);
                             squadList.Add(
-                                new Tuple<int, string, Color>(squad.Id, squad.Name,
-                                                              DetermineDisplayColor(squad, 
-                                                                GameSettings.PlayerSoldierMap)));
+                                new Tuple<int, string, Color, int>(squad.Id, squad.Name, 
+                                                                   display.Item1, display.Item2));
                         }
-                        UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, 
-                                                 DetermineDisplayColor(unit.HQSquad, 
-                                                                       GameSettings.PlayerSoldierMap),
-                                                 squadList);
+                        display = DetermineDisplayValues(unit.HQSquad);
+                        UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, display.Item1, 
+                                                 display.Item2, squadList);
                     }
                     else if(unit.HQSquad != null)
                     {
@@ -195,6 +194,40 @@ namespace Iam.Scripts.Controllers
                     }
                 }
             }
+        }
+
+        private Tuple<Color, int> DetermineDisplayValues(Squad squad)
+        {
+            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+                                                                    .Where(ps => ps.IsDeployable);
+            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            bool isFull = true;
+            // if any element has less than the minimum number, display red
+            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                if (typeGroups.ContainsKey(element.SoldierType))
+                {
+                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    {
+                        return new Tuple<Color, int>(Color.red, 2);
+                    }
+                    else if (typeGroups[element.SoldierType].Count() < element.MaximumNumber)
+                    {
+                        isFull = false;
+                    }
+                }
+                else
+                {
+                    return new Tuple<Color, int>(Color.red, 2);
+                }
+            }
+            if (deployables.Count() < squad.Members.Count)
+            {
+                return new Tuple<Color, int>(new Color(255, 200, 50), 1);
+            }
+            Color color = isFull ? Color.white : Color.yellow;
+            int number = squad.IsInReserve ? -1 : 0;
+            return new Tuple<Color, int>(color, number);
         }
     }
 }

@@ -216,6 +216,28 @@ namespace Iam.Scripts.Controllers
             }
             GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(GameSettings.PlayerSoldierMap.Values, GameSettings.ChapterTemplate, 
                 new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
+            PopulateSquadMap();
+        }
+
+        private void PopulateSquadMap()
+        {
+            Unit oob = GameSettings.Chapter.OrderOfBattle;
+            GameSettings.SquadMap[oob.HQSquad.Id] = oob.HQSquad;
+            foreach(Squad squad in oob.Squads)
+            {
+                GameSettings.SquadMap[squad.Id] = squad;
+            }
+            foreach(Unit company in oob.ChildUnits)
+            {
+                if(company.HQSquad != null)
+                {
+                    GameSettings.SquadMap[company.HQSquad.Id] = company.HQSquad;
+                }
+                foreach(Squad squad in company.Squads)
+                {
+                    GameSettings.SquadMap[squad.Id] = squad;
+                }
+            }
         }
 
         private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit, Squad currentSquad, SoldierType soldierType)

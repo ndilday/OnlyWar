@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 680644494049739621}
   - component: {fileID: 3201924403309347617}
   m_Layer: 5
-  m_Name: Squad
+  m_Name: BattleSquad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
