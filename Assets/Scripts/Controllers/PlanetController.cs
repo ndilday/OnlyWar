@@ -155,12 +155,14 @@ namespace Iam.Scripts.Controllers
             {
                 Tuple<Color, int> tuple = 
                     DetermineDisplayValues(GameSettings.Chapter.OrderOfBattle.HQSquad);
+                if (tuple.Item2 == 2) GameSettings.Chapter.OrderOfBattle.HQSquad.IsInReserve = true;
                 UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
                                          GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
                                          tuple.Item1, tuple.Item2);
                 foreach(Squad squad in unitList[0].Squads)
                 {
                     tuple = DetermineDisplayValues(squad);
+                    if (tuple.Item2 == 2) squad.IsInReserve = true;
                     UnitTreeView.AddLeafUnit(squad.Id, squad.Name, tuple.Item1, tuple.Item2);
                 }
                 PopulateUnitTree(unitList[0].ChildUnits);
@@ -177,11 +179,13 @@ namespace Iam.Scripts.Controllers
                         foreach (Squad squad in unit.Squads)
                         {
                             display = DetermineDisplayValues(squad);
+                            if (display.Item2 == 2) squad.IsInReserve = true;
                             squadList.Add(
                                 new Tuple<int, string, Color, int>(squad.Id, squad.Name, 
                                                                    display.Item1, display.Item2));
                         }
                         display = DetermineDisplayValues(unit.HQSquad);
+                        if (display.Item2 == 2) unit.HQSquad.IsInReserve = true;
                         UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, display.Item1, 
                                                  display.Item2, squadList);
                     }
