@@ -35,6 +35,7 @@ namespace Iam.Scripts.Controllers
         private readonly Dictionary<int, BattleSoldier> _casualtyMap;
 
         private BattleSquad _selectedBattleSquad;
+        private BattleSquad _hoveredBattleSquad;
         private BattleGrid _grid;
         private int _turnNumber;
         private int _startingEnemyCount;
@@ -96,16 +97,53 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public void BattleView_OnSquadSelected(int squadId)
+        public void BattleView_OnSoldierPointerEnter(int soldierId)
         {
-            if (_playerBattleSquads.ContainsKey(squadId))
+            BattleSquad battleSquad = _soldierBattleSquadMap[soldierId];
+            if (_hoveredBattleSquad != null 
+                && _hoveredBattleSquad.Id != battleSquad.Id
+                && battleSquad.Id != _selectedBattleSquad?.Id)
             {
-                _selectedBattleSquad = _playerBattleSquads[squadId];
+                BattleView.HighlightSoldiers(_hoveredBattleSquad.Soldiers
+                                                                .Select(s => s.Soldier.Id), 
+                                             false, Color.clear);
+            }
+
+            if (battleSquad.Id != _selectedBattleSquad?.Id)
+            {
+                BattleView.HighlightSoldiers(battleSquad.Soldiers.Select(s => s.Soldier.Id),
+                                             true, Color.cyan);
+                _hoveredBattleSquad = battleSquad;
+            }
+        }
+
+        public void BattleView_OnSoldierPointerExit()
+        {
+            if(_hoveredBattleSquad != null && _hoveredBattleSquad.Id != _selectedBattleSquad?.Id)
+            {
+                BattleView.HighlightSoldiers(_hoveredBattleSquad.Soldiers
+                                                                .Select(s => s.Soldier.Id), 
+                                             false, Color.clear);
+            }
+        }
+
+        public void BattleView_OnSoldierPointerClick(int soldierId)
+        {
+            IEnumerable<int> soldierIds;
+            if(_selectedBattleSquad != null)
+            {
+                soldierIds = _selectedBattleSquad.Soldiers.Select(s => s.Soldier.Id);
+                BattleView.HighlightSoldiers(soldierIds, false, Color.clear);
+            }
+            _selectedBattleSquad = _soldierBattleSquadMap[soldierId];
+            soldierIds = _selectedBattleSquad.Soldiers.Select(s => s.Soldier.Id);
+            BattleView.HighlightSoldiers(soldierIds, true, Color.yellow);
+            if(_selectedBattleSquad.IsPlayerSquad)
+            {
                 BattleView.OverwritePlayerWoundTrack(GetSquadDetails(_selectedBattleSquad));
             }
             else
             {
-                _selectedBattleSquad = _opposingBattleSquads[squadId];
                 BattleView.OverwritePlayerWoundTrack(GetSquadSummary(_selectedBattleSquad));
             }
         }
@@ -221,10 +259,10 @@ namespace Iam.Scripts.Controllers
         private void PopulateBattleView()
         {
             BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
-            var playerPlacements = placer.PlaceSquads(_playerBattleSquads.Values);
-            PopulateBattleViewSquads(playerPlacements);
-            var oppPlacements = placer.PlaceSquads(_opposingBattleSquads.Values);
-            PopulateBattleViewSquads(oppPlacements);
+            placer.PlaceSquads(_playerBattleSquads.Values);
+            PopulateBattleViewSquads(_playerBattleSquads.Values);
+            placer.PlaceSquads(_opposingBattleSquads.Values);
+            PopulateBattleViewSquads(_opposingBattleSquads.Values);
         }
 
         private void Plan(ConcurrentBag<IAction> shootSegmentActions, 
@@ -325,13 +363,21 @@ namespace Iam.Scripts.Controllers
         {
             foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
-                var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
-                BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
+                foreach(BattleSoldier soldier in squad.Soldiers)
+                {
+                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
+                    BattleView.MoveSoldier(soldier.Soldier.Id,
+                                           new Vector2(position.Item1, position.Item2));
+                }
             }
             foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
-                var corners = _grid.GetSoldierBottomLeftAndSize(squad.Soldiers);
-                BattleView.MoveSquad(squad.Id, new Vector2(corners.Item1.Item1, corners.Item1.Item2), new Vector2(corners.Item2.Item1, corners.Item2.Item2));
+                foreach (BattleSoldier soldier in squad.Soldiers)
+                {
+                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
+                    BattleView.MoveSoldier(soldier.Soldier.Id,
+                                           new Vector2(position.Item1, position.Item2));
+                }
             }
         }
 
@@ -378,13 +424,17 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private void PopulateBattleViewSquads(Dictionary<BattleSquad, Vector2> squadLocationMap)
+        private void PopulateBattleViewSquads(IEnumerable<BattleSquad> squads)
         {
-            foreach(KeyValuePair<BattleSquad, Vector2> kvp in squadLocationMap)
+            foreach (BattleSquad squad in squads)
             {
-                Tuple<int, int> size = kvp.Key.GetSquadBoxSize();
-                Color color = kvp.Key.IsPlayerSquad ? Color.blue : Color.black;
-                BattleView.AddSquad(kvp.Key.Id, kvp.Key.Name, kvp.Value, new Vector2(size.Item1, size.Item2), color);
+                Color color = squad.IsPlayerSquad ? Color.blue : Color.black;
+                foreach (BattleSoldier soldier in squad.Soldiers)
+                {
+                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
+                    BattleView.AddSoldier(soldier.Soldier.Id, 
+                                          new Vector2(position.Item1, position.Item2), color);
+                }
             }
         }
 
@@ -428,6 +478,7 @@ namespace Iam.Scripts.Controllers
         {
             squad.RemoveSoldier(soldier);
             _grid.RemoveSoldier(soldier.Soldier.Id);
+            BattleView.RemoveSoldier(soldier.Soldier.Id);
             _soldierBattleSquadMap.Remove(soldier.Soldier.Id);
             if(squad.Soldiers.Count == 0)
             {
@@ -438,7 +489,6 @@ namespace Iam.Scripts.Controllers
         private void RemoveSquad(BattleSquad squad)
         {
             Log(false, "<b>" + squad.Name + " wiped out</b>");
-            BattleView.RemoveSquad(squad.Id);
             
             if(squad.IsPlayerSquad)
             {

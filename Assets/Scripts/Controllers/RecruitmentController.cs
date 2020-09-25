@@ -103,7 +103,15 @@ I await any further instructions you have on our recruiting and training efforts
             {
                 foreach (PlayerSoldier soldier in squad.Members)
                 {
-                    squadReport += GetRecruiterDescription(soldier);
+                    if (soldier.Type.IsSquadLeader)
+                    {
+                        // TODO: add code to test whether the SGT still feels he has things
+                        // to teach the soldiers
+                    }
+                    else
+                    {
+                        squadReport += GetRecruiterDescription(soldier);
+                    }
                 }
                 RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
             }

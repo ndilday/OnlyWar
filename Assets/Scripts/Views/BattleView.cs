@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Iam.Scripts.Views
 {
     public class BattleView : MonoBehaviour
     {
-        public UnityEvent<int> OnSquadSelected;
+        public UnityEvent<int> OnSoldierPointerEnter;
+        public UnityEvent OnSoldierPointerExit;
+        public UnityEvent<int> OnSoldierPointerClick;
         
         [SerializeField]
         private Text BattleLog;
@@ -19,19 +23,20 @@ namespace Iam.Scripts.Views
         [SerializeField]
         private GameObject NextStepButton;
         [SerializeField]
-        private GameObject SquadPrefab;
-        [SerializeField]
         private ScrollRect ScrollRect;
         [SerializeField]
         private GameSettings GameSettings;
+        [SerializeField]
+        private GameObject SoldierPrefab;
 
         private bool _scrollToBottom = false;
-        private readonly Dictionary<int, GameObject> _squadMap;
+        private readonly Dictionary<int, Tuple<RectTransform, Image, Image, EventTrigger>> _soldierMap;
         private Text _nextStepButtonText;
+        private Tuple<RectTransform, Image, Image, EventTrigger> _currentSoldier;
 
         public BattleView()
         {
-            _squadMap = new Dictionary<int, GameObject>();
+            _soldierMap = new Dictionary<int, Tuple<RectTransform, Image, Image, EventTrigger>>();
         }
 
         public void LateUpdate()
@@ -51,42 +56,63 @@ namespace Iam.Scripts.Views
             Map.GetComponent<RectTransform>().sizeDelta = size;
         }
 
-        public void AddSquad(int id, string name, Vector2 position, Vector2 size, Color color)
+        public void AddSoldier(int id, Vector2 position, Color color)
         {
-            GameObject squad = Instantiate(SquadPrefab,
+            GameObject soldier = Instantiate(SoldierPrefab,
                                 position,
-                                Quaternion.Euler(0, 0, -90),
+                                Quaternion.identity,
                                 Map.transform);
-            
-            squad.GetComponentInChildren<Text>().text = name;
-            squad.GetComponent<Image>().color = color;
-            squad.GetComponent<Button>().onClick.AddListener(() => Squad_OnClick(id));
-            
-            var rt = squad.GetComponent<RectTransform>();
+
+            RectTransform rt = soldier.GetComponent<RectTransform>();
             position.Scale(GameSettings.BattleMapScale);
             rt.anchoredPosition = position;
-            //rt.rotation = gameObject.GetComponent<RectTransform>().rotation;
 
+            Image soldierImage = soldier.transform.Find("SoldierCircle").GetComponent<Image>();
+            soldierImage.gameObject.name = id.ToString();
+            soldierImage.color = color;
 
-            size.Scale(GameSettings.BattleMapScale);
-            rt.sizeDelta = size;
+            Image haloImage = soldier.transform.Find("SoldierHalo").GetComponent<Image>();
+            haloImage.gameObject.name = id.ToString();
+
+            EventTrigger trigger = soldier.GetComponent<EventTrigger>();
+
+            EventTrigger.Entry entry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerEnter
+            };
+            entry.callback.AddListener((eventData) => { SoldierCircle_OnPointerEnter(eventData); });
+            trigger.triggers.Add(entry);
+
+            entry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerExit
+            };
+            entry.callback.AddListener((eventData) => { SoldierCircle_OnPointerExit(eventData); });
+            trigger.triggers.Add(entry);
+
+            entry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerClick
+            };
+            entry.callback.AddListener((eventData) => { SoldierCircle_OnPointerClick(eventData); });
+            trigger.triggers.Add(entry);
+
+            _soldierMap[id] = new Tuple<RectTransform, Image, Image, EventTrigger>
+                (rt, soldierImage, haloImage, trigger);
             
-            _squadMap[id] = squad;
         }
 
-        public void MoveSquad(int id, Vector2 newPosition, Vector2 newSize)
+        public void MoveSoldier(int id, Vector2 newPosition)
         {
-            var rt = _squadMap[id].GetComponent<RectTransform>();
+            RectTransform rt = _soldierMap[id].Item1;
             newPosition.Scale(GameSettings.BattleMapScale);
             rt.anchoredPosition = newPosition;
-            newSize.Scale(GameSettings.BattleMapScale);
-            rt.sizeDelta = newSize;
         }
 
-        public void RemoveSquad(int id)
+        public void RemoveSoldier(int id)
         {
-            GameObject.Destroy(_squadMap[id]);
-            _squadMap.Remove(id);
+            GameObject.Destroy(_soldierMap[id].Item1.gameObject);
+            _soldierMap.Remove(id);
         }
 
         public void Clear()
@@ -94,11 +120,12 @@ namespace Iam.Scripts.Views
             BattleLog.text = "";
             TempPlayerWoundTrack.text = "";
 
-            foreach(KeyValuePair<int, GameObject> kvp in _squadMap)
+            foreach(Tuple<RectTransform, Image, Image, EventTrigger> tuple in _soldierMap.Values)
             {
-                GameObject.Destroy(kvp.Value);
+                GameObject.Destroy(tuple.Item1.gameObject);
             }
-            _squadMap.Clear();
+            _soldierMap.Clear();
+            _currentSoldier = null;
         }
 
         public void ClearBattleLog()
@@ -127,10 +154,38 @@ namespace Iam.Scripts.Views
             TempPlayerWoundTrack.text = text;
         }
 
-        private void Squad_OnClick(int squadId)
+        public void HighlightSoldiers(IEnumerable<int> soldiers, bool highlight, Color color)
         {
-            OnSquadSelected.Invoke(squadId);
-            
+            foreach (int soldierId in soldiers)
+            {
+                _currentSoldier = _soldierMap[soldierId];
+                _currentSoldier.Item3.gameObject.SetActive(highlight);
+                if (highlight)
+                {
+                    _currentSoldier.Item3.color = color;
+                }
+            }
+        }
+
+        private void SoldierCircle_OnPointerEnter(BaseEventData bed)
+        {
+            PointerEventData pointerData = (PointerEventData)bed;
+            int id = Convert.ToInt32(pointerData.pointerCurrentRaycast.gameObject.name);
+            OnSoldierPointerEnter.Invoke(id);
+        }
+
+        private void SoldierCircle_OnPointerExit(BaseEventData bed)
+        {
+            _currentSoldier.Item3.gameObject.SetActive(false);
+            _currentSoldier = null;
+            OnSoldierPointerExit.Invoke();
+        }
+
+        private void SoldierCircle_OnPointerClick(BaseEventData bed)
+        {
+            PointerEventData pointerData = (PointerEventData)bed;
+            int id = Convert.ToInt32(pointerData.pointerCurrentRaycast.gameObject.name);
+            OnSoldierPointerClick.Invoke(id);
         }
     }
 }
