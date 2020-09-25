@@ -103,13 +103,24 @@ namespace Iam.Scripts.Controllers
             }
             Squad newSquad = GameSettings.SquadMap[newPosition.Item1];
             _selectedSoldier.AssignToSquad(newSquad);
-            _selectedSoldier.Type = newPosition.Item2;
+            if(_selectedSoldier.Type != newPosition.Item2)
+            {
+                string entry = $"{GameSettings.Date}: promoted to {newPosition.Item2.Name}";
+                _selectedSoldier.AddEntryToHistory(entry);
+                _selectedSoldier.Type = newPosition.Item2;
+            }
             if(_selectedSoldier.Type.IsSquadLeader
                 && (newSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
             {
                 // if soldier is squad leader and its not an HQ Squad, change name
                 newSquad.Name = _selectedSoldier.Name.Split(' ')[1] + " Squad";
             }
+            if(currentSquad != newSquad)
+            {
+                string entry = $"{GameSettings.Date} transferred to {newSquad.Name}, {newSquad.ParentUnit.Name}";
+                _selectedSoldier.AddEntryToHistory(entry);
+            }
+            
             // refresh the unit layout
             BuildUnitTree(UnitTreeView,
                               GameSettings.Chapter.OrderOfBattle,
