@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Iam.Scripts.Models.Soldiers;
@@ -8,11 +9,12 @@ namespace Iam.Scripts.Models.Units
 {
     public class Unit
     {
+        private readonly List<Squad> _squads;
         public int Id { get; private set; }
         public string Name { get; set; }
         public UnitTemplate UnitTemplate { get; private set; }
         public Squad HQSquad { get; private set; }
-        public List<Squad> Squads { get; private set; }
+        public IReadOnlyCollection<Squad> Squads { get => _squads; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
@@ -33,10 +35,10 @@ namespace Iam.Scripts.Models.Units
                 i++;
             }
             
-            Squads = new List<Squad>();
+            _squads = new List<Squad>();
             foreach(SquadTemplate squadTemplate in template.GetChildSquads())
             {
-                Squads.Add(new Squad(id * 100 + i, squadTemplate.Name, this, squadTemplate));
+                _squads.Add(new Squad(id * 100 + i, squadTemplate.Name, this, squadTemplate));
                 i++;
             }
         }
@@ -77,7 +79,16 @@ namespace Iam.Scripts.Models.Units
 
         public void AddSquad(Squad squad)
         {
-            Squads.Add(squad);
+            _squads.Add(squad);
+        }
+
+        public void RemoveSquad(Squad squad)
+        {
+            if(squad.Members.Count != 0)
+            {
+                throw new InvalidOperationException("Deleted squad still has members!");
+            }
+            _squads.Remove(squad);
         }
 
         public override string ToString()

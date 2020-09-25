@@ -95,8 +95,21 @@ namespace Iam.Scripts.Controllers
             Squad currentSquad = _selectedSoldier.AssignedSquad;
             // move soldier to his new role
             _selectedSoldier.RemoveFromSquad();
-            _selectedSoldier.AssignToSquad(GameSettings.SquadMap[newPosition.Item1]);
+            if(_selectedSoldier.Type.IsSquadLeader 
+                && (currentSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
+            {
+                // if soldier is squad leader and its not an HQ Squad, change name
+                currentSquad.Name = currentSquad.SquadTemplate.Name;
+            }
+            Squad newSquad = GameSettings.SquadMap[newPosition.Item1];
+            _selectedSoldier.AssignToSquad(newSquad);
             _selectedSoldier.Type = newPosition.Item2;
+            if(_selectedSoldier.Type.IsSquadLeader
+                && (newSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
+            {
+                // if soldier is squad leader and its not an HQ Squad, change name
+                newSquad.Name = _selectedSoldier.Name.Split(' ')[1] + " Squad";
+            }
             // refresh the unit layout
             BuildUnitTree(UnitTreeView,
                               GameSettings.Chapter.OrderOfBattle,

@@ -88,19 +88,43 @@ I await any further instructions you have on our recruiting and training efforts
         {
             string squadReport = "";
             Squad squad = _scoutSquads[squadId];
+            bool showDeleteSquadButton = false;
             // should we ignore the SGT here or not?
-            foreach(PlayerSoldier soldier in squad.Members)
+            if (squad.Members.Count == 0)
             {
-                squadReport += GetRecruiterDescription(soldier);
+                squadReport += "This squad has no members. ";
+                if(_scoutSquads.Keys.Count > 10)
+                {
+                    squadReport += "Given the number of scout squads we have, I recommend removing this squad from our order of battle.";
+                }
+                showDeleteSquadButton = true;
+            }
+            else
+            {
+                foreach (PlayerSoldier soldier in squad.Members)
+                {
+                    squadReport += GetRecruiterDescription(soldier);
+                }
+                RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
             }
             RecruitmentView.UpdateSquadDescription(squadReport);
-            RecruitmentView.SetSquadFlags((ushort)_squadSkillFocusMap[squadId]);
+            RecruitmentView.EnableDeleteSquadButton(showDeleteSquadButton);
 
         }
 
         public void RecruitmentView_OnToggleChange(int squadId, ushort newFlags)
         {
             _squadSkillFocusMap[squadId] = (TrainingFocuses)newFlags;
+        }
+
+        public void RecruitmentView_OnSquadDeleted(int squadId)
+        {
+            Squad deletedSquad = _scoutSquads[squadId];
+            Unit parentUnit = deletedSquad.ParentUnit;
+            parentUnit.RemoveSquad(deletedSquad);
+            _scoutSquads.Remove(squadId);
+            GameSettings.SquadMap.Remove(squadId);
+            PopulateScoutSquadMap();
         }
 
         private string GetRecruiterDescription(PlayerSoldier soldier)

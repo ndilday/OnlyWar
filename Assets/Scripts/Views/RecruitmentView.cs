@@ -7,6 +7,7 @@ namespace Iam.Scripts.Views
     public class RecruitmentView : MonoBehaviour
     {
         public UnityEvent<int, ushort> OnToggleChange;
+        public UnityEvent<int> OnSquadDeleted;
 
         [SerializeField]
         private Text SquadDescription;
@@ -16,6 +17,8 @@ namespace Iam.Scripts.Views
         private GameObject ToggleParent;
         [SerializeField]
         private Text ToggleHeaderText;
+        [SerializeField]
+        private Button DeleteSquadButton;
 
         private int _selectedUnitId;
         private Toggle[] _toggles;
@@ -33,7 +36,7 @@ namespace Iam.Scripts.Views
             ToggleHeaderText.text = _toggleText;
             ToggleParent.SetActive(true);
             _selectedUnitId = id;
-            Toggle_Clicked();
+            Toggle_OnClick();
         }
 
         public void SetRecruiterMessage(string message)
@@ -49,7 +52,7 @@ namespace Iam.Scripts.Views
             _toggles[3].isOn = (flags & 0x4) == 0x4;
         }
 
-        public void Toggle_Clicked()
+        public void Toggle_OnClick()
         {
             ushort toggled = 0;
             if (_toggles[0].isOn)
@@ -94,6 +97,17 @@ namespace Iam.Scripts.Views
         public void UpdateSquadDescription(string text)
         {
             SquadDescription.text = text;
+        }
+
+        public void DeleteSquadButton_OnClick()
+        {
+            OnSquadDeleted.Invoke(_selectedUnitId);
+        }
+
+        public void EnableDeleteSquadButton(bool enable)
+        {
+            DeleteSquadButton.gameObject.SetActive(enable);
+            ToggleParent.SetActive(!enable);
         }
     }
 }
