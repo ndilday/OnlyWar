@@ -115,6 +115,8 @@ namespace Iam.Scripts.Controllers
                                              true, Color.cyan);
                 _hoveredBattleSquad = battleSquad;
             }
+            BattleSoldier soldier = battleSquad.Soldiers.First(s => s.Soldier.Id == soldierId);
+            Tooltip.ShowTooltip(GetSoldierDetails(soldier));
         }
 
         public void BattleView_OnSoldierPointerExit()
@@ -124,6 +126,7 @@ namespace Iam.Scripts.Controllers
                 BattleView.HighlightSoldiers(_hoveredBattleSquad.Soldiers
                                                                 .Select(s => s.Soldier.Id), 
                                              false, Color.clear);
+                Tooltip.HideTooltip();
             }
         }
 
@@ -443,21 +446,27 @@ namespace Iam.Scripts.Controllers
             string report = "\n" + squad.Name + "\n" + squad.Soldiers.Count.ToString() + " soldiers standing\n\n";
             foreach(BattleSoldier soldier in squad.Soldiers)
             {
-                report += soldier.Soldier.Name + "\n";
-                foreach (RangedWeapon weapon in soldier.RangedWeapons)
-                {
-                    report += weapon.Template.Name + "\n";
-                }
-                report += soldier.Armor.Template.Name + "\n";
-                foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
-                {
-                    if (hl.Wounds.WoundTotal != 0)
-                    {
-                        report += hl.ToString() + "\n";
-                    }
-                }
-                report += "\n";
+                report += GetSoldierDetails(soldier);
             }
+            return report;
+        }
+
+        private static string GetSoldierDetails(BattleSoldier soldier)
+        {
+            string report = soldier.Soldier.Name + "\n";
+            foreach (RangedWeapon weapon in soldier.RangedWeapons)
+            {
+                report += weapon.Template.Name + "\n";
+            }
+            report += soldier.Armor.Template.Name + "\n";
+            foreach (HitLocation hl in soldier.Soldier.Body.HitLocations)
+            {
+                if (hl.Wounds.WoundTotal != 0)
+                {
+                    report += hl.ToString() + "\n";
+                }
+            }
+            report += "\n";
             return report;
         }
 
