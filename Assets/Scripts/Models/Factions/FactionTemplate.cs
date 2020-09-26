@@ -5,6 +5,7 @@ using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
+using Iam.Scripts.Models.Fleets;
 
 namespace Iam.Scripts.Models.Factions
 {
@@ -21,6 +22,7 @@ namespace Iam.Scripts.Models.Factions
         public IReadOnlyDictionary<int, SoldierTemplate> SoldierTemplates { get; }
         public IReadOnlyDictionary<int, SquadTemplate> SquadTemplates { get; }
         public IReadOnlyDictionary<int, UnitTemplate> UnitTemplates { get; }
+        public IReadOnlyDictionary<int, ShipTemplate> ShipTemplates { get; }
         
         public FactionTemplate(int id, string name, Color color,
                        IReadOnlyDictionary<int, SoldierType> soldierTypes,
@@ -30,7 +32,8 @@ namespace Iam.Scripts.Models.Factions
                        IReadOnlyDictionary<int, WeaponSet> weaponSets,
                        IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
                        IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
-                       IReadOnlyDictionary<int, UnitTemplate> unitTemplates)
+                       IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
+                       IReadOnlyDictionary<int, ShipTemplate> shipTemplates)
         {
             Id = id;
             Name = name;
@@ -43,6 +46,7 @@ namespace Iam.Scripts.Models.Factions
             SoldierTemplates = soldierTemplates;
             SquadTemplates = squadTemplates;
             UnitTemplates = unitTemplates;
+            ShipTemplates = shipTemplates;
         }
     }
 }

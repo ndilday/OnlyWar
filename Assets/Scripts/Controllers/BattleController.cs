@@ -8,6 +8,7 @@ using UnityEngine.Events;
 
 using Iam.Scripts.Helpers.Battle;
 using Iam.Scripts.Helpers.Battle.Actions;
+using Iam.Scripts.Helpers.Battle.Resolutions;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Factions;
@@ -15,7 +16,6 @@ using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using Iam.Scripts.Helpers.Battle.Resolutions;
 
 namespace Iam.Scripts.Controllers
 {

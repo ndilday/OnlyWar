@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Soldiers;
+using Iam.Scripts.Models.Units;
 
-namespace Iam.Scripts.Models.Units
+namespace Iam.Scripts.Models
 {
     public class EventHistory
     {
         public string EventTitle { get; set; }
         public List<string> SubEvents { get; private set; }
+        public List<Fleet> Fleets { get; private set; }
         public EventHistory()
         {
             SubEvents = new List<string>();
