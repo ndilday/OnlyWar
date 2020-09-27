@@ -6,6 +6,7 @@ using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Fleets;
+using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 using System;
@@ -92,6 +93,7 @@ namespace Iam.Scripts.Controllers
                     TempTyranidArmyGenerator.GenerateTyranidArmy()
                 }
             };
+            SetChapterSquadsLocation(planet);
             Map.UpdatePlanetColor(planet.Id, TempFactions.Instance.SpaceMarineFaction.Color);
            int fleetId =  _galaxy.AddFleet(planet, GameSettings.Chapter.Fleets[0]);
             Map.DrawFleetAtLocation(fleetId, planet.Position, true);
@@ -141,6 +143,29 @@ namespace Iam.Scripts.Controllers
         public void BattleController_OnBattleComplete()
         {
             HandleBattles();
+        }
+
+        private void SetChapterSquadsLocation(Planet planet)
+        {
+            if(GameSettings.Chapter.OrderOfBattle.HQSquad != null)
+            {
+                GameSettings.Chapter.OrderOfBattle.HQSquad.Location = planet;
+            }
+            foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
+            {
+                squad.Location = planet;
+            }
+            foreach(Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
+            {
+                if(unit.HQSquad != null)
+                {
+                    unit.HQSquad.Location = planet;
+                }
+                foreach(Squad squad in unit.Squads)
+                {
+                    squad.Location = planet;
+                }
+            }
         }
 
         private void HandleKeyboardInput()

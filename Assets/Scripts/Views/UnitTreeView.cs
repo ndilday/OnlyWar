@@ -9,6 +9,7 @@ namespace Iam.Scripts.Views
     public class UnitTreeView : MonoBehaviour
     {
         public UnityEvent<int> OnUnitSelected;
+        public UnityEvent<int> OnSquadSelected;
         
         [HideInInspector]
         public bool Initialized = false;
@@ -32,7 +33,7 @@ namespace Iam.Scripts.Views
             _badgeMap = new Dictionary<int, Badge>();
         }
 
-        public void AddLeafUnit(int id, string name, Color color, int badgeVal = -1)
+        public void AddLeafSquad(int id, string name, Color color, int badgeVal = -1)
         {
             GameObject unit = Instantiate(LeafSquadPrefab,
                                 new Vector3(0, 0, 0),
@@ -46,7 +47,7 @@ namespace Iam.Scripts.Views
             backgroundImage.GetComponent<Image>().color = color;
 
             Button button = backgroundImage.GetComponent<Button>();
-            button.onClick.AddListener(() => UnitButton_OnClick(id));
+            button.onClick.AddListener(() => SquadButton_OnClick(id));
             _buttonMap[id] = button;
 
             Badge badge = backgroundImage.Find("Badge").GetComponent<Badge>();
@@ -100,7 +101,7 @@ namespace Iam.Scripts.Views
                 imageTransform.GetComponent<Image>().color = squad.Item3;
                 
                 button = imageTransform.GetComponent<Button>();
-                button.onClick.AddListener(() => UnitButton_OnClick(squad.Item1));
+                button.onClick.AddListener(() => SquadButton_OnClick(squad.Item1));
                 _buttonMap[squad.Item1] = button;
                 
                 badge = imageTransform.Find("Badge").GetComponent<Badge>();
@@ -133,6 +134,17 @@ namespace Iam.Scripts.Views
             _selectedButton = _buttonMap[id];
             _selectedButton.interactable = false;
             OnUnitSelected.Invoke(id);
+        }
+
+        public void SquadButton_OnClick(int id)
+        {
+            if (_selectedButton != null)
+            {
+                _selectedButton.interactable = true;
+            }
+            _selectedButton = _buttonMap[id];
+            _selectedButton.interactable = false;
+            OnSquadSelected.Invoke(id);
         }
 
         public void UpdateUnitBadge(int unitId, int badgeVal)

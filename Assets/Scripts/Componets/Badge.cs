@@ -15,10 +15,11 @@ public class Badge : MonoBehaviour
     private Image _targetImage;
 
     [HideInInspector]
-    public const int COMBAT = 0;
-    public const int INJURED = 1;
-    public const int INSUFFICIENT_MEN = 2;
-    public const int TAKEOFF = 3;
+    public static int NORMAL = -1;
+    public static int COMBAT = 0;
+    public static  int INJURED = 1;
+    public static int INSUFFICIENT_MEN = 2;
+    public static int TAKEOFF = 3;
 
     public void SetBadge(int newBadge)
     {

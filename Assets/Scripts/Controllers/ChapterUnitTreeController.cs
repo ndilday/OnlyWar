@@ -19,7 +19,7 @@ namespace Iam.Scripts.Controllers
                                      Dictionary<int, Squad> squadMap)
         {
             unitTreeView.ClearTree();
-            unitTreeView.AddLeafUnit(chapterRoot.HQSquad.Id,
+            unitTreeView.AddLeafSquad(chapterRoot.HQSquad.Id,
                                      chapterRoot.HQSquad.Name,
                                      DetermineDisplayColor(chapterRoot.HQSquad, soldierMap));
             squadMap[chapterRoot.HQSquad.Id] = chapterRoot.HQSquad;
@@ -27,7 +27,7 @@ namespace Iam.Scripts.Controllers
             foreach (Squad squad in chapterRoot.Squads)
             {
                 squadMap[squad.Id] = squad;
-                unitTreeView.AddLeafUnit(squad.Id, squad.Name, DetermineDisplayColor(squad, soldierMap));
+                unitTreeView.AddLeafSquad(squad.Id, squad.Name, DetermineDisplayColor(squad, soldierMap));
             }
             foreach (Unit company in chapterRoot.ChildUnits)
             {
@@ -36,7 +36,7 @@ namespace Iam.Scripts.Controllers
                 {
                     // this is unexpected, currently
                     Debug.Log("We have a company with no squads?");
-                    unitTreeView.AddLeafUnit(company.HQSquad.Id, company.HQSquad.Name,
+                    unitTreeView.AddLeafSquad(company.HQSquad.Id, company.HQSquad.Name,
                                              DetermineDisplayColor(company.HQSquad, soldierMap));
                 }
                 else

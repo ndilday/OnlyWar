@@ -878,7 +878,7 @@ GameObject:
   - component: {fileID: 205161523}
   - component: {fileID: 205161525}
   m_Layer: 5
-  m_Name: AddToFleetButton
+  m_Name: LoadToShipButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -984,7 +984,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 205161523}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066516934}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+        m_MethodName: LoadInShipButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &208187766
 GameObject:
   m_ObjectHideFlags: 0
@@ -3167,7 +3179,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Remove From Fleet
+  m_Text: Land Squad
 --- !u!222 &526235691
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7794,6 +7806,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
@@ -7820,6 +7837,36 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1066516931}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Iam.Scripts.Controllers.ChapterController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UnitTreeView_OnUnitSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
@@ -11258,7 +11305,7 @@ GameObject:
   - component: {fileID: 1749212654}
   - component: {fileID: 1749212653}
   m_Layer: 5
-  m_Name: RemoveFromFleetButton
+  m_Name: RemoveFromShipButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11306,7 +11353,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1749212654}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066516934}
+        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+        m_MethodName: RemoveFromShipButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1749212654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12734,7 +12793,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Add To Fleet
+  m_Text: Load Squad On Ship
 --- !u!222 &1983906939
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12967,6 +13026,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
@@ -12988,11 +13052,41 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UnitView_OnUnitSelected
+      value: FleetView_OnShipSelected
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1066516934}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: FleetView_OnSquadSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
@@ -14258,6 +14352,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
@@ -14284,6 +14383,36 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1066516934}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Iam.Scripts.Controllers.PlanetController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UnitView_OnSquadSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
@@ -14849,8 +14978,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScoutingReport: {fileID: 8176178625263456165}
-  AddToFleetButton: {fileID: 205161525}
-  RemoveFromFleetButton: {fileID: 1749212653}
+  LoadToShipButton: {fileID: 205161525}
+  RemoveFromShipButton: {fileID: 1749212653}
 --- !u!222 &3975595564082206675
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16539,6 +16668,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
@@ -16565,6 +16699,36 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1066516935}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Iam.Scripts.Controllers.ApothecaryController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UnitTreeView_OnUnitSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,

@@ -8,23 +8,23 @@ namespace Iam.Scripts.Views
         [SerializeField]
         private Text ScoutingReport;
         [SerializeField]
-        private Button AddToFleetButton;
+        private Button LoadToShipButton;
         [SerializeField]
-        private Button RemoveFromFleetButton;
+        private Button RemoveFromShipButton;
 
         public void UpdateScoutingReport(string newText)
         {
             ScoutingReport.text = newText;
         }
 
-        public void EnableAddToFleetButton(bool enable)
+        public void EnableLoadInShipButton(bool enable)
         {
-            AddToFleetButton.gameObject.SetActive(enable);
+            LoadToShipButton.gameObject.SetActive(enable);
         }
 
-        public void EnableRemoveFromFleetButton(bool enable)
+        public void EnableRemoveFromShipButton(bool enable)
         {
-            RemoveFromFleetButton.gameObject.SetActive(enable);
+            RemoveFromShipButton.gameObject.SetActive(enable);
         }
     }
 }

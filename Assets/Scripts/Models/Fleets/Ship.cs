@@ -43,6 +43,7 @@ namespace Iam.Scripts.Models.Fleets
         public IReadOnlyCollection<Squad> LoadedSquads { get => _loadedSquads; } 
         public List<Boat> Boats { get; }
         public int LoadedSoldierCount { get; private set; }
+        public int AvailableCapacity { get => Template.SoldierCapacity - LoadedSoldierCount; }
 
         public Ship(int id, string name, ShipTemplate template)
         {

@@ -28,17 +28,21 @@ namespace Iam.Scripts.Controllers
         private UnitTreeView FleetView;
 
         private Squad _selectedSquad;
+        private Unit _selectedUnit;
+        private Ship _selectedShip;
+        private Squad _selectedShipSquad;
+        private Planet _selectedPlanet;
 
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
+            _selectedPlanet = planet;
             // assume player is Space Marine
             List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
             PlanetView.gameObject.SetActive(true);
-            UnitTreeView.ClearTree();
             CreateScoutingReport(planet);
             if(unitList?.Count > 0)
             {
-                PopulateUnitTree(unitList);
+                PopulateUnitTree();
             }
             if(planet.LocalFleet != null)
             {
@@ -48,10 +52,56 @@ namespace Iam.Scripts.Controllers
             UnitTreeView.Initialized = true;
         }
 
-        public void UnitView_OnUnitSelected(int squadId)
+        public void UnitView_OnUnitSelected(int unitId)
+        {
+            SquadArmamentView.Clear();
+            _selectedSquad = null;
+
+            // populate the SquadArmamentView
+            if (unitId == GameSettings.Chapter.OrderOfBattle.Id)
+            {
+                _selectedUnit = GameSettings.Chapter.OrderOfBattle;
+            }
+            else
+            {
+                _selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits
+                    .First(company => company.Id == unitId);
+            }
+            
+            bool enableAdd = false;
+            if(_selectedShip != null && _selectedShip.AvailableCapacity > 0)
+            {
+                // see if the planetside unit can fit onto the currently selected ship
+                int runningTotal = 0;
+                if(_selectedUnit.HQSquad.Location == _selectedPlanet)
+                {
+                    runningTotal += _selectedUnit.HQSquad.Members.Count;
+                }
+                
+                if(runningTotal <= _selectedShip.AvailableCapacity)
+                {
+                    foreach(Squad squad in _selectedUnit.Squads)
+                    {
+                        runningTotal += squad.Members.Count;
+                        if(runningTotal > _selectedShip.AvailableCapacity)
+                        {
+                            break;
+                        }
+                    }
+                    if(runningTotal < _selectedShip.AvailableCapacity)
+                    {
+                        enableAdd = true;
+                    }
+                }
+            }
+            PlanetView.EnableLoadInShipButton(enableAdd);
+        }
+
+        public void UnitView_OnSquadSelected(int squadId)
         {
             // populate the SquadArmamentView
             _selectedSquad = GameSettings.SquadMap[squadId];
+            _selectedUnit = null;
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
             SquadArmamentView.Initialize(deployData.Item2 < 2,
@@ -59,6 +109,30 @@ namespace Iam.Scripts.Controllers
                                          _selectedSquad.Members.Count, 
                                          _selectedSquad.SquadTemplate.DefaultWeapons?.Name, 
                                          GetSquadWeaponSelectionSections(_selectedSquad));
+            // determine if this squad can fit on the selected ship
+            bool enableLoadToShipButton =
+                _selectedShip != null 
+                    && _selectedShip.AvailableCapacity >= _selectedSquad.Members.Count;
+            PlanetView.EnableLoadInShipButton(enableLoadToShipButton);
+        }
+
+        public void FleetView_OnShipSelected(int shipId)
+        {
+            _selectedShip = _selectedPlanet.LocalFleet.Ships.First(ship => ship.Id == shipId);
+            _selectedShipSquad = null;
+            PlanetView.EnableRemoveFromShipButton(false);
+            if(_selectedSquad != null || _selectedUnit != null)
+            {
+                PlanetView.EnableLoadInShipButton(true);
+            }
+        }
+
+        public void FleetView_OnSquadSelected(int squadId)
+        {
+            _selectedShip = null;
+            _selectedShipSquad = GameSettings.SquadMap[squadId];
+            PlanetView.EnableLoadInShipButton(false);
+            PlanetView.EnableRemoveFromShipButton(true);
         }
 
         public void SquadArmamentView_OnIsFrontLineChanged(bool newVal)
@@ -78,12 +152,44 @@ namespace Iam.Scripts.Controllers
             }
         }
 
+        public void LoadInShipButton_OnClick()
+        {
+            if(_selectedSquad != null)
+            {
+                MoveSquadToSelectedShip(_selectedSquad);
+            }
+            else if(_selectedUnit != null)
+            {
+                if (_selectedUnit.HQSquad != null)
+                {
+                    MoveSquadToSelectedShip(_selectedUnit.HQSquad);
+                }
+                foreach(Squad squad in _selectedUnit.Squads)
+                {
+                    MoveSquadToSelectedShip(squad);
+                }
+            }
+            // rebuild both trees
+            PopulateUnitTree();
+            PopulateFleetTree(_selectedPlanet.LocalFleet);
+        }
+
+        public void RemoveFromShipButton_OnClick()
+        {
+            _selectedShip.RemoveSquad(_selectedShipSquad);
+            _selectedShipSquad.BoardedLocation = null;
+            _selectedShipSquad.Location = _selectedPlanet;
+            _selectedShipSquad = null;
+            PopulateUnitTree();
+            PopulateFleetTree(_selectedPlanet.LocalFleet);
+        }
+
         private void CreateScoutingReport(Planet planet)
         {
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            if (planet.FactionGroundUnitListMap != null)
+            if (planet.FactionGroundUnitListMap != null || planet.LocalFleet != null)
             {
                 foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
@@ -158,55 +264,71 @@ namespace Iam.Scripts.Controllers
             return list;
         }
 
-        private void PopulateUnitTree(List<Unit> unitList)
+        private void PopulateUnitTree()
         {
-            if (unitList[0].Id == GameSettings.Chapter.OrderOfBattle.Id)
+            UnitTreeView.ClearTree();
+            // go through the Chapter OOB and see which squads are on this planet
+            if(GameSettings.Chapter.OrderOfBattle.HQSquad.Location == _selectedPlanet)
             {
-                Tuple<Color, int> tuple = 
-                    DetermineSquadDisplayValues(GameSettings.Chapter.OrderOfBattle.HQSquad);
-                if (tuple.Item2 == 2) GameSettings.Chapter.OrderOfBattle.HQSquad.IsInReserve = true;
-                UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
-                                         GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
-                                         tuple.Item1, tuple.Item2);
-                foreach(Squad squad in unitList[0].Squads)
-                {
-                    tuple = DetermineSquadDisplayValues(squad);
-                    if (tuple.Item2 == 2) squad.IsInReserve = true;
-                    UnitTreeView.AddLeafUnit(squad.Id, squad.Name, tuple.Item1, tuple.Item2);
-                }
-                PopulateUnitTree(unitList[0].ChildUnits);
+                AddSquadToUnitTreeAtRoot(GameSettings.Chapter.OrderOfBattle.HQSquad);
             }
-            else
+            foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
-                foreach (Unit unit in unitList)
+                if(squad.Location == _selectedPlanet)
                 {
-                    if (unit.Squads.Count > 0)
-                    {
-                        Tuple<Color, int> display;
-                        List<Tuple<int, string, Color, int>> squadList = 
-                            new List<Tuple<int, string, Color, int>>();
-                        foreach (Squad squad in unit.Squads)
-                        {
-                            display = DetermineSquadDisplayValues(squad);
-                            if (display.Item2 == 2) squad.IsInReserve = true;
-                            squadList.Add(
-                                new Tuple<int, string, Color, int>(squad.Id, squad.Name, 
-                                                                   display.Item1, display.Item2));
-                        }
-                        display = DetermineSquadDisplayValues(unit.HQSquad);
-                        if (display.Item2 == 2) unit.HQSquad.IsInReserve = true;
-                        UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, display.Item1, 
-                                                 display.Item2, squadList);
-                    }
-                    else if(unit.HQSquad != null)
-                    {
-                        UnitTreeView.AddLeafUnit(unit.HQSquad.Id, 
-                                                 unit.HQSquad.Name,
-                                                 DetermineDisplayColor(unit.HQSquad, 
-                                                                       GameSettings.PlayerSoldierMap));
-                    }
+                    AddSquadToUnitTreeAtRoot(squad);
                 }
             }
+            foreach(Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
+            {
+                AddCompanyToUnitTree(company);
+            }
+        }
+
+        private void AddCompanyToUnitTree(Unit company)
+        {
+            // see if any squads in the company are stationed on this planet
+            // if so, display the unit in the squad view
+            Tuple<Color, int> display;
+            List<Tuple<int, string, Color, int>> squadList =
+                new List<Tuple<int, string, Color, int>>();
+            // check HQ Squad
+            if (company.HQSquad?.Location == _selectedPlanet)
+            {
+                display = DetermineSquadDisplayValues(company.HQSquad);
+                if (display.Item2 == 2) company.HQSquad.IsInReserve = true;
+                squadList.Add(
+                    new Tuple<int, string, Color, int>(company.HQSquad.Id,
+                                                       company.HQSquad.Name,
+                                                       display.Item1, display.Item2));
+            }
+            foreach (Squad squad in company.Squads)
+            {
+                if (squad.Location == _selectedPlanet)
+                {
+                    display = DetermineSquadDisplayValues(squad);
+                    if (display.Item2 == 2) squad.IsInReserve = true;
+                    squadList.Add(
+                        new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                           display.Item1, display.Item2));
+                }
+            }
+            if (squadList.Count > 0)
+            {
+                UnitTreeView.AddTreeUnit(company.Id, company.Name, Color.white,
+                                             Badge.NORMAL, squadList);
+            }
+        }
+
+        private void AddSquadToUnitTreeAtRoot(Squad squad)
+        {
+            Tuple<Color, int> tuple =
+                                DetermineSquadDisplayValues(squad);
+            if (tuple.Item2 == Badge.INSUFFICIENT_MEN)
+            {
+                squad.IsInReserve = true;
+            }
+            UnitTreeView.AddLeafSquad(squad.Id, squad.Name, tuple.Item1, tuple.Item2);
         }
 
         private Tuple<Color, int> DetermineSquadDisplayValues(Squad squad)
@@ -222,7 +344,7 @@ namespace Iam.Scripts.Controllers
                 {
                     if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
                     {
-                        return new Tuple<Color, int>(Color.red, 2);
+                        return new Tuple<Color, int>(Color.red, Badge.INSUFFICIENT_MEN);
                     }
                     else if (typeGroups[element.SoldierType].Count() < element.MaximumNumber)
                     {
@@ -231,15 +353,15 @@ namespace Iam.Scripts.Controllers
                 }
                 else
                 {
-                    return new Tuple<Color, int>(Color.red, 2);
+                    return new Tuple<Color, int>(Color.red, Badge.INSUFFICIENT_MEN);
                 }
             }
             if (deployables.Count() < squad.Members.Count)
             {
-                return new Tuple<Color, int>(new Color(255, 200, 50), 1);
+                return new Tuple<Color, int>(new Color(255, 200, 50), Badge.INJURED);
             }
             Color color = isFull ? Color.white : Color.yellow;
-            int number = squad.IsInReserve ? -1 : 0;
+            int number = squad.IsInReserve ? Badge.NORMAL : Badge.COMBAT;
             return new Tuple<Color, int>(color, number);
         }
 
@@ -247,41 +369,41 @@ namespace Iam.Scripts.Controllers
         {
             // foreach ship in fleet, add a company style node
             // if the fleet has any troops, display those as children
+            FleetView.ClearTree();
             foreach (Ship ship in fleet.Ships)
             {
-                if (ship.LoadedSquads.Count > 0)
+                
+                Tuple<Color, int> display;
+                List<Tuple<int, string, Color, int>> squadList =
+                    new List<Tuple<int, string, Color, int>>();
+                foreach (Squad squad in ship.LoadedSquads)
                 {
-                    Tuple<Color, int> display;
-                    List<Tuple<int, string, Color, int>> squadList =
-                        new List<Tuple<int, string, Color, int>>();
-                    foreach (Squad squad in ship.LoadedSquads)
-                    {
-                        display = DetermineSquadDisplayValues(squad);
-                        if (display.Item2 == 2) squad.IsInReserve = true;
-                        squadList.Add(
-                            new Tuple<int, string, Color, int>(squad.Id, squad.Name,
-                                                               display.Item1, display.Item2));
-                    }
-                    display = DetermineShipDisplayValues(fleet, ship);
-                    FleetView.AddTreeUnit(ship.Id, DetermineShipText(fleet, ship), 
-                                             display.Item1, display.Item2, squadList);
+                    display = DetermineSquadDisplayValues(squad);
+                    if (display.Item2 == 2) squad.IsInReserve = true;
+                    squadList.Add(
+                        new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                            display.Item1, display.Item2));
                 }
-                else
-                {
-                    var tuple = DetermineShipDisplayValues(fleet, ship);
-                    FleetView.AddLeafUnit(ship.Id,
-                                             DetermineShipText(fleet, ship),
-                                             tuple.Item1, 
-                                             tuple.Item2);
-                }
+                display = DetermineShipDisplayValues(fleet, ship);
+                FleetView.AddTreeUnit(ship.Id, DetermineShipText(fleet, ship), 
+                                            display.Item1, display.Item2, squadList);
             }
+        }
+
+        private void MoveSquadToSelectedShip(Squad squad)
+        {
+            _selectedShip.LoadSquad(squad);
+            squad.Location = null;
+            squad.BoardedLocation = _selectedShip;
         }
 
         private Tuple<Color, int> DetermineShipDisplayValues(Fleet fleet, Ship ship)
         {
             Color color = ship.LoadedSoldierCount == ship.Template.SoldierCapacity 
                 ? Color.yellow : Color.white;
-            return new Tuple<Color, int>(color, fleet.Destination != null ? 4 : -1);
+            return new Tuple<Color, int>(color, 
+                                         fleet.Destination != null 
+                                            ? Badge.TAKEOFF : Badge.NORMAL);
         }
 
         private string DetermineShipText(Fleet fleet, Ship ship)

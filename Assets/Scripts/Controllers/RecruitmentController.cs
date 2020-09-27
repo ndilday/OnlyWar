@@ -80,7 +80,7 @@ I await any further instructions you have on our recruiting and training efforts
             RecruitmentView.SetRecruiterMessage(message);
             foreach(Squad squad in _scoutSquads.Values)
             {
-                ScoutSquadView.AddLeafUnit(squad.Id, squad.Name, Color.white); ;
+                ScoutSquadView.AddLeafSquad(squad.Id, squad.Name, Color.white); ;
             }
         }
 
