@@ -23,6 +23,8 @@ namespace Iam.Scripts.Models.Factions
         public IReadOnlyDictionary<int, SquadTemplate> SquadTemplates { get; }
         public IReadOnlyDictionary<int, UnitTemplate> UnitTemplates { get; }
         public IReadOnlyDictionary<int, ShipTemplate> ShipTemplates { get; }
+        public IReadOnlyDictionary<int, BoatTemplate> BoatTemplates { get; }
+        public IReadOnlyDictionary<int, FleetTemplate> FleetTemplates { get; }
         
         public FactionTemplate(int id, string name, Color color,
                        IReadOnlyDictionary<int, SoldierType> soldierTypes,
@@ -33,7 +35,9 @@ namespace Iam.Scripts.Models.Factions
                        IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
                        IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
                        IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
-                       IReadOnlyDictionary<int, ShipTemplate> shipTemplates)
+                       IReadOnlyDictionary<int, BoatTemplate> boatTemplates,
+                       IReadOnlyDictionary<int, ShipTemplate> shipTemplates,
+                       IReadOnlyDictionary<int, FleetTemplate> fleetTemplates)
         {
             Id = id;
             Name = name;
@@ -46,7 +50,9 @@ namespace Iam.Scripts.Models.Factions
             SoldierTemplates = soldierTemplates;
             SquadTemplates = squadTemplates;
             UnitTemplates = unitTemplates;
+            BoatTemplates = boatTemplates;
             ShipTemplates = shipTemplates;
+            FleetTemplates = fleetTemplates;
         }
     }
 }

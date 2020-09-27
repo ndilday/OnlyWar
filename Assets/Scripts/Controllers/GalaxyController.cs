@@ -2,9 +2,10 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
+using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 using System;
@@ -91,6 +92,9 @@ namespace Iam.Scripts.Controllers
                     TempTyranidArmyGenerator.GenerateTyranidArmy()
                 }
             };
+            Map.UpdatePlanetColor(planet.Id, TempFactions.Instance.SpaceMarineFaction.Color);
+           int fleetId =  _galaxy.AddFleet(planet, GameSettings.Chapter.Fleets[0]);
+            Map.DrawFleetAtLocation(fleetId, planet.Position, true);
         }
 
         public void EndTurn_Clicked()

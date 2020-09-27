@@ -10,7 +10,6 @@ namespace Iam.Scripts.Models
     {
         public string EventTitle { get; set; }
         public List<string> SubEvents { get; private set; }
-        public List<Fleet> Fleets { get; private set; }
         public EventHistory()
         {
             SubEvents = new List<string>();
@@ -22,6 +21,7 @@ namespace Iam.Scripts.Models
         public ushort GeneseedStockpile { get; }
         public Dictionary<Date, List<EventHistory>> BattleHistory { get; }
         public Unit OrderOfBattle { get; }
+        public List<Fleet> Fleets { get; }
         public Dictionary<int, PlayerSoldier> ChapterPlayerSoldierMap { get; }
         public Chapter(Unit unit, IEnumerable<PlayerSoldier> soldiers)
         {
@@ -29,6 +29,7 @@ namespace Iam.Scripts.Models
             OrderOfBattle = unit;
             BattleHistory = new Dictionary<Date, List<EventHistory>>();
             ChapterPlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
+            Fleets = new List<Fleet>();
         }
     }
 }

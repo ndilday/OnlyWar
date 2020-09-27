@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,12 +24,12 @@ namespace Iam.Scripts.Views
         [SerializeField]
         private GameSettings GameSettings;
         
-        private Dictionary<int, Transform> _planetViewMap;
-        private Dictionary<int, Transform> _fleetViewMap;
+        private readonly Dictionary<int, Tuple<Transform, SpriteRenderer, TextMesh>> _planetViewMap;
+        private readonly Dictionary<int, Transform> _fleetViewMap;
 
         public GalaxyMapView()
         {
-            _planetViewMap = new Dictionary<int, Transform>();
+            _planetViewMap = new Dictionary<int, Tuple<Transform, SpriteRenderer, TextMesh>>();
             _fleetViewMap = new Dictionary<int, Transform>();
         }
 
@@ -43,26 +44,26 @@ namespace Iam.Scripts.Views
             planetRenderer.color = planetColor;
             textMesh.color = planetColor;
             textMesh.text = planetName;
-            _planetViewMap[planetId] = star.transform;
+            _planetViewMap[planetId] = new Tuple<Transform, SpriteRenderer, TextMesh>(
+                                            star.transform,
+                                            planetRenderer,
+                                            textMesh);
             // add color shading of star based on planet type
+        }
+
+        public void UpdatePlanetColor(int planetId, Color newColor)
+        {
+            var tuple = _planetViewMap[planetId];
+            tuple.Item2.color = newColor;
+            tuple.Item3.color = newColor;
         }
 
         public int? GetPlanetIdFromPosition(Vector2 position)
         {
             // assumes only one fleet at a given position
-            var result = _planetViewMap.SingleOrDefault(kvp => kvp.Value.position == (Vector3)position);
+            var result = _planetViewMap.SingleOrDefault(kvp => kvp.Value.Item1.position == (Vector3)position);
             if (result.Equals(default)) return null;
             return result.Key;
-        }
-
-        public void SelectPlanet(int planetId)
-        {
-
-        }
-
-        public void DeselectPlanet(int planetId)
-        {
-
         }
 
         public void DrawFleetAtLocation(int fleetId, Vector2 location, bool isOffset)
@@ -77,7 +78,7 @@ namespace Iam.Scripts.Views
 
         public void RemoveFleet(int fleetId)
         {
-            Object.Destroy(_fleetViewMap[fleetId].gameObject);
+            Destroy(_fleetViewMap[fleetId].gameObject);
             _fleetViewMap.Remove(fleetId);
         }
 

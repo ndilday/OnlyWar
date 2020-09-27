@@ -36,7 +36,9 @@ namespace Iam.Scripts.Models.Factions
                                                      TempSpaceMarineSoldierTemplate.Instance.SoldierTemplates,
                                                      TempSpaceMarineSquadTemplates.Instance.SquadTemplates,
                                                      TempSpaceMarineUnitTemplates.Instance.UnitTemplates,
-                                                     TempSpaceMarineShipTemplates.Instance.ShipTemplates);
+                                                     TempSpaceMarineShipTemplates.Instance.BoatTemplates,
+                                                     TempSpaceMarineShipTemplates.Instance.ShipTemplates,
+                                                     TempSpaceMarineFleetTemplates.Instance.FleetTemplates);
             TyranidFaction = new FactionTemplate(2, "Tyranids", Color.magenta,
                                                  TempSoldierTypes.Instance.TyranidSoldierTypes,
                                                  TempTyranidEquippables.Instance.RangedWeaponTemplates,
@@ -46,6 +48,8 @@ namespace Iam.Scripts.Models.Factions
                                                  TempTyranidSoldierTemplates.Instance.SoldierTemplates,
                                                  TempTyranidSquadTemplates.Instance.SquadTemplates,
                                                  TempTyranidUnitTemplates.Instance.UnitTemplates,
+                                                 null,
+                                                 null,
                                                  null);
         }
     }

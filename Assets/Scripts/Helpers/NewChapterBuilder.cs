@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using Iam.Scripts.Models;
+using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
@@ -12,41 +15,46 @@ namespace Iam.Scripts.Helpers
     public static class NewChapterBuilder
     {
         private delegate void TrainingFunction(PlayerSoldier playerSoldier);
-        public static Chapter AssignSoldiersToChapter(IEnumerable<PlayerSoldier> soldiers, UnitTemplate rootTemplate, string year)
+        public static Chapter CreateChapter(IEnumerable<PlayerSoldier> soldiers, FactionTemplate template, string year)
         {
             Dictionary<int, PlayerSoldier> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
-            Chapter chapter = BuildChapterFromUnitTemplate(rootTemplate, soldiers);
+            Chapter chapter = BuildChapterFromUnitTemplate(template.UnitTemplates[0], soldiers);
+            PopulateOrderOfBattle(year, unassignedSoldierMap, chapter.OrderOfBattle);
+            chapter.Fleets.Add(new Fleet(1, template, 0));
+            return chapter;
+        }
 
+        private static void PopulateOrderOfBattle(string year, Dictionary<int, PlayerSoldier> unassignedSoldierMap, Unit oob)
+        {
             // first, assign the Librarians
-            AssignLibrarians(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignLibrarians(unassignedSoldierMap, oob, year);
             // then, assign up to the top 50 as Techmarines
-            AssignTechMarines(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignTechMarines(unassignedSoldierMap, oob, year);
             // then, assign the top leader as Chapter Master
-            AssignChapterMaster(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignChapterMaster(unassignedSoldierMap, oob, year);
             // then, assign Captains
-            AssignCaptains(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignCaptains(unassignedSoldierMap, oob, year);
             // then, assigned twenty apothecaries
-            AssignApothecaries(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignApothecaries(unassignedSoldierMap, oob, year);
             // then, assign twenty Chaplains
-            AssignChaplains(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignChaplains(unassignedSoldierMap, oob, year);
             // any dual gold awards are assigned to the first company
-            AssignVeterans(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignVeterans(unassignedSoldierMap, oob, year);
 
             // assign Champtions to the CM and each Company
             var champions = unassignedSoldierMap.Values.OrderByDescending(s => s.MeleeRating).ToList();
             SoldierType championType = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[15];
-            AssignSpecialistsToUnit(unassignedSoldierMap, chapter.OrderOfBattle, year, championType, champions, TrainChampion);
+            AssignSpecialistsToUnit(unassignedSoldierMap, oob, year, championType, champions, TrainChampion);
 
             // assign Ancients to the CM and each Company
             var ancients = unassignedSoldierMap.Values.OrderByDescending(s => s.AncientRating).ToList();
             SoldierType ancientType = TempSoldierTypes.Instance.SpaceMarineSoldierTypes[14];
-            AssignSpecialistsToUnit(unassignedSoldierMap, chapter.OrderOfBattle, year, ancientType, ancients, TrainAncient);
-            
+            AssignSpecialistsToUnit(unassignedSoldierMap, oob, year, ancientType, ancients, TrainAncient);
+
             // assign all other soldiers who got at least bronze in one skill, starting with the second company
-            AssignMarines(unassignedSoldierMap, chapter.OrderOfBattle, year);
+            AssignMarines(unassignedSoldierMap, oob, year);
             //Assign excess to scouts
-            AssignExcessToScouts(unassignedSoldierMap, chapter.OrderOfBattle, year);
-            return chapter;
+            AssignExcessToScouts(unassignedSoldierMap, oob, year);
         }
 
         private static Chapter BuildChapterFromUnitTemplate(UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)

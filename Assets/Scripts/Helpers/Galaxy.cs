@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using UnityEngine;
 
 using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models;
 
 namespace Iam.Scripts.Helpers
@@ -10,8 +12,8 @@ namespace Iam.Scripts.Helpers
     public class Galaxy
     {
         private readonly int _galaxySize;
-        public readonly List<Planet> Planets;
-        public readonly List<Fleet> Fleets;
+        public List<Planet> Planets { get; }
+        public List<Fleet> Fleets { get; }
 
         public Galaxy(int galaxySize)
         {
@@ -37,12 +39,12 @@ namespace Iam.Scripts.Helpers
 
         public void GenerateGalaxy(int seed)
         {
-            UnityEngine.Random.InitState(seed);
+            Random.InitState(seed);
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
                 {
-                    if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.05f)
+                    if (Random.Range(0.0f, 1.0f) <= 0.05f)
                     {
                         Planet p = new Planet(new Vector2(i, j));
                         if (Planets.Count < 60)
@@ -55,7 +57,7 @@ namespace Iam.Scripts.Helpers
                             p.Name = i.ToString() + j.ToString();
                             p.PlanetType = PlanetType.Death;
                         }
-                        if(UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
+                        if(Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
                             p.ControllingFaction = TempFactions.Instance.TyranidFaction;
                         }
@@ -64,21 +66,19 @@ namespace Iam.Scripts.Helpers
                     }
                 }
             }
-            AddFleet();
         }
 
-        public void AddFleet()
+        public int AddFleet(Planet planet, Fleet fleet)
         {
-            int startingPlanet = Planets.Count / 2;
-            Fleet fleet = new Fleet
-            {
-                Planet = Planets[startingPlanet],
-                Destination = null
-            };
-            fleet.Position = fleet.Planet.Position;
-            Planets[startingPlanet].LocalFleet = fleet;
-            Planets[startingPlanet].ControllingFaction = TempFactions.Instance.SpaceMarineFaction;
+            fleet.Planet = planet;
+            planet.LocalFleet = fleet;
             Fleets.Add(fleet);
+            return Fleets.Count - 1;
+        }
+
+        public void TakeControlOfPlanet(Planet planet, FactionTemplate faction)
+        {
+            planet.ControllingFaction = faction;
         }
     }
 }

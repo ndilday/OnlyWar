@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Units;
 
 namespace Iam.Scripts.Models

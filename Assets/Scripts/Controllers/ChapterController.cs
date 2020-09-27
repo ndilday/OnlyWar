@@ -9,6 +9,7 @@ using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
+using Iam.Scripts.Models.Factions;
 
 namespace Iam.Scripts.Controllers
 {
@@ -238,9 +239,13 @@ namespace Iam.Scripts.Controllers
                 _trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
                 //soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
             }
-            GameSettings.Chapter = NewChapterBuilder.AssignSoldiersToChapter(GameSettings.PlayerSoldierMap.Values, GameSettings.ChapterTemplate, 
-                new Date(GameSettings.Date.Millenium, (GameSettings.Date.Year), 1).ToString());
+            GameSettings.Chapter = 
+                NewChapterBuilder.CreateChapter(GameSettings.PlayerSoldierMap.Values, 
+                                                TempFactions.Instance.SpaceMarineFaction, 
+                                                new Date(GameSettings.Date.Millenium, 
+                                                    (GameSettings.Date.Year), 1).ToString());
             PopulateSquadMap();
+            GameSettings.ChapterPlanetId = 11;
         }
 
         private void PopulateSquadMap()

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Iam.Scripts.Models.Equippables;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Units;
 
@@ -18,6 +19,8 @@ namespace Iam.Scripts.Models.Squads
         public IReadOnlyCollection<ISoldier> Members { get => _members; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<WeaponSet> Loadout { get; set; }
+        public Planet Location { get; set; }
+        public Ship BoardedLocation { get; set; }
         //public List<int> AssignedVehicles;
         public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
         {
