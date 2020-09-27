@@ -12,7 +12,7 @@ namespace Iam.Scripts.Models.Fleets
         public Vector2 Position { get; set; }
         public Planet Destination { get; set; }
         public Planet Planet { get; set; }
-        List<Ship> Ships { get; }
+        public List<Ship> Ships { get; }
 
         public Fleet(int id, FactionTemplate faction, int templateId)
         {
@@ -22,7 +22,8 @@ namespace Iam.Scripts.Models.Fleets
             int i = Id * 1000;
             foreach(ShipTemplate shipTemplate in faction.FleetTemplates[templateId].Ships)
             {
-                Ships.Add(new Ship(i++, shipTemplate));
+                Ships.Add(new Ship(i, $"{shipTemplate.ClassName}-{i}", shipTemplate));
+                i++;
             }
         }
     }

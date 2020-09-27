@@ -18,6 +18,7 @@ public class Badge : MonoBehaviour
     public const int COMBAT = 0;
     public const int INJURED = 1;
     public const int INSUFFICIENT_MEN = 2;
+    public const int TAKEOFF = 3;
 
     public void SetBadge(int newBadge)
     {

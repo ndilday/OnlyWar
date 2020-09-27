@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using UnityEngine;
 
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
@@ -22,6 +24,8 @@ namespace Iam.Scripts.Controllers
         private PlanetView PlanetView;
         [SerializeField]
         private GameSettings GameSettings;
+        [SerializeField]
+        private UnitTreeView FleetView;
 
         private Squad _selectedSquad;
 
@@ -36,6 +40,11 @@ namespace Iam.Scripts.Controllers
             {
                 PopulateUnitTree(unitList);
             }
+            if(planet.LocalFleet != null)
+            {
+                FleetView.gameObject.SetActive(true);
+                PopulateFleetTree(planet.LocalFleet);
+            }
             UnitTreeView.Initialized = true;
         }
 
@@ -44,7 +53,7 @@ namespace Iam.Scripts.Controllers
             // populate the SquadArmamentView
             _selectedSquad = GameSettings.SquadMap[squadId];
             SquadArmamentView.Clear();
-            Tuple<Color, int> deployData = DetermineDisplayValues(_selectedSquad);
+            Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
             SquadArmamentView.Initialize(deployData.Item2 < 2,
                                          !_selectedSquad.IsInReserve,
                                          _selectedSquad.Members.Count, 
@@ -55,7 +64,7 @@ namespace Iam.Scripts.Controllers
         public void SquadArmamentView_OnIsFrontLineChanged(bool newVal)
         {
             _selectedSquad.IsInReserve = !newVal;
-            Tuple<Color, int> tuple = DetermineDisplayValues(_selectedSquad);
+            Tuple<Color, int> tuple = DetermineSquadDisplayValues(_selectedSquad);
             UnitTreeView.UpdateUnitBadge(_selectedSquad.Id, newVal ? 0 : tuple.Item2);
         }
 
@@ -154,14 +163,14 @@ namespace Iam.Scripts.Controllers
             if (unitList[0].Id == GameSettings.Chapter.OrderOfBattle.Id)
             {
                 Tuple<Color, int> tuple = 
-                    DetermineDisplayValues(GameSettings.Chapter.OrderOfBattle.HQSquad);
+                    DetermineSquadDisplayValues(GameSettings.Chapter.OrderOfBattle.HQSquad);
                 if (tuple.Item2 == 2) GameSettings.Chapter.OrderOfBattle.HQSquad.IsInReserve = true;
                 UnitTreeView.AddLeafUnit(GameSettings.Chapter.OrderOfBattle.HQSquad.Id, 
                                          GameSettings.Chapter.OrderOfBattle.HQSquad.Name,
                                          tuple.Item1, tuple.Item2);
                 foreach(Squad squad in unitList[0].Squads)
                 {
-                    tuple = DetermineDisplayValues(squad);
+                    tuple = DetermineSquadDisplayValues(squad);
                     if (tuple.Item2 == 2) squad.IsInReserve = true;
                     UnitTreeView.AddLeafUnit(squad.Id, squad.Name, tuple.Item1, tuple.Item2);
                 }
@@ -178,13 +187,13 @@ namespace Iam.Scripts.Controllers
                             new List<Tuple<int, string, Color, int>>();
                         foreach (Squad squad in unit.Squads)
                         {
-                            display = DetermineDisplayValues(squad);
+                            display = DetermineSquadDisplayValues(squad);
                             if (display.Item2 == 2) squad.IsInReserve = true;
                             squadList.Add(
                                 new Tuple<int, string, Color, int>(squad.Id, squad.Name, 
                                                                    display.Item1, display.Item2));
                         }
-                        display = DetermineDisplayValues(unit.HQSquad);
+                        display = DetermineSquadDisplayValues(unit.HQSquad);
                         if (display.Item2 == 2) unit.HQSquad.IsInReserve = true;
                         UnitTreeView.AddTreeUnit(unit.HQSquad.Id, unit.Name, display.Item1, 
                                                  display.Item2, squadList);
@@ -200,7 +209,7 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        private Tuple<Color, int> DetermineDisplayValues(Squad squad)
+        private Tuple<Color, int> DetermineSquadDisplayValues(Squad squad)
         {
             var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
@@ -232,6 +241,60 @@ namespace Iam.Scripts.Controllers
             Color color = isFull ? Color.white : Color.yellow;
             int number = squad.IsInReserve ? -1 : 0;
             return new Tuple<Color, int>(color, number);
+        }
+
+        private void PopulateFleetTree(Fleet fleet)
+        {
+            // foreach ship in fleet, add a company style node
+            // if the fleet has any troops, display those as children
+            foreach (Ship ship in fleet.Ships)
+            {
+                if (ship.LoadedSquads.Count > 0)
+                {
+                    Tuple<Color, int> display;
+                    List<Tuple<int, string, Color, int>> squadList =
+                        new List<Tuple<int, string, Color, int>>();
+                    foreach (Squad squad in ship.LoadedSquads)
+                    {
+                        display = DetermineSquadDisplayValues(squad);
+                        if (display.Item2 == 2) squad.IsInReserve = true;
+                        squadList.Add(
+                            new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                               display.Item1, display.Item2));
+                    }
+                    display = DetermineShipDisplayValues(fleet, ship);
+                    FleetView.AddTreeUnit(ship.Id, DetermineShipText(fleet, ship), 
+                                             display.Item1, display.Item2, squadList);
+                }
+                else
+                {
+                    var tuple = DetermineShipDisplayValues(fleet, ship);
+                    FleetView.AddLeafUnit(ship.Id,
+                                             DetermineShipText(fleet, ship),
+                                             tuple.Item1, 
+                                             tuple.Item2);
+                }
+            }
+        }
+
+        private Tuple<Color, int> DetermineShipDisplayValues(Fleet fleet, Ship ship)
+        {
+            Color color = ship.LoadedSoldierCount == ship.Template.SoldierCapacity 
+                ? Color.yellow : Color.white;
+            return new Tuple<Color, int>(color, fleet.Destination != null ? 4 : -1);
+        }
+
+        private string DetermineShipText(Fleet fleet, Ship ship)
+        {
+            string returnValue = "";
+            returnValue += ship.Name + "\n";
+            returnValue += ship.LoadedSoldierCount.ToString() + "/"
+                + ship.Template.SoldierCapacity.ToString();
+            if(fleet.Destination != null)
+            {
+                returnValue += $", Destination:{fleet.Destination.Name}";
+            }
+            return returnValue;
         }
     }
 }

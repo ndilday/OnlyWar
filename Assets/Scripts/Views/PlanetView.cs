@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Iam.Scripts.Views
@@ -10,10 +7,24 @@ namespace Iam.Scripts.Views
     {
         [SerializeField]
         private Text ScoutingReport;
+        [SerializeField]
+        private Button AddToFleetButton;
+        [SerializeField]
+        private Button RemoveFromFleetButton;
 
         public void UpdateScoutingReport(string newText)
         {
             ScoutingReport.text = newText;
+        }
+
+        public void EnableAddToFleetButton(bool enable)
+        {
+            AddToFleetButton.gameObject.SetActive(enable);
+        }
+
+        public void EnableRemoveFromFleetButton(bool enable)
+        {
+            RemoveFromFleetButton.gameObject.SetActive(enable);
         }
     }
 }
