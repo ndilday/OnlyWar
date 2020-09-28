@@ -25,6 +25,8 @@ namespace Iam.Scripts.Controllers
         private GameSettings GameSettings;
         [SerializeField]
         private GalaxyMapView Map;
+        [SerializeField]
+        private UnitTreeView FleetView;
 
         private Galaxy _galaxy;
         private int? _selectedFleetId;
@@ -235,6 +237,7 @@ namespace Iam.Scripts.Controllers
                 {
                     Map.DeselectFleet((int)_selectedFleetId);
                     _selectedFleetId = null;
+                    FleetView.gameObject.SetActive(false);
                 }
             }
             else
@@ -304,6 +307,8 @@ namespace Iam.Scripts.Controllers
             {
                 Map.SelectFleet((int)_selectedFleetId);
             }
+            // display fleet overlay
+            FleetView.gameObject.SetActive(true);
         }
 
         private void HandleBattles()
