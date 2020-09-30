@@ -30,15 +30,24 @@ namespace Iam.Scripts.Models
 
     public class Planet
     {
-        public Planet(Vector2 position) { Position = position; }
+        //public Planet(Vector2 position) { Position = position; }
         public int Id;
         public string Name;
-        public int StarType;
         public readonly Vector2 Position;
         public PlanetType PlanetType;
-        public Fleet LocalFleet;
+        public List<Fleet> Fleets;
         public Dictionary<int, List<Unit>> FactionGroundUnitListMap;
         public FactionTemplate ControllingFaction;
-        // how to represent forces on planet?
+        
+        public Planet(int id, string name, Vector2 position, PlanetType type)
+        {
+            Id = id;
+            Name = name;
+            Position = position;
+            PlanetType = type;
+            Fleets = new List<Fleet>();
+            FactionGroundUnitListMap = new Dictionary<int, List<Unit>>();
+        }
+
     }
 }

@@ -44,10 +44,10 @@ namespace Iam.Scripts.Controllers
             {
                 PopulateUnitTree();
             }
-            if(planet.LocalFleet != null)
+            if(planet.Fleets.Count > 0)
             {
                 FleetView.gameObject.SetActive(true);
-                PopulateFleetTree(planet.LocalFleet);
+                PopulateFleetTree(planet.Fleets);
             }
             UnitTreeView.Initialized = true;
         }
@@ -118,7 +118,15 @@ namespace Iam.Scripts.Controllers
 
         public void FleetView_OnShipSelected(int shipId)
         {
-            _selectedShip = _selectedPlanet.LocalFleet.Ships.First(ship => ship.Id == shipId);
+            foreach(Fleet fleet in _selectedPlanet.Fleets)
+            {
+                Ship ship = fleet.Ships.FirstOrDefault(s => s.Id == shipId);
+                if(ship != null)
+                {
+                    _selectedShip = ship;
+                    break;
+                }
+            }
             _selectedShipSquad = null;
             PlanetView.EnableRemoveFromShipButton(false);
             if(_selectedSquad != null || _selectedUnit != null)
@@ -171,7 +179,7 @@ namespace Iam.Scripts.Controllers
             }
             // rebuild both trees
             PopulateUnitTree();
-            PopulateFleetTree(_selectedPlanet.LocalFleet);
+            PopulateFleetTree(_selectedPlanet.Fleets);
         }
 
         public void RemoveFromShipButton_OnClick()
@@ -181,7 +189,7 @@ namespace Iam.Scripts.Controllers
             _selectedShipSquad.Location = _selectedPlanet;
             _selectedShipSquad = null;
             PopulateUnitTree();
-            PopulateFleetTree(_selectedPlanet.LocalFleet);
+            PopulateFleetTree(_selectedPlanet.Fleets);
         }
 
         private void CreateScoutingReport(Planet planet)
@@ -189,7 +197,7 @@ namespace Iam.Scripts.Controllers
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            if (planet.FactionGroundUnitListMap != null || planet.LocalFleet != null)
+            if (planet.FactionGroundUnitListMap != null || planet.Fleets.Count > 0)
             {
                 foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
@@ -365,28 +373,31 @@ namespace Iam.Scripts.Controllers
             return new Tuple<Color, int>(color, number);
         }
 
-        private void PopulateFleetTree(Fleet fleet)
+        private void PopulateFleetTree(IReadOnlyList<Fleet> fleets)
         {
             // foreach ship in fleet, add a company style node
             // if the fleet has any troops, display those as children
             FleetView.ClearTree();
-            foreach (Ship ship in fleet.Ships)
+            foreach (Fleet fleet in fleets)
             {
-                
-                Tuple<Color, int> display;
-                List<Tuple<int, string, Color, int>> squadList =
-                    new List<Tuple<int, string, Color, int>>();
-                foreach (Squad squad in ship.LoadedSquads)
+                foreach (Ship ship in fleet.Ships)
                 {
-                    display = DetermineSquadDisplayValues(squad);
-                    if (display.Item2 == 2) squad.IsInReserve = true;
-                    squadList.Add(
-                        new Tuple<int, string, Color, int>(squad.Id, squad.Name,
-                                                            display.Item1, display.Item2));
+
+                    Tuple<Color, int> display;
+                    List<Tuple<int, string, Color, int>> squadList =
+                        new List<Tuple<int, string, Color, int>>();
+                    foreach (Squad squad in ship.LoadedSquads)
+                    {
+                        display = DetermineSquadDisplayValues(squad);
+                        if (display.Item2 == 2) squad.IsInReserve = true;
+                        squadList.Add(
+                            new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                                display.Item1, display.Item2));
+                    }
+                    display = DetermineShipDisplayValues(fleet, ship);
+                    FleetView.AddTreeUnit(ship.Id, DetermineShipText(fleet, ship),
+                                                display.Item1, display.Item2, squadList);
                 }
-                display = DetermineShipDisplayValues(fleet, ship);
-                FleetView.AddTreeUnit(ship.Id, DetermineShipText(fleet, ship), 
-                                            display.Item1, display.Item2, squadList);
             }
         }
 

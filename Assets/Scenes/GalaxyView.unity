@@ -5315,7 +5315,7 @@ RectTransform:
   - {fileID: 1317438045}
   - {fileID: 1590782135}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -6468,7 +6468,7 @@ PrefabInstance:
     - target: {fileID: 1173954134989477196, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 250
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 1173954134989477196, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -6529,6 +6529,41 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Color.a
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1066516928}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Iam.Scripts.Controllers.GalaxyController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: FleetView_OnShipSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
+        type: 3}
+      propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9066391084112713145, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -9235,6 +9270,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnFleetOriginAdjust:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 483913985}
+        m_TargetAssemblyTypeName: Iam.Scripts.Views.FleetLinesView, Assembly-CSharp
+        m_MethodName: GalaxyMapView_OnFleetStartPointAdjusted
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   StarPrefab: {fileID: 7371614497204678522, guid: ef45c0f00b253c7458059a55ca91a6a5,
     type: 3}
   FleetPrefab: {fileID: 8249821652099483435, guid: 9aa88a9009d4cd8458373a02deb34faa,
@@ -10736,7 +10786,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1656756498
 GameObject:

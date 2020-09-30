@@ -10,7 +10,7 @@ namespace Iam.Scripts.Views
         [SerializeField]
         private GameObject FleetLinePrefab;
         
-        private Dictionary<int, GameObject> _lines = new Dictionary<int, GameObject>();
+        private readonly Dictionary<int, LineRenderer> _lines = new Dictionary<int, LineRenderer>();
 
         public void GalaxyMapView_OnFleetLineDraw(int index, Vector2 startPoint, Vector2 endPoint)
         {
@@ -22,6 +22,11 @@ namespace Iam.Scripts.Views
             RemoveLine(index);
         }
 
+        public void GalaxyMapView_OnFleetStartPointAdjusted(int index, Vector2 newStartPoint)
+        {
+            AdjustLine(index, newStartPoint);
+        }
+
         private void CreateLine(int index, Vector2 startPoint, Vector2 endPoint)
         {
             RemoveLine(index);
@@ -31,14 +36,23 @@ namespace Iam.Scripts.Views
             lRend.SetPosition(1, endPoint);
             lRend.startColor = LineColor;
             lRend.endColor = LineColor;
-            _lines[index] = newLine;
+            _lines[index] = lRend;
         }
 
         private void RemoveLine(int index)
         {
             if (_lines.ContainsKey(index))
             {
-                Object.Destroy(_lines[index]);
+                Object.Destroy(_lines[index].gameObject);
+            }
+            _lines.Remove(index);
+        }
+
+        private void AdjustLine(int index, Vector2 newStartPoint)
+        {
+            if(_lines.ContainsKey(index))
+            {
+                _lines[index].SetPosition(0, newStartPoint);
             }
         }
     }

@@ -60,7 +60,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -93,9 +93,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 82482fb746a757a4390f699f5ae9b03b, type: 3}
   - {fileID: 21300000, guid: bae05bb8287301f4f8051ccb7494887b, type: 3}
   - {fileID: 21300000, guid: 782c35af8315e754190c8a968e7e4f23, type: 3}
+  - {fileID: 21300000, guid: 67c70c33f7b82e9439cdef3774596044, type: 3}
   _colorArray:
   - {r: 0, g: 0, b: 1, a: 1}
   - {r: 1, g: 0.6843543, b: 0, a: 1}
   - {r: 0.5660378, g: 0.018689938, b: 0.018689938, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
   _targetImage: {fileID: 7371864566127281462}

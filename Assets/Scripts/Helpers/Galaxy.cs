@@ -6,20 +6,23 @@ using UnityEngine;
 using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models;
+using System;
 
 namespace Iam.Scripts.Helpers
 {
     public class Galaxy
     {
+        private readonly List<Fleet> _fleets;
+        private readonly List<Planet> _planets;
         private readonly int _galaxySize;
-        public List<Planet> Planets { get; }
-        public List<Fleet> Fleets { get; }
+        public IReadOnlyList<Planet> Planets { get => _planets; }
+        public IReadOnlyList<Fleet> Fleets { get => _fleets; }
 
         public Galaxy(int galaxySize)
         {
             _galaxySize = galaxySize;
-            Planets = new List<Planet>();
-            Fleets = new List<Fleet>();
+            _planets = new List<Planet>();
+            _fleets = new List<Fleet>();
         }
 
         public Planet GetPlanet(int planetId)
@@ -32,48 +35,94 @@ namespace Iam.Scripts.Helpers
             return Planets.Where(p => p.Position != null && p.Position == worldPosition).SingleOrDefault();
         }
 
-        public Fleet GetFleetByPosition(Vector2 worldPosition)
+        public IEnumerable<Fleet> GetFleetsByPosition(Vector2 worldPosition)
         {
-            return Fleets.Where(f => f.Position != null && f.Position == worldPosition).SingleOrDefault();
+            return Fleets.Where(f => f.Position == worldPosition);
         }
 
         public void GenerateGalaxy(int seed)
         {
-            Random.InitState(seed);
+            UnityEngine.Random.InitState(seed);
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
                 {
-                    if (Random.Range(0.0f, 1.0f) <= 0.05f)
+                    if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.05f)
                     {
-                        Planet p = new Planet(new Vector2(i, j));
+                        string name;
+                        PlanetType type;
+
                         if (Planets.Count < 60)
                         {
-                            p.Name = TempPlanetList.Planets[Planets.Count].Name;
-                            p.PlanetType = TempPlanetList.Planets[Planets.Count].Type;
+                            name = TempPlanetList.Planets[Planets.Count].Name;
+                            type = TempPlanetList.Planets[Planets.Count].Type;
                         }
                         else
                         {
-                            p.Name = i.ToString() + j.ToString();
-                            p.PlanetType = PlanetType.Death;
+                            name = i.ToString() + j.ToString();
+                            type = PlanetType.Death;
                         }
-                        if(Random.Range(0.0f, 1.0f) <= 0.1f)
+                        
+                        Planet p = new Planet(Planets.Count, name, new Vector2(i, j), type);
+                        
+                        if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
                             p.ControllingFaction = TempFactions.Instance.TyranidFaction;
                         }
-                        p.Id = Planets.Count;
-                        Planets.Add(p);
+
+                        _planets.Add(p);
                     }
                 }
             }
         }
 
-        public int AddFleet(Planet planet, Fleet fleet)
+        public void AddFleet(Fleet newFleet)
         {
-            fleet.Planet = planet;
-            planet.LocalFleet = fleet;
-            Fleets.Add(fleet);
-            return Fleets.Count - 1;
+            _fleets.Add(newFleet);
+            if(newFleet.Planet != null)
+            {
+                newFleet.Planet.Fleets.Add(newFleet);
+            }
+        }
+
+        public void CombineFleets(Fleet remainingFleet, Fleet mergingFleet)
+        {
+            if(mergingFleet.Planet != remainingFleet.Planet 
+                || mergingFleet.Position != remainingFleet.Position
+                || mergingFleet.Faction.Id != remainingFleet.Faction.Id)
+            {
+                throw new InvalidOperationException("The two fleets are not in the same place");
+            }
+            foreach(Ship ship in mergingFleet.Ships)
+            {
+                remainingFleet.Ships.Add(ship);
+            }
+            mergingFleet.Ships.Clear();
+            remainingFleet.Ships.Sort((x, y) => x.Template.Id.CompareTo(y.Template.Id));
+            _fleets.Remove(mergingFleet);
+            mergingFleet.Planet.Fleets.Remove(mergingFleet);
+        }
+
+        public Fleet SplitOffNewFleet(Fleet originalFleet, 
+                                      IReadOnlyCollection<Ship> newFleetShipList)
+        {
+            Fleet newFleet = new Fleet(originalFleet.Faction)
+            {
+                Planet = originalFleet.Planet,
+                Position = originalFleet.Position,
+                Destination = originalFleet.Destination
+            };
+            foreach (Ship ship in newFleetShipList)
+            {
+                originalFleet.Ships.Remove(ship);
+                newFleet.Ships.Add(ship);
+            }
+            if(newFleet.Planet != null)
+            {
+                newFleet.Planet.Fleets.Add(newFleet);
+            }
+            _fleets.Add(newFleet);
+            return newFleet;
         }
 
         public void TakeControlOfPlanet(Planet planet, FactionTemplate faction)

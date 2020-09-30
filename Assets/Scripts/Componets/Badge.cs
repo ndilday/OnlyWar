@@ -20,6 +20,7 @@ public class Badge : MonoBehaviour
     public static  int INJURED = 1;
     public static int INSUFFICIENT_MEN = 2;
     public static int TAKEOFF = 3;
+    public static int CHECK = 4;
 
     public void SetBadge(int newBadge)
     {

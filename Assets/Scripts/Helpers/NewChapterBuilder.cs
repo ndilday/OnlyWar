@@ -20,7 +20,7 @@ namespace Iam.Scripts.Helpers
             Dictionary<int, PlayerSoldier> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
             Chapter chapter = BuildChapterFromUnitTemplate(template.UnitTemplates[0], soldiers);
             PopulateOrderOfBattle(year, unassignedSoldierMap, chapter.OrderOfBattle);
-            chapter.Fleets.Add(new Fleet(1, template, 0));
+            chapter.Fleets.Add(new Fleet(template, 0));
             return chapter;
         }
 

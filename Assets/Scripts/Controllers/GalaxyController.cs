@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
@@ -9,7 +13,7 @@ using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using System;
+
 
 namespace Iam.Scripts.Controllers
 {
@@ -31,11 +35,13 @@ namespace Iam.Scripts.Controllers
         private Galaxy _galaxy;
         private int? _selectedFleetId;
         private int _planetBattleStartedId;
+        private List<Ship> _selectedShips;
 
         // Start is called before the first frame update
         void Start()
         {
             _galaxy = new Galaxy(GameSettings.GalaxySize);
+            _selectedShips = new List<Ship>();
             Generate();
         }
 
@@ -52,7 +58,6 @@ namespace Iam.Scripts.Controllers
 
         public void Generate()
         {
-            Debug.Log("UniverseManager::Generate -- Generating a new Galaxy");
             _galaxy.GenerateGalaxy(1);
             // populate visuals on map
             for (int i = 0; i < _galaxy.Planets.Count; i++)
@@ -72,11 +77,11 @@ namespace Iam.Scripts.Controllers
                     color = Color.white;
                 }
                 
-                Map.DrawPlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
+                Map.CreatePlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
             }
-            for (int i = 0; i < _galaxy.Fleets.Count; i++)
+            foreach(Fleet fleet in _galaxy.Fleets)
             {
-                Map.DrawFleetAtLocation(i, _galaxy.Fleets[i].Position, true);
+                Map.CreateFleet(fleet.Id, fleet.Position, false);
             }
         }
 
@@ -97,20 +102,21 @@ namespace Iam.Scripts.Controllers
             };
             SetChapterSquadsLocation(planet);
             Map.UpdatePlanetColor(planet.Id, TempFactions.Instance.SpaceMarineFaction.Color);
-           int fleetId =  _galaxy.AddFleet(planet, GameSettings.Chapter.Fleets[0]);
-            Map.DrawFleetAtLocation(fleetId, planet.Position, true);
+            GameSettings.Chapter.Fleets[0].Planet = planet;
+            GameSettings.Chapter.Fleets[0].Position = planet.Position;
+            _galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
+            Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
         }
 
         public void EndTurn_Clicked()
         {
             // move fleets
-            for (int i = 0; i < _galaxy.Fleets.Count; i++)
+            foreach(Fleet fleet in _galaxy.Fleets)
             {
-                Fleet fleet = _galaxy.Fleets[i];
                 if (fleet.Destination != null)
                 {
-                    Map.RemoveFleetDestination(i);
-                    Map.RemoveFleet(i);
+                    Map.RemoveFleetDestination(fleet.Id);
+                    Map.RemoveFleet(fleet.Id);
 
                     // if the fleet has a destination, we need to move the fleet
                     // determine distance of line between two points
@@ -121,7 +127,7 @@ namespace Iam.Scripts.Controllers
                         fleet.Planet = fleet.Destination;
                         fleet.Destination = null;
                         fleet.Position = fleet.Planet.Position;
-                        Map.DrawFleetAtLocation(i, fleet.Position, true);
+                        Map.MoveFleet(fleet.Id, fleet.Position, false);
                     }
                     else
                     {
@@ -130,8 +136,8 @@ namespace Iam.Scripts.Controllers
                         Vector2 path = (fleet.Destination.Position - fleet.Position);
                         path.Normalize();
                         fleet.Position += path;
-                        Map.DrawFleetAtLocation(i, fleet.Position, false);
-                        Map.DrawFleetDestination(i, fleet.Destination.Position);
+                        Map.MoveFleet(fleet.Id, fleet.Position, true);
+                        Map.DrawFleetDestination(fleet.Id, fleet.Destination.Position);
                     }
                 }
             }
@@ -145,6 +151,22 @@ namespace Iam.Scripts.Controllers
         public void BattleController_OnBattleComplete()
         {
             HandleBattles();
+        }
+
+        public void FleetView_OnShipSelected(int shipId)
+        {
+            Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
+            Ship ship = fleet.Ships.First(s => s.Id == shipId);
+            if (!_selectedShips.Contains(ship))
+            {
+                _selectedShips.Add(ship);
+                FleetView.UpdateUnitBadge(shipId, Badge.CHECK);
+            }
+            else
+            {
+                _selectedShips.Remove(ship);
+                FleetView.UpdateUnitBadge(shipId, Badge.NORMAL);
+            }
         }
 
         private void SetChapterSquadsLocation(Planet planet)
@@ -181,7 +203,7 @@ namespace Iam.Scripts.Controllers
         private void HandleMouseMove()
         {
             // check to see if there's a selected fleet
-            if (_selectedFleetId != null)
+            if (_selectedShips.Count > 0)
             {
                 Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
 
@@ -226,24 +248,29 @@ namespace Iam.Scripts.Controllers
 
         private void HandleMouseLeftClick()
         {
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             // Mouse was clicked -- is it on a star?
-            // TODO: Ignore clicks if over a UI element
             RaycastHit2D hitInfo = GetMouseHit();
-            //if(Physics.Raycast(ray, out hitInfo, StarLayerMask))
+            
             if (hitInfo.collider == null)
             {
                 // we clicked on empty space, unselect any selected fleets/planets
                 if (_selectedFleetId != null)
                 {
-                    Map.DeselectFleet((int)_selectedFleetId);
+                    Map.SelectFleet((int)_selectedFleetId, false);
                     _selectedFleetId = null;
+                    _selectedShips.Clear();
+                    FleetView.ClearTree();
                     FleetView.gameObject.SetActive(false);
                 }
             }
             else
             {
                 // hit an object
-                Debug.Log("Clicked on " + hitInfo.collider.name);
                 if (hitInfo.collider.name == "FleetSprite")
                 {
                     HandleFleetClick(hitInfo);
@@ -255,7 +282,7 @@ namespace Iam.Scripts.Controllers
                     {
                         HandleFleetDestinationClick(hitInfo);
                     }
-                    if (_selectedFleetId == null)
+                    else if (_selectedFleetId == null)
                     {
                         int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
                         if (planetId == null) throw new NullReferenceException("Clicked planet does not exist");
@@ -273,23 +300,92 @@ namespace Iam.Scripts.Controllers
             int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
             if (destinationPlanetId != null)
             {
-                Planet planet = _galaxy.Planets[(int)destinationPlanetId];
-                if (fleet.Planet == planet && fleet.Destination != null)
+                Planet destination = _galaxy.Planets[(int)destinationPlanetId];
+                if (fleet.Ships.Count != _selectedShips.Count)
+                {
+                    // this set of ships is a subset of the original fleet, 
+                    // we'll need to break them out on their own
+                    fleet = _galaxy.SplitOffNewFleet(fleet, _selectedShips);
+                }
+
+                foreach(Fleet adjacentFleet in fleet.Planet.Fleets)
+                {
+                    // if there's another fleet at this planet doing what this fleet
+                    // is now doing, just merge them
+                    if(adjacentFleet.Id != fleet.Id)
+                    {
+                        if(adjacentFleet.Destination == null
+                        && fleet.Planet == destination)
+                        {
+                            _galaxy.CombineFleets(adjacentFleet, fleet);
+                            DeselectFleet();
+                            Map.RemoveFleet(fleet.Id);
+                            return;
+                        }
+                        if(adjacentFleet.Destination != null
+                            && adjacentFleet.Destination == destination)
+                        {
+                            _galaxy.CombineFleets(adjacentFleet, fleet);
+                            DeselectFleet();
+                            Map.RemoveFleet(fleet.Id);
+                            return;
+                        }
+                    }
+                }
+                    
+                if (fleet.Planet == destination && fleet.Destination != null)
                 {
                     // click is on the fleet's current location, remove fleet destination
+                    // and return fleet to static position
                     Map.RemoveFleetDestination((int)_selectedFleetId);
+                    if (fleet.Id == _selectedFleetId)
+                    {
+                        Map.MoveFleet(fleet.Id, destination.Position, false);
+                    }
+                    else
+                    {
+                        Map.CreateFleet(fleet.Id, destination.Position, false);
+                    }
+                    DeselectFleet();
                     fleet.Destination = null;
                 }
                 else
                 {
-                    // if we're worried about efficiency, we could remove the extra fleet draw in cases where they've clicked on their current destination
-                    // redraw the path in a different color to represent a set course
-                    Map.RemoveFleetPath((int)_selectedFleetId);
-                    Map.DrawFleetDestination((int)_selectedFleetId, planet.Position);
+                    // the click was not at the current planet
+                    if(fleet.Destination == null)
+                    {
+                        // need to move the fleet
+                        if (fleet.Id == _selectedFleetId)
+                        {
+                            Map.MoveFleet(fleet.Id, fleet.Position, true);
+                        }
+                        else
+                        {
+                            Map.CreateFleet(fleet.Id, fleet.Position, true);
+                        }
+                    }
+                    else
+                    {
+                        // need to remove the current destination line
+                        Map.RemoveFleetDestination((int)_selectedFleetId);
+                    }
+                    // need to remove the current destination line
+                    Map.DrawFleetDestination(fleet.Id, destination.Position);
+                    
                     // update fleet model
-                    _galaxy.Fleets[(int)_selectedFleetId].Destination = _galaxy.Planets[(int)destinationPlanetId];
+                    fleet.Destination = _galaxy.Planets[(int)destinationPlanetId];
+                    DeselectFleet();
                 }
             }
+        }
+
+        private void DeselectFleet()
+        {
+            Map.RemoveFleetPath((int)_selectedFleetId);
+            Map.SelectFleet((int)_selectedFleetId, false);
+            FleetView.gameObject.SetActive(false);
+            _selectedShips.Clear();
+            _selectedFleetId = null;
         }
 
         private void HandleFleetClick(RaycastHit2D hitInfo)
@@ -299,16 +395,32 @@ namespace Iam.Scripts.Controllers
             // deselect currently selected fleet
             if (_selectedFleetId != null)
             {
-                Map.DeselectFleet((int)_selectedFleetId);
+                Map.SelectFleet((int)_selectedFleetId, false);
             }
             // select new fleet
             _selectedFleetId = Map.GetFleetIdFromLocation(hitInfo.collider.transform.position);
             if (_selectedFleetId != null)
             {
-                Map.SelectFleet((int)_selectedFleetId);
+                Map.SelectFleet((int)_selectedFleetId, true);
             }
             // display fleet overlay
             FleetView.gameObject.SetActive(true);
+            PopulateFleetView((int)_selectedFleetId);
+        }
+
+        private void PopulateFleetView(int fleetId)
+        {
+            Fleet fleet = _galaxy.Fleets[fleetId];
+            FleetView.ClearTree();
+            foreach (Ship ship in fleet.Ships)
+            {
+                FleetView.AddLeafSquad(ship.Id, GetShipText(ship), Color.white);
+            }
+        }
+
+        private string GetShipText(Ship ship)
+        {
+            return $"{ship.Name}\n{ship.LoadedSquads.Count} Squads, {ship.LoadedSoldierCount}/{ship.Template.SoldierCapacity} Capacity";
         }
 
         private void HandleBattles()

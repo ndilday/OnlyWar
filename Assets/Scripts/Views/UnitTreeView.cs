@@ -24,13 +24,11 @@ namespace Iam.Scripts.Views
         private GameObject UnitContent;
 
         private Button _selectedButton;
-        private readonly Dictionary<int, Button> _buttonMap;
-        private readonly Dictionary<int, Badge> _badgeMap;
+        private readonly Dictionary<int, Tuple<Button, Image, Badge>> _unitDisplayMap;
 
         UnitTreeView()
         {
-            _buttonMap = new Dictionary<int, Button>();
-            _badgeMap = new Dictionary<int, Badge>();
+            _unitDisplayMap = new Dictionary<int, Tuple<Button, Image, Badge>>();
         }
 
         public void AddLeafSquad(int id, string name, Color color, int badgeVal = -1)
@@ -43,20 +41,21 @@ namespace Iam.Scripts.Views
             Text squadName = unit.transform.Find("SquadName").GetComponent<Text>();
             squadName.text = name;
 
-            Transform backgroundImage = unit.transform.Find("BackgroundImage");
-            backgroundImage.GetComponent<Image>().color = color;
+            Transform background = unit.transform.Find("BackgroundImage");
+            Image backgroundImage = background.GetComponent<Image>();
+            backgroundImage.color = color;
 
-            Button button = backgroundImage.GetComponent<Button>();
+            Button button = background.GetComponent<Button>();
             button.onClick.AddListener(() => SquadButton_OnClick(id));
-            _buttonMap[id] = button;
 
-            Badge badge = backgroundImage.Find("Badge").GetComponent<Badge>();
-            _badgeMap[id] = badge;
+            Badge badge = background.Find("Badge").GetComponent<Badge>();
             if (badgeVal != -1)
             {
                 badge.gameObject.SetActive(true);
                 badge.SetBadge(badgeVal);
             }
+
+            _unitDisplayMap[id] = new Tuple<Button, Image, Badge>(button, backgroundImage, badge);
         }
 
         public void AddTreeUnit(int id, string name, Color rootColor, int badgeVal, 
@@ -68,11 +67,11 @@ namespace Iam.Scripts.Views
                                 UnitContent.transform);
 
             Transform header = unit.transform.Find("Header");
-            header.GetComponent<Image>().color = rootColor;
+            Image headerImage = header.GetComponent<Image>();
+            headerImage.color = rootColor;
             
             Button button = header.GetComponent<Button>();
             button.onClick.AddListener(() => UnitButton_OnClick(id));
-            _buttonMap[id] = button;
 
             Transform squadList = unit.transform.Find("SquadList");
             
@@ -80,7 +79,8 @@ namespace Iam.Scripts.Views
             companyName.text = name;
 
             Badge badge = header.Find("Badge").GetComponent<Badge>();
-            _badgeMap[id] = badge;
+
+            _unitDisplayMap[id] = new Tuple<Button, Image, Badge>(button, headerImage, badge);
 
             if (badgeVal != -1)
             {
@@ -98,14 +98,15 @@ namespace Iam.Scripts.Views
                 squadName.text = squad.Item2;
 
                 Transform imageTransform = squadUnit.transform.Find("BackgroundImage");
-                imageTransform.GetComponent<Image>().color = squad.Item3;
+                Image image = imageTransform.GetComponent<Image>();
+                image.color = squad.Item3;
                 
                 button = imageTransform.GetComponent<Button>();
                 button.onClick.AddListener(() => SquadButton_OnClick(squad.Item1));
-                _buttonMap[squad.Item1] = button;
                 
                 badge = imageTransform.Find("Badge").GetComponent<Badge>();
-                _badgeMap[squad.Item1] = badge;
+
+                _unitDisplayMap[id] = new Tuple<Button, Image, Badge>(button, image, badge);
 
                 if (squad.Item4 != -1)
                 {    
@@ -121,7 +122,7 @@ namespace Iam.Scripts.Views
             {
                 GameObject.Destroy(child.gameObject);
             }
-            _buttonMap.Clear();
+            _unitDisplayMap.Clear();
             _selectedButton = null;
         }
 
@@ -131,7 +132,7 @@ namespace Iam.Scripts.Views
             {
                 _selectedButton.interactable = true;
             }
-            _selectedButton = _buttonMap[id];
+            _selectedButton = _unitDisplayMap[id].Item1;
             _selectedButton.interactable = false;
             OnUnitSelected.Invoke(id);
         }
@@ -142,14 +143,14 @@ namespace Iam.Scripts.Views
             {
                 _selectedButton.interactable = true;
             }
-            _selectedButton = _buttonMap[id];
+            _selectedButton = _unitDisplayMap[id].Item1;
             _selectedButton.interactable = false;
             OnSquadSelected.Invoke(id);
         }
 
         public void UpdateUnitBadge(int unitId, int badgeVal)
         {
-            Badge badge = _badgeMap[unitId];
+            Badge badge = _unitDisplayMap[unitId].Item3;
             if (badgeVal == -1)
             {
                 badge.gameObject.SetActive(false);
@@ -159,6 +160,12 @@ namespace Iam.Scripts.Views
                 badge.gameObject.SetActive(true);
                 badge.SetBadge(badgeVal);
             }
+        }
+
+        public void UpdateUnitColor(int unitId, Color color)
+        {
+            Image image = _unitDisplayMap[unitId].Item2;
+            image.color = color;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 namespace Iam.Scripts.Views
 {
@@ -12,6 +13,7 @@ namespace Iam.Scripts.Views
         public UnityEvent<int> OnFleetPathRemove;
         public UnityEvent<int, Vector2, Vector2> OnFleetDestinationDraw;
         public UnityEvent<int> OnFleetDestinationRemove;
+        public UnityEvent<int, Vector2> OnFleetOriginAdjust;
 
         [SerializeField]
         private GameObject StarPrefab;
@@ -26,17 +28,22 @@ namespace Iam.Scripts.Views
         
         private readonly Dictionary<int, Tuple<Transform, SpriteRenderer, TextMesh>> _planetViewMap;
         private readonly Dictionary<int, Transform> _fleetViewMap;
+        private readonly HashSet<Vector2> _planetPositions;
+        private readonly Dictionary<Vector2, List<int>> _movingFleetsAtLocationMap;
 
         public GalaxyMapView()
         {
             _planetViewMap = new Dictionary<int, Tuple<Transform, SpriteRenderer, TextMesh>>();
             _fleetViewMap = new Dictionary<int, Transform>();
+            _planetPositions = new HashSet<Vector2>();
+            _movingFleetsAtLocationMap = new Dictionary<Vector2, List<int>>();
         }
 
-        public void DrawPlanet(int planetId, Vector2 position, string planetName, Color planetColor)
+        public void CreatePlanet(int planetId, Vector2 position, string planetName, Color planetColor)
         {
+            Vector2 realPosition = Vector2.Scale(position, GameSettings.MapScale);
             GameObject star = Instantiate(StarPrefab,
-                                Vector2.Scale(position, GameSettings.MapScale),
+                                realPosition,
                                 Quaternion.identity,
                                 this.transform);
             SpriteRenderer planetRenderer = star.GetComponentInChildren<SpriteRenderer>();
@@ -48,6 +55,7 @@ namespace Iam.Scripts.Views
                                             star.transform,
                                             planetRenderer,
                                             textMesh);
+            _planetPositions.Add(realPosition);
             // add color shading of star based on planet type
         }
 
@@ -66,20 +74,122 @@ namespace Iam.Scripts.Views
             return result.Key;
         }
 
-        public void DrawFleetAtLocation(int fleetId, Vector2 location, bool isOffset)
+        public void CreateFleet(int fleetId, Vector2 location, bool isMoving)
         {
-            Vector2 offset = new Vector2(isOffset ? 5.0f : 0f, isOffset ? 5.0f : 0f);
+            if (_fleetViewMap.ContainsKey(fleetId))
+            {
+                throw new ArgumentException($"Fleet {fleetId} already exists.");
+            }
+            Vector2 realLocation = Vector2.Scale(location, GameSettings.MapScale);
+            bool atPlanet = _planetPositions.Contains(realLocation);
+            Vector2 offset;
+
+            if(!isMoving && atPlanet)
+            {
+                // we're current expecting only a single stationary fleet at a planet at a time
+                // in the style of MOO, stationary fleets go on the right
+                offset = new Vector2(5.0f, 5.0f);
+            }
+            else if(isMoving && atPlanet)
+            {
+                // this is our complicated case
+                // see if any other fleets are also moving in this location
+                if(_movingFleetsAtLocationMap.ContainsKey(realLocation))
+                {
+                    // there are other fleets here
+                    _movingFleetsAtLocationMap[realLocation].Add(fleetId);
+                    offset = new Vector2(-5f, 10 - (5 * _movingFleetsAtLocationMap[realLocation].Count));
+                }
+                else
+                {
+                    _movingFleetsAtLocationMap[realLocation] = new List<int>
+                    {
+                        fleetId
+                    };
+                    offset = new Vector2(-5f, 5f);
+                }
+                
+            }
+            else
+            {
+                // if the ship is not at a planet, it doesn't need to be offset.
+                // this has a minor chance of moving fleet overlap;
+                // since you can't change the course of moving fleets, anyway, 
+                // I'm okay with this
+                offset = new Vector2(0, 0);
+            }
+
             GameObject fleetSprite = Instantiate(FleetPrefab,
-                                        Vector2.Scale(location, GameSettings.MapScale) + offset,
+                                        realLocation + offset,
                                         Quaternion.identity,
                                         this.transform);
             _fleetViewMap[fleetId] = fleetSprite.transform;
         }
 
+        public void MoveFleet(int fleetId, Vector2 location, bool isMoving)
+        {
+            if (!_fleetViewMap.ContainsKey(fleetId))
+            {
+                throw new ArgumentException($"Fleet {fleetId} does not exist");
+            }
+            
+            // need to move the existing sprite, rather than creating a new one
+            Vector2 realLocation = Vector2.Scale(location, GameSettings.MapScale);
+            Vector2 offset;
+
+            if(!isMoving)
+            {
+                // the only time isMoving should be false is when orbiting a planet
+                // so confirm that location is a planet, and then place to the right
+                bool atPlanet = _planetPositions.Contains(realLocation);
+                if (!atPlanet)
+                {
+                    throw new InvalidOperationException("Fleet is stationary but not at a planet");
+                }
+                // we're current expecting only a single stationary fleet at a planet at a time
+                // in the style of MOO, stationary fleets go on the right
+                offset = new Vector2(5.0f, 5.0f);
+                _fleetViewMap[fleetId].position = realLocation + offset;
+
+                // see if this fleet is in the moving fleet list for this location
+                if (_movingFleetsAtLocationMap.ContainsKey(realLocation))
+                {
+                    AdjustMovingFleets(fleetId, realLocation);
+                }
+            }
+            // the next two clauses should only happen when an orbiting fleet
+            // goes into motion
+            else
+            {
+                if (!_movingFleetsAtLocationMap.ContainsKey(realLocation))
+                {
+                    _movingFleetsAtLocationMap[realLocation] = new List<int>
+                    {
+                        fleetId
+                    };
+                }
+                else
+                {
+                    _movingFleetsAtLocationMap[realLocation].Add(fleetId);
+                }
+                offset = new Vector2(-5, 10 - (5 * _movingFleetsAtLocationMap[realLocation].Count));
+                _fleetViewMap[fleetId].position = realLocation + offset;
+            }
+        }
+
         public void RemoveFleet(int fleetId)
         {
+            Vector2 location = _fleetViewMap[fleetId].position;
             Destroy(_fleetViewMap[fleetId].gameObject);
             _fleetViewMap.Remove(fleetId);
+            RemoveFleetDestination(fleetId);
+            var entry = 
+                _movingFleetsAtLocationMap.FirstOrDefault(kvp => kvp.Value.Contains(fleetId));
+            
+            if (entry.Value != null)
+            {
+                AdjustMovingFleets(fleetId, entry.Key);
+            }
         }
 
         public int? GetFleetIdFromLocation(Vector2 position)
@@ -89,15 +199,10 @@ namespace Iam.Scripts.Views
             return result.Key;
         }
 
-        public void SelectFleet(int fleetId)
+        public void SelectFleet(int fleetId, bool isSelected)
         {
             // highlight the ship
-            _fleetViewMap[fleetId].GetChild(1).gameObject.SetActive(true);
-        }
-
-        public void DeselectFleet(int fleetId)
-        {
-            _fleetViewMap[fleetId].GetChild(1).gameObject.SetActive(false);
+            _fleetViewMap[fleetId].GetChild(1).gameObject.SetActive(isSelected);
         }
 
         public void DrawFleetPath(int fleetId, Vector2 endpoint)
@@ -119,6 +224,26 @@ namespace Iam.Scripts.Views
         public void RemoveFleetDestination(int fleetId)
         {
             OnFleetDestinationRemove.Invoke(fleetId);
+        }
+
+        private void AdjustMovingFleets(int fleetId, Vector2 realLocation)
+        {
+            var localFleetList = _movingFleetsAtLocationMap[realLocation];
+            if (localFleetList.Contains(fleetId))
+            {
+                int index = localFleetList.IndexOf(fleetId);
+                for (int i = index + 1; i < localFleetList.Count; i++)
+                {
+                    int adjustFleetId = localFleetList[i];
+                    // move this fleet position up five units
+                    Transform fleetTransform = _fleetViewMap[adjustFleetId];
+                    Vector3 position = fleetTransform.position;
+                    position.y += 5;
+                    fleetTransform.position = position;
+                    OnFleetOriginAdjust.Invoke(adjustFleetId, position);
+                }
+                localFleetList.RemoveAt(index);
+            }
         }
     }
 }

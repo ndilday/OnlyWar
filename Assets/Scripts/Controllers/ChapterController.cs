@@ -32,9 +32,7 @@ namespace Iam.Scripts.Controllers
             GameSettings.SquadMap = new Dictionary<int, Squad>();
             _trainingHelper = new SoldierTrainingHelper();
             GameSettings.PlayerSoldierMap = new Dictionary<int, PlayerSoldier>();
-            Debug.Log("Creating Chapter");
             CreateChapter();
-            Debug.Log("Done creating Chapter");
             OnChapterCreated.Invoke();
         }
 
