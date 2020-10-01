@@ -25,6 +25,14 @@ namespace Iam.Scripts.Models.Soldiers
         public IReadOnlyDictionary<int, SoldierType> SpaceMarineSoldierTypes { get; }
         public IReadOnlyDictionary<int, SoldierType> TyranidSoldierTypes { get; }
 
+        public const int TYRANT = 100;
+        public const int BROODLORD = 101;
+        public const int PRIME = 102;
+        public const int WARRIOR = 103;
+        public const int GENESTEALER = 104;
+        public const int HORMAGAUNT = 105;
+        public const int TERMAGAUNT = 106;
+
         private TempSoldierTypes()
         {
             SpaceMarineSoldierTypes = new List<SoldierType>
@@ -55,11 +63,13 @@ namespace Iam.Scripts.Models.Soldiers
 
             TyranidSoldierTypes = new List<SoldierType>
             {
-                new SoldierType(101, "Hive Tyrant", true, 100),
-                new SoldierType(102, "Tyranid Warrior", false, 50),
-                new SoldierType(103, "Genestealer", false, 20),
-                new SoldierType(104, "Termagaunt", false, 1),
-                new SoldierType(105, "Hormagaunt", false, 3)
+                new SoldierType(TYRANT, "Hive Tyrant", true, 100),
+                new SoldierType(BROODLORD, "Broodlord", true, 80),
+                new SoldierType(PRIME, "Tyranid Warrior Prime", true, 60),
+                new SoldierType(WARRIOR, "Tyranid Warrior", false, 50),
+                new SoldierType(GENESTEALER, "Genestealer", false, 20),
+                new SoldierType(TERMAGAUNT, "Termagaunt", false, 1),
+                new SoldierType(HORMAGAUNT, "Hormagaunt", false, 3)
             }.ToDictionary(st => st.Id);
         }
     }

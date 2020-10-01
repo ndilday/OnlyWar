@@ -26,47 +26,103 @@ namespace Iam.Scripts.Models.Squads
         {
             SquadTemplates = new List<SquadTemplate>
             {
+                CreateTyrantSquad(),
+                CreatePrimeSquad(),
+                CreateBroodlordSquad(),
                 CreateTyranidWarriorSquad(),
+                CreateGenestealerSquad(),
                 CreateHormagauntSquad(),
                 CreateTermagauntSquad(),
             }.ToDictionary(st => st.Id);
         }
 
+        private SquadTemplate CreateTyrantSquad()
+        {
+            return new SquadTemplate(TempSoldierTypes.TYRANT, "Hive Tyrant",
+                                     TempTyranidWeaponSets.Instance.WeaponSets[105],
+                                     null,
+                                     TempTyranidEquippables.Instance.ArmorTemplates[204],
+                                     new List<SquadTemplateElement>
+                                     {
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.TYRANT], 1, 1)
+                                     }, SquadTypes.HQ);
+        }
+
+        private SquadTemplate CreatePrimeSquad()
+        {
+            return new SquadTemplate(TempSoldierTypes.PRIME, "Tyranid Prime",
+                                     TempTyranidWeaponSets.Instance.WeaponSets[1],
+                                     null,
+                                     TempTyranidEquippables.Instance.ArmorTemplates[204],
+                                     new List<SquadTemplateElement>
+                                     {
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.PRIME], 1, 1)
+                                     }, SquadTypes.HQ);
+        }
+
+        private SquadTemplate CreateBroodlordSquad()
+        {
+            return new SquadTemplate(TempSoldierTypes.BROODLORD, "Broodlord",
+                                     TempTyranidWeaponSets.Instance.WeaponSets[104],
+                                     null,
+                                     TempTyranidEquippables.Instance.ArmorTemplates[203],
+                                     new List<SquadTemplateElement>
+                                     {
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.BROODLORD], 1, 1)
+                                     }, SquadTypes.HQ);
+        }
+
+        private SquadTemplate CreateGenestealerSquad()
+        {
+            return new SquadTemplate(TempSoldierTypes.GENESTEALER, "Genestealer Squad",
+                                     TempTyranidWeaponSets.Instance.WeaponSets[102],
+                                     null,
+                                     TempTyranidEquippables.Instance.ArmorTemplates[202],
+                                     new List<SquadTemplateElement>
+                                     {
+                                         new SquadTemplateElement(
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.GENESTEALER], 5, 20)
+                                     }, SquadTypes.None);
+        }
+
         private SquadTemplate CreateTyranidWarriorSquad()
         {
-            return new SquadTemplate(102, "Tyranid Warrior Squad", 
+            return new SquadTemplate(TempSoldierTypes.WARRIOR, "Tyranid Warrior Squad", 
                                      TempTyranidWeaponSets.Instance.WeaponSets[1], 
                                      null, 
                                      TempTyranidEquippables.Instance.ArmorTemplates[203],
                                      new List<SquadTemplateElement>
                                      {
                                          new SquadTemplateElement(
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[102], 3, 9)
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.WARRIOR], 3, 9)
                                      }, SquadTypes.None);
         }
         private SquadTemplate CreateTermagauntSquad()
         {
-            return new SquadTemplate(104, "Termagaunt Squad",
+            return new SquadTemplate(TempSoldierTypes.TERMAGAUNT, "Termagaunt Squad",
                                      TempTyranidWeaponSets.Instance.WeaponSets[2],
                                      null,
                                      TempTyranidEquippables.Instance.ArmorTemplates[201],
                                      new List<SquadTemplateElement>
                                      {
                                          new SquadTemplateElement(
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[104], 10, 30)
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.TERMAGAUNT], 10, 30)
                                      }, SquadTypes.None);
         }
 
         private SquadTemplate CreateHormagauntSquad()
         {
-            return new SquadTemplate(105, "Hormagaunt Squad",
+            return new SquadTemplate(TempSoldierTypes.HORMAGAUNT, "Hormagaunt Squad",
                                      TempTyranidWeaponSets.Instance.WeaponSets[101],
                                      null,
                                      TempTyranidEquippables.Instance.ArmorTemplates[201],
                                      new List<SquadTemplateElement>
                                      {
                                          new SquadTemplateElement(
-                                             TempSoldierTypes.Instance.TyranidSoldierTypes[105], 10, 30)
+                                             TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.HORMAGAUNT], 10, 30)
                                      }, SquadTypes.None);
         }
     }

@@ -40,16 +40,26 @@ namespace Iam.Scripts.Models.Equippables
                                         1, 1.0f, 1.5f, 8f, 0.25f, 0, 0, 0),
                 new MeleeWeaponTemplate(102, "Rending Claws", EquipLocation.OneHand,
                                         TempBaseSkillList.Instance.OpponentMelee,
-                                        1, 0.75f, 3f, 8f, 0.25f, 0, 0, 0),
+                                        0, 0.75f, 3f, 8f, 0.25f, 0, 0, 0),
                 new MeleeWeaponTemplate(103, "Fist", EquipLocation.OneHand,
                                         TempBaseSkillList.Instance.OpponentMelee,
-                                        0, 1, 1, 3, 0.25f, 0, -1, 0)
+                                        0, 1, 1, 3, 0.25f, 0, -1, 0),
+                new MeleeWeaponTemplate(104, "Monsterous Rending Claws", EquipLocation.OneHand,
+                                        TempBaseSkillList.Instance.OpponentMelee,
+                                        0, 0.25f, 3f, 16f, 0.25f, 0, 0, 0),
+                new MeleeWeaponTemplate(105, "Monsterous Scything Talons", EquipLocation.OneHand,
+                                        TempBaseSkillList.Instance.OpponentMelee,
+                                        1, 0.25f, 3f, 16f, 0.25f, 0, 0, 0),
+                new MeleeWeaponTemplate(107, "Prehensile Pincer Tail", EquipLocation.OneHand,
+                                        TempBaseSkillList.Instance.OpponentMelee,
+                                        0, 1f, 2f, 16f, 0.25f, 0, 0, 0)
             }.ToDictionary(mwt => mwt.Id);
             ArmorTemplates = new List<ArmorTemplate>
             {
                 new ArmorTemplate(201, "Tyranid 5mm Chitin", 5),
                 new ArmorTemplate(202, "Tyranid 10mm Chitin", 10),
-                new ArmorTemplate(203, "Tyranid 15mm Chitin", 15)
+                new ArmorTemplate(203, "Tyranid 15mm Chitin", 15),
+                new ArmorTemplate(204, "Tyranid 20mm Chitin", 20)
             }.ToDictionary(at => at.Id);
         }
     }

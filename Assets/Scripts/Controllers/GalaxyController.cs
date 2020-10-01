@@ -88,24 +88,41 @@ namespace Iam.Scripts.Controllers
         public void ChapterController_OnChapterCreated()
         {
             // For now, put the chapter on their home planet
-            Planet planet = _galaxy.GetPlanet(GameSettings.ChapterPlanetId);
-            planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+            foreach(Planet planet in _galaxy.Planets)
             {
-                [TempFactions.Instance.SpaceMarineFaction.Id] = new List<Unit>
+                if(planet.Id == GameSettings.ChapterPlanetId)
                 {
-                    GameSettings.Chapter.OrderOfBattle
-                },
-                [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
-                {
-                    TempTyranidArmyGenerator.GenerateTyranidArmy()
+                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+                    {
+                        [TempFactions.Instance.SpaceMarineFaction.Id] = new List<Unit>
+                        {
+                            GameSettings.Chapter.OrderOfBattle
+                        },
+                        [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
+                        {
+                            
+                        }
+                    };
+                    SetChapterSquadsLocation(planet);
+                    Map.UpdatePlanetColor(planet.Id, 
+                        TempFactions.Instance.SpaceMarineFaction.Color);
+                    GameSettings.Chapter.Fleets[0].Planet = planet;
+                    GameSettings.Chapter.Fleets[0].Position = planet.Position;
+                    _galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
+                    Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
                 }
-            };
-            SetChapterSquadsLocation(planet);
-            Map.UpdatePlanetColor(planet.Id, TempFactions.Instance.SpaceMarineFaction.Color);
-            GameSettings.Chapter.Fleets[0].Planet = planet;
-            GameSettings.Chapter.Fleets[0].Position = planet.Position;
-            _galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
-            Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
+                else if(planet.ControllingFaction == TempFactions.Instance.TyranidFaction)
+                {
+                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+                    {
+                        [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
+                        {
+                            TempTyranidArmyGenerator.GenerateTyranidArmy(RNG.GetIntBelowMax(1000,1004))
+                        }
+                    };
+                }
+            }
+            
         }
 
         public void EndTurn_Clicked()

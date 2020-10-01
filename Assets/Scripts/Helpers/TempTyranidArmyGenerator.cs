@@ -6,9 +6,9 @@ namespace Iam.Scripts.Helpers
 {
     public sealed class TempTyranidArmyGenerator
     {
-        public static Unit GenerateTyranidArmy()
+        public static Unit GenerateTyranidArmy(int armyId)
         {
-            Unit root = TempTyranidUnitTemplates.Instance.UnitTemplates[1000].GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
+            Unit root = TempTyranidUnitTemplates.Instance.UnitTemplates[armyId].GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
             foreach(Squad squad in root.Squads)
             {
                 squad.IsInReserve = false;

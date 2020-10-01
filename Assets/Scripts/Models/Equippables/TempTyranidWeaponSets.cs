@@ -38,7 +38,17 @@ namespace Iam.Scripts.Models.Equippables
                               null,
                               null,
                               TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[102],
-                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[102])
+                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[102]),
+                new WeaponSet(104, "Monsterous Rending Claws",
+                              null,
+                              null,
+                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[104],
+                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[104]),
+                new WeaponSet(105, "Hive Tyrant",
+                              null,
+                              null,
+                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[105],
+                              TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[106]),
             }.ToDictionary(ws => ws.Id);
         }
     }
