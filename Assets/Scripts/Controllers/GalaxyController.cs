@@ -100,7 +100,7 @@ namespace Iam.Scripts.Controllers
                         },
                         [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
                         {
-                            
+                            TempTyranidArmyGenerator.GenerateTyranidArmy(RNG.GetIntBelowMax(1000,1004))
                         }
                     };
                     SetChapterSquadsLocation(planet);

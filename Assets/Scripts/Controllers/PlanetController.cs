@@ -207,7 +207,10 @@ namespace Iam.Scripts.Controllers
                         factionName = "Tyranid";
                     }
                     int factionSoldierCount = 0;
-                    if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id) hasMarineForces = true;
+                    if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
+                    {
+                        hasMarineForces = true;
+                    }
                     else
                     {
                         foreach (Unit unit in kvp.Value)

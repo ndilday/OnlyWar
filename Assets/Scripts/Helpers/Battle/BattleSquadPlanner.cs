@@ -673,7 +673,8 @@ namespace Iam.Scripts.Helpers.Battle
                     xMove -= xMove > 0 ? 1 : -1;
                     xMoveSq = xMove * xMove;
                 }
-                throw new InvalidOperationException("There is no place in the world for this move");
+                Debug.Log($"There is no place in the world for this move: {startingPoint.Item1}, {startingPoint.Item2}->{targetPoint.Item1},{targetPoint.Item2}, {speed}");
+                return startingPoint;
             }
             else
             {
@@ -696,7 +697,8 @@ namespace Iam.Scripts.Helpers.Battle
                     yMove -= yMove > 0 ? 1 : -1;
                     yMoveSq = yMove * yMove;
                 }
-                throw new InvalidOperationException("There is no place in the world for this move");
+                Debug.Log($"There is no place in the world for this move: {startingPoint.Item1}, {startingPoint.Item2}->{targetPoint.Item1},{targetPoint.Item2}, {speed}");
+                return startingPoint;
             }
         }
 
