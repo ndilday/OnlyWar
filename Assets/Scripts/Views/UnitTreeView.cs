@@ -106,7 +106,7 @@ namespace Iam.Scripts.Views
                 
                 badge = imageTransform.Find("Badge").GetComponent<Badge>();
 
-                _unitDisplayMap[id] = new Tuple<Button, Image, Badge>(button, image, badge);
+                _unitDisplayMap[squad.Item1] = new Tuple<Button, Image, Badge>(button, image, badge);
 
                 if (squad.Item4 != -1)
                 {    

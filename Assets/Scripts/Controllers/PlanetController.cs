@@ -184,7 +184,7 @@ namespace Iam.Scripts.Controllers
 
         public void RemoveFromShipButton_OnClick()
         {
-            _selectedShip.RemoveSquad(_selectedShipSquad);
+            _selectedShipSquad.BoardedLocation.RemoveSquad(_selectedShipSquad);
             _selectedShipSquad.BoardedLocation = null;
             _selectedShipSquad.Location = _selectedPlanet;
             _selectedShipSquad = null;
