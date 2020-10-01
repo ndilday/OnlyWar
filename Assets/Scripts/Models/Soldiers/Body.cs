@@ -409,7 +409,7 @@ namespace Iam.Scripts.Models.Soldiers
                         {Stance.Kneeling, 480 },
                         { Stance.Prone, 30 }
                     },
-                    CrippleWound = (uint)WoundLevel.Unsurvivable,
+                    CrippleWound = (uint)WoundLevel.Massive,
                     SeverWound = (uint)WoundLevel.Unsurvivable,
                     IsMotive = false,
                     IsRangedWeaponHolder = false,
@@ -693,7 +693,7 @@ namespace Iam.Scripts.Models.Soldiers
                         {Stance.Kneeling, 480 },
                         { Stance.Prone, 30 }
                     },
-                    CrippleWound = (uint)WoundLevel.Unsurvivable,
+                    CrippleWound = (uint)WoundLevel.Massive,
                     SeverWound = (uint)WoundLevel.Unsurvivable,
                     IsMotive = false,
                     IsRangedWeaponHolder = false,

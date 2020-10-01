@@ -44,9 +44,19 @@ namespace Iam.Scripts.Controllers
             ScreenTitle.text = "Chapter Organization";
         }
 
+        public void ArchiveButton_OnClick()
+        {
+            ScreenTitle.text = "Chapter Organization";
+        }
+
+        public void ApothecaryButton_OnClick()
+        {
+            ScreenTitle.text = "Apothecarium Report";
+        }
+
         public void RecruitButton_OnClick()
         {
-            ScreenTitle.text = "Conquistorum";
+            ScreenTitle.text = "Conquistorum Report";
         }
 
         public void GalaxyController_OnBattleStart(Planet planet)

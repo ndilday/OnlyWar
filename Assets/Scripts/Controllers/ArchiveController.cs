@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 using Iam.Scripts.Models;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
 
 namespace Iam.Scripts.Controllers
@@ -21,6 +18,7 @@ namespace Iam.Scripts.Controllers
 
         public void ArchiveButton_OnClick()
         {
+            ArchiveView.gameObject.SetActive(true);
             DateTreeView.ClearTree();
             PopulateEventTree();
         }

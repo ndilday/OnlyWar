@@ -32,7 +32,6 @@ namespace Iam.Scripts.Views
         private bool _scrollToBottom = false;
         private readonly Dictionary<int, Tuple<RectTransform, Image, Image, EventTrigger>> _soldierMap;
         private Text _nextStepButtonText;
-        private Tuple<RectTransform, Image, Image, EventTrigger> _currentSoldier;
 
         public BattleView()
         {
@@ -125,7 +124,6 @@ namespace Iam.Scripts.Views
                 GameObject.Destroy(tuple.Item1.gameObject);
             }
             _soldierMap.Clear();
-            _currentSoldier = null;
         }
 
         public void ClearBattleLog()
@@ -158,11 +156,11 @@ namespace Iam.Scripts.Views
         {
             foreach (int soldierId in soldiers)
             {
-                _currentSoldier = _soldierMap[soldierId];
-                _currentSoldier.Item3.gameObject.SetActive(highlight);
+                var currentSoldier = _soldierMap[soldierId];
+                currentSoldier.Item3.gameObject.SetActive(highlight);
                 if (highlight)
                 {
-                    _currentSoldier.Item3.color = color;
+                    currentSoldier.Item3.color = color;
                 }
             }
         }
@@ -176,8 +174,6 @@ namespace Iam.Scripts.Views
 
         private void SoldierCircle_OnPointerExit(BaseEventData bed)
         {
-            _currentSoldier.Item3.gameObject.SetActive(false);
-            _currentSoldier = null;
             OnSoldierPointerExit.Invoke();
         }
 

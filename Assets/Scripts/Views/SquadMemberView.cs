@@ -51,7 +51,15 @@ namespace Iam.Scripts.Views
         public void ReplaceSquadMemberContent(List<Tuple<int, string, string, Color>> squadMemberList)
         {
             _selectedButton = null;
-            foreach(Transform child in SquadMemberContent.transform)
+            if (_buttonMap == null)
+            {
+                _buttonMap = new Dictionary<int, Button>();
+            }
+            else
+            {
+                _buttonMap.Clear();
+            }
+            foreach (Transform child in SquadMemberContent.transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
@@ -68,14 +76,6 @@ namespace Iam.Scripts.Views
                     Text nameText = squadUnit.transform.Find("Name").GetComponent<Text>();
                     rankText.text = squadMember.Item2;
                     nameText.text = squadMember.Item3;
-                    if(_buttonMap == null)
-                    {
-                        _buttonMap = new Dictionary<int, Button>();
-                    }
-                    else
-                    {
-                        _buttonMap.Clear();
-                    }
                     var button = squadUnit.transform.GetComponent<Button>();
                     _buttonMap[squadMember.Item1] = button;
                     button.onClick.AddListener(() => SquadMemberButton_OnClick(squadMember.Item1));

@@ -31,6 +31,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
 
         public void ApothecaryButton_OnClick()
         {
+            ApothecaryView.gameObject.SetActive(true);
             InitializeUnitTree();
             ApothecaryView.UpdateGeneSeedText(GenerateGeneseedReport());
         }

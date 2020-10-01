@@ -110,7 +110,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                             wound.Suffererer.EquippedMeleeWeapons.RemoveAt(0);
                         }
                     }
-                    if(wound.HitLocation.Template.IsVital && wound.HitLocation.IsSevered)
+                    if(wound.HitLocation.Template.IsVital && wound.HitLocation.IsCrippled)
                     {
                         Log(false, "<b>" + wound.Suffererer.Soldier.Name + " has succumbed to their wounds</b>");
                         OnSoldierFall.Invoke(wound.Suffererer, wound.Inflicter, wound.Weapon);
