@@ -97,11 +97,11 @@ namespace Iam.Scripts.Controllers
                         [TempFactions.Instance.SpaceMarineFaction.Id] = new List<Unit>
                         {
                             GameSettings.Chapter.OrderOfBattle
-                        },
+                        }/*,
                         [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
                         {
                             TempTyranidArmyGenerator.GenerateTyranidArmy(RNG.GetIntBelowMax(1000,1004))
-                        }
+                        }*/
                     };
                     SetChapterSquadsLocation(planet);
                     Map.UpdatePlanetColor(planet.Id, 
@@ -125,7 +125,7 @@ namespace Iam.Scripts.Controllers
             
         }
 
-        public void EndTurn_Clicked()
+        public void UIController_OnTurnEnd()
         {
             // move fleets
             foreach(Fleet fleet in _galaxy.Fleets)
@@ -133,7 +133,7 @@ namespace Iam.Scripts.Controllers
                 if (fleet.Destination != null)
                 {
                     Map.RemoveFleetDestination(fleet.Id);
-                    Map.RemoveFleet(fleet.Id);
+                    //Map.RemoveFleet(fleet.Id);
 
                     // if the fleet has a destination, we need to move the fleet
                     // determine distance of line between two points
@@ -144,7 +144,17 @@ namespace Iam.Scripts.Controllers
                         fleet.Planet = fleet.Destination;
                         fleet.Destination = null;
                         fleet.Position = fleet.Planet.Position;
-                        Map.MoveFleet(fleet.Id, fleet.Position, false);
+                        var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
+                        if (mergeFleet != null)
+                        {
+                            _galaxy.CombineFleets(mergeFleet, fleet);
+                            Map.RemoveFleet(fleet.Id);
+                        }
+                        else
+                        {
+                            fleet.Planet.Fleets.Add(fleet);
+                            Map.MoveFleet(fleet.Id, fleet.Position, false);
+                        }
                     }
                     else
                     {

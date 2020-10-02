@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 using Iam.Scripts.Models;
@@ -7,6 +8,7 @@ namespace Iam.Scripts.Controllers
 {
     public class UIController : MonoBehaviour
     {
+        public UnityEvent OnTurnEnd;
         [SerializeField]
         private GameObject BottomUI;
         [SerializeField]
@@ -27,6 +29,7 @@ namespace Iam.Scripts.Controllers
             DisableUI();
             GameSettings.Date.IncrementWeek();
             Date.text = GameSettings.Date.ToString();
+            OnTurnEnd.Invoke();
         }
 
         public void GalaxyController_OnTurnStart()

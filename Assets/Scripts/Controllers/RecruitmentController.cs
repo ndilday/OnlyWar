@@ -46,8 +46,11 @@ I await any further instructions you have on our recruiting and training efforts
             EvaluateScouts();
         }
 
-        public void EndTurnButton_OnClick()
+        public void UIController_OnTurnEnd()
         {
+            // make sure the dialog is closed
+            RecruitmentView.gameObject.SetActive(false);
+
             // at the end of each week, scouts who are on ship or on home planet get trained and re-evaluated
             foreach(Squad scoutSquad in _scoutSquads.Values)
             {

@@ -128,10 +128,14 @@ namespace Iam.Scripts.Controllers
             UnitTreeView.UnitButton_OnClick(currentSquad.Id);
         }
 
-        public void EndTurnButton_OnClick()
+        public void UIController_OnTurnEnd()
         {
+            // make sure the dialog is closed
+            UnitTreeView.gameObject.SetActive(false);
+
             // set the unit tree view to dirty as there may be casualties between turns
             UnitTreeView.Initialized = false;
+
             // handle work experience
             // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
             // works out to 21 hours of training equivalent, call it 20, so 0.1 points

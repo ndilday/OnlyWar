@@ -55,8 +55,11 @@ It will require approximately {4} weeks before all marines in the squad (other t
             SoldierSelected(soldierId);
         }
 
-        public void EndTurnButton_OnClick()
+        public void UIController_OnTurnEnd()
         {
+            // make sure the dialog is closed
+            ApothecaryView.gameObject.SetActive(false);
+
             // heal wounds by one week
             foreach(PlayerSoldier soldier in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
             {

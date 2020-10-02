@@ -37,12 +37,20 @@ namespace Iam.Scripts.Controllers
         {
             _selectedPlanet = planet;
             // assume player is Space Marine
-            List<Unit> unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
+            List<Unit> unitList = null;
+            if (planet.FactionGroundUnitListMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            {
+                unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
+            }
             PlanetView.gameObject.SetActive(true);
             CreateScoutingReport(planet);
             if(unitList?.Count > 0)
             {
                 PopulateUnitTree();
+            }
+            else
+            {
+                UnitTreeView.ClearTree();
             }
             if(planet.Fleets.Count > 0)
             {
@@ -180,6 +188,10 @@ namespace Iam.Scripts.Controllers
             // rebuild both trees
             PopulateUnitTree();
             PopulateFleetTree(_selectedPlanet.Fleets);
+            PlanetView.EnableLoadInShipButton(false);
+            _selectedShip = null;
+            _selectedSquad = null;
+            _selectedUnit = null;
         }
 
         public void RemoveFromShipButton_OnClick()
@@ -187,9 +199,26 @@ namespace Iam.Scripts.Controllers
             _selectedShipSquad.BoardedLocation.RemoveSquad(_selectedShipSquad);
             _selectedShipSquad.BoardedLocation = null;
             _selectedShipSquad.Location = _selectedPlanet;
-            _selectedShipSquad = null;
             PopulateUnitTree();
             PopulateFleetTree(_selectedPlanet.Fleets);
+            PlanetView.EnableRemoveFromShipButton(false);
+
+            var factionUnitMap = _selectedShipSquad.Location.FactionGroundUnitListMap;
+            if (!factionUnitMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            {
+                factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id] =
+                    new List<Unit>();
+            }
+            var unitList = factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id];
+            if (!unitList.Contains(GameSettings.Chapter.OrderOfBattle))
+            {
+                // this feels hacky, but I think it's the safest choice
+                unitList.Add(GameSettings.Chapter.OrderOfBattle);
+            }
+            _selectedShipSquad = null;
+            _selectedShip = null;
+            _selectedSquad = null;
+            _selectedUnit = null;
         }
 
         private void CreateScoutingReport(Planet planet)
@@ -197,7 +226,7 @@ namespace Iam.Scripts.Controllers
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            if (planet.FactionGroundUnitListMap != null || planet.Fleets.Count > 0)
+            if (planet.FactionGroundUnitListMap != null)
             {
                 foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
@@ -225,8 +254,14 @@ namespace Iam.Scripts.Controllers
                     }
                 }
             }
-            if (!hasMarineForces) PlanetView.UpdateScoutingReport("With no forces on planet, we have no sense of what xenos or heretics may exist here.");
-            else PlanetView.UpdateScoutingReport(newReport);
+            if (!hasMarineForces && planet.Fleets.Count == 0)
+            {
+                PlanetView.UpdateScoutingReport("With no forces on planet, we have no sense of what xenos or heretics may exist here.");
+            }
+            else
+            {
+                PlanetView.UpdateScoutingReport(newReport);
+            }
         }
 
         private List<WeaponSet> ConvertToWeaponSetList(List<Tuple<string, int>> tuples)

@@ -250,6 +250,12 @@ namespace Iam.Scripts.Controllers
 
         private void ProcessEndOfBattle()
         {
+            if(_opposingBattleSquads == null || _opposingBattleSquads.Count == 0)
+            {
+                // The marines finish off any xenos still moving
+                _planet.FactionGroundUnitListMap.Remove(TempFactions.Instance.TyranidFaction.Id);
+            }
+            // we'll be nice to the Marines despite losing the battle... for now
             Debug.Log("Battle completed");
             ProcessSoldierHistoryForBattle();
             ApplySoldierExperienceForBattle();
@@ -518,22 +524,36 @@ namespace Iam.Scripts.Controllers
         {
             foreach (BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
-                string historyEntry = GameSettings.Date.ToString() + ": Fought in a skirmish on " + _planet.Name;
+                string historyEntry = GameSettings.Date.ToString() 
+                    + ": Fought in a skirmish on " + _planet.Name + ".";
                 if(soldier.EnemiesTakenDown > 0)
                 {
-                    historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}";
+                    historyEntry += $" Felled {soldier.EnemiesTakenDown} {_opposingFaction.Name}.";
                 }
                 if(soldier.WoundsTaken > 0)
                 {
+                    bool badWound = false;
+                    bool sever = false;
                     foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
                     {
+                        if(hl.Template.IsVital && hl.IsCrippled)
+                        {
+                            badWound = true;
+                        }
                         if(hl.IsSevered)
                         {
-                            historyEntry += $" Lost his {hl.Template.Name} in the fighting";
+                            sever = true;
+                            historyEntry += $" Lost his {hl.Template.Name} in the fighting.";
                         }
                     }
+                    if(badWound && !sever)
+                    {
+                        historyEntry += $"Was greviously wounded.";
+                    }
                 }
+                GameSettings.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
             }
+
         }
 
         private void ApplySoldierExperienceForBattle()

@@ -39,7 +39,8 @@ namespace Iam.Scripts.Views
                                 eventContainer);
                 Text eventName = eventObject.transform.Find("SquadName").GetComponent<Text>();
                 eventName.text = eventData[i];
-                eventObject.transform.Find("BackgroundImage").GetComponent<Button>().onClick.AddListener(() => NodeButton_OnClick(id, i));
+                int foo = i;
+                eventObject.transform.Find("BackgroundImage").GetComponent<Button>().onClick.AddListener(() => NodeButton_OnClick(id, foo));
             }
         }
 

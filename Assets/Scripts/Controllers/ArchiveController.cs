@@ -23,6 +23,12 @@ namespace Iam.Scripts.Controllers
             PopulateEventTree();
         }
 
+        public void UIController_OnTurnEnd()
+        {
+            // make sure the dialog is closed
+            ArchiveView.gameObject.SetActive(false);
+        }
+
         public void DateTreeView_OnEventSelected(Date id, int eventId)
         {
             List<EventHistory> dateEvents = GameSettings.Chapter.BattleHistory[id];
