@@ -186,7 +186,14 @@ namespace Iam.Scripts.Controllers
                 }
             }
             // rebuild both trees
-            PopulateUnitTree();
+            bool anySquadsLeft = PopulateUnitTree();
+
+            // if there are no squads left on the planet, remove the ground unit entry
+            // on the planet so it doesn't think there should be a battle
+            if(!anySquadsLeft)
+            {
+                _selectedPlanet.FactionGroundUnitListMap.Remove(TempFactions.Instance.SpaceMarineFaction.Id);
+            }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
             _selectedShip = null;
@@ -310,25 +317,30 @@ namespace Iam.Scripts.Controllers
             return list;
         }
 
-        private void PopulateUnitTree()
+        private bool PopulateUnitTree()
         {
+            bool anySquadsLeft = false;
             UnitTreeView.ClearTree();
             // go through the Chapter OOB and see which squads are on this planet
             if(GameSettings.Chapter.OrderOfBattle.HQSquad.Location == _selectedPlanet)
             {
+                anySquadsLeft = true;
                 AddSquadToUnitTreeAtRoot(GameSettings.Chapter.OrderOfBattle.HQSquad);
             }
             foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
                 if(squad.Location == _selectedPlanet)
                 {
+                    anySquadsLeft = true;
                     AddSquadToUnitTreeAtRoot(squad);
                 }
             }
             foreach(Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
+                anySquadsLeft = true;
                 AddCompanyToUnitTree(company);
             }
+            return anySquadsLeft;
         }
 
         private void AddCompanyToUnitTree(Unit company)
