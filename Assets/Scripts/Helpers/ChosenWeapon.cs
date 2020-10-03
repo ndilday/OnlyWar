@@ -16,7 +16,7 @@ namespace Iam.Scripts.Helpers
 
         public float GetStrengthAtRange(float range)
         {
-            return ActiveWeapon.Template.BaseDamage * (1 - (range / ActiveWeapon.Template.MaximumDistance));
+            return ActiveWeapon.Template.DamageMultiplier * (1 - (range / ActiveWeapon.Template.MaximumRange));
         }
 
         public float GetAccuracyAtRange(float range)

@@ -30,7 +30,6 @@ namespace Iam.Scripts.Models
 
     public class Planet
     {
-        //public Planet(Vector2 position) { Position = position; }
         public int Id;
         public string Name;
         public readonly Vector2 Position;

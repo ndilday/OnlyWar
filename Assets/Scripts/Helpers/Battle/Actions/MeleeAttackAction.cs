@@ -74,7 +74,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)
                 {
-                    float totalDamage = penDamage * _weapon.Template.PenetrationMultiplier;
+                    float totalDamage = penDamage * _weapon.Template.WoundMultiplier;
                     _resultList.Add(new WoundResolution(_attacker, _weapon.Template, _target, totalDamage, hitLocation));
                 }
             }

@@ -37,7 +37,7 @@ namespace Iam.Scripts.Models.Equippables
         public BaseSkill RelatedSkill { get; }
         public float Accuracy { get; }
         public float ArmorMultiplier { get; }
-        public float PenetrationMultiplier { get; }
+        public float WoundMultiplier { get; }
         public float RequiredStrength { get; }
         public WeaponTemplate(int id, string name, EquipLocation location,
                               BaseSkill skill, float accuracy, 
@@ -47,15 +47,15 @@ namespace Iam.Scripts.Models.Equippables
             RelatedSkill = skill;
             Accuracy = accuracy;
             ArmorMultiplier = armorMultiplier;
-            PenetrationMultiplier = penetrationMultiplier;
+            WoundMultiplier = penetrationMultiplier;
             RequiredStrength = requiredStrength;
         }
     }
 
     public class RangedWeaponTemplate: WeaponTemplate
     {
-        public float BaseDamage { get; }
-        public float MaximumDistance { get; }
+        public float DamageMultiplier { get; }
+        public float MaximumRange { get; }
         public byte RateOfFire { get; }
         public ushort AmmoCapacity { get; }
         public ushort Recoil { get; }
@@ -70,8 +70,8 @@ namespace Iam.Scripts.Models.Equippables
                               : base(id, name, location, skill, accuracy, armorMultiplier, 
                                      penetrationMultiplier, requiredStrength)
         {
-            BaseDamage = baseDamage;
-            MaximumDistance = maxDistance;
+            DamageMultiplier = baseDamage;
+            MaximumRange = maxDistance;
             RateOfFire = rof;
             AmmoCapacity = ammo;
             Recoil = recoil;

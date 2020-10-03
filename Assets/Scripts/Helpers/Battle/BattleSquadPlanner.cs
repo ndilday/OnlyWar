@@ -250,7 +250,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // ugh, this is a decision with a lot of factors that will only come up rarely
                 // for now, let's go with the longer ranged weapon
                 soldier.CurrentSpeed = 0;
-                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
+                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First()));
 
             }
         }
@@ -428,7 +428,7 @@ namespace Iam.Scripts.Helpers.Battle
             else if (!isMoving)
             {
                 // aim with longest ranged weapon
-                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First(), _log));
+                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First(), _log));
             }
         }
 
@@ -441,7 +441,7 @@ namespace Iam.Scripts.Helpers.Battle
                 return -1;
             }
             float range = 0;
-            var weapons = soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance);
+            var weapons = soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange);
             foreach(RangedWeapon weapon in weapons)
             {
                 float hitRange = EstimateHitDistance(soldier.Soldier, weapon, targetSize, freeHands);
@@ -481,31 +481,31 @@ namespace Iam.Scripts.Helpers.Battle
         private float EstimateKillDistance(RangedWeapon weapon, float targetArmor, float targetCon)
         {
             // if range doesn't matter for damage, we can just limit on hitting 
-            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
+            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumRange;
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
             
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
+            if (weapon.Template.DamageMultiplier * 6 < effectiveArmor) return -1;
             //if we can't kill in one shot at point blank range, we still need to get as close as possible to have the best chance of taking the target down
-            if ((weapon.Template.BaseDamage * 6 - effectiveArmor) * weapon.Template.PenetrationMultiplier < targetCon) return 0;
+            if ((weapon.Template.DamageMultiplier * 6 - effectiveArmor) * weapon.Template.WoundMultiplier < targetCon) return 0;
             // find the range with a 1/3 chance of a killshot
-            float distanceRatio = 1 - (((targetCon / weapon.Template.PenetrationMultiplier) + effectiveArmor) / (4.25f * weapon.Template.BaseDamage));
+            float distanceRatio = 1 - (((targetCon / weapon.Template.WoundMultiplier) + effectiveArmor) / (4.25f * weapon.Template.DamageMultiplier));
             if (distanceRatio < 0) return 0;
-            return weapon.Template.MaximumDistance * distanceRatio;
+            return weapon.Template.MaximumRange * distanceRatio;
         }
 
         private float EstimateArmorPenDistance(RangedWeapon weapon, float targetArmor)
         {
             // if range doesn't matter for damage, we can just limit on hitting 
-            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
+            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumRange;
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
 
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
+            if (weapon.Template.DamageMultiplier * 6 < effectiveArmor) return -1;
             // find the range with a 1/3 chance of armor pen
-            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.BaseDamage));
+            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.DamageMultiplier));
             if (distanceRatio < 0) return 0;
-            return weapon.Template.MaximumDistance * distanceRatio;
+            return weapon.Template.MaximumRange * distanceRatio;
         }
 
         private Tuple<float, float, RangedWeapon> ShouldShootAtRange(BattleSoldier soldier, BattleSoldier target, float range, bool useBulk)
@@ -513,7 +513,7 @@ namespace Iam.Scripts.Helpers.Battle
             RangedWeapon bestWeapon = null;
             float bestAccuracy = 0;
             float bestDamage = -0;
-            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.BaseDamage))
+            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.DamageMultiplier))
             {
                 Tuple<float, float> hitAndDamage = EstimateHitAndDamage(soldier, target, weapon, range, useBulk ? -2 : 0);
                 // if not likely to break through armor, there's little point

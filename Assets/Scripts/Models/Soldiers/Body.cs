@@ -222,7 +222,7 @@ namespace Iam.Scripts.Models.Soldiers
         public int Id;
         public string Name;
         public int NaturalArmor;
-        public float DamageMultiplier;
+        public float WoundMultiplier;
         public uint CrippleWound;
         public uint SeverWound;
         public bool IsMotive;
@@ -342,7 +342,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 0,
                     Name = "Brain",
                     NaturalArmor = 2,
-                    DamageMultiplier = 4,
+                    WoundMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 30 },
@@ -362,7 +362,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 1,
                     Name = "Eyes",
                     NaturalArmor = 0,
-                    DamageMultiplier = 4,
+                    WoundMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 1 },
@@ -382,7 +382,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 2,
                     Name = "Face",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 75 },
@@ -402,7 +402,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 3,
                     Name = "Torso",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 480 },
@@ -422,7 +422,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 4,
                     Name = "Left Arm",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 96 },
@@ -442,7 +442,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 5,
                     Name = "Right Arm",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 96 },
@@ -462,7 +462,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 6,
                     Name = "Left Hand",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 20 },
@@ -482,7 +482,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 7,
                     Name = "Right Hand",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 20 },
@@ -502,7 +502,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 8,
                     Name = "Vitals",
                     NaturalArmor = 2,
-                    DamageMultiplier = 1.5f,
+                    WoundMultiplier = 1.5f,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 100 },
@@ -522,7 +522,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 9,
                     Name = "Left Leg",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 160 },
@@ -542,7 +542,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 10,
                     Name = "Right Leg",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 160 },
@@ -562,7 +562,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 11,
                     Name = "Left Foot",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 15 },
@@ -582,7 +582,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 12,
                     Name = "Right Foot",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 15 },
@@ -626,7 +626,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 0,
                     Name = "Brain",
                     NaturalArmor = 2,
-                    DamageMultiplier = 4,
+                    WoundMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 30 },
@@ -646,7 +646,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 1,
                     Name = "Eyes",
                     NaturalArmor = 0,
-                    DamageMultiplier = 4,
+                    WoundMultiplier = 4,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 1 },
@@ -666,7 +666,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 2,
                     Name = "Face",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 75 },
@@ -686,7 +686,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 3,
                     Name = "Torso",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 480 },
@@ -706,7 +706,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 4,
                     Name = "Left Arm",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 96 },
@@ -726,7 +726,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 5,
                     Name = "Left Talon",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 72 },
@@ -746,7 +746,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 6,
                     Name = "Right Arm",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 96 },
@@ -766,7 +766,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 7,
                     Name = "Right Talon",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 72 },
@@ -786,7 +786,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 8,
                     Name = "Left Hand",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 20 },
@@ -806,7 +806,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 9,
                     Name = "Right Hand",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 20 },
@@ -826,7 +826,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 10,
                     Name = "Vitals",
                     NaturalArmor = 2,
-                    DamageMultiplier = 1.5f,
+                    WoundMultiplier = 1.5f,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 100 },
@@ -846,7 +846,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 11,
                     Name = "Left Leg",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 160 },
@@ -866,7 +866,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 12,
                     Name = "Right Leg",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 160 },
@@ -886,7 +886,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 13,
                     Name = "Left Foot",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 15 },
@@ -906,7 +906,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Id = 14,
                     Name = "Right Foot",
                     NaturalArmor = 0,
-                    DamageMultiplier = 1,
+                    WoundMultiplier = 1,
                     HitProbabilityMap = new Dictionary<Stance, int>()
                     {
                         { Stance.Standing, 15 },

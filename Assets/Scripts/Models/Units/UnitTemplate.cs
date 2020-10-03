@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Equippables;
 using Iam.Scripts.Models.Squads;
 
 namespace Iam.Scripts.Models.Units
