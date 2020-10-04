@@ -43,7 +43,7 @@ namespace Iam.Scripts.Models.Soldiers
             AttributeTemplate mov = new AttributeTemplate { BaseValue = 9.001f, StandardDeviation = 0 };
             AttributeTemplate atk = new AttributeTemplate { BaseValue = 60, StandardDeviation = 0 };
             AttributeTemplate siz = new AttributeTemplate { BaseValue = 6.8f, StandardDeviation = .68f };
-            return new SoldierTemplate(TempSoldierTypes.TYRANT, "Tyranid Warrior Prime",
+            return new SoldierTemplate(TempSoldierTypes.TYRANT, "Hive Tyrant",
                                        TempSoldierTypes.Instance.TyranidSoldierTypes[TempSoldierTypes.TYRANT],
                                        a24, a16, a16, a16, a24, a24, con,
                                        a24, atk, mov, siz,

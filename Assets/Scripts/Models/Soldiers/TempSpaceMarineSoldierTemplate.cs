@@ -23,7 +23,7 @@ namespace Iam.Scripts.Models.Soldiers
         private TempSpaceMarineSoldierTemplate()
         {
             AttributeTemplate fifteen = new AttributeTemplate { BaseValue = 15, StandardDeviation = 0.5f };
-            AttributeTemplate pre = new AttributeTemplate { BaseValue = 11, StandardDeviation = 0.5f };
+            AttributeTemplate pre = new AttributeTemplate { BaseValue = 10, StandardDeviation = 1f };
             AttributeTemplate intl = new AttributeTemplate { BaseValue = 15, StandardDeviation = 0.5f };
             AttributeTemplate mov = new AttributeTemplate { BaseValue = 6.001f, StandardDeviation = 0 };
             AttributeTemplate siz = new AttributeTemplate { BaseValue = 2.4f, StandardDeviation = 0.1f };
