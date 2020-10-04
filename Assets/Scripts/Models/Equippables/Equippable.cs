@@ -5,9 +5,9 @@ namespace Iam.Scripts.Models.Equippables
 {
     public enum EquipLocation
     {
-        Body,
-        OneHand,
-        TwoHand
+        Body = 0,
+        OneHand = 1,
+        TwoHand = 2
     }
 
     public class EquippableTemplate

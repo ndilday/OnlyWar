@@ -4,24 +4,24 @@ namespace Iam.Scripts.Models.Soldiers
 {
     public enum Attribute
     {
-        Dexterity,
-        Intelligence,
-        Presence,
-        Ego,
-        Strength,
-        Constitution
+        Strength = 1,
+        Dexterity = 2,
+        Constitution = 3,
+        Intelligence = 4,
+        Presence = 5,
+        Ego = 6
     }
 
     public enum SkillCategory
     {
-        Ranged,
-        Gunnery,
-        Melee,
-        Military,
-        Professional,
-        Tech,
-        Apothecary,
-        Vehicle
+        Ranged = 1,
+        Gunnery = 2,
+        Melee = 3,
+        Vehicle = 4,
+        Military = 5,
+        Professional = 6,
+        Tech = 7,
+        Apothecary = 8
     }
 
     public class BaseSkill
@@ -50,7 +50,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             get
             {
-                return BaseSkill.Difficulty + (PointsInvested == 0 ? BaseSkill.Difficulty : Mathf.Log(PointsInvested, 2));
+                return (PointsInvested == 0 ? -4 : Mathf.Log(PointsInvested, 2)) - BaseSkill.Difficulty;
             }
         }
         public Skill(BaseSkill baseSkill, float points = 0)
