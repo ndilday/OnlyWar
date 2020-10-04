@@ -9,3 +9,4 @@ No promises on how long that drive lasts, but I'm over a month in, have averaged
 # Licenses
 Icons from: (https://game-icons.net/)
 Ranks from: [Kenney](www.kenney.nl)
+Other images from: [Stephen Radford @ UnSplash](https://unsplash.com/s/photos/stephen-radford)
