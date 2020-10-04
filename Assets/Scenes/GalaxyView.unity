@@ -7163,6 +7163,7 @@ GameObject:
   - component: {fileID: 1066516936}
   - component: {fileID: 1066516932}
   - component: {fileID: 1066516931}
+  - component: {fileID: 1066516937}
   - component: {fileID: 1066516928}
   - component: {fileID: 1066516934}
   - component: {fileID: 1066516933}
@@ -7470,6 +7471,18 @@ MonoBehaviour:
   DateTreeView: {fileID: 9189671294825969871}
   ArchiveView: {fileID: 6375907273369337701}
   GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
+--- !u!114 &1066516937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066516927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24833c0427212ab4798ac947ce4ca970, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1082707811
 GameObject:
   m_ObjectHideFlags: 0
