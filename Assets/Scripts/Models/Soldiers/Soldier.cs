@@ -37,7 +37,7 @@ namespace Iam.Scripts.Models.Soldiers
         public float Perception { get; set; }
         public float Intelligence { get; set; }
         public float Ego { get; set; }
-        public float Presence { get; set; }
+        public float Charisma { get; set; }
         public float Constitution { get; set; }
         public float PsychicPower { get; set; }
         public float AttackSpeed { get; set; }
@@ -82,7 +82,7 @@ namespace Iam.Scripts.Models.Soldiers
                 case Attribute.Ego:
                     return Ego;
                 case Attribute.Presence:
-                    return Presence;
+                    return Charisma;
                 case Attribute.Strength:
                     return Strength;
                 case Attribute.Constitution:
@@ -114,8 +114,8 @@ namespace Iam.Scripts.Models.Soldiers
                     Intelligence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
                     break;
                 case Attribute.Presence:
-                    curPoints = Mathf.Pow(2, Presence - 11) * 10;
-                    Presence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    curPoints = Mathf.Pow(2, Charisma - 11) * 10;
+                    Charisma = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
                     break;
                 case Attribute.Strength:
                     curPoints = Mathf.Pow(2, Strength - 11) * 10;

@@ -12,7 +12,7 @@
         float Perception { get; }
         float Intelligence { get; }
         float Ego { get; }
-        float Presence { get; }
+        float Charisma { get; }
         float PsychicPower { get; }
         float AttackSpeed { get; }
         float Size { get; }

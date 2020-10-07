@@ -15,15 +15,6 @@ namespace Iam.Scripts.Models.Soldiers
     public class PlayerSoldier : ISoldier
     {
         private readonly Soldier _soldier;
-
-        private float _meleeRating;
-        private float _rangedRating;
-        private float _leadershipRating;
-        private float _medicalRating;
-        private float _techRating;
-        private float _pietyRating;
-        private float _ancientRating;
-
         private readonly List<string> _soldierHistory;
         private readonly Dictionary<int, ushort> _weaponCasualtyCountMap;
         private readonly Dictionary<int, ushort> _factionCasualtyCountMap;
@@ -31,13 +22,13 @@ namespace Iam.Scripts.Models.Soldiers
         public Squad AssignedSquad { get; private set; }
         public Date ProgenoidImplantDate { get; set; }
         public IReadOnlyCollection<string> SoldierHistory { get => _soldierHistory; }
-        public float MeleeRating { get => _meleeRating; }
-        public float RangedRating { get => _rangedRating; }
-        public float LeadershipRating { get => _leadershipRating; }
-        public float MedicalRating { get => _medicalRating; }
-        public float TechRating { get => _techRating; }
-        public float PietyRating { get => _pietyRating; }
-        public float AncientRating { get => _ancientRating; }
+        public float MeleeRating { get; private set; }
+        public float RangedRating { get; private set; }
+        public float LeadershipRating { get; private set; }
+        public float MedicalRating { get; private set; }
+        public float TechRating { get; private set; }
+        public float PietyRating { get; private set; }
+        public float AncientRating { get; private set; }
         #region ISoldier passthrough
         public int Id => _soldier.Id;
 
@@ -57,7 +48,7 @@ namespace Iam.Scripts.Models.Soldiers
 
         public float Ego => _soldier.Ego;
 
-        public float Presence => _soldier.Presence;
+        public float Charisma => _soldier.Charisma;
 
         public float PsychicPower => _soldier.PsychicPower;
 
@@ -166,31 +157,31 @@ namespace Iam.Scripts.Models.Soldiers
             // Expected score = 16 * 16 * 15.5/8 = 1000
             // low-end = 15 * 15 * 14/8 = 850
             // high-end = 17 * 17 * 16/8 = 578
-            _meleeRating = _soldier.AttackSpeed * _soldier.Strength
+            MeleeRating = _soldier.AttackSpeed * _soldier.Strength
                 * GetTotalSkillValue(TempBaseSkillList.Instance.Sword) /
                 (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
             // marksman, sharpshooter, sniper
             // Ranged Score = PER * Ranged
             Skill bestRanged = _soldier.GetBestSkillInCategory(SkillCategory.Ranged);
-            _rangedRating = Perception * (Dexterity + bestRanged.SkillBonus) / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
+            RangedRating = Perception * (Dexterity + bestRanged.SkillBonus) / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
             // Leadership Score = EGO * Leadership * Tactics
-            _leadershipRating = _soldier.Ego
+            LeadershipRating = _soldier.Ego
                 * GetTotalSkillValue(TempBaseSkillList.Instance.Leadership)
                 * GetTotalSkillValue(TempBaseSkillList.Instance.Tactics)
                 / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
             // Ancient Score = EGO * BOD
-            _ancientRating = _soldier.Ego * _soldier.Constitution 
+            AncientRating = _soldier.Ego * _soldier.Constitution 
                 / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
             // Medical Score = INT * Medicine
-            _medicalRating = GetTotalSkillValue(TempBaseSkillList.Instance.Diagnosis)
+            MedicalRating = GetTotalSkillValue(TempBaseSkillList.Instance.Diagnosis)
                 * GetTotalSkillValue(TempBaseSkillList.Instance.FirstAid)
                 / (UnityEngine.Random.Range(0.9f, 1.1f) * UnityEngine.Random.Range(0.9f, 1.1f));
             // Tech Score =  INT * TechRapair
-            _techRating = GetTotalSkillValue(TempBaseSkillList.Instance.ArmorySmallArms)
+            TechRating = GetTotalSkillValue(TempBaseSkillList.Instance.ArmorySmallArms)
                 * GetTotalSkillValue(TempBaseSkillList.Instance.ArmoryVehicle)
                 / (UnityEngine.Random.Range(0.9f, 1.1f) * UnityEngine.Random.Range(0.9f, 1.1f));
             // Piety Score = Piety * Ritual * Persuade
-            _pietyRating = GetTotalSkillValue(TempBaseSkillList.Instance.Piety)
+            PietyRating = GetTotalSkillValue(TempBaseSkillList.Instance.Piety)
                 / UnityEngine.Random.Range(0.09f, 0.11f);
         }
     }

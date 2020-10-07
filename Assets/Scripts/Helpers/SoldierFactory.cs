@@ -32,7 +32,7 @@ namespace Iam.Scripts.Helpers
             soldier.Dexterity = template.Dexterity.BaseValue + (float)(RNG.NextGaussianDouble() * template.Dexterity.StandardDeviation);
             soldier.Constitution = template.Constitution.BaseValue + (float)(RNG.NextGaussianDouble() * template.Constitution.StandardDeviation);
             soldier.Ego = template.Ego.BaseValue + (float)(RNG.NextGaussianDouble() * template.Ego.StandardDeviation);
-            soldier.Presence = template.Charisma.BaseValue + (float)(RNG.NextGaussianDouble() * template.Charisma.StandardDeviation);
+            soldier.Charisma = template.Charisma.BaseValue + (float)(RNG.NextGaussianDouble() * template.Charisma.StandardDeviation);
             soldier.Perception = template.Perception.BaseValue + (float)(RNG.NextGaussianDouble() * template.Perception.StandardDeviation);
             soldier.Intelligence = template.Intelligence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Intelligence.StandardDeviation);
 
