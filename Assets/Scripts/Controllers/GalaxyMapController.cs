@@ -25,11 +25,11 @@ namespace Iam.Scripts.Controllers
         public UnityEvent<Planet> OnBattleStart;
         
         [SerializeField]
-        private readonly GameSettings GameSettings;
+        private GameSettings GameSettings;
         [SerializeField]
-        private readonly GalaxyMapView Map;
+        private GalaxyMapView Map;
         [SerializeField]
-        private readonly UnitTreeView FleetView;
+        private UnitTreeView FleetView;
 
         private int? _selectedFleetId;
         private int _planetBattleStartedId;
@@ -100,13 +100,17 @@ namespace Iam.Scripts.Controllers
                 }
                 else if(planet.ControllingFaction != null)
                 {
+                    int potentialArmies = planet.ControllingFaction.UnitTemplates
+                                                .Values
+                                                .Where(ut => ut.IsTopLevelUnit)
+                                                .Count();
                     planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
                     {
                         [planet.ControllingFaction.Id] = new List<Unit>
                         {
                             // TODO: generalize this
                             TempTyranidArmyGenerator.GenerateTyranidArmy(
-                                RNG.GetIntBelowMax(1000,1004),
+                                RNG.GetIntBelowMax(0,potentialArmies),
                                 planet.ControllingFaction)
                         }
                     };

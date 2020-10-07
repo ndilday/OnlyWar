@@ -16,15 +16,15 @@ namespace Iam.Scripts.Controllers
     class PlanetController : ChapterUnitTreeController
     {
         [SerializeField]
-        private readonly UnitTreeView UnitTreeView;
+        private UnitTreeView UnitTreeView;
         [SerializeField]
-        private readonly SquadArmamentView SquadArmamentView;
+        private SquadArmamentView SquadArmamentView;
         [SerializeField]
-        private readonly PlanetView PlanetView;
+        private PlanetView PlanetView;
         [SerializeField]
-        private readonly GameSettings GameSettings;
+        private GameSettings GameSettings;
         [SerializeField]
-        private readonly UnitTreeView FleetView;
+        private UnitTreeView FleetView;
 
         private Squad _selectedSquad;
         private Unit _selectedUnit;
@@ -37,7 +37,8 @@ namespace Iam.Scripts.Controllers
             _selectedPlanet = planet;
             // assume player is Space Marine
             List<Unit> unitList = null;
-            if (planet.FactionGroundUnitListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
+            if (planet.FactionGroundUnitListMap != null 
+                && planet.FactionGroundUnitListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
                 unitList = planet.FactionGroundUnitListMap?[GameSettings.Galaxy.PlayerFaction.Id];
             }

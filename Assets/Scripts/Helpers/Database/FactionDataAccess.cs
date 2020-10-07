@@ -811,11 +811,11 @@ namespace Iam.Scripts.Helpers.Database
 
         private Color ConvertDatabaseObjectToColor(object obj)
         {
-            int colorInt = Convert.ToInt32(obj);
-            int r = colorInt / 0x01000000;
-            int g = (colorInt / 0x00010000) & 0x000000ff;
-            int b = (colorInt / 0x00000100) & 0x000000ff;
-            int a = colorInt & 0x000000ff;
+            long colorInt = (long)obj;
+            long r = colorInt / 0x01000000;
+            long g = (colorInt / 0x00010000) & 0x000000ff;
+            long b = (colorInt / 0x00000100) & 0x000000ff;
+            long a = colorInt & 0x000000ff;
             return new Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
         }
     }
