@@ -6,7 +6,6 @@ using UnityEngine;
 
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
@@ -17,15 +16,15 @@ namespace Iam.Scripts.Controllers
     class PlanetController : ChapterUnitTreeController
     {
         [SerializeField]
-        private UnitTreeView UnitTreeView;
+        private readonly UnitTreeView UnitTreeView;
         [SerializeField]
-        private SquadArmamentView SquadArmamentView;
+        private readonly SquadArmamentView SquadArmamentView;
         [SerializeField]
-        private PlanetView PlanetView;
+        private readonly PlanetView PlanetView;
         [SerializeField]
-        private GameSettings GameSettings;
+        private readonly GameSettings GameSettings;
         [SerializeField]
-        private UnitTreeView FleetView;
+        private readonly UnitTreeView FleetView;
 
         private Squad _selectedSquad;
         private Unit _selectedUnit;
@@ -38,9 +37,9 @@ namespace Iam.Scripts.Controllers
             _selectedPlanet = planet;
             // assume player is Space Marine
             List<Unit> unitList = null;
-            if (planet.FactionGroundUnitListMap.ContainsKey(GameSettings.PlayerFaction.Id))
+            if (planet.FactionGroundUnitListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                unitList = planet.FactionGroundUnitListMap?[GameSettings.PlayerFaction.Id];
+                unitList = planet.FactionGroundUnitListMap?[GameSettings.Galaxy.PlayerFaction.Id];
             }
             PlanetView.gameObject.SetActive(true);
             CreateScoutingReport(planet);
@@ -192,7 +191,7 @@ namespace Iam.Scripts.Controllers
             // on the planet so it doesn't think there should be a battle
             if(!anySquadsLeft)
             {
-                _selectedPlanet.FactionGroundUnitListMap.Remove(GameSettings.PlayerFaction.Id);
+                _selectedPlanet.FactionGroundUnitListMap.Remove(GameSettings.Galaxy.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -211,12 +210,12 @@ namespace Iam.Scripts.Controllers
             PlanetView.EnableRemoveFromShipButton(false);
 
             var factionUnitMap = _selectedShipSquad.Location.FactionGroundUnitListMap;
-            if (!factionUnitMap.ContainsKey(GameSettings.PlayerFaction.Id))
+            if (!factionUnitMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                factionUnitMap[GameSettings.PlayerFaction.Id] =
+                factionUnitMap[GameSettings.Galaxy.PlayerFaction.Id] =
                     new List<Unit>();
             }
-            var unitList = factionUnitMap[GameSettings.PlayerFaction.Id];
+            var unitList = factionUnitMap[GameSettings.Galaxy.PlayerFaction.Id];
             if (!unitList.Contains(GameSettings.Chapter.OrderOfBattle))
             {
                 // this feels hacky, but I think it's the safest choice
@@ -238,7 +237,7 @@ namespace Iam.Scripts.Controllers
                 foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
                     int factionSoldierCount = 0;
-                    if (kvp.Key == GameSettings.PlayerFaction.Id)
+                    if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
                     {
                         hasMarineForces = true;
                     }

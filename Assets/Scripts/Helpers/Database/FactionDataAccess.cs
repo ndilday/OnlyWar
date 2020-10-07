@@ -69,7 +69,7 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while(reader.Read())
             {
-                int id = (int)reader[0];
+                int id = reader.GetInt32(0);
                 string name = reader[1].ToString();
                 Color color = ConvertDatabaseObjectToColor(reader[2]);
                 bool isPlayer = (bool)reader[3];
@@ -111,10 +111,10 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
+                int id = reader.GetInt32(0);
                 string name = reader[1].ToString();
-                SkillCategory category = (SkillCategory)reader[2];
-                var attribute = (Models.Soldiers.Attribute)reader[3];
+                SkillCategory category = (SkillCategory)reader.GetInt32(2);
+                var attribute = (Models.Soldiers.Attribute)reader.GetInt32(3);
                 float difficulty = (float)reader[4];
                 BaseSkill baseSkill = new BaseSkill(id, category, name, attribute, difficulty);
 
@@ -132,13 +132,13 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                int rank = (int)reader[3];
+                int rank = reader.GetInt32(3);
                 bool isSquadLeader = (bool)reader[4];
                 SoldierType soldierType = new SoldierType(id, name, isSquadLeader, (byte)rank);
-                soldierTypeMap[factionId] = soldierType;
+                soldierTypeMap[id] = soldierType;
 
                 if (!soldierTypesByFactionId.ContainsKey(factionId))
                 {
@@ -158,11 +158,11 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                //int location = (int)reader[3];
-                int armorProvided = (int)reader[4];
+                //int location = reader.GetInt32(3);
+                int armorProvided = reader.GetInt32(4);
                 ArmorTemplate armorTemplate = new ArmorTemplate(id, name, (byte)armorProvided);
                 if (!factionArmorTemplateMap.ContainsKey(factionId))
                 {
@@ -183,11 +183,11 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                int location = (int)reader[3];
-                int baseSkillId = (int)reader[4];
+                int location = reader.GetInt32(3);
+                int baseSkillId = reader.GetInt32(4);
                 float accuracy = (float)reader[5];
                 float armorMultiplier = (float)reader[6];
                 float woundMultiplier = (float)reader[7];
@@ -223,21 +223,21 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                int location = (int)reader[3];
-                int baseSkillId = (int)reader[4];
+                int location = reader.GetInt32(3);
+                int baseSkillId = reader.GetInt32(4);
                 float accuracy = (float)reader[5];
                 float armorMultiplier = (float)reader[6];
                 float woundMultiplier = (float)reader[7];
                 float requiredStrength = (float)reader[8];
                 float damageMultiplier = (float)reader[9];
                 float maxRange = (float)reader[10];
-                byte rof = (byte)reader[11];
-                ushort ammo = (ushort)reader[12];
-                ushort recoil = (ushort)reader[13];
-                ushort bulk = (ushort)reader[14];
+                byte rof = reader.GetByte(11);
+                ushort ammo = (ushort)reader.GetInt16(12);
+                ushort recoil = (ushort)reader.GetInt16(13);
+                ushort bulk = (ushort)reader.GetInt16(14);
                 bool doesDamageDegrade = (bool)reader[15];
 
                 BaseSkill baseSkill = baseSkillMap[baseSkillId];
@@ -270,44 +270,40 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                int? primaryRangedId = (int?)reader[3];
-                int? secondaryRangedId = (int?)reader[4];
-                int? primaryMeleeId = (int?)reader[5];
-                int? secondaryMeleeId = (int?)reader[6];
 
-                if(primaryRangedId != null)
+                if(reader[3].GetType() != typeof(DBNull))
                 {
-                    primaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == (int)primaryRangedId);
+                    primaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == reader.GetInt32(3));
                 }
                 else
                 {
                     primaryRanged = null;
                 }
 
-                if (secondaryRangedId != null)
+                if (reader[4].GetType() != typeof(DBNull))
                 {
-                    secondaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == (int)secondaryRangedId);
+                    secondaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == reader.GetInt32(4));
                 }
                 else
                 {
                     secondaryRanged = null;
                 }
 
-                if (primaryMeleeId != null)
+                if (reader[5].GetType() != typeof(DBNull))
                 {
-                    primaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == (int)primaryMeleeId);
+                    primaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == reader.GetInt32(5));
                 }
                 else
                 {
                     primaryMelee = null;
                 }
 
-                if (secondaryMeleeId != null)
+                if (reader[6].GetType() != typeof(DBNull))
                 {
-                    secondaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == (int)secondaryMeleeId);
+                    secondaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == reader.GetInt32(6));
                 }
                 else
                 {
@@ -334,8 +330,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int weaponSetId = (int)reader[1];
-                int squadTemplateWeaponOption = (int)reader[2];
+                int weaponSetId = reader.GetInt32(1);
+                int squadTemplateWeaponOption = reader.GetInt32(2);
                 if (!weaponOptionToWeaponSetMap.ContainsKey(squadTemplateWeaponOption))
                 {
                     weaponOptionToWeaponSetMap[squadTemplateWeaponOption] = new List<int>();
@@ -356,11 +352,11 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int squadTemplateId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int squadTemplateId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                int min = (int)reader[3];
-                int max = (int)reader[4];
+                int min = reader.GetInt32(3);
+                int max = reader.GetInt32(4);
 
                 List<int> baseList = weaponOptionWeaponSetMap[id];
                 List<WeaponSet> weaponSetList = new List<WeaponSet>();
@@ -389,10 +385,10 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int squadTemplateId = (int)reader[1];
-                int soldierTypeId = (int)reader[2];
-                int min = (int)reader[3];
-                int max = (int)reader[4];
+                int squadTemplateId = reader.GetInt32(1);
+                int soldierTypeId = reader.GetInt32(2);
+                int min = reader.GetInt32(3);
+                int max = reader.GetInt32(4);
 
                 SoldierType type = soldierTypeMap[soldierTypeId];
 
@@ -419,17 +415,19 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name= reader[2].ToString();
-                int defaultArmorId = (int)reader[3];
-                int defaultWeaponSetId = (int)reader[4];
-                int squadType = (int)reader[5];
+                int defaultArmorId = reader.GetInt32(3);
+                int defaultWeaponSetId = reader.GetInt32(4);
+                int squadType = reader.GetInt32(5);
 
                 List<ArmorTemplate> armorList = armorTemplateMap[factionId];
                 ArmorTemplate defaultArmor = armorList.First(at => at.Id == defaultArmorId);
+                List<SquadWeaponOption> options = squadWeaponOptionMap.ContainsKey(id) ?
+                    squadWeaponOptionMap[id] : null;
                 SquadTemplate squadTemplate = new SquadTemplate(id, name, weaponSetMap[defaultWeaponSetId],
-                                                                squadWeaponOptionMap[id], defaultArmor,
+                                                                options, defaultArmor,
                                                                 elementMap[id], (SquadTypes)squadType);
                 squadTemplateMap[id] = squadTemplate;
                 if (!squadTemplatesByFactionId.ContainsKey(factionId))
@@ -450,8 +448,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int unitTemplateId = (int)reader[1];
-                int squadTemplateId = (int)reader[2];
+                int unitTemplateId = reader.GetInt32(1);
+                int squadTemplateId = reader.GetInt32(2);
 
                 if (!unitSquadTemplateMap.ContainsKey(unitTemplateId))
                 {
@@ -470,8 +468,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int parentUnitId = (int)reader[1];
-                int childUnitId = (int)reader[2];
+                int parentUnitId = reader.GetInt32(1);
+                int childUnitId = reader.GetInt32(2);
 
                 if (!unitTemplateTree.ContainsKey(parentUnitId))
                 {
@@ -494,11 +492,11 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
                 bool isTop = (bool)reader[3];
-                int hqSquadTemplateId = (int)reader[4];
+                int hqSquadTemplateId = reader.GetInt32(4);
 
                 if (!factionUnitTemplateMap.ContainsKey(factionId))
                 {
@@ -528,9 +526,9 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int hitLocationId = (int)reader[1];
-                int stance = (int)reader[2];
-                int size = (int)reader[3];
+                int hitLocationId = reader.GetInt32(1);
+                int stance = reader.GetInt32(2);
+                int size = reader.GetInt32(3);
                 
                 if (!hitProbabilityMap.ContainsKey(hitLocationId))
                 {
@@ -550,7 +548,7 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
+                int id = reader.GetInt32(0);
                 float baseValue = (float)reader[1];
                 float stdDev = (float)reader[2];
                 AttributeTemplate attributeTemplate = new AttributeTemplate
@@ -574,8 +572,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int baseSkillId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int baseSkillId = reader.GetInt32(1);
                 float baseValue = (float)reader[2];
                 float stdDev = (float)reader[3];
                 SkillTemplate skillTemplate = new SkillTemplate
@@ -600,8 +598,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int soldierTemplateId = (int)reader[1];
-                int skillTemplateId = (int)reader[2];
+                int soldierTemplateId = reader.GetInt32(1);
+                int skillTemplateId = reader.GetInt32(2);
 
                 if (!skillTemplateListMap.ContainsKey(soldierTemplateId))
                 {
@@ -623,13 +621,13 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int bodyId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int bodyId = reader.GetInt32(1);
                 string name = reader[2].ToString();
                 float naturalArmor = (float)reader[3];
                 float woundMultiplier= (float)reader[4];
-                int  crippleLevel = (int)reader[5];
-                int severLevel = (int)reader[6];
+                int crippleLevel = Convert.ToInt32(reader[5]);
+                int severLevel = Convert.ToInt32(reader[6]);
                 bool isMotive = (bool)reader[7];
                 bool isRanged = (bool)reader[8];
                 bool isMelee = (bool)reader[9];
@@ -671,22 +669,22 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
-                int bodyId = (int)reader[2];
-                int soldierTypeId = (int)reader[3];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
+                int bodyId = reader.GetInt32(2);
+                int soldierTypeId = reader.GetInt32(3);
                 string name = reader[4].ToString();
-                int strengthTemplateId = (int)reader[5];
-                int dexterityTemplateId = (int)reader[6];
-                int constitutionTemplateId = (int)reader[7];
-                int intelligenceTemplateId = (int)reader[8];
-                int perceptionTemplateId = (int)reader[9];
-                int egoTemplateId = (int)reader[10];
-                int charismaTemplateId = (int)reader[11];
-                int psychicTemplateId = (int)reader[12];
-                int attackSpeedTemplateId = (int)reader[13];
-                int moveSpeedTemplateId = (int)reader[14];
-                int sizeTemplateId = (int)reader[15];
+                int strengthTemplateId = reader.GetInt32(5);
+                int dexterityTemplateId = reader.GetInt32(6);
+                int constitutionTemplateId = reader.GetInt32(7);
+                int intelligenceTemplateId = reader.GetInt32(8);
+                int perceptionTemplateId = reader.GetInt32(9);
+                int egoTemplateId = reader.GetInt32(10);
+                int charismaTemplateId = reader.GetInt32(11);
+                int psychicTemplateId = reader.GetInt32(12);
+                int attackSpeedTemplateId = reader.GetInt32(13);
+                int moveSpeedTemplateId = reader.GetInt32(14);
+                int sizeTemplateId = reader.GetInt32(15);
                 SoldierType type = soldierTypeMap[soldierTypeId];
                 SoldierTemplate soldierTemplate = new SoldierTemplate(id, name, type,
                                                                       attributeMap[strengthTemplateId],
@@ -721,10 +719,10 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                ushort soldierCap = (ushort)reader[3];
+                ushort soldierCap = (ushort)reader.GetInt16(3);
                 BoatTemplate boatTemplate = new BoatTemplate(id, name, soldierCap);
                 if (!factionTemplateMap.ContainsKey(factionId))
                 {
@@ -744,12 +742,12 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
-                ushort soldierCap = (ushort)reader[3];
-                ushort boatCap = (ushort)reader[4];
-                ushort landerCap = (ushort)reader[5];
+                ushort soldierCap = (ushort)reader.GetInt16(3);
+                ushort boatCap = (ushort)reader.GetInt16(4);
+                ushort landerCap = (ushort)reader.GetInt16(5);
                 ShipTemplate boatTemplate = new ShipTemplate(id, name, soldierCap, boatCap, landerCap);
                 if (!factionTemplateMap.ContainsKey(factionId))
                 {
@@ -768,8 +766,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int fleetId = (int)reader[1];
-                int shipId = (int)reader[2];
+                int fleetId = reader.GetInt32(1);
+                int shipId = reader.GetInt32(2);
                 if (!fleetToShipMap.ContainsKey(fleetId))
                 {
                     fleetToShipMap[fleetId] = new List<int>();
@@ -790,8 +788,8 @@ namespace Iam.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = (int)reader[0];
-                int factionId = (int)reader[1];
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
 
                 List<ShipTemplate> baseList = factionShipMap[factionId];
@@ -813,7 +811,7 @@ namespace Iam.Scripts.Helpers.Database
 
         private Color ConvertDatabaseObjectToColor(object obj)
         {
-            int colorInt = (int)obj;
+            int colorInt = Convert.ToInt32(obj);
             int r = colorInt / 0x01000000;
             int g = (colorInt / 0x00010000) & 0x000000ff;
             int b = (colorInt / 0x00000100) & 0x000000ff;

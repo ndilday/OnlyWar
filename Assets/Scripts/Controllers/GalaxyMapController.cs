@@ -8,7 +8,6 @@ using UnityEngine.EventSystems;
 
 using Iam.Scripts.Helpers;
 using Iam.Scripts.Models;
-using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
@@ -18,7 +17,7 @@ using Iam.Scripts.Views;
 namespace Iam.Scripts.Controllers
 {
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
-    public class GalaxyController : MonoBehaviour
+    public class GalaxyMapController : MonoBehaviour
     {
         public UnityEvent OnTurnStart;
         public UnityEvent OnEscapeKey;
@@ -26,13 +25,12 @@ namespace Iam.Scripts.Controllers
         public UnityEvent<Planet> OnBattleStart;
         
         [SerializeField]
-        private GameSettings GameSettings;
+        private readonly GameSettings GameSettings;
         [SerializeField]
-        private GalaxyMapView Map;
+        private readonly GalaxyMapView Map;
         [SerializeField]
-        private UnitTreeView FleetView;
+        private readonly UnitTreeView FleetView;
 
-        private Galaxy _galaxy;
         private int? _selectedFleetId;
         private int _planetBattleStartedId;
         private List<Ship> _selectedShips;
@@ -40,11 +38,31 @@ namespace Iam.Scripts.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            _galaxy = new Galaxy(GameSettings.GalaxySize);
             _selectedShips = new List<Ship>();
-            GameSettings.PlayerFaction = _galaxy.GetPlayerFaction();
-            GameSettings.OpposingFactions = _galaxy.GetNonPlayerFactions();
-            Generate();
+            GameSettings.OpposingFactions = GameSettings.Galaxy.GetNonPlayerFactions();
+            for (int i = 0; i < GameSettings.Galaxy.Planets.Count; i++)
+            {
+                Color color;
+                Planet planet = GameSettings.Galaxy.Planets[i];
+                if (planet.ControllingFaction != null)
+                {
+                    color = planet.ControllingFaction.Color;
+                    if (GameSettings.Galaxy.Planets[i].ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                    {
+                        GameSettings.ChapterPlanetId = GameSettings.Galaxy.Planets[i].Id;
+                    }
+                }
+                else
+                {
+                    color = Color.white;
+                }
+
+                Map.CreatePlanet(i, GameSettings.Galaxy.Planets[i].Position, GameSettings.Galaxy.Planets[i].Name, color);
+            }
+            foreach (Fleet fleet in GameSettings.Galaxy.Fleets)
+            {
+                Map.CreateFleet(fleet.Id, fleet.Position, false);
+            }
         }
 
         // Update is called once per frame
@@ -58,55 +76,26 @@ namespace Iam.Scripts.Controllers
             }
         }
 
-        public void Generate()
-        {
-            _galaxy.GenerateGalaxy(1);
-            // populate visuals on map
-            for (int i = 0; i < _galaxy.Planets.Count; i++)
-            {
-                Color color;
-                Planet planet = _galaxy.Planets[i];
-                if(planet.ControllingFaction != null)
-                {
-                    color = planet.ControllingFaction.Color;
-                    if (_galaxy.Planets[i].ControllingFaction.Name == "Space Marines")
-                    {
-                        GameSettings.ChapterPlanetId = _galaxy.Planets[i].Id;
-                    }
-                }
-                else
-                {
-                    color = Color.white;
-                }
-                
-                Map.CreatePlanet(i, _galaxy.Planets[i].Position, _galaxy.Planets[i].Name, color);
-            }
-            foreach(Fleet fleet in _galaxy.Fleets)
-            {
-                Map.CreateFleet(fleet.Id, fleet.Position, false);
-            }
-        }
-
         public void ChapterController_OnChapterCreated()
         {
             // For now, put the chapter on their home planet
-            foreach(Planet planet in _galaxy.Planets)
+            foreach(Planet planet in GameSettings.Galaxy.Planets)
             {
                 if(planet.Id == GameSettings.ChapterPlanetId)
                 {
                     planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
                     {
-                        [GameSettings.PlayerFaction.Id] = new List<Unit>
+                        [GameSettings.Galaxy.PlayerFaction.Id] = new List<Unit>
                         {
                             GameSettings.Chapter.OrderOfBattle
                         }
                     };
                     SetChapterSquadsLocation(planet);
                     Map.UpdatePlanetColor(planet.Id, 
-                        GameSettings.PlayerFaction.Color);
+                        GameSettings.Galaxy.PlayerFaction.Color);
                     GameSettings.Chapter.Fleets[0].Planet = planet;
                     GameSettings.Chapter.Fleets[0].Position = planet.Position;
-                    _galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
+                    GameSettings.Galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
                     Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
                 }
                 else if(planet.ControllingFaction != null)
@@ -129,7 +118,7 @@ namespace Iam.Scripts.Controllers
         public void UIController_OnTurnEnd()
         {
             // move fleets
-            foreach(Fleet fleet in _galaxy.Fleets)
+            foreach(Fleet fleet in GameSettings.Galaxy.Fleets)
             {
                 if (fleet.Destination != null)
                 {
@@ -148,7 +137,7 @@ namespace Iam.Scripts.Controllers
                         var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
                         if (mergeFleet != null)
                         {
-                            _galaxy.CombineFleets(mergeFleet, fleet);
+                            GameSettings.Galaxy.CombineFleets(mergeFleet, fleet);
                             Map.RemoveFleet(fleet.Id);
                         }
                         else
@@ -183,7 +172,7 @@ namespace Iam.Scripts.Controllers
 
         public void FleetView_OnShipSelected(int shipId)
         {
-            Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
+            Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
             Ship ship = fleet.Ships.First(s => s.Id == shipId);
             if (!_selectedShips.Contains(ship))
             {
@@ -233,7 +222,7 @@ namespace Iam.Scripts.Controllers
             // check to see if there's a selected fleet
             if (_selectedShips.Count > 0)
             {
-                Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
+                Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
 
                 // if the fleet has no planet, it's en route, and can't change that route
                 if (fleet.Planet != null)
@@ -245,7 +234,7 @@ namespace Iam.Scripts.Controllers
                         int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
                         if (planetId != null)
                         {
-                            Planet planet = _galaxy.Planets[(int)planetId];
+                            Planet planet = GameSettings.Galaxy.Planets[(int)planetId];
                             if (fleet.Planet == planet)
                             {
                                 Map.RemoveFleetPath((int)_selectedFleetId);
@@ -306,7 +295,7 @@ namespace Iam.Scripts.Controllers
                 else if (hitInfo.collider.name == "StarSprite")
                 {
                     // if we have a selected fleet that is not en route, the click becomes their new target system
-                    if (_selectedFleetId != null && _galaxy.Fleets[(int)_selectedFleetId].Planet != null)
+                    if (_selectedFleetId != null && GameSettings.Galaxy.Fleets[(int)_selectedFleetId].Planet != null)
                     {
                         HandleFleetDestinationClick(hitInfo);
                     }
@@ -315,7 +304,7 @@ namespace Iam.Scripts.Controllers
                         int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
                         if (planetId == null) throw new NullReferenceException("Clicked planet does not exist");
                         //if no fleet is selected, this is a planet selection action
-                        OnPlanetSelected.Invoke(_galaxy.Planets[(int)planetId]);
+                        OnPlanetSelected.Invoke(GameSettings.Galaxy.Planets[(int)planetId]);
                     }
                 }
             }
@@ -323,17 +312,17 @@ namespace Iam.Scripts.Controllers
 
         private void HandleFleetDestinationClick(RaycastHit2D hitInfo)
         {
-            Fleet fleet = _galaxy.Fleets[(int)_selectedFleetId];
+            Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
             // this is the selected fleet's new target system
             int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
             if (destinationPlanetId != null)
             {
-                Planet destination = _galaxy.Planets[(int)destinationPlanetId];
+                Planet destination = GameSettings.Galaxy.Planets[(int)destinationPlanetId];
                 if (fleet.Ships.Count != _selectedShips.Count)
                 {
                     // this set of ships is a subset of the original fleet, 
                     // we'll need to break them out on their own
-                    fleet = _galaxy.SplitOffNewFleet(fleet, _selectedShips);
+                    fleet = GameSettings.Galaxy.SplitOffNewFleet(fleet, _selectedShips);
                 }
 
                 foreach(Fleet adjacentFleet in fleet.Planet.Fleets)
@@ -345,7 +334,7 @@ namespace Iam.Scripts.Controllers
                         if(adjacentFleet.Destination == null
                         && fleet.Planet == destination)
                         {
-                            _galaxy.CombineFleets(adjacentFleet, fleet);
+                            GameSettings.Galaxy.CombineFleets(adjacentFleet, fleet);
                             DeselectFleet();
                             Map.RemoveFleet(fleet.Id);
                             return;
@@ -353,7 +342,7 @@ namespace Iam.Scripts.Controllers
                         if(adjacentFleet.Destination != null
                             && adjacentFleet.Destination == destination)
                         {
-                            _galaxy.CombineFleets(adjacentFleet, fleet);
+                            GameSettings.Galaxy.CombineFleets(adjacentFleet, fleet);
                             DeselectFleet();
                             Map.RemoveFleet(fleet.Id);
                             return;
@@ -401,7 +390,7 @@ namespace Iam.Scripts.Controllers
                     Map.DrawFleetDestination(fleet.Id, destination.Position);
                     
                     // update fleet model
-                    fleet.Destination = _galaxy.Planets[(int)destinationPlanetId];
+                    fleet.Destination = GameSettings.Galaxy.Planets[(int)destinationPlanetId];
                     DeselectFleet();
                 }
             }
@@ -438,7 +427,7 @@ namespace Iam.Scripts.Controllers
 
         private void PopulateFleetView(int fleetId)
         {
-            Fleet fleet = _galaxy.Fleets[fleetId];
+            Fleet fleet = GameSettings.Galaxy.Fleets[fleetId];
             FleetView.ClearTree();
             foreach (Ship ship in fleet.Ships)
             {
@@ -454,9 +443,9 @@ namespace Iam.Scripts.Controllers
         private void HandleBattles()
         {
             int i = _planetBattleStartedId + 1;
-            while (i < _galaxy.Planets.Count)
+            while (i < GameSettings.Galaxy.Planets.Count)
             {
-                Planet planet = _galaxy.GetPlanet(i);
+                Planet planet = GameSettings.Galaxy.GetPlanet(i);
                 if (planet.FactionGroundUnitListMap?.Keys.Count > 1)
                 {
                     // a battle breaks out on this planet

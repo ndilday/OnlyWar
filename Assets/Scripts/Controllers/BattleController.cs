@@ -69,7 +69,7 @@ namespace Iam.Scripts.Controllers
 
             foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
             {
-                if (kvp.Key == GameSettings.PlayerFaction.Id)
+                if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
                 {
                     PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
                 }
@@ -283,7 +283,7 @@ namespace Iam.Scripts.Controllers
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
             MeleeWeapon defaultWeapon = new MeleeWeapon(
-                GameSettings.PlayerFaction.MeleeWeaponTemplates.Values
+                GameSettings.Galaxy.PlayerFaction.MeleeWeaponTemplates.Values
                     .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)

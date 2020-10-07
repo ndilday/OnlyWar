@@ -507,7 +507,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 656477861}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1076847996}
+        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
+        m_MethodName: QuitGameButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &656477861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -633,7 +645,7 @@ GameObject:
   - component: {fileID: 1076847993}
   - component: {fileID: 1076847992}
   - component: {fileID: 1076847991}
-  - component: {fileID: 1076847995}
+  - component: {fileID: 1076847996}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -727,7 +739,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1076847995
+--- !u!114 &1076847996
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -736,9 +748,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1076847990}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24833c0427212ab4798ac947ce4ca970, type: 3}
+  m_Script: {fileID: 11500000, guid: 4942b50e02158a84387a79f2f0810a7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
 --- !u!1 &1194980209
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,7 +833,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1194980212}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1076847996}
+        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
+        m_MethodName: LoadGameButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1194980212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1178,8 +1203,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1076847995}
-        m_TargetAssemblyTypeName: DatabaseController, Assembly-CSharp
+      - m_Target: {fileID: 1076847996}
+        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
         m_MethodName: NewGameButton_OnClick
         m_Mode: 1
         m_Arguments:

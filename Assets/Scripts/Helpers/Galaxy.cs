@@ -21,19 +21,16 @@ namespace Iam.Scripts.Helpers
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
+        public Faction PlayerFaction { get; }
 
         public Galaxy(int galaxySize)
         {
             _data = new FactionDataAccess();
             _factions = _data.GetData();
+            PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
             _fleets = new List<Fleet>();
-        }
-
-        public Faction GetPlayerFaction()
-        {
-            return _factions.First(f => f.IsPlayerFaction);
         }
 
         public IReadOnlyList<Faction> GetNonPlayerFactions()

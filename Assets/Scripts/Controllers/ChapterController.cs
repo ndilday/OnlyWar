@@ -226,7 +226,7 @@ namespace Iam.Scripts.Controllers
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            var soldierTemplate = GameSettings.PlayerFaction.SoldierTemplates[0];
+            var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
             GameSettings.PlayerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToDictionary(m => m.Id);
@@ -243,7 +243,7 @@ namespace Iam.Scripts.Controllers
             }
             GameSettings.Chapter = 
                 NewChapterBuilder.CreateChapter(GameSettings.PlayerSoldierMap.Values, 
-                                                GameSettings.PlayerFaction, 
+                                                GameSettings.Galaxy.PlayerFaction, 
                                                 new Date(GameSettings.Date.Millenium, 
                                                     (GameSettings.Date.Year), 1).ToString());
             PopulateSquadMap();
