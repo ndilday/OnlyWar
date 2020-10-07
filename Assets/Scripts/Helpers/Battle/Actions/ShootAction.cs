@@ -97,7 +97,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             int roll = RNG.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
             foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
-                int locationChance = location.Template.HitProbabilityMap[soldier.Stance];
+                int locationChance = location.Template.HitProbabilityMap[(int)soldier.Stance];
                 if (roll < locationChance)
                 {
                     return location;

@@ -15,15 +15,14 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         private readonly ConcurrentBag<WoundResolution> _resultList;
         private readonly ConcurrentQueue<string> _log;
         private readonly bool _didMove;
-        public MeleeAttackAction(BattleSoldier attacker, BattleSoldier target, MeleeWeapon weapon, bool didMove, ConcurrentBag<WoundResolution> resultList, ConcurrentQueue<string> log)
+        public MeleeAttackAction(BattleSoldier attacker, BattleSoldier target, 
+                                 MeleeWeapon weapon, bool didMove, 
+                                 ConcurrentBag<WoundResolution> resultList, 
+                                 ConcurrentQueue<string> log)
         {
             _attacker = attacker;
             _target = target;
             _weapon = weapon;
-            if(_weapon == null)
-            {
-                _weapon = new MeleeWeapon(TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[113]);
-            }
             _didMove = didMove;
             _resultList = resultList;
             _log = log;
@@ -89,7 +88,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             int roll = RNG.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
             foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
-                int locationChance = location.Template.HitProbabilityMap[soldier.Stance];
+                int locationChance = location.Template.HitProbabilityMap[(int)soldier.Stance];
                 if (roll < locationChance)
                 {
                     return location;

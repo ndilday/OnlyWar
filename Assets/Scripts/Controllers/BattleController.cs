@@ -42,7 +42,7 @@ namespace Iam.Scripts.Controllers
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
-        private FactionTemplate _opposingFaction;
+        private Faction _opposingFaction;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -69,14 +69,13 @@ namespace Iam.Scripts.Controllers
 
             foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
             {
-                if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
+                if (kvp.Key == GameSettings.PlayerFaction.Id)
                 {
                     PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
-                    // TODO: clean this up when we add more factions
-                    _opposingFaction = TempFactions.Instance.TyranidFaction;
+                    _opposingFaction = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key);
                     PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
@@ -253,7 +252,7 @@ namespace Iam.Scripts.Controllers
             if(_opposingBattleSquads == null || _opposingBattleSquads.Count == 0)
             {
                 // The marines finish off any xenos still moving
-                _planet.FactionGroundUnitListMap.Remove(TempFactions.Instance.TyranidFaction.Id);
+                _planet.FactionGroundUnitListMap.Remove(_opposingFaction.Id);
             }
             // we'll be nice to the Marines despite losing the battle... for now
             Debug.Log("Battle completed");
@@ -283,16 +282,29 @@ namespace Iam.Scripts.Controllers
             // use the thread pool to handle the BattleSquadPlanner classes;
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
+            MeleeWeapon defaultWeapon = new MeleeWeapon(
+                GameSettings.PlayerFaction.MeleeWeaponTemplates.Values
+                    .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
+                                                                    shootSegmentActions, moveSegmentActions, 
+                                                                    meleeSegmentActions, 
+                                                                    _woundResolver.WoundQueue, 
+                                                                    _moveResolver.MoveQueue, 
+                                                                    log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
             //Parallel.ForEach(_opposingSquads.Values, (squad) =>
             foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
+                                                                    shootSegmentActions, moveSegmentActions, 
+                                                                    meleeSegmentActions, 
+                                                                    _woundResolver.WoundQueue, 
+                                                                    _moveResolver.MoveQueue, 
+                                                                    log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
         }

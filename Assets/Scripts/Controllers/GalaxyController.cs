@@ -42,6 +42,8 @@ namespace Iam.Scripts.Controllers
         {
             _galaxy = new Galaxy(GameSettings.GalaxySize);
             _selectedShips = new List<Ship>();
+            GameSettings.PlayerFaction = _galaxy.GetPlayerFaction();
+            GameSettings.OpposingFactions = _galaxy.GetNonPlayerFactions();
             Generate();
         }
 
@@ -94,30 +96,29 @@ namespace Iam.Scripts.Controllers
                 {
                     planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
                     {
-                        [TempFactions.Instance.SpaceMarineFaction.Id] = new List<Unit>
+                        [GameSettings.PlayerFaction.Id] = new List<Unit>
                         {
                             GameSettings.Chapter.OrderOfBattle
-                        }/*,
-                        [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
-                        {
-                            TempTyranidArmyGenerator.GenerateTyranidArmy(RNG.GetIntBelowMax(1000,1004))
-                        }*/
+                        }
                     };
                     SetChapterSquadsLocation(planet);
                     Map.UpdatePlanetColor(planet.Id, 
-                        TempFactions.Instance.SpaceMarineFaction.Color);
+                        GameSettings.PlayerFaction.Color);
                     GameSettings.Chapter.Fleets[0].Planet = planet;
                     GameSettings.Chapter.Fleets[0].Position = planet.Position;
                     _galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
                     Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
                 }
-                else if(planet.ControllingFaction == TempFactions.Instance.TyranidFaction)
+                else if(planet.ControllingFaction != null)
                 {
                     planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
                     {
-                        [TempFactions.Instance.TyranidFaction.Id] = new List<Unit>
+                        [planet.ControllingFaction.Id] = new List<Unit>
                         {
-                            TempTyranidArmyGenerator.GenerateTyranidArmy(RNG.GetIntBelowMax(1000,1004))
+                            // TODO: generalize this
+                            TempTyranidArmyGenerator.GenerateTyranidArmy(
+                                RNG.GetIntBelowMax(1000,1004),
+                                planet.ControllingFaction)
                         }
                     };
                 }

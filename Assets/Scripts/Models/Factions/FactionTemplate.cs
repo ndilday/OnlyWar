@@ -9,11 +9,12 @@ using Iam.Scripts.Models.Fleets;
 
 namespace Iam.Scripts.Models.Factions
 {
-    public class FactionTemplate
+    public class Faction
     {
         public int Id { get; }
         public string Name { get; }
         public Color Color { get; }
+        public bool IsPlayerFaction { get; }
         public IReadOnlyDictionary<int, SoldierType> SoldierTypes { get; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
@@ -26,22 +27,23 @@ namespace Iam.Scripts.Models.Factions
         public IReadOnlyDictionary<int, BoatTemplate> BoatTemplates { get; }
         public IReadOnlyDictionary<int, FleetTemplate> FleetTemplates { get; }
         
-        public FactionTemplate(int id, string name, Color color,
-                       IReadOnlyDictionary<int, SoldierType> soldierTypes,
-                       IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
-                       IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
-                       IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
-                       IReadOnlyDictionary<int, WeaponSet> weaponSets,
-                       IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
-                       IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
-                       IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
-                       IReadOnlyDictionary<int, BoatTemplate> boatTemplates,
-                       IReadOnlyDictionary<int, ShipTemplate> shipTemplates,
-                       IReadOnlyDictionary<int, FleetTemplate> fleetTemplates)
+        public Faction(int id, string name, Color color, bool isPlayerFaction,
+                               IReadOnlyDictionary<int, SoldierType> soldierTypes,
+                               IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
+                               IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
+                               IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
+                               IReadOnlyDictionary<int, WeaponSet> weaponSets,
+                               IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
+                               IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
+                               IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
+                               IReadOnlyDictionary<int, BoatTemplate> boatTemplates,
+                               IReadOnlyDictionary<int, ShipTemplate> shipTemplates,
+                               IReadOnlyDictionary<int, FleetTemplate> fleetTemplates)
         {
             Id = id;
             Name = name;
             Color = color;
+            IsPlayerFaction = isPlayerFaction;
             SoldierTypes = soldierTypes;
             RangedWeaponTemplates = rangedWeaponTemplates;
             MeleeWeaponTemplates = meleeWeaponTemplates;

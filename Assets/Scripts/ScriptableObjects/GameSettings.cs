@@ -6,7 +6,7 @@ using UnityEngine;
 using Iam.Scripts.Models;
 using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
+using Iam.Scripts.Models.Factions;
 
 [Serializable]
 [CreateAssetMenu(fileName = "GameSettings", menuName = "ScriptableObjects/GameSettings", order = 1)]
@@ -23,7 +23,8 @@ public class GameSettings : ScriptableObject
     public Vector2 BattleMapScale;
 
     [Header("Chapter Definitions")]
-    public UnitTemplate ChapterTemplate = TempSpaceMarineUnitTemplates.Instance.UnitTemplates[0];
+    public Faction PlayerFaction;
+    public IReadOnlyList<Faction> OpposingFactions;
     public Chapter Chapter;
     [HideInInspector]
     public Dictionary<int, PlayerSoldier> PlayerSoldierMap;

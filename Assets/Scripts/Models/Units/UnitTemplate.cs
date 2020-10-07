@@ -6,21 +6,23 @@ namespace Iam.Scripts.Models.Units
 {
     public class UnitTemplate
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
+        public int Id { get; }
+        public string Name { get; }
+        public bool IsTopLevelUnit { get; }
 
         public SquadTemplate HQSquad { get; private set; }
 
         //private UnitTemplate _parentUnit;
-        private readonly IReadOnlyCollection<UnitTemplate> _childUnits;
+        private IReadOnlyCollection<UnitTemplate> _childUnits;
         private readonly IReadOnlyCollection<SquadTemplate> _childSquads;
 
-        public UnitTemplate(int id, string name, 
-                            List<UnitTemplate> childUnits,
-                            List<SquadTemplate> childSquads)
+        public UnitTemplate(int id, string name, bool isTopLevel,
+                            List<SquadTemplate> childSquads,
+                            List<UnitTemplate> childUnits)
         {
             Id = id;
             Name = name;
+            IsTopLevelUnit = isTopLevel;
             _childUnits = childUnits;
             SquadTemplate hq = childSquads.FirstOrDefault(squad => (squad.SquadType & SquadTypes.HQ) > 0);
             if (hq != null)
@@ -29,6 +31,22 @@ namespace Iam.Scripts.Models.Units
                 childSquads.Remove(hq);
             }
             _childSquads = childSquads;
+        }
+
+        public UnitTemplate(int id, string name, bool isTopLevel,
+                            SquadTemplate hqSquadTemplate,
+                            List<SquadTemplate> childSquads)
+        {
+            Id = id;
+            Name = name;
+            IsTopLevelUnit = isTopLevel;
+            _childSquads = childSquads;
+            HQSquad = hqSquadTemplate;
+        }
+
+        public void SetChildUnits(IReadOnlyCollection<UnitTemplate> childUnits)
+        {
+            _childUnits = childUnits;
         }
 
         public IReadOnlyCollection<UnitTemplate> GetChildUnits()

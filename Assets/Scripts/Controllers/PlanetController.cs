@@ -38,9 +38,9 @@ namespace Iam.Scripts.Controllers
             _selectedPlanet = planet;
             // assume player is Space Marine
             List<Unit> unitList = null;
-            if (planet.FactionGroundUnitListMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            if (planet.FactionGroundUnitListMap.ContainsKey(GameSettings.PlayerFaction.Id))
             {
-                unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
+                unitList = planet.FactionGroundUnitListMap?[GameSettings.PlayerFaction.Id];
             }
             PlanetView.gameObject.SetActive(true);
             CreateScoutingReport(planet);
@@ -192,7 +192,7 @@ namespace Iam.Scripts.Controllers
             // on the planet so it doesn't think there should be a battle
             if(!anySquadsLeft)
             {
-                _selectedPlanet.FactionGroundUnitListMap.Remove(TempFactions.Instance.SpaceMarineFaction.Id);
+                _selectedPlanet.FactionGroundUnitListMap.Remove(GameSettings.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -211,12 +211,12 @@ namespace Iam.Scripts.Controllers
             PlanetView.EnableRemoveFromShipButton(false);
 
             var factionUnitMap = _selectedShipSquad.Location.FactionGroundUnitListMap;
-            if (!factionUnitMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            if (!factionUnitMap.ContainsKey(GameSettings.PlayerFaction.Id))
             {
-                factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id] =
+                factionUnitMap[GameSettings.PlayerFaction.Id] =
                     new List<Unit>();
             }
-            var unitList = factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id];
+            var unitList = factionUnitMap[GameSettings.PlayerFaction.Id];
             if (!unitList.Contains(GameSettings.Chapter.OrderOfBattle))
             {
                 // this feels hacky, but I think it's the safest choice
@@ -237,18 +237,14 @@ namespace Iam.Scripts.Controllers
             {
                 foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
                 {
-                    string factionName = "Xenos";
-                    if (kvp.Key == TempFactions.Instance.TyranidFaction.Id)
-                    {
-                        factionName = "Tyranid";
-                    }
                     int factionSoldierCount = 0;
-                    if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
+                    if (kvp.Key == GameSettings.PlayerFaction.Id)
                     {
                         hasMarineForces = true;
                     }
                     else
                     {
+                        string factionName = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key).Name;
                         foreach (Unit unit in kvp.Value)
                         {
                             factionSoldierCount += unit.GetAllMembers().Count();

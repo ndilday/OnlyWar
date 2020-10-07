@@ -36,7 +36,7 @@ namespace Iam.Scripts.Models
         public PlanetType PlanetType;
         public List<Fleet> Fleets;
         public Dictionary<int, List<Unit>> FactionGroundUnitListMap;
-        public FactionTemplate ControllingFaction;
+        public Faction ControllingFaction;
         
         public Planet(int id, string name, Vector2 position, PlanetType type)
         {

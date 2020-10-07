@@ -25,7 +25,7 @@ namespace Iam.Scripts.Models.Soldiers
         public AttributeTemplate Perception { get; }
         public AttributeTemplate Intelligence { get; }
         public AttributeTemplate Ego { get; }
-        public AttributeTemplate Presence { get; }
+        public AttributeTemplate Charisma { get; }
         public AttributeTemplate Constitution { get; }
         public AttributeTemplate PsychicPower { get; }
         
@@ -36,8 +36,8 @@ namespace Iam.Scripts.Models.Soldiers
         public BodyTemplate BodyTemplate { get; }
 
         public SoldierTemplate(int id, string name, SoldierType type, AttributeTemplate strength,
-                               AttributeTemplate dex, AttributeTemplate per, AttributeTemplate intl,
-                               AttributeTemplate ego, AttributeTemplate pre, AttributeTemplate con,
+                               AttributeTemplate dex, AttributeTemplate con, AttributeTemplate intl,
+                               AttributeTemplate per, AttributeTemplate ego, AttributeTemplate pre,
                                AttributeTemplate psy, AttributeTemplate atk, AttributeTemplate mov,
                                AttributeTemplate siz, IReadOnlyCollection<SkillTemplate> skillTemplates,
                                BodyTemplate bodyTemplate)
@@ -50,7 +50,7 @@ namespace Iam.Scripts.Models.Soldiers
             Perception = per;
             Intelligence = intl;
             Ego = ego;
-            Presence = pre;
+            Charisma = pre;
             Constitution = con;
             PsychicPower = psy;
             AttackSpeed = atk;

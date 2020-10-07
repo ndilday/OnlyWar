@@ -45,14 +45,13 @@ namespace Iam.Scripts.Models.Fleets
         public int LoadedSoldierCount { get; private set; }
         public int AvailableCapacity { get => Template.SoldierCapacity - LoadedSoldierCount; }
 
-        public Ship(int id, string name, ShipTemplate template)
+        public Ship(int id, string name, ShipTemplate template, BoatTemplate boatTemplate)
         {
             Id = id;
             Name = name;
             _loadedSquads = new List<Squad>();
             LoadedSoldierCount = 0;
             Template = template;
-            BoatTemplate boatTemplate = TempSpaceMarineShipTemplates.Instance.BoatTemplates[4];
             Boats = new List<Boat>();
             for (byte i = 0; i < Template.BoatCapacity; i++)
             {

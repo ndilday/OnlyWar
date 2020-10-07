@@ -1,4 +1,7 @@
-﻿using Iam.Scripts.Models.Soldiers;
+﻿using System.Linq;
+
+using Iam.Scripts.Models.Factions;
+using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 
@@ -6,9 +9,10 @@ namespace Iam.Scripts.Helpers
 {
     public sealed class TempTyranidArmyGenerator
     {
-        public static Unit GenerateTyranidArmy(int armyId)
+        public static Unit GenerateTyranidArmy(int armyId, Faction faction)
         {
-            Unit root = TempTyranidUnitTemplates.Instance.UnitTemplates[armyId].GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
+            Unit root = faction.UnitTemplates.Values.Where(ut => ut.IsTopLevelUnit).ToList()[armyId]
+                            .GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
             if(root.HQSquad != null)
             {
                 root.HQSquad.IsInReserve = false;
@@ -16,7 +20,7 @@ namespace Iam.Scripts.Helpers
                 {
                     // this is cheat... the soldier type id and the template ids match
                     SoldierType type = element.SoldierType;
-                    SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
+                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach (Soldier soldier in soldiers)
@@ -34,7 +38,7 @@ namespace Iam.Scripts.Helpers
                 {
                     // this is cheat... the soldier type id and the template ids match
                     SoldierType type = element.SoldierType;
-                    SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
+                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach(Soldier soldier in soldiers)

@@ -221,7 +221,7 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public int Id;
         public string Name;
-        public int NaturalArmor;
+        public float NaturalArmor;
         public float WoundMultiplier;
         public uint CrippleWound;
         public uint SeverWound;
@@ -229,7 +229,7 @@ namespace Iam.Scripts.Models.Soldiers
         public bool IsRangedWeaponHolder;
         public bool IsMeleeWeaponHolder;
         public bool IsVital;
-        public Dictionary<Stance, int> HitProbabilityMap;
+        public int[] HitProbabilityMap;
     }
 
     public class HitLocation
@@ -311,7 +311,7 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public HitLocationTemplate[] HitLocations;
 
-        protected void Initialize(IEnumerable<HitLocationTemplate> hitLocations)
+        public BodyTemplate(IEnumerable<HitLocationTemplate> hitLocations)
         {
             HitLocations = hitLocations.ToArray();
         }
@@ -333,9 +333,7 @@ namespace Iam.Scripts.Models.Soldiers
             }
         }
 
-        private HumanBodyTemplate()
-        {
-            List<HitLocationTemplate> list = new List<HitLocationTemplate>
+        static readonly List<HitLocationTemplate> list = new List<HitLocationTemplate>
             {
                 new HitLocationTemplate
                 {
@@ -343,12 +341,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Brain",
                     NaturalArmor = 2,
                     WoundMultiplier = 4,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 30 },
-                        {Stance.Kneeling, 30 },
-                        { Stance.Prone, 30 }
-                    },
+                    HitProbabilityMap = new int[3] { 30, 30, 30 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint) WoundLevel.Massive,
                     IsMotive = false,
@@ -363,12 +356,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Eyes",
                     NaturalArmor = 0,
                     WoundMultiplier = 4,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 1 },
-                        {Stance.Kneeling, 1 },
-                        { Stance.Prone, 1 }
-                    },
+                    HitProbabilityMap = new int[3] { 1, 1, 1 },
                     CrippleWound = (uint)WoundLevel.Moderate,
                     SeverWound = (uint)WoundLevel.Major,
                     IsMotive = false,
@@ -383,12 +371,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Face",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 75 },
-                        {Stance.Kneeling, 75 },
-                        { Stance.Prone, 75 }
-                    },
+                    HitProbabilityMap = new int[3] { 75, 75, 75 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = false,
@@ -403,12 +386,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Torso",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 480 },
-                        {Stance.Kneeling, 480 },
-                        { Stance.Prone, 30 }
-                    },
+                    HitProbabilityMap = new int[3] { 480, 480, 30 },
                     CrippleWound = (uint)WoundLevel.Massive,
                     SeverWound = (uint)WoundLevel.Unsurvivable,
                     IsMotive = false,
@@ -423,12 +401,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Arm",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 96 },
-                        {Stance.Kneeling, 96 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 96, 96, 15 },
                     CrippleWound = 3 * (uint)WoundLevel.Major,
                     SeverWound = 3 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -443,12 +416,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Arm",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 96 },
-                        {Stance.Kneeling, 96 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 96, 96, 15 },
                     CrippleWound = 3 * (uint)WoundLevel.Major,
                     SeverWound = 3 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -463,12 +431,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Hand",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 20 },
-                        {Stance.Kneeling, 20 },
-                        { Stance.Prone, 20 }
-                    },
+                    HitProbabilityMap = new int[3] { 20, 20, 20 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -483,12 +446,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Hand",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 20 },
-                        {Stance.Kneeling, 20 },
-                        { Stance.Prone, 20 }
-                    },
+                    HitProbabilityMap = new int[3] { 20, 20, 20 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -503,12 +461,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Vitals",
                     NaturalArmor = 2,
                     WoundMultiplier = 1.5f,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 100 },
-                        {Stance.Kneeling, 100 },
-                        { Stance.Prone, 10 }
-                    },
+                    HitProbabilityMap = new int[3] { 100, 100, 10 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = false,
@@ -523,12 +476,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Leg",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 160 },
-                        {Stance.Kneeling, 80 },
-                        { Stance.Prone, 1 }
-                    },
+                   HitProbabilityMap = new int[3] { 160, 80, 1 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = true,
@@ -543,12 +491,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Leg",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 160 },
-                        {Stance.Kneeling, 80 },
-                        { Stance.Prone, 1 }
-                    },
+                    HitProbabilityMap = new int[3] { 160, 80, 1 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = true,
@@ -563,12 +506,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Foot",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 15 },
-                        {Stance.Kneeling, 7 },
-                        { Stance.Prone, 0 }
-                    },
+                    HitProbabilityMap = new int[3] { 15, 7, 0 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = true,
@@ -583,12 +521,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Foot",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 15 },
-                        {Stance.Kneeling, 7 },
-                        { Stance.Prone, 0 }
-                    },
+                    HitProbabilityMap = new int[3] { 15, 7, 0 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = true,
@@ -598,8 +531,7 @@ namespace Iam.Scripts.Models.Soldiers
                 }
             };
 
-            Initialize(list);
-        }
+        private HumanBodyTemplate() : base(list) { }
     }
 
     public class TyranidWarriorBodyTemplate : BodyTemplate
@@ -617,9 +549,8 @@ namespace Iam.Scripts.Models.Soldiers
                 return _instance;
             }
         }
-        private TyranidWarriorBodyTemplate()
-        {
-            List<HitLocationTemplate> list = new List<HitLocationTemplate>
+
+        static readonly List<HitLocationTemplate> list = new List<HitLocationTemplate>
             {
                 new HitLocationTemplate
                 {
@@ -627,12 +558,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Brain",
                     NaturalArmor = 2,
                     WoundMultiplier = 4,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 30 },
-                        {Stance.Kneeling, 30 },
-                        { Stance.Prone, 30 }
-                    },
+                    HitProbabilityMap = new int[3] { 30, 30, 30 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint) WoundLevel.Massive,
                     IsMotive = false,
@@ -647,12 +573,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Eyes",
                     NaturalArmor = 0,
                     WoundMultiplier = 4,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 1 },
-                        {Stance.Kneeling, 1 },
-                        { Stance.Prone, 1 }
-                    },
+                    HitProbabilityMap = new int[3] { 1, 1, 1 },
                     CrippleWound = (uint)WoundLevel.Moderate,
                     SeverWound = (uint)WoundLevel.Major,
                     IsMotive = false,
@@ -667,12 +588,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Face",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 75 },
-                        {Stance.Kneeling, 75 },
-                        { Stance.Prone, 75 }
-                    },
+                    HitProbabilityMap = new int[3] { 75, 75, 75 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = false,
@@ -687,12 +603,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Torso",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 480 },
-                        {Stance.Kneeling, 480 },
-                        { Stance.Prone, 30 }
-                    },
+                    HitProbabilityMap = new int[3] { 480, 480, 30 },
                     CrippleWound = (uint)WoundLevel.Massive,
                     SeverWound = (uint)WoundLevel.Unsurvivable,
                     IsMotive = false,
@@ -707,12 +618,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Arm",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 96 },
-                        {Stance.Kneeling, 96 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 96, 96, 15 },
                     CrippleWound = 3 * (uint)WoundLevel.Major,
                     SeverWound = 3 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -727,12 +633,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Talon",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 72 },
-                        {Stance.Kneeling, 72 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 72, 72, 15 },
                     CrippleWound = 2 * (uint)WoundLevel.Major,
                     SeverWound = 2 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -747,12 +648,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Arm",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 96 },
-                        {Stance.Kneeling, 96 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 96, 96, 15 },
                     CrippleWound = 3 * (uint)WoundLevel.Major,
                     SeverWound = 3 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -767,12 +663,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Talon",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 72 },
-                        {Stance.Kneeling, 72 },
-                        { Stance.Prone, 15 }
-                    },
+                    HitProbabilityMap = new int[3] { 72, 72, 15 },
                     CrippleWound = 2 * (uint)WoundLevel.Major,
                     SeverWound = 2 * (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -787,12 +678,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Hand",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 20 },
-                        {Stance.Kneeling, 20 },
-                        { Stance.Prone, 20 }
-                    },
+                    HitProbabilityMap = new int[3] { 20, 20, 20 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -807,12 +693,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Hand",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 20 },
-                        {Stance.Kneeling, 20 },
-                        { Stance.Prone, 20 }
-                    },
+                    HitProbabilityMap = new int[3] { 20, 20, 20 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = false,
@@ -827,12 +708,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Vitals",
                     NaturalArmor = 2,
                     WoundMultiplier = 1.5f,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 100 },
-                        {Stance.Kneeling, 100 },
-                        { Stance.Prone, 10 }
-                    },
+                    HitProbabilityMap = new int[3] { 100, 100, 10 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = false,
@@ -847,12 +723,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Leg",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 160 },
-                        {Stance.Kneeling, 80 },
-                        { Stance.Prone, 1 }
-                    },
+                    HitProbabilityMap = new int[3] { 160, 80, 1 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = true,
@@ -867,12 +738,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Leg",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 160 },
-                        {Stance.Kneeling, 80 },
-                        { Stance.Prone, 1 }
-                    },
+                    HitProbabilityMap = new int[3] { 160, 80, 1 },
                     CrippleWound = (uint)WoundLevel.Critical,
                     SeverWound = (uint)WoundLevel.Massive,
                     IsMotive = true,
@@ -887,12 +753,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Left Foot",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 15 },
-                        {Stance.Kneeling, 7 },
-                        { Stance.Prone, 0 }
-                    },
+                    HitProbabilityMap = new int[3] { 15, 7, 0 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = true,
@@ -907,12 +768,7 @@ namespace Iam.Scripts.Models.Soldiers
                     Name = "Right Foot",
                     NaturalArmor = 0,
                     WoundMultiplier = 1,
-                    HitProbabilityMap = new Dictionary<Stance, int>()
-                    {
-                        { Stance.Standing, 15 },
-                        {Stance.Kneeling, 7 },
-                        { Stance.Prone, 0 }
-                    },
+                    HitProbabilityMap = new int[3] { 15, 7, 0 },
                     CrippleWound = (uint)WoundLevel.Major,
                     SeverWound = (uint)WoundLevel.Critical,
                     IsMotive = true,
@@ -922,8 +778,7 @@ namespace Iam.Scripts.Models.Soldiers
                 }
             };
 
-            Initialize(list);
-        }
+        private TyranidWarriorBodyTemplate() : base(list) { }
     }
 
     public class Body
@@ -936,9 +791,9 @@ namespace Iam.Scripts.Models.Soldiers
             HitLocations = template.HitLocations.Select(hlt => new HitLocation(hlt)).ToArray();
             TotalProbabilityMap = new Dictionary<Stance, int>
             {
-                [Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Standing]),
-                [Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Kneeling]),
-                [Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[Stance.Prone])
+                [Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Standing]),
+                [Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Kneeling]),
+                [Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Prone])
             };
         }
     }

@@ -9,7 +9,6 @@ using Iam.Scripts.Models.Soldiers;
 using Iam.Scripts.Models.Squads;
 using Iam.Scripts.Models.Units;
 using Iam.Scripts.Views;
-using Iam.Scripts.Models.Factions;
 
 namespace Iam.Scripts.Controllers
 {
@@ -227,7 +226,8 @@ namespace Iam.Scripts.Controllers
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            GameSettings.PlayerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, TempSpaceMarineSoldierTemplate.Instance.SoldierTemplates[0])
+            var soldierTemplate = GameSettings.PlayerFaction.SoldierTemplates[0];
+            GameSettings.PlayerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToDictionary(m => m.Id);
             foreach (PlayerSoldier soldier in GameSettings.PlayerSoldierMap.Values)
@@ -243,7 +243,7 @@ namespace Iam.Scripts.Controllers
             }
             GameSettings.Chapter = 
                 NewChapterBuilder.CreateChapter(GameSettings.PlayerSoldierMap.Values, 
-                                                TempFactions.Instance.SpaceMarineFaction, 
+                                                GameSettings.PlayerFaction, 
                                                 new Date(GameSettings.Date.Millenium, 
                                                     (GameSettings.Date.Year), 1).ToString());
             PopulateSquadMap();

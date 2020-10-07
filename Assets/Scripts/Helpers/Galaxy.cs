@@ -3,6 +3,7 @@ using System.Linq;
 
 using UnityEngine;
 
+using Iam.Scripts.Helpers.Database;
 using Iam.Scripts.Models.Factions;
 using Iam.Scripts.Models.Fleets;
 using Iam.Scripts.Models;
@@ -12,17 +13,32 @@ namespace Iam.Scripts.Helpers
 {
     public class Galaxy
     {
+        private readonly FactionDataAccess _data;
         private readonly List<Fleet> _fleets;
         private readonly List<Planet> _planets;
+        private readonly List<Faction> _factions;
         private readonly int _galaxySize;
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
+        public IReadOnlyList<Faction> Factions { get => _factions; }
 
         public Galaxy(int galaxySize)
         {
+            _data = new FactionDataAccess();
+            _factions = _data.GetData();
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
             _fleets = new List<Fleet>();
+        }
+
+        public Faction GetPlayerFaction()
+        {
+            return _factions.First(f => f.IsPlayerFaction);
+        }
+
+        public IReadOnlyList<Faction> GetNonPlayerFactions()
+        {
+            return _factions.Where(f => !f.IsPlayerFaction).ToList();
         }
 
         public Planet GetPlanet(int planetId)
@@ -67,7 +83,7 @@ namespace Iam.Scripts.Helpers
                         
                         if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
-                            p.ControllingFaction = TempFactions.Instance.TyranidFaction;
+                            p.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
                         }
 
                         _planets.Add(p);
@@ -125,7 +141,7 @@ namespace Iam.Scripts.Helpers
             return newFleet;
         }
 
-        public void TakeControlOfPlanet(Planet planet, FactionTemplate faction)
+        public void TakeControlOfPlanet(Planet planet, Faction faction)
         {
             planet.ControllingFaction = faction;
         }

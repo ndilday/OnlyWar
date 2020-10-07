@@ -21,6 +21,7 @@ namespace Iam.Scripts.Helpers.Battle
         private readonly Dictionary<int, BattleSquad> _opposingSoldierIdSquadMap;
         private readonly ConcurrentBag<WoundResolution> _woundResolutionBag;
         private readonly ConcurrentBag<MoveResolution> _moveResolutionBag;
+        private readonly MeleeWeapon _defaultMeleeWeapon;
         private readonly ConcurrentQueue<string> _log;
 
         public BattleSquadPlanner(BattleGrid grid, 
@@ -30,7 +31,8 @@ namespace Iam.Scripts.Helpers.Battle
                                   ConcurrentBag<IAction> meleeActionBag,
                                   ConcurrentBag<WoundResolution> woundBag, 
                                   ConcurrentBag<MoveResolution> moveBag, 
-                                  ConcurrentQueue<string> log)
+                                  ConcurrentQueue<string> log,
+                                  MeleeWeapon defaultMeleeWeapon)
         {
             _grid = grid;
             _opposingSoldierIdSquadMap = opposingSoldierIdSquadMap;
@@ -39,6 +41,7 @@ namespace Iam.Scripts.Helpers.Battle
             _meleeActionBag = meleeActionBag;
             _moveResolutionBag = moveBag;
             _woundResolutionBag = woundBag;
+            _defaultMeleeWeapon = defaultMeleeWeapon;
             _log = log;
         }
 
@@ -305,7 +308,8 @@ namespace Iam.Scripts.Helpers.Battle
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
-                MeleeWeapon weapon = soldier.EquippedMeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0];
+                MeleeWeapon weapon = soldier.EquippedMeleeWeapons.Count == 0 ? 
+                    _defaultMeleeWeapon : soldier.EquippedMeleeWeapons[0];
                 _meleeActionBag.Add(new MeleeAttackAction(soldier, enemy, weapon, false, _woundResolutionBag, _log));
             }
         }
