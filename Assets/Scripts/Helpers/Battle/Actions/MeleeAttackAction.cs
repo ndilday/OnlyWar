@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Scripts.Helpers.Battle.Actions
 {
     public class MeleeAttackAction : IAction
     {

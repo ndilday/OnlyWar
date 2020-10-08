@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-using Iam.Scripts.Models.Factions;
-using System.Linq;
+using OnlyWar.Scripts.Models;
 
-namespace Iam.Scripts.Models.Fleets
+namespace OnlyWar.Scripts.Models.Fleets
 {
     public class Fleet
     {
@@ -15,6 +15,17 @@ namespace Iam.Scripts.Models.Fleets
         public Planet Destination { get; set; }
         public Planet Planet { get; set; }
         public List<Ship> Ships { get; }
+
+        public Fleet(int id, Faction faction, Vector2 position, 
+                     Planet location, Planet destination, List<Ship> ships)
+        {
+            Id = id;
+            Faction = faction;
+            Position = position;
+            Planet = location;
+            Destination = destination;
+            Ships = ships;
+        }
 
         public Fleet(Faction faction, int templateId) : this(faction)
         {

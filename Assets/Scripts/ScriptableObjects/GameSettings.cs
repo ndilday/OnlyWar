@@ -3,11 +3,8 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Helpers;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Helpers;
 
 [Serializable]
 [CreateAssetMenu(fileName = "GameSettings", menuName = "ScriptableObjects/GameSettings", order = 1)]
@@ -30,10 +27,6 @@ public class GameSettings : ScriptableObject
     public IReadOnlyList<Faction> OpposingFactions;
     [HideInInspector]
     public Chapter Chapter;
-    [HideInInspector]
-    public Dictionary<int, PlayerSoldier> PlayerSoldierMap;
-    [HideInInspector]
-    public Dictionary<int, Squad> SquadMap;
     [HideInInspector]
     public int ChapterPlanetId;
 

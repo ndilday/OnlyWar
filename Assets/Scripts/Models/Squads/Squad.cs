@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Models.Squads
+namespace OnlyWar.Scripts.Models.Squads
 {
     public class Squad
     {
         private readonly List<ISoldier> _members;
         public int Id { get; private set; }
         public string Name { get; set; }
-        public Unit ParentUnit { get; }
+        public Unit ParentUnit { get; set; }
         public SquadTemplate SquadTemplate { get; private set; }
         public bool IsInReserve { get; set; }
         public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Type.IsSquadLeader); }

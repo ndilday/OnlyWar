@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Models.Units
+namespace OnlyWar.Scripts.Models.Units
 {
     public class Unit
     {
@@ -19,6 +19,15 @@ namespace Iam.Scripts.Models.Units
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
+
+        public Unit(int id, string name, UnitTemplate template, Squad hq, List<Squad> squads)
+        {
+            Id = id;
+            Name = name;
+            UnitTemplate = template;
+            HQSquad = hq;
+            _squads = squads;
+        }
         public Unit(int id, string name, UnitTemplate template)
         {
             Id = id;

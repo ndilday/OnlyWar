@@ -7,9 +7,9 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Views
+namespace OnlyWar.Scripts.Views
 {
     public class SquadMemberView : MonoBehaviour
     {

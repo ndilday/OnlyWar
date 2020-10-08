@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
 
-namespace Iam.Scripts.Views
+namespace OnlyWar.Scripts.Views
 {
     public class GalaxyMapView : MonoBehaviour
     {

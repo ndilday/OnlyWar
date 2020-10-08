@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Iam.Scripts.Models
+namespace OnlyWar.Scripts.Models
 {
     public static class TempPlanetList
     {

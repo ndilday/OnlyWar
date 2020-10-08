@@ -6,15 +6,15 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-using Iam.Scripts.Helpers;
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
 
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
     public class GalaxyMapController : MonoBehaviour
@@ -74,49 +74,6 @@ namespace Iam.Scripts.Controllers
             {
                 HandleMouseLeftClick();
             }
-        }
-
-        public void ChapterController_OnChapterCreated()
-        {
-            // For now, put the chapter on their home planet
-            foreach(Planet planet in GameSettings.Galaxy.Planets)
-            {
-                if(planet.Id == GameSettings.ChapterPlanetId)
-                {
-                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
-                    {
-                        [GameSettings.Galaxy.PlayerFaction.Id] = new List<Unit>
-                        {
-                            GameSettings.Chapter.OrderOfBattle
-                        }
-                    };
-                    SetChapterSquadsLocation(planet);
-                    Map.UpdatePlanetColor(planet.Id, 
-                        GameSettings.Galaxy.PlayerFaction.Color);
-                    GameSettings.Chapter.Fleets[0].Planet = planet;
-                    GameSettings.Chapter.Fleets[0].Position = planet.Position;
-                    GameSettings.Galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
-                    Map.CreateFleet(GameSettings.Chapter.Fleets[0].Id, planet.Position, false);
-                }
-                else if(planet.ControllingFaction != null)
-                {
-                    int potentialArmies = planet.ControllingFaction.UnitTemplates
-                                                .Values
-                                                .Where(ut => ut.IsTopLevelUnit)
-                                                .Count();
-                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
-                    {
-                        [planet.ControllingFaction.Id] = new List<Unit>
-                        {
-                            // TODO: generalize this
-                            TempTyranidArmyGenerator.GenerateTyranidArmy(
-                                RNG.GetIntBelowMax(0,potentialArmies),
-                                planet.ControllingFaction)
-                        }
-                    };
-                }
-            }
-            
         }
 
         public void UIController_OnTurnEnd()
@@ -187,29 +144,6 @@ namespace Iam.Scripts.Controllers
             {
                 _selectedShips.Remove(ship);
                 FleetView.UpdateUnitBadge(shipId, Badge.NORMAL);
-            }
-        }
-
-        private void SetChapterSquadsLocation(Planet planet)
-        {
-            if(GameSettings.Chapter.OrderOfBattle.HQSquad != null)
-            {
-                GameSettings.Chapter.OrderOfBattle.HQSquad.Location = planet;
-            }
-            foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
-            {
-                squad.Location = planet;
-            }
-            foreach(Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
-            {
-                if(unit.HQSquad != null)
-                {
-                    unit.HQSquad.Location = planet;
-                }
-                foreach(Squad squad in unit.Squads)
-                {
-                    squad.Location = planet;
-                }
             }
         }
 

@@ -1,7 +1,7 @@
-﻿using Iam.Scripts.Models.Soldiers;
+﻿using OnlyWar.Scripts.Models.Soldiers;
 using System; 
 
-namespace Iam.Scripts.Models.Equippables
+namespace OnlyWar.Scripts.Models.Equippables
 {
     public enum EquipLocation
     {

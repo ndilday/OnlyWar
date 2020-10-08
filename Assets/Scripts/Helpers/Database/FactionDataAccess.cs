@@ -5,14 +5,14 @@ using System.Data;
 using System.Linq;
 using UnityEngine;
 
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database
 {
     public class FactionDataAccess
     {
@@ -47,6 +47,7 @@ namespace Iam.Scripts.Helpers.Database
             var factions = GetFactionTemplates(dbCon, soldierTypes.Item1, rangedWeapons, meleeWeapons, armorTemplates,
                                                weaponSets.Item1, soldierTemplates, squadTemplates.Item1, unitTemplates,
                                                boatTemplates, shipTemplates, fleetTemplates);
+            dbCon.Close();
             return factions;
         }
 

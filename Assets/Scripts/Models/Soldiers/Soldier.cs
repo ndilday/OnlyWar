@@ -3,7 +3,7 @@ using System.Linq;
 
 using UnityEngine;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public class Soldier : ISoldier
     {
@@ -13,6 +13,12 @@ namespace Iam.Scripts.Models.Soldiers
         {
             _skills = new Dictionary<int, Skill>();
             Body = new Body(body);
+        }
+
+        public Soldier(List<HitLocation> hitLocations, List<Skill> skills)
+        {
+            _skills = skills.ToDictionary(skill => skill.BaseSkill.Id);
+            Body = new Body(hitLocations);
         }
 
         public int FunctioningHands

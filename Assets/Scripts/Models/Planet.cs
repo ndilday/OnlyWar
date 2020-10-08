@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Models
+namespace OnlyWar.Scripts.Models
 {
     public enum PlanetType
     {

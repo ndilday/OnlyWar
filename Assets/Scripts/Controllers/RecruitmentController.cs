@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Helpers;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class RecruitmentController : MonoBehaviour
     {
@@ -40,7 +40,7 @@ I await any further instructions you have on our recruiting and training efforts
             _trainingHelper = new SoldierTrainingHelper();
         }
 
-        public void GalaxyController_OnChapterCreated()
+        private void Start()
         {
             PopulateScoutSquadMap();
             EvaluateScouts();
@@ -134,7 +134,7 @@ I await any further instructions you have on our recruiting and training efforts
             Unit parentUnit = deletedSquad.ParentUnit;
             parentUnit.RemoveSquad(deletedSquad);
             _scoutSquads.Remove(squadId);
-            GameSettings.SquadMap.Remove(squadId);
+            GameSettings.Chapter.SquadMap.Remove(squadId);
             PopulateScoutSquadMap();
         }
 

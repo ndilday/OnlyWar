@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Helpers.Battle
+namespace OnlyWar.Scripts.Helpers.Battle
 {
     public class BattleSquad
     {

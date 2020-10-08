@@ -3,13 +3,13 @@ using System.Linq;
 
 using UnityEngine;
 
-using Iam.Scripts.Helpers.Database;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models;
+using OnlyWar.Scripts.Helpers.Database;
+using OnlyWar.Scripts.Models.Factions;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models;
 using System;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public class Galaxy
     {

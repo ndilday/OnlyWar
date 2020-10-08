@@ -1,4 +1,4 @@
-﻿namespace Iam.Scripts.Models.Fleets
+﻿namespace OnlyWar.Scripts.Models.Fleets
 {
     public class BoatTemplate
     {

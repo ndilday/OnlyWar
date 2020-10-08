@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Fleets;
 
-namespace Iam.Scripts.Models.Factions
+namespace OnlyWar.Scripts.Models
 {
     public class Faction
     {

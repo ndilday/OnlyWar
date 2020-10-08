@@ -4,14 +4,14 @@ using System.Linq;
 
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     class PlanetController : ChapterUnitTreeController
     {
@@ -108,7 +108,7 @@ namespace Iam.Scripts.Controllers
         public void UnitView_OnSquadSelected(int squadId)
         {
             // populate the SquadArmamentView
-            _selectedSquad = GameSettings.SquadMap[squadId];
+            _selectedSquad = GameSettings.Chapter.SquadMap[squadId];
             _selectedUnit = null;
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
@@ -146,7 +146,7 @@ namespace Iam.Scripts.Controllers
         public void FleetView_OnSquadSelected(int squadId)
         {
             _selectedShip = null;
-            _selectedShipSquad = GameSettings.SquadMap[squadId];
+            _selectedShipSquad = GameSettings.Chapter.SquadMap[squadId];
             PlanetView.EnableLoadInShipButton(false);
             PlanetView.EnableRemoveFromShipButton(true);
         }
@@ -387,7 +387,7 @@ namespace Iam.Scripts.Controllers
 
         private Tuple<Color, int> DetermineSquadDisplayValues(Squad squad)
         {
-            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+            var deployables = squad.Members.Select(s => GameSettings.Chapter.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
             var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
             bool isFull = true;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public enum Stance
     {
@@ -78,6 +78,12 @@ namespace Iam.Scripts.Models.Soldiers
             {
                 return (byte)((WoundTotal / 0x10000000) % 0xf);
             }
+        }
+
+        public Wounds(uint woundTotal, uint weeksOfHealing)
+        {
+            WoundTotal = woundTotal;
+            WeeksOfHealing = weeksOfHealing;
         }
 
         public void AddWound(WoundLevel wound)
@@ -256,7 +262,14 @@ namespace Iam.Scripts.Models.Soldiers
         public HitLocationTemplate Template { get; private set; }
         public HitLocation(HitLocationTemplate template)
         {
-            Wounds = new Wounds();
+            Wounds = new Wounds(0, 0);
+            IsCybernetic = false;
+            Template = template;
+        }
+
+        public HitLocation(HitLocationTemplate template, uint woundTotal, uint weeksOfHealing)
+        {
+            Wounds = new Wounds(woundTotal, weeksOfHealing);
             IsCybernetic = false;
             Template = template;
         }
@@ -785,6 +798,17 @@ namespace Iam.Scripts.Models.Soldiers
     {
         public HitLocation[] HitLocations { get; private set; }
         public Dictionary<Stance, int> TotalProbabilityMap { get; private set; }
+
+        public Body(List<HitLocation> hitLocations)
+        {
+            HitLocations = hitLocations.ToArray();
+            TotalProbabilityMap = new Dictionary<Stance, int>
+            {
+                [Stance.Standing] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Standing]),
+                [Stance.Kneeling] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Kneeling]),
+                [Stance.Prone] = HitLocations.Sum(hl => hl.Template.HitProbabilityMap[(int)Stance.Prone])
+            };
+        }
 
         public Body(BodyTemplate template)
         {

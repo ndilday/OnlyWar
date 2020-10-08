@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     [Flags]
     public enum TrainingFocuses

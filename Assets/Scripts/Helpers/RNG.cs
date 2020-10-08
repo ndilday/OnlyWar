@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public static class RNG
     {

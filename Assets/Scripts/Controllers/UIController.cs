@@ -2,9 +2,9 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-using Iam.Scripts.Models;
+using OnlyWar.Scripts.Models;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class UIController : MonoBehaviour
     {

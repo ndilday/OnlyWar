@@ -4,7 +4,7 @@ using System.Linq;
 
 using UnityEngine;
 
-namespace Iam.Scripts.Helpers.Battle
+namespace OnlyWar.Scripts.Helpers.Battle
 {
     class BattleSquadPlacer
     {

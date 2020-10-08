@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using Iam.Scripts.Helpers;
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class ChapterController : ChapterUnitTreeController
     {
-        public UnityEvent OnChapterCreated;
-
         [SerializeField]
         private UnitTreeView UnitTreeView;
         [SerializeField]
@@ -28,24 +25,19 @@ namespace Iam.Scripts.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            GameSettings.SquadMap = new Dictionary<int, Squad>();
-            _trainingHelper = new SoldierTrainingHelper();
-            GameSettings.PlayerSoldierMap = new Dictionary<int, PlayerSoldier>();
-            CreateChapter();
-            OnChapterCreated.Invoke();
+            _trainingHelper = new SoldierTrainingHelper();            
         }
 
         public void ChapterButton_OnClick()
         {
-            GameSettings.PlayerSoldierMap.Values.First().Body.HitLocations[0].Wounds.AddWound(WoundLevel.Unsurvivable);
             UnitTreeView.gameObject.SetActive(true);
             SquadMemberView.gameObject.SetActive(true);
             if (!UnitTreeView.Initialized)
             {
                 BuildUnitTree(UnitTreeView, 
                               GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.PlayerSoldierMap,
-                              GameSettings.SquadMap);
+                              GameSettings.Chapter.PlayerSoldierMap,
+                              GameSettings.Chapter.SquadMap);
                 UnitTreeView.Initialized = true;
             }
         }
@@ -53,13 +45,13 @@ namespace Iam.Scripts.Controllers
         public void UnitTreeView_OnUnitSelected(int squadId)
         {
             // populate view with members of selected squad
-            if (!GameSettings.SquadMap.ContainsKey(squadId))
+            if (!GameSettings.Chapter.SquadMap.ContainsKey(squadId))
             {
                 UnitSelected(squadId);
             }
             else
             {
-                Squad selectedSquad = GameSettings.SquadMap[squadId];
+                Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
                 List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
                     .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
                     .ToList();
@@ -71,7 +63,7 @@ namespace Iam.Scripts.Controllers
         public void SquadMemberView_OnSoldierSelected(int soldierId)
         {
             string newText = "";
-            _selectedSoldier = GameSettings.PlayerSoldierMap[soldierId];
+            _selectedSoldier = GameSettings.Chapter. PlayerSoldierMap[soldierId];
             foreach(string historyLine in _selectedSoldier.SoldierHistory)
             {
                 newText += historyLine + "\n";
@@ -99,7 +91,7 @@ namespace Iam.Scripts.Controllers
                 // if soldier is squad leader and its not an HQ Squad, change name
                 currentSquad.Name = currentSquad.SquadTemplate.Name;
             }
-            Squad newSquad = GameSettings.SquadMap[newPosition.Item1];
+            Squad newSquad = GameSettings.Chapter.SquadMap[newPosition.Item1];
             _selectedSoldier.AssignToSquad(newSquad);
             if(_selectedSoldier.Type != newPosition.Item2)
             {
@@ -122,8 +114,8 @@ namespace Iam.Scripts.Controllers
             // refresh the unit layout
             BuildUnitTree(UnitTreeView,
                               GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.PlayerSoldierMap,
-                              GameSettings.SquadMap);
+                              GameSettings.Chapter.PlayerSoldierMap,
+                              GameSettings.Chapter.SquadMap);
             UnitTreeView.UnitButton_OnClick(currentSquad.Id);
         }
 
@@ -138,7 +130,7 @@ namespace Iam.Scripts.Controllers
             // handle work experience
             // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
             // works out to 21 hours of training equivalent, call it 20, so 0.1 points
-            foreach (PlayerSoldier soldier in GameSettings.PlayerSoldierMap.Values)
+            foreach (PlayerSoldier soldier in GameSettings.Chapter.PlayerSoldierMap.Values)
             {
                 _trainingHelper.ApplySoldierWorkExperience(soldier, 0.1f);
             }
@@ -214,61 +206,12 @@ namespace Iam.Scripts.Controllers
             {
                 // get the members of the squad that match this element
                 var matches = soldiers?.Where(s => element.SoldierType == s.Type);
-                var healthyMatches = matches?.Where(s => GameSettings.PlayerSoldierMap[s.Id].IsDeployable);
+                var healthyMatches = matches?.Where(s => GameSettings.Chapter.PlayerSoldierMap[s.Id].IsDeployable);
                 int count = matches == null ? 0 : matches.Count();
                 int healthyCount = healthyMatches == null ? 0 : healthyMatches.Count();
                 entryList.Add(new Tuple<SquadTemplateElement, int, int>(element, count, healthyCount));
             }
             return entryList;
-        }
-
-        private void CreateChapter()
-        {
-            Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
-            Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
-            GameSettings.PlayerSoldierMap = SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
-                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
-                .ToDictionary(m => m.Id);
-            foreach (PlayerSoldier soldier in GameSettings.PlayerSoldierMap.Values)
-            {
-                soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
-                if (soldier.PsychicPower > 0)
-                {
-                    soldier.AddEntryToHistory(trainingStartDate + ": psychic ability detected, acolyte training initiated");
-                    // add psychic specific training here
-                }
-                _trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
-                //soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
-            }
-            GameSettings.Chapter = 
-                NewChapterBuilder.CreateChapter(GameSettings.PlayerSoldierMap.Values, 
-                                                GameSettings.Galaxy.PlayerFaction, 
-                                                new Date(GameSettings.Date.Millenium, 
-                                                    (GameSettings.Date.Year), 1).ToString());
-            PopulateSquadMap();
-            GameSettings.ChapterPlanetId = 11;
-        }
-
-        private void PopulateSquadMap()
-        {
-            Unit oob = GameSettings.Chapter.OrderOfBattle;
-            GameSettings.SquadMap[oob.HQSquad.Id] = oob.HQSquad;
-            foreach(Squad squad in oob.Squads)
-            {
-                GameSettings.SquadMap[squad.Id] = squad;
-            }
-            foreach(Unit company in oob.ChildUnits)
-            {
-                if(company.HQSquad != null)
-                {
-                    GameSettings.SquadMap[company.HQSquad.Id] = company.HQSquad;
-                }
-                foreach(Squad squad in company.Squads)
-                {
-                    GameSettings.SquadMap[squad.Id] = squad;
-                }
-            }
         }
 
         private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit, Squad currentSquad, SoldierType soldierType)
@@ -346,7 +289,7 @@ namespace Iam.Scripts.Controllers
 
         protected Color DetermineDisplayColor(ISoldier soldier)
         {
-            PlayerSoldier playerSoldier = GameSettings.PlayerSoldierMap[soldier.Id];
+            PlayerSoldier playerSoldier = GameSettings.Chapter.PlayerSoldierMap[soldier.Id];
             if (!playerSoldier.IsDeployable)
             {
                 return Color.red;

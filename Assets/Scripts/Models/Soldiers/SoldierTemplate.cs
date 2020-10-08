@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public class AttributeTemplate
     {

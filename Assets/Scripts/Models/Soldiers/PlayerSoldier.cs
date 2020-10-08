@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public class SkillRanking
     {
@@ -107,6 +107,27 @@ namespace Iam.Scripts.Models.Soldiers
             _soldierHistory = new List<string>();
             _weaponCasualtyCountMap = new Dictionary<int, ushort>();
             _factionCasualtyCountMap = new Dictionary<int, ushort>();
+        }
+
+        public PlayerSoldier(Soldier soldier, float melee, float ranged,
+                             float leadership, float medical, float tech,
+                             float piety, float ancient, Date implantDate,
+                             List<string> history,
+                             Dictionary<int, ushort> weaponCasualties,
+                             Dictionary<int, ushort> factionCasualties)
+        {
+            _soldier = soldier;
+            _soldierHistory = history;
+            MeleeRating = melee;
+            RangedRating = ranged;
+            LeadershipRating = leadership;
+            MedicalRating = medical;
+            TechRating = tech;
+            PietyRating = piety;
+            AncientRating = ancient;
+            ProgenoidImplantDate = implantDate;
+            _weaponCasualtyCountMap = weaponCasualties;
+            _factionCasualtyCountMap = factionCasualties;
         }
 
         public void AssignToSquad(Squad squad)

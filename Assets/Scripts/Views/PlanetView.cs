@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Iam.Scripts.Views
+namespace OnlyWar.Scripts.Views
 {
     class PlanetView : MonoBehaviour
     {

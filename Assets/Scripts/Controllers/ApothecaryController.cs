@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class ApothecaryController : ChapterUnitTreeController
     {
@@ -39,14 +39,14 @@ It will require approximately {4} weeks before all marines in the squad (other t
         public void UnitTreeView_OnUnitSelected(int squadId)
         {
             // populate view with members of selected squad
-            if (!GameSettings.SquadMap.ContainsKey(squadId))
+            if (!GameSettings.Chapter.SquadMap.ContainsKey(squadId))
             {
                 Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == squadId);
                 SquadSelected(selectedUnit.HQSquad);
             }
             else
             {
-                SquadSelected(GameSettings.SquadMap[squadId]);
+                SquadSelected(GameSettings.Chapter.SquadMap[squadId]);
             }
         }
 
@@ -79,8 +79,8 @@ It will require approximately {4} weeks before all marines in the squad (other t
             {
                 BuildUnitTree(UnitTreeView,
                               GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.PlayerSoldierMap,
-                              GameSettings.SquadMap);
+                              GameSettings.Chapter.PlayerSoldierMap,
+                              GameSettings.Chapter.SquadMap);
                 UnitTreeView.Initialized = true;
             }
         }
@@ -93,7 +93,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             Date nineYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 9, GameSettings.Date.Week);
             Date tenYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 10, GameSettings.Date.Week);
             ushort inAYear = 0;
-            foreach(PlayerSoldier marine in GameSettings.Chapter.ChapterPlayerSoldierMap.Values)
+            foreach(PlayerSoldier marine in GameSettings.Chapter.PlayerSoldierMap.Values)
             {
                 Date implantDate = marine.ProgenoidImplantDate;
                 if(implantDate.IsBetweenInclusive(fiveYearsAgo, fourYearsAgo)

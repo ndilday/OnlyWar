@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Iam.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Scripts.Helpers.Battle.Actions
 {
     public interface IAction
     {

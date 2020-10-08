@@ -6,18 +6,17 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-using Iam.Scripts.Helpers.Battle;
-using Iam.Scripts.Helpers.Battle.Actions;
-using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers.Battle;
+using OnlyWar.Scripts.Helpers.Battle.Actions;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class BattleController : MonoBehaviour
     {
@@ -157,7 +156,7 @@ namespace Iam.Scripts.Controllers
             {
                 // add death note to soldier history, though we currently just delete it 
                 // we'll probably want it later
-                GameSettings.Chapter.ChapterPlayerSoldierMap[casualty.Soldier.Id]
+                GameSettings.Chapter.PlayerSoldierMap[casualty.Soldier.Id]
                     .AddEntryToHistory($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
             }
             else
@@ -563,7 +562,7 @@ namespace Iam.Scripts.Controllers
                         historyEntry += $"Was greviously wounded.";
                     }
                 }
-                GameSettings.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
+                GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
             }
 
         }
@@ -629,9 +628,9 @@ namespace Iam.Scripts.Controllers
                         // if a vital part is severed, they're dead
                         dead.Add(soldier.Soldier);
                         PlayerSoldier playerSoldier = 
-                            GameSettings.Chapter.ChapterPlayerSoldierMap[soldier.Soldier.Id];
+                            GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
                         playerSoldier.RemoveFromSquad();
-                        GameSettings.Chapter.ChapterPlayerSoldierMap.Remove(soldier.Soldier.Id);
+                        GameSettings.Chapter.PlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }
                 }
@@ -670,7 +669,7 @@ namespace Iam.Scripts.Controllers
     
         private void CreditSoldierForKill(BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            GameSettings.Chapter.ChapterPlayerSoldierMap[inflicter.Soldier.Id]
+            GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
                 .AddKill(_opposingFaction.Id, weapon.Id);
             inflicter.EnemiesTakenDown++;
         }

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public static class NewChapterBuilder
     {
