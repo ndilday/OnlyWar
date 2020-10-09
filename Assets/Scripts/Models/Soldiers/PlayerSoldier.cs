@@ -19,7 +19,6 @@ namespace OnlyWar.Scripts.Models.Soldiers
         private readonly Dictionary<int, ushort> _weaponCasualtyCountMap;
         private readonly Dictionary<int, ushort> _factionCasualtyCountMap;
 
-        public Squad AssignedSquad { get; private set; }
         public Date ProgenoidImplantDate { get; set; }
         public IReadOnlyCollection<string> SoldierHistory { get => _soldierHistory; }
         public float MeleeRating { get; private set; }
@@ -29,6 +28,9 @@ namespace OnlyWar.Scripts.Models.Soldiers
         public float TechRating { get; private set; }
         public float PietyRating { get; private set; }
         public float AncientRating { get; private set; }
+        public Squad AssignedSquad { get; private set; }
+        public IReadOnlyDictionary<int, ushort> WeaponCasualtyCountMap { get => _weaponCasualtyCountMap; }
+        public IReadOnlyDictionary<int, ushort> FactionCasualtyCountMap { get => _factionCasualtyCountMap; }
         #region ISoldier passthrough
         public int Id => _soldier.Id;
 
@@ -62,6 +64,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
 
         public int FunctioningHands => _soldier.FunctioningHands;
 
+        public IReadOnlyCollection<Skill> Skills => _soldier.Skills;
         public bool IsWounded
         {
             get

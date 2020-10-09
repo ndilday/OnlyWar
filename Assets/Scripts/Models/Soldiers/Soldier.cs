@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using OnlyWar.Scripts.Models.Squads;
+using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
@@ -53,6 +54,9 @@ namespace OnlyWar.Scripts.Models.Soldiers
         public int Id { get; set; }
         public string Name { get; set; }
         public SoldierType Type { get; set; }
+        public IReadOnlyCollection<Skill> Skills { get => _skills.Values; }
+
+        public Squad AssignedSquad { get; set; }
 
         public void AddSkillPoints(BaseSkill skill, float points)
         {

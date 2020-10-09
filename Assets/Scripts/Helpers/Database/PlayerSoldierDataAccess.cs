@@ -2,6 +2,7 @@
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
@@ -32,6 +33,28 @@ namespace OnlyWar.Scripts.Helpers.Database
 
             dbCon.Close();
             return playerSoldiers;
+        }
+
+        public void SaveData(string fileName, List<PlayerSoldier> playerSoldiers)
+        {
+            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+            IDbConnection dbCon = new SqliteConnection(connection);
+            using (var transaction = dbCon.BeginTransaction())
+            {
+                try
+                {
+                    foreach(PlayerSoldier playerSoldier in playerSoldiers)
+                    {
+                        SavePlayerSoldier(transaction, playerSoldier);
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                transaction.Commit();
+            }
         }
 
         private Dictionary<int, Dictionary<int, ushort>> GetFactionCasualtiesBySoldierId(IDbConnection connection)
@@ -126,17 +149,84 @@ namespace OnlyWar.Scripts.Helpers.Database
                 int implantWeek = reader.GetInt32(10);
 
                 Date implantDate = new Date(implantMillenium, implantYear, implantWeek);
+                
+                List<string> history;
+                if(historyMap.ContainsKey(soldierId))
+                {
+                    history = historyMap[soldierId];
+                }
+                else
+                {
+                    history = new List<string>();
+                }
+
+                Dictionary<int, ushort> weaponCasualties;
+                if(weaponCasualtyMap.ContainsKey(soldierId))
+                {
+                    weaponCasualties = weaponCasualtyMap[soldierId];
+                }
+                else
+                {
+                    weaponCasualties = new Dictionary<int, ushort>();
+                }
+
+                Dictionary<int, ushort> factionCasualties;
+                if (factionCasualtyMap.ContainsKey(soldierId))
+                {
+                    factionCasualties = factionCasualtyMap[soldierId];
+                }
+                else
+                {
+                    factionCasualties = new Dictionary<int, ushort>();
+                }
 
                 PlayerSoldier playerSoldier = new PlayerSoldier(baseSoldierMap[soldierId], melee, ranged,
                                                                 leadership, medical, tech, piety, ancient,
-                                                                implantDate, historyMap[soldierId],
-                                                                weaponCasualtyMap[soldierId],
-                                                                factionCasualtyMap[soldierId]);
+                                                                implantDate, history, weaponCasualties,
+                                                                factionCasualties);
 
                 playerSoldierMap[soldierId] = playerSoldier;
 
             }
             return playerSoldierMap;
+        }
+    
+        private void SavePlayerSoldier(IDbTransaction transaction, PlayerSoldier playerSoldier)
+        {
+            string insert = $@"INSERT INTO PlayerSoldier VALUES ({playerSoldier.Id}, 
+                {playerSoldier.MeleeRating}, {playerSoldier.RangedRating}, {playerSoldier.LeadershipRating},
+                {playerSoldier.MedicalRating}, {playerSoldier.TechRating}, {playerSoldier.PietyRating},
+                {playerSoldier.AncientRating},{playerSoldier.ProgenoidImplantDate.Millenium},
+                {playerSoldier.ProgenoidImplantDate.Year},{playerSoldier.ProgenoidImplantDate.Week});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+
+            foreach(KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.WeaponCasualtyCountMap)
+            {
+                insert = $@"INSERT INTO PlayerSoldierWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
+                    {weaponCasualtyCount.Key}, {weaponCasualtyCount.Value});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
+
+            foreach (KeyValuePair<int, ushort> factionCasualtyCount in playerSoldier.FactionCasualtyCountMap)
+            {
+                insert = $@"INSERT INTO PlayerSoldierFactionCasualtyCount VALUES ({playerSoldier.Id}, 
+                    {factionCasualtyCount.Key}, {factionCasualtyCount.Value});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
+
+            foreach (string entry in playerSoldier.SoldierHistory)
+            {
+                insert = $@"INSERT INTO PlayerSoldierHistory VALUES ({playerSoldier.Id}, {entry});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

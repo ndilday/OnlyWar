@@ -25,6 +25,10 @@ namespace OnlyWar.Scripts.Models.Fleets
             Planet = location;
             Destination = destination;
             Ships = ships;
+            foreach(Ship ship in ships)
+            {
+                ship.Fleet = this;
+            }
         }
 
         public Fleet(Faction faction, int templateId) : this(faction)

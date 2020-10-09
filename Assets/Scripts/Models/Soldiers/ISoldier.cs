@@ -1,4 +1,7 @@
-﻿namespace OnlyWar.Scripts.Models.Soldiers
+﻿using OnlyWar.Scripts.Models.Squads;
+using System.Collections.Generic;
+
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public interface ISoldier
     {
@@ -18,6 +21,9 @@
         float Size { get; }
         float MoveSpeed { get; }
         Body Body { get; }
+        Squad AssignedSquad { get; }
+
+        IReadOnlyCollection<Skill> Skills { get; }
 
         int FunctioningHands { get; }
         void AddSkillPoints(BaseSkill skill, float points);

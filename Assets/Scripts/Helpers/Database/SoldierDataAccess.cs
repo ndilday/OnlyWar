@@ -1,6 +1,7 @@
 ﻿using Mono.Data.Sqlite;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
@@ -25,6 +26,28 @@ namespace OnlyWar.Scripts.Helpers.Database
 
             dbCon.Close();
             return soldierMap;
+        }
+
+        public void SaveData(string fileName, List<ISoldier> soldiers)
+        {
+            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+            IDbConnection dbCon = new SqliteConnection(connection);
+            using (var transaction = dbCon.BeginTransaction())
+            {
+                try
+                {
+                    foreach (Soldier soldier in soldiers)
+                    {
+                        SaveSoldier(transaction, soldier);
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                transaction.Commit();
+            }
         }
 
         private Dictionary<int, List<HitLocation>> GetHitLocationsBySoldierId(IDbConnection connection,
@@ -130,6 +153,36 @@ namespace OnlyWar.Scripts.Helpers.Database
                 soldiers[id] = soldier;
             }
             return soldiers;
+        }
+
+        private void SaveSoldier(IDbTransaction transaction, Soldier soldier)
+        {
+            string insert = $@"INSERT INTO Soldier VALUES ({soldier.Id}, 
+                {soldier.Type.Id}, {soldier.AssignedSquad.Id}, {soldier.Name},
+                {soldier.Strength}, {soldier.Dexterity}, {soldier.Constitution},
+                {soldier.Intelligence},{soldier.Perception}, {soldier.Ego}, {soldier.Charisma}, 
+                {soldier.PsychicPower},{soldier.AttackSpeed}, {soldier.Size}, {soldier.MoveSpeed});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+
+            foreach (Skill skill in soldier.Skills)
+            {
+                insert = $@"INSERT INTO SoldierSkill VALUES ({soldier.Id}, 
+                    {skill.BaseSkill.Id}, {skill.PointsInvested});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
+
+            foreach (HitLocation hitLocation in soldier.Body.HitLocations)
+            {
+                insert = $@"INSERT INTO HitLocation VALUES ({soldier.Id}, {hitLocation.Template.Id}, 
+                    {hitLocation.Wounds.WoundTotal}, {hitLocation.Wounds.WeeksOfHealing});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

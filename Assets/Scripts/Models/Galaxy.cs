@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 
 using OnlyWar.Scripts.Helpers.Database;
-using OnlyWar.Scripts.Models.Factions;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models;
 using System;

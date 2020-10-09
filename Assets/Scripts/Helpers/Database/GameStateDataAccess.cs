@@ -32,6 +32,49 @@ namespace OnlyWar.Scripts.Helpers.Database
             dbCon.Close();
         }
 
+        public void SaveData(string fileName, List<Planet> planets, List<Fleet> fleets, List<Ship> ships,
+                             List<Unit> units, List<Squad> squads)
+        {
+            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+            IDbConnection dbCon = new SqliteConnection(connection);
+            using (var transaction = dbCon.BeginTransaction())
+            {
+                try
+                {
+                    foreach (Planet planet in planets)
+                    {
+                        SavePlanet(transaction, planet);
+                    }
+
+                    foreach(Fleet fleet in fleets)
+                    {
+                        SaveFleet(transaction, fleet);
+                    }
+
+                    foreach(Ship ship in ships)
+                    {
+                        SaveShip(transaction, ship);
+                    }
+
+                    foreach(Unit unit in units)
+                    {
+                        SaveUnit(transaction, unit);
+                    }
+
+                    foreach(Squad squad in squads)
+                    {
+                        SaveSquad(transaction, squad);
+                    }
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                transaction.Commit();
+            }
+        }
+
         private List<Planet> GetPlanets(IDbConnection connection,
                                         Dictionary<int, Faction> factionMap)
         {
@@ -168,7 +211,6 @@ namespace OnlyWar.Scripts.Helpers.Database
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
                 int unitTemplateId = reader.GetInt32(2);
                 string name = reader[5].ToString();
 
@@ -218,6 +260,57 @@ namespace OnlyWar.Scripts.Helpers.Database
             }
 
             return unitList;
+        }
+    
+        private void SavePlanet(IDbTransaction transaction, Planet planet)
+        {
+            string insert = $@"INSERT INTO Planet VALUES ({planet.Id}, 
+                {planet.Name}, {planet.Position.x}, {planet.Position.y},
+                {planet.PlanetType}, {planet.ControllingFaction.Id});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+        }
+
+        private void SaveFleet(IDbTransaction transaction, Fleet fleet)
+        {
+            string destination = fleet.Destination == null ? "null": fleet.Destination.Id.ToString();
+            string insert = $@"INSERT INTO Fleet VALUES ({fleet.Id}, {fleet.Faction.Id}, 
+                {fleet.Position.x}, {fleet.Position.y}, {destination});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+        }
+
+        private void SaveShip(IDbTransaction transaction, Ship ship)
+        {
+            string insert = $@"INSERT INTO Ship VALUES ({ship.Id}, {ship.Template.Id}, 
+                {ship.Fleet.Id}, {ship.Name});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+        }
+
+        private void SaveUnit(IDbTransaction transaction, Unit unit)
+        {
+            string hq = unit.HQSquad == null ? "null" : unit.HQSquad.Id.ToString();
+            string parent = unit.ParentUnit == null ? "null" : unit.ParentUnit.Id.ToString();
+            string insert = $@"INSERT INTO Unit VALUES ({unit.Id}, {unit.UnitTemplate.Faction.Id}, 
+                {unit.UnitTemplate.Id}, {hq}, {parent}, {unit.Name});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+        }
+
+        private void SaveSquad(IDbTransaction transaction, Squad squad)
+        {
+            string ship = squad.BoardedLocation == null ? "null" : squad.BoardedLocation.Id.ToString();
+            string planet = squad.Location == null ? "null" : squad.Location.Id.ToString();
+            string insert = $@"INSERT INTO Squad VALUES ({squad.Id}, {squad.SquadTemplate.Id}, 
+                {squad.ParentUnit.Id}, {squad.Name}, {ship}, {planet});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
         }
     }
 }

@@ -55,6 +55,10 @@ namespace OnlyWar.Scripts.Models
             BoatTemplates = boatTemplates;
             ShipTemplates = shipTemplates;
             FleetTemplates = fleetTemplates;
+            foreach(UnitTemplate template in UnitTemplates.Values)
+            {
+                template.Faction = this;
+            }
         }
     }
 }

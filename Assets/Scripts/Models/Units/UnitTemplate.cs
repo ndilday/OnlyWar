@@ -9,6 +9,7 @@ namespace OnlyWar.Scripts.Models.Units
         public int Id { get; }
         public string Name { get; }
         public bool IsTopLevelUnit { get; }
+        public Faction Faction { get; set; }
 
         public SquadTemplate HQSquad { get; private set; }
 
