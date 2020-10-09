@@ -1,17 +1,12 @@
-﻿using System;
+﻿using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-
-using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
 
 
 namespace OnlyWar.Scripts.Controllers
@@ -384,7 +379,7 @@ namespace OnlyWar.Scripts.Controllers
             while (i < GameSettings.Galaxy.Planets.Count)
             {
                 Planet planet = GameSettings.Galaxy.GetPlanet(i);
-                if (planet.FactionGroundUnitListMap?.Keys.Count > 1)
+                if (planet.FactionSquadListMap.Count > 1)
                 {
                     // a battle breaks out on this planet
                     Debug.Log("Battle breaks out on " + planet.Name);

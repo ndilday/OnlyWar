@@ -86,12 +86,10 @@ namespace OnlyWar.Scripts.Controllers
             {
                 if (planet.Id == GameSettings.ChapterPlanetId)
                 {
-                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+                    planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
                     {
-                        [GameSettings.Galaxy.PlayerFaction.Id] = new List<Unit>
-                        {
-                            GameSettings.Chapter.OrderOfBattle
-                        }
+                        [GameSettings.Galaxy.PlayerFaction.Id] =
+                            GameSettings.Chapter.SquadMap.Values.ToList()
                     };
                     SetChapterSquadsLocation(planet);
                     GameSettings.Chapter.Fleets[0].Planet = planet;
@@ -104,15 +102,14 @@ namespace OnlyWar.Scripts.Controllers
                                                 .Values
                                                 .Where(ut => ut.IsTopLevelUnit)
                                                 .Count();
-                    planet.FactionGroundUnitListMap = new Dictionary<int, List<Unit>>
+                    planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
                     {
-                        [planet.ControllingFaction.Id] = new List<Unit>
-                        {
-                            // TODO: generalize this
+                        // TODO: generalize this
+                        [planet.ControllingFaction.Id] = 
                             TempTyranidArmyGenerator.GenerateTyranidArmy(
                                 RNG.GetIntBelowMax(0,potentialArmies),
                                 planet.ControllingFaction)
-                        }
+                            .GetAllSquads().ToList()
                     };
                 }
             }

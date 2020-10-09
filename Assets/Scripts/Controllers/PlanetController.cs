@@ -35,16 +35,17 @@ namespace OnlyWar.Scripts.Controllers
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             _selectedPlanet = planet;
+            bool playerSquadsPresent = false;
             // assume player is Space Marine
-            List<Unit> unitList = null;
-            if (planet.FactionGroundUnitListMap != null 
-                && planet.FactionGroundUnitListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
+            if (planet.FactionSquadListMap != null 
+                && planet.FactionSquadListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                unitList = planet.FactionGroundUnitListMap?[GameSettings.Galaxy.PlayerFaction.Id];
+                playerSquadsPresent = 
+                    planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
             CreateScoutingReport(planet);
-            if(unitList?.Count > 0)
+            if(playerSquadsPresent)
             {
                 PopulateUnitTree();
             }
@@ -192,7 +193,7 @@ namespace OnlyWar.Scripts.Controllers
             // on the planet so it doesn't think there should be a battle
             if(!anySquadsLeft)
             {
-                _selectedPlanet.FactionGroundUnitListMap.Remove(GameSettings.Galaxy.PlayerFaction.Id);
+                _selectedPlanet.FactionSquadListMap.Remove(GameSettings.Galaxy.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -210,18 +211,13 @@ namespace OnlyWar.Scripts.Controllers
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableRemoveFromShipButton(false);
 
-            var factionUnitMap = _selectedShipSquad.Location.FactionGroundUnitListMap;
-            if (!factionUnitMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
+            var factionSquadMap = _selectedShipSquad.Location.FactionSquadListMap;
+            if (!factionSquadMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                factionUnitMap[GameSettings.Galaxy.PlayerFaction.Id] =
-                    new List<Unit>();
+                factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id] = new List<Squad>();
             }
-            var unitList = factionUnitMap[GameSettings.Galaxy.PlayerFaction.Id];
-            if (!unitList.Contains(GameSettings.Chapter.OrderOfBattle))
-            {
-                // this feels hacky, but I think it's the safest choice
-                unitList.Add(GameSettings.Chapter.OrderOfBattle);
-            }
+            factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id].Add(_selectedShipSquad);
+            
             _selectedShipSquad = null;
             _selectedShip = null;
             _selectedSquad = null;
@@ -233,9 +229,9 @@ namespace OnlyWar.Scripts.Controllers
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            if (planet.FactionGroundUnitListMap != null)
+            if (planet.FactionSquadListMap != null)
             {
-                foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+                foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
                 {
                     int factionSoldierCount = 0;
                     if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
@@ -245,9 +241,9 @@ namespace OnlyWar.Scripts.Controllers
                     else
                     {
                         string factionName = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key).Name;
-                        foreach (Unit unit in kvp.Value)
+                        foreach (Squad squad in kvp.Value)
                         {
-                            factionSoldierCount += unit.GetAllMembers().Count();
+                            factionSoldierCount += squad.Members.Count;
                         }
                         newReport = factionName + " forces on the planet number in the ";
                         if (factionSoldierCount >= 2000) newReport += "thousands.";

@@ -66,16 +66,16 @@ namespace OnlyWar.Scripts.Controllers
             _planet = planet;
             ResetBattleValues();
 
-            foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
             {
                 if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
                 {
-                    PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
+                    PopulateMapsFromSquadList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
                     _opposingFaction = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key);
-                    PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
+                    PopulateMapsFromSquadList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
 
@@ -251,7 +251,7 @@ namespace OnlyWar.Scripts.Controllers
             if(_opposingBattleSquads == null || _opposingBattleSquads.Count == 0)
             {
                 // The marines finish off any xenos still moving
-                _planet.FactionGroundUnitListMap.Remove(_opposingFaction.Id);
+                _planet.FactionSquadListMap.Remove(_opposingFaction.Id);
             }
             // we'll be nice to the Marines despite losing the battle... for now
             Debug.Log("Battle completed");
@@ -417,29 +417,26 @@ namespace OnlyWar.Scripts.Controllers
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
 
-        private void PopulateMapsFromUnitList(Dictionary<int, BattleSquad> map, List<Unit> units, bool isPlayerSquad)
+        private void PopulateMapsFromSquadList(Dictionary<int, BattleSquad> map, List<Squad> squads, bool isPlayerSquad)
         {
-            foreach (Unit unit in units)
+            var activeSquads = squads.Where(s => !s.IsInReserve);
+            foreach (Squad squad in activeSquads)
             {
-                var activeSquads = unit.GetAllSquads().Where(s => !s.IsInReserve);
-                foreach (Squad squad in activeSquads)
-                {
-                    BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
+                BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
 
-                    map[bs.Id] = bs;
-                    foreach(BattleSoldier soldier in bs.Soldiers)
-                    {
-                        _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
-                    }
-                    if(isPlayerSquad)
-                    {
-                        // making a separate list 
-                        _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
-                    }
-                    else
-                    {
-                        _startingEnemyCount += bs.Soldiers.Count;
-                    }
+                map[bs.Id] = bs;
+                foreach(BattleSoldier soldier in bs.Soldiers)
+                {
+                    _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
+                }
+                if(isPlayerSquad)
+                {
+                    // making a separate list 
+                    _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
+                }
+                else
+                {
+                    _startingEnemyCount += bs.Soldiers.Count;
                 }
             }
         }
