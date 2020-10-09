@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Helpers.Database;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-
-using OnlyWar.Scripts.Models;
 
 namespace OnlyWar.Scripts.Controllers
 {
@@ -75,6 +76,21 @@ namespace OnlyWar.Scripts.Controllers
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             ScreenTitle.text = planet.Name;
+        }
+
+        public void TempSaveButton_OnClick()
+        {
+            var ships = GameSettings.Galaxy.Fleets.SelectMany(fleet => fleet.Ships);
+            /*var units = ;
+            var squads = ;
+            GameStateDataAccess.Instance.SaveData(GameSettings.Galaxy.Planets,
+                                                  GameSettings.Galaxy.Fleets,
+                                                  ships, units, squads);
+        */}
+
+        public void TempLoadButton_OnClick()
+        {
+
         }
 
         private void DisableUI()
