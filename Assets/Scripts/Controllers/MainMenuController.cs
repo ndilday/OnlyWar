@@ -14,6 +14,7 @@ namespace OnlyWar.Scripts.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {
+        private const int GENERATE_GALAXY_SEED = 1;
         private SoldierTrainingHelper _trainingHelper;
 
         [SerializeField]
@@ -67,7 +68,7 @@ namespace OnlyWar.Scripts.Controllers
         private void GenerateNewGame()
         {
             GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
-            GameSettings.Galaxy.GenerateGalaxy(0);
+            GameSettings.Galaxy.GenerateGalaxy(GENERATE_GALAXY_SEED);
             // generate chapter
             CreateChapter();
             PlaceStartingForces();
