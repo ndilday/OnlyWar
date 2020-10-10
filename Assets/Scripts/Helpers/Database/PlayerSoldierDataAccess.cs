@@ -51,7 +51,7 @@ namespace OnlyWar.Scripts.Helpers.Database
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw;
+                    throw e;
                 }
                 transaction.Commit();
             }
@@ -222,7 +222,8 @@ namespace OnlyWar.Scripts.Helpers.Database
 
             foreach (string entry in playerSoldier.SoldierHistory)
             {
-                insert = $@"INSERT INTO PlayerSoldierHistory VALUES ({playerSoldier.Id}, {entry});";
+                string safeEntry = entry.Replace("\'", "\'\'");
+                insert = $@"INSERT INTO PlayerSoldierHistory VALUES ({playerSoldier.Id}, '{safeEntry}');";
                 command = transaction.Connection.CreateCommand();
                 command.CommandText = insert;
                 command.ExecuteNonQuery();

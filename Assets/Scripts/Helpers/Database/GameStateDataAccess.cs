@@ -109,6 +109,10 @@ namespace OnlyWar.Scripts.Helpers.Database
                     foreach(Unit unit in units)
                     {
                         _unitDataAccess.SaveUnit(transaction, unit);
+                        foreach(Unit childUnit in unit.ChildUnits)
+                        {
+                            _unitDataAccess.SaveUnit(transaction, childUnit);
+                        }
                     }
 
                     foreach(Squad squad in squads)
@@ -119,7 +123,7 @@ namespace OnlyWar.Scripts.Helpers.Database
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw;
+                    throw e;
                 }
                 transaction.Commit();
                 dbCon.Close();

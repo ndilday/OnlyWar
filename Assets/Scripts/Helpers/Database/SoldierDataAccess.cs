@@ -44,7 +44,7 @@ namespace OnlyWar.Scripts.Helpers.Database
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw;
+                    throw e;
                 }
                 transaction.Commit();
             }
@@ -157,8 +157,9 @@ namespace OnlyWar.Scripts.Helpers.Database
 
         private void SaveSoldier(IDbTransaction transaction, Soldier soldier)
         {
+            string safeName = soldier.Name.Replace("\'", "\'\'");
             string insert = $@"INSERT INTO Soldier VALUES ({soldier.Id}, 
-                {soldier.Type.Id}, {soldier.AssignedSquad.Id}, {soldier.Name},
+                {soldier.Type.Id}, {soldier.AssignedSquad.Id}, '{safeName}',
                 {soldier.Strength}, {soldier.Dexterity}, {soldier.Constitution},
                 {soldier.Intelligence},{soldier.Perception}, {soldier.Ego}, {soldier.Charisma}, 
                 {soldier.PsychicPower},{soldier.AttackSpeed}, {soldier.Size}, {soldier.MoveSpeed});";

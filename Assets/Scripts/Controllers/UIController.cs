@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace OnlyWar.Scripts.Controllers
 {
@@ -18,6 +19,8 @@ namespace OnlyWar.Scripts.Controllers
         private Text ScreenTitle;
         [SerializeField]
         private GameSettings GameSettings;
+        [SerializeField]
+        private Text SaveButtonText;
 
         public void Start()
         {
@@ -86,6 +89,7 @@ namespace OnlyWar.Scripts.Controllers
                                                   GameSettings.Galaxy.Planets,
                                                   GameSettings.Galaxy.Fleets,
                                                   units);
+            StartCoroutine(TemporarySaveButtonUpdateCoroutine());
         }
 
         public void TempLoadButton_OnClick()
@@ -101,6 +105,13 @@ namespace OnlyWar.Scripts.Controllers
         private void EnableUI()
         {
             BottomUI.SetActive(true);
+        }
+
+        private IEnumerator TemporarySaveButtonUpdateCoroutine()
+        {
+            SaveButtonText.text = "<bold>SAVED!</bold>";
+            yield return new WaitForSeconds(2);
+            SaveButtonText.text = "Save";
         }
     }
 }

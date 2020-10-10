@@ -60,9 +60,9 @@ namespace OnlyWar.Scripts.Models.Units
             return _childSquads ?? (IReadOnlyCollection<SquadTemplate>)Enumerable.Empty<SquadTemplate>();
         }
 
-        public Unit GenerateUnitFromTemplateWithoutChildren(int id, string name)
+        public Unit GenerateUnitFromTemplateWithoutChildren(string name)
         {
-            return new Unit(id, name, this);
+            return new Unit(name, this);
         }
     }
 

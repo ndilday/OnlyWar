@@ -5522,6 +5522,7 @@ MonoBehaviour:
   Date: {fileID: 1931858762}
   ScreenTitle: {fileID: 1044594511}
   GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
+  SaveButtonText: {fileID: 1229995058}
 --- !u!114 &854813796
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ namespace OnlyWar.Scripts.Helpers
         public static Unit GenerateTyranidArmy(int armyId, Faction faction)
         {
             Unit root = faction.UnitTemplates.Values.Where(ut => ut.IsTopLevelUnit).ToList()[armyId]
-                            .GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
+                            .GenerateUnitFromTemplateWithoutChildren("Tyranid Challenge Force");
             if(root.HQSquad != null)
             {
                 root.HQSquad.IsInReserve = false;

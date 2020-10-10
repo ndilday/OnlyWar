@@ -9,6 +9,7 @@ namespace OnlyWar.Scripts.Models.Squads
 {
     public class Squad
     {
+        private static int _nextId = 0;
         private readonly List<ISoldier> _members;
         public int Id { get; private set; }
         public string Name { get; set; }
@@ -22,9 +23,25 @@ namespace OnlyWar.Scripts.Models.Squads
         public Planet Location { get; set; }
         public Ship BoardedLocation { get; set; }
         //public List<int> AssignedVehicles;
+        public Squad(string name, Unit parentUnit, SquadTemplate template)
+        {
+            Id = _nextId++;
+            Name = name;
+            ParentUnit = parentUnit;
+            SquadTemplate = template;
+            IsInReserve = true;
+            _members = new List<ISoldier>();
+            //AssignedVehicles = new List<int>();
+            Loadout = new List<WeaponSet>();
+        }
+
         public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
         {
             Id = id;
+            if(id > _nextId)
+            {
+                _nextId = id + 1;
+            }
             Name = name;
             ParentUnit = parentUnit;
             SquadTemplate = template;

@@ -61,13 +61,12 @@ namespace OnlyWar.Scripts.Helpers
 
         private static Chapter BuildChapterFromUnitTemplate(UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)
         {
-            int i = 1;
-            Chapter chapter = new Chapter(rootTemplate.GenerateUnitFromTemplateWithoutChildren(-1, "Heart of the Emperor"), soldiers);
-            BuildUnitTreeHelper(chapter.OrderOfBattle, rootTemplate, ref i);
+            Chapter chapter = new Chapter(rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor"), soldiers);
+            BuildUnitTreeHelper(chapter.OrderOfBattle, rootTemplate);
             return chapter;
         }
 
-        private static void BuildUnitTreeHelper(Unit rootUnit, UnitTemplate rootTemplate, ref int nextId)
+        private static void BuildUnitTreeHelper(Unit rootUnit, UnitTemplate rootTemplate)
         {
             string[] companyStrings = { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth" };
             int stringIndex = 0;
@@ -84,11 +83,10 @@ namespace OnlyWar.Scripts.Helpers
                 {
                     name = child.Name;
                 }
-                Unit newUnit = child.GenerateUnitFromTemplateWithoutChildren(nextId, name);
-                nextId++;
+                Unit newUnit = child.GenerateUnitFromTemplateWithoutChildren(name);
                 rootUnit.ChildUnits.Add(newUnit);
                 newUnit.ParentUnit = rootUnit;
-                BuildUnitTreeHelper(newUnit, child, ref nextId);
+                BuildUnitTreeHelper(newUnit, child);
             }
         }
 
@@ -410,7 +408,7 @@ namespace OnlyWar.Scripts.Helpers
             {
                 int id = lastSquad.Id + 1;
                 // add a new Scout Squad to the company
-                Squad squad = new Squad(id, "Scout Squad", lastCompany,
+                Squad squad = new Squad("Scout Squad", lastCompany,
                     faction.SquadTemplates.Values.First(st => st.Name == "Scout Squad"));
                 lastCompany.AddSquad(squad);
                 id++;

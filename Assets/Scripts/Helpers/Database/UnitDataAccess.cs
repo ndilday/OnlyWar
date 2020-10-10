@@ -123,7 +123,7 @@ namespace OnlyWar.Scripts.Helpers.Database
             string hq = unit.HQSquad == null ? "null" : unit.HQSquad.Id.ToString();
             string parent = unit.ParentUnit == null ? "null" : unit.ParentUnit.Id.ToString();
             string insert = $@"INSERT INTO Unit VALUES ({unit.Id}, {unit.UnitTemplate.Faction.Id}, 
-                {unit.UnitTemplate.Id}, {hq}, {parent}, {unit.Name});";
+                {unit.UnitTemplate.Id}, {hq}, {parent}, '{unit.Name}');";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();
@@ -131,10 +131,11 @@ namespace OnlyWar.Scripts.Helpers.Database
 
         public void SaveSquad(IDbTransaction transaction, Squad squad)
         {
+            string safeName = squad.Name.Replace("\'", "\'\'");
             string ship = squad.BoardedLocation == null ? "null" : squad.BoardedLocation.Id.ToString();
             string planet = squad.Location == null ? "null" : squad.Location.Id.ToString();
             string insert = $@"INSERT INTO Squad VALUES ({squad.Id}, {squad.SquadTemplate.Id}, 
-                {squad.ParentUnit.Id}, {squad.Name}, {ship}, {planet});";
+                {squad.ParentUnit.Id}, '{safeName}', {ship}, {planet});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

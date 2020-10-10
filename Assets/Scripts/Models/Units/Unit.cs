@@ -9,6 +9,7 @@ namespace OnlyWar.Scripts.Models.Units
 {
     public class Unit
     {
+        private static int _nextId = 0;
         private readonly List<Squad> _squads;
         public int Id { get; private set; }
         public string Name { get; set; }
@@ -24,14 +25,18 @@ namespace OnlyWar.Scripts.Models.Units
                     Squad hq, List<Squad> squads)
         {
             Id = id;
+            if(id > _nextId)
+            {
+                _nextId = id + 1;
+            }
             Name = name;
             UnitTemplate = template;
             HQSquad = hq;
             _squads = squads;
         }
-        public Unit(int id, string name, UnitTemplate template)
+        public Unit(string name, UnitTemplate template)
         {
-            Id = id;
+            Id = _nextId++;
             Name = name;
             UnitTemplate = template;
             AssignedVehicles = new List<int>();
@@ -41,14 +46,14 @@ namespace OnlyWar.Scripts.Models.Units
 
             if (template.HQSquad != null)
             {
-                HQSquad = new Squad(id * 100 + i, name + " HQ Squad", this, template.HQSquad);
+                HQSquad = new Squad(name + " HQ Squad", this, template.HQSquad);
                 i++;
             }
             
             _squads = new List<Squad>();
             foreach(SquadTemplate squadTemplate in template.GetChildSquads())
             {
-                _squads.Add(new Squad(id * 100 + i, squadTemplate.Name, this, squadTemplate));
+                _squads.Add(new Squad(squadTemplate.Name, this, squadTemplate));
                 i++;
             }
         }

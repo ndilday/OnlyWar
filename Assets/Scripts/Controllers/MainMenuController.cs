@@ -14,7 +14,7 @@ namespace OnlyWar.Scripts.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {
-        private const int GENERATE_GALAXY_SEED = 1;
+        private const int GENERATE_GALAXY_SEED = 0;
         private SoldierTrainingHelper _trainingHelper;
 
         [SerializeField]
