@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -24,6 +25,8 @@ namespace OnlyWar.Scripts.Helpers.Database
         private readonly PlanetDataAccess _planetDataAccess;
         private readonly FleetDataAccess _fleetDataAccess;
         private readonly UnitDataAccess _unitDataAccess;
+        private readonly string CREATE_TABLE_FILE =
+            $"URI=file:{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
         private static GameStateDataAccess _instance;
         public static GameStateDataAccess Instance
         {
@@ -72,10 +75,16 @@ namespace OnlyWar.Scripts.Helpers.Database
                              IEnumerable<Fleet> fleets,
                              IEnumerable<Unit> units)
         {
+            string path = $"{Application.streamingAssetsPath}/Saves/{fileName}";
+            if(File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            GenerateTables(fileName);
             var squads = units.SelectMany(u => u.GetAllSquads());
             var ships = fleets.SelectMany(f => f.Ships);
             string connection = 
-                $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+                $"URI=file:{path}";
             IDbConnection dbCon = new SqliteConnection(connection);
             using (var transaction = dbCon.BeginTransaction())
             {
@@ -113,6 +122,18 @@ namespace OnlyWar.Scripts.Helpers.Database
                 }
                 transaction.Commit();
             }
+        }
+
+        private void GenerateTables(string fileName)
+        {
+            string cmdText = File.ReadAllText(CREATE_TABLE_FILE);
+            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+            IDbConnection dbCon = new SqliteConnection(connection);
+            dbCon.Open();
+            IDbCommand command = dbCon.CreateCommand();
+            command.CommandText = cmdText;
+            command.ExecuteNonQuery();
+            dbCon.Close();
         }
     }
 }

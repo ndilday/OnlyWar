@@ -34,25 +34,22 @@ namespace OnlyWar.Scripts.Controllers
         void Start()
         {
             _selectedShips = new List<Ship>();
-            GameSettings.OpposingFactions = GameSettings.Galaxy.GetNonPlayerFactions();
-            for (int i = 0; i < GameSettings.Galaxy.Planets.Count; i++)
+            foreach(Planet planet in GameSettings.Galaxy.Planets)
             {
                 Color color;
-                Planet planet = GameSettings.Galaxy.Planets[i];
-                if (planet.ControllingFaction != null)
+                if(planet.ControllingFaction != null)
                 {
                     color = planet.ControllingFaction.Color;
-                    if (GameSettings.Galaxy.Planets[i].ControllingFaction == GameSettings.Galaxy.PlayerFaction)
-                    {
-                        GameSettings.ChapterPlanetId = GameSettings.Galaxy.Planets[i].Id;
-                    }
                 }
                 else
                 {
                     color = Color.white;
                 }
-
-                Map.CreatePlanet(i, GameSettings.Galaxy.Planets[i].Position, GameSettings.Galaxy.Planets[i].Name, color);
+                Map.CreatePlanet(planet.Id, planet.Position, planet.Name, color);
+                if(planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                {
+                    Map.CenterCameraOnPlanet(planet.Id);
+                }
             }
             foreach (Fleet fleet in GameSettings.Galaxy.Fleets)
             {

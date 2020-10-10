@@ -226,6 +226,25 @@ namespace OnlyWar.Scripts.Views
             OnFleetDestinationRemove.Invoke(fleetId);
         }
 
+        public void CenterCameraOnPlanet(int planetId)
+        {
+            Vector3 newPosition = _planetViewMap[planetId].Item1.position;
+            newPosition.z = -100;
+            float screenHeightInUnits = Camera.main.orthographicSize * 2.0f;
+            float unitsPerPixel = screenHeightInUnits / Screen.height;
+            float screenWidthInUnits = screenHeightInUnits * Screen.width / Screen.height;
+            float mapTop = GameSettings.GalaxySize * GameSettings.MapScale.y;
+            float mapRight = GameSettings.GalaxySize * GameSettings.MapScale.x;
+            // assume for now that the world is 450x450
+            float minX = (screenWidthInUnits / 2.0f) - (40.0f * unitsPerPixel);
+            float maxX = mapRight + (40.0f * unitsPerPixel) - (screenWidthInUnits / 2.0f);
+            float minY = (screenHeightInUnits / 2.0f) - (90.0f * unitsPerPixel);
+            float maxY = mapTop + (100.0f * unitsPerPixel) - (screenHeightInUnits / 2.0f);
+            newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
+            newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+            Camera.main.transform.position = newPosition;
+        }
+
         private void AdjustMovingFleets(int fleetId, Vector2 realLocation)
         {
             var localFleetList = _movingFleetsAtLocationMap[realLocation];

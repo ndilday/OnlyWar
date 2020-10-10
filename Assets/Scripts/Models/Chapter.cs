@@ -31,6 +31,7 @@ namespace OnlyWar.Scripts.Models
             OrderOfBattle = unit;
             BattleHistory = new Dictionary<Date, List<EventHistory>>();
             PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
+            SquadMap = new Dictionary<int, Squad>();
             Fleets = new List<Fleet>();
             PopulateSquadMap();
         }

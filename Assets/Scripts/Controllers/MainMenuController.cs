@@ -66,7 +66,7 @@ namespace OnlyWar.Scripts.Controllers
             GameSettings.Galaxy.GenerateGalaxy(1);
             // generate chapter
             CreateChapter();
-            PlacePlayerForces();
+            PlaceStartingForces();
         }
 
         private void CreateChapter()
@@ -77,7 +77,7 @@ namespace OnlyWar.Scripts.Controllers
             var soldiers = 
                 SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"));
-            foreach (PlayerSoldier soldier in GameSettings.Chapter.PlayerSoldierMap.Values)
+            foreach (PlayerSoldier soldier in soldiers)
             {
                 soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
                 if (soldier.PsychicPower > 0)
@@ -97,15 +97,19 @@ namespace OnlyWar.Scripts.Controllers
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
             // on the Marine starting planet
-            GameSettings.ChapterPlanetId = 11;
+            var emptyPlanets = GameSettings.Galaxy.Planets.Where(p => p.ControllingFaction == null);
+            int max = emptyPlanets.Count();
+            int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
+            Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
+            chapterPlanet.ControllingFaction = GameSettings.Galaxy.PlayerFaction;
         }
 
-        private void PlacePlayerForces()
+        private void PlaceStartingForces()
         {
             // For now, put the chapter on their home planet
             foreach (Planet planet in GameSettings.Galaxy.Planets)
             {
-                if (planet.Id == GameSettings.ChapterPlanetId)
+                if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
                     planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
                     {

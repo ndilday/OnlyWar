@@ -27,8 +27,6 @@ public class GameSettings : ScriptableObject
     public IReadOnlyList<Faction> OpposingFactions;
     [HideInInspector]
     public Chapter Chapter;
-    [HideInInspector]
-    public int ChapterPlanetId;
 
     [Header("Date")]
     public Date Date;
