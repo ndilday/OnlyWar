@@ -1,5 +1,6 @@
 ﻿using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -47,15 +48,22 @@ namespace OnlyWar.Scripts.Helpers.Database
             {
                 int id = reader.GetInt32(0);
                 int factionId = reader.GetInt32(1);
-                int fleetTemplateId = reader.GetInt32(2);
-                int x = reader.GetInt32(3);
-                int y = reader.GetInt32(4);
-                int destinationPlanetId = reader.GetInt32(5);
+                float x = (float)reader[2];
+                float y = (float)reader[3];
+
+                Planet destination;
+                if(reader[4].GetType() != typeof(DBNull))
+                {
+                    destination = planetList.First(p => p.Id == reader.GetInt32(4));
+                }
+                else
+                {
+                    destination = null;
+                }
 
                 // see if the position is a planet
                 Vector2 location = new Vector2(x, y);
                 Planet planet = planetList.FirstOrDefault(p => p.Position == location);
-                Planet destination = planetList.First(p => p.Id == destinationPlanetId);
 
                 Fleet fleet = new Fleet(id, factionMap[factionId], location, planet,
                                         destination, fleetShipMap[id]);
@@ -77,7 +85,7 @@ namespace OnlyWar.Scripts.Helpers.Database
         public void SaveShip(IDbTransaction transaction, Ship ship)
         {
             string insert = $@"INSERT INTO Ship VALUES ({ship.Id}, {ship.Template.Id}, 
-                {ship.Fleet.Id}, {ship.Name});";
+                {ship.Fleet.Id}, '{ship.Name}');";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

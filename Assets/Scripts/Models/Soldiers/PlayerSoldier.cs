@@ -5,11 +5,6 @@ using OnlyWar.Scripts.Models.Squads;
 
 namespace OnlyWar.Scripts.Models.Soldiers
 {
-    public class SkillRanking
-    {
-
-    }
-
     // PlayerSoldier uses the decorator pattern to extend the Soldier class
     // with features we're only interested in for the player's troops
     public class PlayerSoldier : ISoldier

@@ -1,5 +1,6 @@
 ﻿using OnlyWar.Scripts.Helpers;
 using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
@@ -52,6 +53,9 @@ namespace OnlyWar.Scripts.Controllers
                     faction.Units.AddRange(factionUnits[faction]);
                 }
             }
+            var chapterUnit = factionUnits[GameSettings.Galaxy.PlayerFaction].First(u => u.ParentUnit == null);
+            var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
+            GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
             SceneManager.LoadScene("GalaxyView");
         }
 
@@ -63,7 +67,7 @@ namespace OnlyWar.Scripts.Controllers
         private void GenerateNewGame()
         {
             GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
-            GameSettings.Galaxy.GenerateGalaxy(1);
+            GameSettings.Galaxy.GenerateGalaxy(0);
             // generate chapter
             CreateChapter();
             PlaceStartingForces();
@@ -93,6 +97,7 @@ namespace OnlyWar.Scripts.Controllers
                                                 GameSettings.Galaxy.PlayerFaction,
                                                 new Date(GameSettings.Date.Millenium,
                                                     (GameSettings.Date.Year), 1).ToString());
+            GameSettings.Galaxy.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
 
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
@@ -117,24 +122,28 @@ namespace OnlyWar.Scripts.Controllers
                             GameSettings.Chapter.SquadMap.Values.ToList()
                     };
                     SetChapterSquadsLocation(planet);
-                    GameSettings.Chapter.Fleets[0].Planet = planet;
-                    GameSettings.Chapter.Fleets[0].Position = planet.Position;
-                    GameSettings.Galaxy.AddNewFleet(GameSettings.Chapter.Fleets[0]);
+                    foreach(Fleet fleet in GameSettings.Chapter.Fleets)
+                    {
+                        fleet.Planet = planet;
+                        fleet.Position = planet.Position;
+                        GameSettings.Galaxy.AddNewFleet(fleet);
+                    }
                 }
                 else if (planet.ControllingFaction != null)
                 {
-                    int potentialArmies = planet.ControllingFaction.UnitTemplates
+                    int potentialArmies = planet.ControllingFaction
+                                                .UnitTemplates
                                                 .Values
                                                 .Where(ut => ut.IsTopLevelUnit)
                                                 .Count();
+                    Unit newArmy = TempTyranidArmyGenerator.GenerateTyranidArmy(
+                        RNG.GetIntBelowMax(0, potentialArmies),
+                        planet.ControllingFaction);
+                    planet.ControllingFaction.Units.Add(newArmy);
                     planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
                     {
                         // TODO: generalize this
-                        [planet.ControllingFaction.Id] = 
-                            TempTyranidArmyGenerator.GenerateTyranidArmy(
-                                RNG.GetIntBelowMax(0,potentialArmies),
-                                planet.ControllingFaction)
-                            .GetAllSquads().ToList()
+                        [planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList()
                     };
                 }
             }

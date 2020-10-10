@@ -26,7 +26,7 @@ namespace OnlyWar.Scripts.Helpers.Database
         private readonly FleetDataAccess _fleetDataAccess;
         private readonly UnitDataAccess _unitDataAccess;
         private readonly string CREATE_TABLE_FILE =
-            $"URI=file:{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
+            $"{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
         private static GameStateDataAccess _instance;
         public static GameStateDataAccess Instance
         {
@@ -86,6 +86,7 @@ namespace OnlyWar.Scripts.Helpers.Database
             string connection = 
                 $"URI=file:{path}";
             IDbConnection dbCon = new SqliteConnection(connection);
+            dbCon.Open();
             using (var transaction = dbCon.BeginTransaction())
             {
                 try
@@ -121,6 +122,7 @@ namespace OnlyWar.Scripts.Helpers.Database
                     throw;
                 }
                 transaction.Commit();
+                dbCon.Close();
             }
         }
 

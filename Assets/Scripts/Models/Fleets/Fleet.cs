@@ -37,7 +37,9 @@ namespace OnlyWar.Scripts.Models.Fleets
             BoatTemplate boatTemplate = faction.BoatTemplates.First().Value;
             foreach(ShipTemplate shipTemplate in faction.FleetTemplates[templateId].Ships)
             {
-                Ships.Add(new Ship(i, $"{shipTemplate.ClassName}-{i}", shipTemplate, boatTemplate));
+                Ship newShip = new Ship(i, $"{shipTemplate.ClassName}-{i}", shipTemplate, boatTemplate);
+                newShip.Fleet = this;
+                Ships.Add(newShip);
                 i++;
             }
         }

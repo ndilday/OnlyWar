@@ -54,9 +54,9 @@ namespace OnlyWar.Scripts.Models
             SoldierTemplates = soldierTemplates;
             SquadTemplates = squadTemplates;
             UnitTemplates = unitTemplates;
-            BoatTemplates = boatTemplates;
-            ShipTemplates = shipTemplates;
-            FleetTemplates = fleetTemplates;
+            BoatTemplates = boatTemplates == null ? new Dictionary<int, BoatTemplate>() : boatTemplates;
+            ShipTemplates = shipTemplates == null ? new Dictionary<int, ShipTemplate>() : shipTemplates;
+            FleetTemplates = fleetTemplates == null ? new Dictionary<int, FleetTemplate>() : fleetTemplates;
             foreach(UnitTemplate template in UnitTemplates.Values)
             {
                 template.Faction = this;

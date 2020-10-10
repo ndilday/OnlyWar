@@ -2062,7 +2062,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 390601478}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 854813795}
+        m_TargetAssemblyTypeName: OnlyWar.Scripts.Controllers.UIController, Assembly-CSharp
+        m_MethodName: TempSaveButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &390601478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7336,34 +7348,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea7a6d56e213c58408bf09ba4924968a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnChapterCreated:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1066516933}
-        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.RecruitmentController,
-          Assembly-CSharp
-        m_MethodName: GalaxyController_OnChapterCreated
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1066516928}
-        m_TargetAssemblyTypeName: Iam.Scripts.Controllers.GalaxyController, Assembly-CSharp
-        m_MethodName: ChapterController_OnChapterCreated
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
   UnitTreeView: {fileID: 513630765}
   SquadMemberView: {fileID: 570941898}
   GameSettings: {fileID: 11400000, guid: 5d216a3d41b76b144959595025571622, type: 2}
@@ -11885,7 +11869,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1744946506}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 854813795}
+        m_TargetAssemblyTypeName: OnlyWar.Scripts.Controllers.UIController, Assembly-CSharp
+        m_MethodName: TempLoadButton_OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1744946506
 MonoBehaviour:
   m_ObjectHideFlags: 0

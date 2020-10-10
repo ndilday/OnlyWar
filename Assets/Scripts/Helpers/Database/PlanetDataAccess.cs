@@ -1,5 +1,6 @@
 ﻿using Mono.Data.Sqlite;
 using OnlyWar.Scripts.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
@@ -22,10 +23,19 @@ namespace OnlyWar.Scripts.Helpers.Database
                 int x = reader.GetInt32(2);
                 int y = reader.GetInt32(3);
                 PlanetType planetType = (PlanetType)reader.GetInt32(4);
-                int factionId = reader.GetInt32(5);
+
+                Faction controllingFaction;
+                if (reader[5].GetType() != typeof(DBNull))
+                {
+                    controllingFaction = factionMap[reader.GetInt32(5)];
+                }
+                else
+                {
+                    controllingFaction = null;
+                }
                 Planet planet = new Planet(id, name, new Vector2(x, y), planetType)
                 {
-                    ControllingFaction = factionMap[factionId]
+                    ControllingFaction = controllingFaction
                 };
 
                 planetList.Add(planet);
@@ -35,9 +45,13 @@ namespace OnlyWar.Scripts.Helpers.Database
 
         public void SavePlanet(IDbTransaction transaction, Planet planet)
         {
-            string insert = $@"INSERT INTO Planet VALUES ({planet.Id}, 
-                {planet.Name}, {planet.Position.x}, {planet.Position.y},
-                {planet.PlanetType}, {planet.ControllingFaction.Id});";
+            string controllingFactionId = planet.ControllingFaction == null ?
+                "null" : planet.ControllingFaction.Id.ToString();
+
+            string insert = $@"INSERT INTO Planet 
+                (Id, Name, x, y, PlanetType, FactionId) VALUES 
+                ({planet.Id}, '{planet.Name.Replace("\'", "\'\'")}', {planet.Position.x}, 
+                {planet.Position.y}, {(int)planet.PlanetType}, {controllingFactionId});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

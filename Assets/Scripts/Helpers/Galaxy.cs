@@ -64,6 +64,7 @@ namespace OnlyWar.Scripts.Helpers
         {
             _planets.Clear();
             UnityEngine.Random.InitState(seed);
+            int id = 0;
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
@@ -73,18 +74,18 @@ namespace OnlyWar.Scripts.Helpers
                         string name;
                         PlanetType type;
 
-                        if (Planets.Count < 60)
+                        if (id < TempPlanetList.Planets.Length)
                         {
-                            name = TempPlanetList.Planets[Planets.Count].Name;
-                            type = TempPlanetList.Planets[Planets.Count].Type;
+                            name = TempPlanetList.Planets[id].Name;
+                            type = TempPlanetList.Planets[id].Type;
                         }
                         else
                         {
-                            name = i.ToString() + j.ToString();
+                            name = $"{i},{j}";
                             type = PlanetType.Death;
                         }
                         
-                        Planet p = new Planet(Planets.Count, name, new Vector2(i, j), type);
+                        Planet p = new Planet(id, name, new Vector2(i, j), type);
                         
                         if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
@@ -92,6 +93,7 @@ namespace OnlyWar.Scripts.Helpers
                         }
 
                         _planets.Add(p);
+                        id++;
                     }
                 }
             }
