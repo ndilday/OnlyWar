@@ -1,14 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
-using OnlyWar.Scripts.Helpers;
+﻿using OnlyWar.Scripts.Helpers;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Helpers.Database;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace OnlyWar.Scripts.Controllers
 {
@@ -31,7 +30,29 @@ namespace OnlyWar.Scripts.Controllers
         {
             // TODO: open file screen
             // load that file
-            // SceneManager.LoadScene("GalaxyView");
+            GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
+            var shipTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.ShipTemplates.Values)
+                                                              .ToDictionary(s => s.Id);
+            var unitTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.UnitTemplates.Values)
+                                                              .ToDictionary(u => u.Id);
+            var squadTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.SquadTemplates.Values)
+                                                              .ToDictionary(s => s.Id);
+            var gameData = 
+                GameStateDataAccess.Instance.GetData("default.s3db", 
+                                                     GameSettings.Galaxy.Factions.ToDictionary(f => f.Id), 
+                                                     shipTemplateMap, unitTemplateMap, squadTemplateMap);
+
+            GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
+            var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
+                                             .ToDictionary(g => g.Key, g => g.ToList());
+            foreach(Faction faction in GameSettings.Galaxy.Factions)
+            {
+                if(factionUnits.ContainsKey(faction))
+                {
+                    faction.Units.AddRange(factionUnits[faction]);
+                }
+            }
+            SceneManager.LoadScene("GalaxyView");
         }
 
         public void QuitGameButton_OnClick()
@@ -94,7 +115,7 @@ namespace OnlyWar.Scripts.Controllers
                     SetChapterSquadsLocation(planet);
                     GameSettings.Chapter.Fleets[0].Planet = planet;
                     GameSettings.Chapter.Fleets[0].Position = planet.Position;
-                    GameSettings.Galaxy.AddFleet(GameSettings.Chapter.Fleets[0]);
+                    GameSettings.Galaxy.AddNewFleet(GameSettings.Chapter.Fleets[0]);
                 }
                 else if (planet.ControllingFaction != null)
                 {

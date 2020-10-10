@@ -81,12 +81,12 @@ namespace OnlyWar.Scripts.Controllers
         public void TempSaveButton_OnClick()
         {
             var ships = GameSettings.Galaxy.Fleets.SelectMany(fleet => fleet.Ships);
-            /*var units = ;
-            var squads = ;
-            GameStateDataAccess.Instance.SaveData(GameSettings.Galaxy.Planets,
+            var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
+            GameStateDataAccess.Instance.SaveData("default.s3db",
+                                                  GameSettings.Galaxy.Planets,
                                                   GameSettings.Galaxy.Fleets,
-                                                  ships, units, squads);
-        */}
+                                                  units);
+        }
 
         public void TempLoadButton_OnClick()
         {

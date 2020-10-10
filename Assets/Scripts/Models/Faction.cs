@@ -26,6 +26,8 @@ namespace OnlyWar.Scripts.Models
         public IReadOnlyDictionary<int, ShipTemplate> ShipTemplates { get; }
         public IReadOnlyDictionary<int, BoatTemplate> BoatTemplates { get; }
         public IReadOnlyDictionary<int, FleetTemplate> FleetTemplates { get; }
+
+        public List<Unit> Units { get; set; }
         
         public Faction(int id, string name, Color color, bool isPlayerFaction,
                                IReadOnlyDictionary<int, SoldierType> soldierTypes,
@@ -59,6 +61,7 @@ namespace OnlyWar.Scripts.Models
             {
                 template.Faction = this;
             }
+            Units = new List<Unit>();
         }
     }
 }

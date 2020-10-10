@@ -20,7 +20,8 @@ namespace OnlyWar.Scripts.Models.Units
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
 
-        public Unit(int id, string name, UnitTemplate template, Squad hq, List<Squad> squads)
+        public Unit(int id, string name, UnitTemplate template, 
+                    Squad hq, List<Squad> squads)
         {
             Id = id;
             Name = name;

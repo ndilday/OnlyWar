@@ -52,8 +52,17 @@ namespace OnlyWar.Scripts.Helpers
             return Fleets.Where(f => f.Position == worldPosition);
         }
 
+        public void GenerateGalaxy(List<Planet> planets, List<Fleet> fleets)
+        {
+            _planets.Clear();
+            _planets.AddRange(planets);
+            _fleets.Clear();
+            _fleets.AddRange(fleets);
+        }
+
         public void GenerateGalaxy(int seed)
         {
+            _planets.Clear();
             UnityEngine.Random.InitState(seed);
             for(int i = 0; i < _galaxySize; i++)
             {
@@ -88,7 +97,7 @@ namespace OnlyWar.Scripts.Helpers
             }
         }
 
-        public void AddFleet(Fleet newFleet)
+        public void AddNewFleet(Fleet newFleet)
         {
             _fleets.Add(newFleet);
             if(newFleet.Planet != null)

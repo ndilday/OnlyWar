@@ -12,6 +12,13 @@ using OnlyWar.Scripts.Models.Units;
 
 namespace OnlyWar.Scripts.Helpers.Database
 {
+    public class GameStateDataBlob
+    {
+        public List<Planet> Planets { get; set; }
+        public List<Fleet> Fleets { get; set; }
+        public List<Unit> Units { get; set; }
+    }
+
     public class GameStateDataAccess
     {
         private readonly PlanetDataAccess _planetDataAccess;
@@ -37,11 +44,10 @@ namespace OnlyWar.Scripts.Helpers.Database
             _unitDataAccess = new UnitDataAccess();
         }
 
-        public void GetData(string fileName, Dictionary<int, Faction> factionMap,
+        public GameStateDataBlob GetData(string fileName, Dictionary<int, Faction> factionMap,
                             Dictionary<int, ShipTemplate> shipTemplateMap,
                             Dictionary<int, UnitTemplate> unitTemplateMap,
-                            List<SquadTemplate> squadTemplates,
-                            List<Planet> planetList)
+                            Dictionary<int, SquadTemplate> squadTemplates)
         {
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
@@ -50,15 +56,26 @@ namespace OnlyWar.Scripts.Helpers.Database
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
-            var squads = _unitDataAccess.GetSquadsByUnitId(dbCon, squadTemplates, shipMap, planetList);
+            var squads = _unitDataAccess.GetSquadsByUnitId(dbCon, squadTemplates, shipMap, planets);
             var units = _unitDataAccess.GetUnits(dbCon, unitTemplateMap, squads);
             dbCon.Close();
+            return new GameStateDataBlob
+            {
+                Planets = planets,
+                Fleets = fleets,
+                Units = units
+            };
         }
 
-        public void SaveData(string fileName, List<Planet> planets, List<Fleet> fleets, List<Ship> ships,
-                             List<Unit> units, List<Squad> squads)
+        public void SaveData(string fileName, 
+                             IEnumerable<Planet> planets, 
+                             IEnumerable<Fleet> fleets,
+                             IEnumerable<Unit> units)
         {
-            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
+            var squads = units.SelectMany(u => u.GetAllSquads());
+            var ships = fleets.SelectMany(f => f.Ships);
+            string connection = 
+                $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
             using (var transaction = dbCon.BeginTransaction())
             {

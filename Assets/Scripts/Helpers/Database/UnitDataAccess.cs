@@ -12,7 +12,7 @@ namespace OnlyWar.Scripts.Helpers.Database
     public class UnitDataAccess
     {
         public Dictionary<int, List<Squad>> GetSquadsByUnitId(IDbConnection connection,
-                                                               List<SquadTemplate> squadTemplates,
+                                                               Dictionary<int, SquadTemplate> squadTemplateMap,
                                                                Dictionary<int, Ship> shipMap,
                                                                List<Planet> planetList)
         {
@@ -27,7 +27,7 @@ namespace OnlyWar.Scripts.Helpers.Database
                 int parentUnitId = reader.GetInt32(2);
                 string name = reader[3].ToString();
 
-                SquadTemplate template = squadTemplates.First(st => st.Id == squadTemplateId);
+                SquadTemplate template = squadTemplateMap[squadTemplateId];
 
                 Squad squad = new Squad(id, name, null, template);
 
