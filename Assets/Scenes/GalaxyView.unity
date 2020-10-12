@@ -8121,7 +8121,7 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnUnitSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Iam.Scripts.Controllers.ChapterController, Assembly-CSharp
+      value: OnlyWar.Scripts.Controllers.ChapterController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
@@ -8151,12 +8151,12 @@ PrefabInstance:
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Iam.Scripts.Controllers.ChapterController, Assembly-CSharp
+      value: OnlyWar.Scripts.Controllers.ChapterController, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}
       propertyPath: OnSquadSelected.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UnitTreeView_OnUnitSelected
+      value: UnitTreeView_OnSquadSelected
       objectReference: {fileID: 0}
     - target: {fileID: 5968658977341479715, guid: 185bdb0c8e40b6d488bc7d813b17e3a2,
         type: 3}

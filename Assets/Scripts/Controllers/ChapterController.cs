@@ -42,22 +42,24 @@ namespace OnlyWar.Scripts.Controllers
             }
         }
 
-        public void UnitTreeView_OnUnitSelected(int squadId)
+        public void UnitTreeView_OnUnitSelected(int unitId)
         {
-            // populate view with members of selected squad
-            if (!GameSettings.Chapter.SquadMap.ContainsKey(squadId))
-            {
-                UnitSelected(squadId);
-            }
-            else
-            {
-                Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
-                List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
-                    .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
-                    .ToList();
-                SquadMemberView.ReplaceSquadMemberContent(memberList);
-                SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
-            }
+            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
+            List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
+                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                .ToList();
+            SquadMemberView.ReplaceSquadMemberContent(memberList);
+            SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
+        }
+
+        public void UnitTreeView_OnSquadSelected(int squadId)
+        {
+            Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
+            List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
+                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                .ToList();
+            SquadMemberView.ReplaceSquadMemberContent(memberList);
+            SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
         }
 
         public void SquadMemberView_OnSoldierSelected(int soldierId)
@@ -95,7 +97,10 @@ namespace OnlyWar.Scripts.Controllers
             Squad newSquad = GameSettings.Chapter.SquadMap[newPosition.Item1];
             _selectedSoldier.AssignedSquad = newSquad;
             newSquad.AddSquadMember(_selectedSoldier);
-            if(_selectedSoldier.Type != newPosition.Item2)
+
+            UpdateSquadLocations(currentSquad, newSquad);
+
+            if (_selectedSoldier.Type != newPosition.Item2)
             {
                 string entry = $"{GameSettings.Date}: promoted to {newPosition.Item2.Name}";
                 _selectedSoldier.AddEntryToHistory(entry);
@@ -138,16 +143,6 @@ namespace OnlyWar.Scripts.Controllers
             }
         }
 
-        private void UnitSelected(int unitId)
-        {
-            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
-            List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
-                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
-                .ToList();
-            SquadMemberView.ReplaceSquadMemberContent(memberList);
-            SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
-        }
-
         private string GenerateUnitSummary(Unit unit)
         {
             string unitReport = unit.Name + " Order of Battle\n\n";
@@ -178,8 +173,22 @@ namespace OnlyWar.Scripts.Controllers
 
         private string GenerateSquadSummary(Squad squad)
         {
+            string location;
             string alerts = "";
             string popReport = "";
+
+            if(squad.Location != null)
+            {
+                location = $"Location: {squad.Location.Name}\n\n";
+            }
+            else if(squad.BoardedLocation != null)
+            {
+                location = $"Location: On board {squad.BoardedLocation.Name}\n\n";
+            }
+            else
+            {
+                location = "Currently Unformed\n\n";
+            }
             List<Tuple<SquadTemplateElement, int, int>> headcounts = GetSquadHeadcounts(squad);
             
             foreach (Tuple<SquadTemplateElement, int, int> tuple in headcounts)
@@ -196,7 +205,7 @@ namespace OnlyWar.Scripts.Controllers
                 popReport += "\n";
             }
             
-            return alerts + popReport;
+            return location + alerts + popReport;
         }
 
         private List<Tuple<SquadTemplateElement, int, int>> GetSquadHeadcounts(Squad squad)
@@ -287,6 +296,21 @@ namespace OnlyWar.Scripts.Controllers
                 }
             }
             return openTypes;
+        }
+
+        private void UpdateSquadLocations(Squad oldSquad, Squad newSquad)
+        {
+            if(newSquad.Members.Count == 1)
+            {
+                // make the location of the new squad the same as the old one
+                newSquad.Location = oldSquad.Location;
+                newSquad.BoardedLocation = oldSquad.BoardedLocation;
+            }
+            if(oldSquad.Members.Count == 0)
+            {
+                oldSquad.Location = null;
+                oldSquad.BoardedLocation = null;
+            }
         }
 
         protected Color DetermineDisplayColor(ISoldier soldier)

@@ -14,7 +14,7 @@ namespace OnlyWar.Scripts.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {
-        private const int GENERATE_GALAXY_SEED = 0;
+        //private const int GENERATE_GALAXY_SEED = 0;
 
         [SerializeField]
         private GameSettings GameSettings;
@@ -95,7 +95,7 @@ namespace OnlyWar.Scripts.Controllers
         private void GenerateNewGame()
         {
             GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
-            GameSettings.Galaxy.GenerateGalaxy(GENERATE_GALAXY_SEED);
+            GameSettings.Galaxy.GenerateGalaxy(RNG.GetIntBelowMax(0, int.MaxValue));
             // generate chapter
             CreateChapter();
             PlaceStartingForces();
@@ -201,17 +201,23 @@ namespace OnlyWar.Scripts.Controllers
             }
             foreach (Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
-                squad.Location = planet;
+                if (squad.Members.Count > 0)
+                {
+                    squad.Location = planet;
+                }
             }
             foreach (Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
-                if (unit.HQSquad != null)
+                if (unit.HQSquad != null && unit.HQSquad.Members.Count > 0)
                 {
                     unit.HQSquad.Location = planet;
                 }
                 foreach (Squad squad in unit.Squads)
                 {
-                    squad.Location = planet;
+                    if (squad.Members.Count > 0)
+                    {
+                        squad.Location = planet;
+                    }
                 }
             }
         }
