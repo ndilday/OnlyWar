@@ -330,7 +330,7 @@ namespace OnlyWar.Scripts.Helpers
                     }
                 }
             }
-            while (scoutList.Count > 0)
+            while (scoutList.Count > 0 || leaderList.Count > 0)
             {
                 int id = lastSquad.Id + 1;
                 // add a new Scout Squad to the company

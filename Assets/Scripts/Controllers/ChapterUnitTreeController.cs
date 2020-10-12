@@ -19,10 +19,14 @@ namespace OnlyWar.Scripts.Controllers
                                      Dictionary<int, Squad> squadMap)
         {
             unitTreeView.ClearTree();
-            unitTreeView.AddLeafSquad(chapterRoot.HQSquad.Id,
-                                     chapterRoot.HQSquad.Name,
-                                     DetermineDisplayColor(chapterRoot.HQSquad, soldierMap));
-            squadMap[chapterRoot.HQSquad.Id] = chapterRoot.HQSquad;
+            
+            if (chapterRoot.HQSquad != null)
+            {
+                unitTreeView.AddLeafSquad(chapterRoot.HQSquad.Id,
+                                         chapterRoot.HQSquad.Name,
+                                         DetermineDisplayColor(chapterRoot.HQSquad, soldierMap));
+                squadMap[chapterRoot.HQSquad.Id] = chapterRoot.HQSquad;
+            }
 
             foreach (Squad squad in chapterRoot.Squads)
             {

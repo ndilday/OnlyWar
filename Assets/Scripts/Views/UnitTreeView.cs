@@ -167,5 +167,12 @@ namespace OnlyWar.Scripts.Views
             Image image = _unitDisplayMap[unitId].Item2;
             image.color = color;
         }
+
+        public void ExpandUnit(int unitId)
+        {
+            _unitDisplayMap[unitId].Item1.transform.GetChild(0)
+                                                   .GetComponent<Button>()
+                                                   .onClick.Invoke();
+        }
     }
 }

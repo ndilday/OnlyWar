@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using UnityEngine.Events;
-using OnlyWar.Scripts.Helpers;
+﻿using OnlyWar.Scripts.Helpers;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Views;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace OnlyWar.Scripts.Controllers
 {
@@ -46,6 +45,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
+                .OrderByDescending(s => s.Type.Rank)
                 .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
                 .ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
@@ -56,6 +56,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
             List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
+                .OrderByDescending(s => s.Type.Rank)
                 .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
                 .ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
@@ -123,7 +124,16 @@ namespace OnlyWar.Scripts.Controllers
                               GameSettings.Chapter.OrderOfBattle,
                               GameSettings.Chapter.PlayerSoldierMap,
                               GameSettings.Chapter.SquadMap);
-            UnitTreeView.UnitButton_OnClick(currentSquad.Id);
+            if (newSquad.ParentUnit.HQSquad != null
+                && newSquad.Id == newSquad.ParentUnit.HQSquad.Id)
+            {
+                UnitTreeView.UnitButton_OnClick(newSquad.Id);
+            }
+            else
+            {
+                UnitTreeView.ExpandUnit(newSquad.ParentUnit.Id);
+                UnitTreeView.SquadButton_OnClick(newSquad.Id);
+            }
         }
 
         public void UIController_OnTurnEnd()
