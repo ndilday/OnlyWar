@@ -632,7 +632,9 @@ namespace OnlyWar.Scripts.Controllers
                         dead.Add(soldier.Soldier);
                         PlayerSoldier playerSoldier = 
                             GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
+                        Squad squad = playerSoldier.AssignedSquad;
                         playerSoldier.AssignedSquad = null;
+                        squad.RemoveSquadMember(playerSoldier);
                         GameSettings.Chapter.PlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }

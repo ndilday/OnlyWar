@@ -77,14 +77,17 @@ namespace OnlyWar.Scripts.Models.Units
         
         public IEnumerable<Squad> GetAllSquads()
         {
+            List<Squad> squads = new List<Squad>();
+            squads.AddRange(squads);
             if (HQSquad != null)
             {
-                return Squads.Union(new[] { HQSquad }).Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+                squads.Add(HQSquad);
             }
-            else
+            if(ChildUnits != null)
             {
-                return Squads.Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+                squads.AddRange(ChildUnits.SelectMany(cu => cu.GetAllSquads()));
             }
+            return squads;
         }
 
         public void AddHQSquad(Squad hq)

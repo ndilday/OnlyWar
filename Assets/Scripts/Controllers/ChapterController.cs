@@ -245,7 +245,7 @@ namespace OnlyWar.Scripts.Controllers
                     }
                 }
             }
-            foreach(Unit childUnit in unit.ChildUnits)
+            foreach(Unit childUnit in unit.ChildUnits ?? Enumerable.Empty<Unit>())
             {
                 openSlots.AddRange(GetOpeningsInUnit(childUnit, currentSquad, soldierType));
             }

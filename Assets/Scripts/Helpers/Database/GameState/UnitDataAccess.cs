@@ -113,9 +113,13 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             foreach (KeyValuePair<int, List<Unit>> kvp in parentUnitMap)
             {
                 unitMap[kvp.Key].ChildUnits = kvp.Value;
+                foreach(Unit unit in kvp.Value)
+                {
+                    unit.ParentUnit = unitMap[kvp.Key];
+                }
             }
 
-            return unitList;
+            return unitList.Where(u => u.ParentUnit == null).ToList();
         }
 
         public void SaveUnit(IDbTransaction transaction, Unit unit)

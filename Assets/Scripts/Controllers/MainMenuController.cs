@@ -56,12 +56,29 @@ namespace OnlyWar.Scripts.Controllers
             {
                 if(factionUnits.ContainsKey(faction))
                 {
-                    faction.Units.AddRange(factionUnits[faction]);
+                    List<Unit> units = factionUnits[faction];
+                    faction.Units.AddRange(units);
+                    foreach(Unit unit in units)
+                    {
+                        foreach(Squad squad in unit.GetAllSquads())
+                        {
+                            if(squad.Location != null)
+                            {
+                                if(!squad.Location.FactionSquadListMap.ContainsKey(faction.Id))
+                                {
+                                    squad.Location.FactionSquadListMap[faction.Id] = 
+                                        new List<Squad>();
+                                }
+                                squad.Location.FactionSquadListMap[faction.Id].Add(squad);
+                            }
+                        }
+                    }
                 }
             }
             var chapterUnit = factionUnits[GameSettings.Galaxy.PlayerFaction].First(u => u.ParentUnit == null);
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
             GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
+            GameSettings.Chapter.PopulateSquadMap();
             SceneManager.LoadScene("GalaxyView");
         }
 
