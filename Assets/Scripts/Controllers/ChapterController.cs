@@ -25,7 +25,7 @@ namespace OnlyWar.Scripts.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            _trainingHelper = new SoldierTrainingHelper();            
+            _trainingHelper = new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);            
         }
 
         public void ChapterButton_OnClick()
@@ -84,7 +84,8 @@ namespace OnlyWar.Scripts.Controllers
         {
             Squad currentSquad = _selectedSoldier.AssignedSquad;
             // move soldier to his new role
-            _selectedSoldier.RemoveFromSquad();
+            _selectedSoldier.AssignedSquad = null;
+            currentSquad.RemoveSquadMember(_selectedSoldier);
             if(_selectedSoldier.Type.IsSquadLeader 
                 && (currentSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
             {
@@ -92,7 +93,8 @@ namespace OnlyWar.Scripts.Controllers
                 currentSquad.Name = currentSquad.SquadTemplate.Name;
             }
             Squad newSquad = GameSettings.Chapter.SquadMap[newPosition.Item1];
-            _selectedSoldier.AssignToSquad(newSquad);
+            _selectedSoldier.AssignedSquad = newSquad;
+            newSquad.AddSquadMember(_selectedSoldier);
             if(_selectedSoldier.Type != newPosition.Item2)
             {
                 string entry = $"{GameSettings.Date}: promoted to {newPosition.Item2.Name}";

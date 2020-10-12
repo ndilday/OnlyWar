@@ -19,7 +19,6 @@ namespace OnlyWar.Scripts.Models
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
         public IReadOnlyDictionary<int, ArmorTemplate> ArmorTemplates { get; }
-        public IReadOnlyDictionary<int, WeaponSet> WeaponSets { get; }
         public IReadOnlyDictionary<int, SoldierTemplate> SoldierTemplates { get; }
         public IReadOnlyDictionary<int, SquadTemplate> SquadTemplates { get; }
         public IReadOnlyDictionary<int, UnitTemplate> UnitTemplates { get; }
@@ -34,7 +33,6 @@ namespace OnlyWar.Scripts.Models
                                IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
                                IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
                                IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
-                               IReadOnlyDictionary<int, WeaponSet> weaponSets,
                                IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
                                IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
                                IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
@@ -50,7 +48,6 @@ namespace OnlyWar.Scripts.Models
             RangedWeaponTemplates = rangedWeaponTemplates;
             MeleeWeaponTemplates = meleeWeaponTemplates;
             ArmorTemplates = armorTemplates;
-            WeaponSets = weaponSets;
             SoldierTemplates = soldierTemplates;
             SquadTemplates = squadTemplates;
             UnitTemplates = unitTemplates;

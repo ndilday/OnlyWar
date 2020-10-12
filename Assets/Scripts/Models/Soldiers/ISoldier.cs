@@ -21,7 +21,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
         float Size { get; }
         float MoveSpeed { get; }
         Body Body { get; }
-        Squad AssignedSquad { get; }
+        Squad AssignedSquad { get; set; }
 
         IReadOnlyCollection<Skill> Skills { get; }
 

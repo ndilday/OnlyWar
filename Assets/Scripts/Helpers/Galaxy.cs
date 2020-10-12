@@ -3,29 +3,35 @@ using System.Linq;
 
 using UnityEngine;
 
-using OnlyWar.Scripts.Helpers.Database;
+using OnlyWar.Scripts.Helpers.Database.GameRules;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models;
 using System;
+using OnlyWar.Scripts.Models.Soldiers;
 
 namespace OnlyWar.Scripts.Helpers
 {
     public class Galaxy
     {
-        private readonly FactionDataAccess _data;
         private readonly List<Fleet> _fleets;
         private readonly List<Planet> _planets;
         private readonly List<Faction> _factions;
+        private readonly Dictionary<int, BaseSkill> _baseSkillMap;
+        private readonly Dictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly int _galaxySize;
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
+        public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
+        public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
 
         public Galaxy(int galaxySize)
         {
-            _data = new FactionDataAccess();
-            _factions = _data.GetData();
+            var gameBlob = GameRulesDataAccess.Instance.GetData();
+            _factions = gameBlob.Factions;
+            _baseSkillMap = gameBlob.BaseSkills;
+            _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();

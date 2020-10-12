@@ -1,5 +1,5 @@
 ﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Helpers.Database;
+using OnlyWar.Scripts.Helpers.Database.GameState;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -88,7 +88,8 @@ namespace OnlyWar.Scripts.Controllers
             GameStateDataAccess.Instance.SaveData("default.s3db",
                                                   GameSettings.Galaxy.Planets,
                                                   GameSettings.Galaxy.Fleets,
-                                                  units);
+                                                  units,
+                                                  GameSettings.Chapter.PlayerSoldierMap.Values);
             StartCoroutine(TemporarySaveButtonUpdateCoroutine());
         }
 
@@ -109,7 +110,7 @@ namespace OnlyWar.Scripts.Controllers
 
         private IEnumerator TemporarySaveButtonUpdateCoroutine()
         {
-            SaveButtonText.text = "<bold>SAVED!</bold>";
+            SaveButtonText.text = "<b>SAVED!</b>";
             yield return new WaitForSeconds(2);
             SaveButtonText.text = "Save";
         }

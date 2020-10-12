@@ -31,7 +31,7 @@ namespace OnlyWar.Scripts.Views
             _toggles = ToggleParent.GetComponentsInChildren<Toggle>();
         }
 
-        public void Unit_Selected(int id)
+        public void UnitTreeView_OnSquadSelected(int id)
         {
             ToggleHeaderText.text = _toggleText;
             ToggleParent.SetActive(true);

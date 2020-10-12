@@ -4,7 +4,7 @@ using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Helpers.Database;
+using OnlyWar.Scripts.Helpers.Database.GameState;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,7 +15,6 @@ namespace OnlyWar.Scripts.Controllers
     public class MainMenuController : MonoBehaviour
     {
         private const int GENERATE_GALAXY_SEED = 0;
-        private SoldierTrainingHelper _trainingHelper;
 
         [SerializeField]
         private GameSettings GameSettings;
@@ -23,7 +22,6 @@ namespace OnlyWar.Scripts.Controllers
 
         public void NewGameButton_OnClick()
         {
-            _trainingHelper = new SoldierTrainingHelper();
             GenerateNewGame();
             SceneManager.LoadScene("GalaxyView");
         }
@@ -39,10 +37,17 @@ namespace OnlyWar.Scripts.Controllers
                                                               .ToDictionary(u => u.Id);
             var squadTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.SquadTemplates.Values)
                                                               .ToDictionary(s => s.Id);
+            var hitLocations = GameSettings.Galaxy.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
+                                                                                    .Distinct()
+                                                                                    .ToDictionary(hl => hl.Id);
+            var soldierTypeMap = GameSettings.Galaxy.Factions.SelectMany(f => f.SoldierTypes.Values)
+                                                             .ToDictionary(st => st.Id);
             var gameData = 
                 GameStateDataAccess.Instance.GetData("default.s3db", 
                                                      GameSettings.Galaxy.Factions.ToDictionary(f => f.Id), 
-                                                     shipTemplateMap, unitTemplateMap, squadTemplateMap);
+                                                     shipTemplateMap, unitTemplateMap, squadTemplateMap,
+                                                     hitLocations, GameSettings.Galaxy.BaseSkillMap,
+                                                     soldierTypeMap);
 
             GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
@@ -81,7 +86,12 @@ namespace OnlyWar.Scripts.Controllers
             var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
             var soldiers = 
                 SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
-                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"));
+                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
+                .ToList();
+
+            string foo = "";
+            SoldierTrainingHelper trainingHelper =
+                new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);
             foreach (PlayerSoldier soldier in soldiers)
             {
                 soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
@@ -90,14 +100,25 @@ namespace OnlyWar.Scripts.Controllers
                     soldier.AddEntryToHistory(trainingStartDate + ": psychic ability detected, acolyte training initiated");
                     // add psychic specific training here
                 }
-                _trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
-                //soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 1, RNG.GetIntBelowMax(1, 53));
+                trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
+                soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 2, RNG.GetIntBelowMax(1, 53));
+
+                foo += $"{(int)soldier.MeleeRating}, {(int)soldier.RangedRating}, {(int)soldier.LeadershipRating}, {(int)soldier.AncientRating}, {(int)soldier.MedicalRating}, {(int)soldier.TechRating}, {(int)soldier.PietyRating}\n";
             }
+
+
+            System.IO.File.WriteAllText($"{Application.streamingAssetsPath}/ratings.csv", foo);
+
             GameSettings.Chapter =
                 NewChapterBuilder.CreateChapter(soldiers,
                                                 GameSettings.Galaxy.PlayerFaction,
                                                 new Date(GameSettings.Date.Millenium,
                                                     (GameSettings.Date.Year), 1).ToString());
+            // post-MOS evaluations
+            foreach(PlayerSoldier soldier in soldiers)
+            {
+                trainingHelper.EvaluateSoldier(soldier, GameSettings.Date);
+            }
             GameSettings.Galaxy.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
 
             // TODO: replace this with a random assignment of starting planet

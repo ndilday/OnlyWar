@@ -1,4 +1,9 @@
 ﻿using Mono.Data.Sqlite;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Soldiers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,12 +11,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-
-namespace OnlyWar.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
     public class GameStateDataBlob
     {
@@ -25,6 +25,8 @@ namespace OnlyWar.Scripts.Helpers.Database
         private readonly PlanetDataAccess _planetDataAccess;
         private readonly FleetDataAccess _fleetDataAccess;
         private readonly UnitDataAccess _unitDataAccess;
+        private readonly SoldierDataAccess _soldierDataAccess;
+        private readonly PlayerSoldierDataAccess _playerSoldierDataAccess;
         private readonly string CREATE_TABLE_FILE =
             $"{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
         private static GameStateDataAccess _instance;
@@ -45,12 +47,17 @@ namespace OnlyWar.Scripts.Helpers.Database
             _planetDataAccess = new PlanetDataAccess();
             _fleetDataAccess = new FleetDataAccess();
             _unitDataAccess = new UnitDataAccess();
+            _soldierDataAccess = new SoldierDataAccess();
+            _playerSoldierDataAccess = new PlayerSoldierDataAccess();
         }
 
         public GameStateDataBlob GetData(string fileName, Dictionary<int, Faction> factionMap,
-                            Dictionary<int, ShipTemplate> shipTemplateMap,
-                            Dictionary<int, UnitTemplate> unitTemplateMap,
-                            Dictionary<int, SquadTemplate> squadTemplates)
+                            IReadOnlyDictionary<int, ShipTemplate> shipTemplateMap,
+                            IReadOnlyDictionary<int, UnitTemplate> unitTemplateMap,
+                            IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
+                            IReadOnlyDictionary<int, HitLocationTemplate> hitLocationTemplates,
+                            IReadOnlyDictionary<int, BaseSkill> baseSkillMap, 
+                            IReadOnlyDictionary<int, SoldierType> soldierTypeMap)
         {
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
@@ -61,6 +68,10 @@ namespace OnlyWar.Scripts.Helpers.Database
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
             var squads = _unitDataAccess.GetSquadsByUnitId(dbCon, squadTemplates, shipMap, planets);
             var units = _unitDataAccess.GetUnits(dbCon, unitTemplateMap, squads);
+            var squadMap = squads.Values.SelectMany(s => s).ToDictionary(s => s.Id);
+            var soldiers = _soldierDataAccess.GetData(dbCon, hitLocationTemplates, baseSkillMap,
+                                                      soldierTypeMap, squadMap);
+            var playerSoldiers = _playerSoldierDataAccess.GetData(dbCon, soldiers);
             dbCon.Close();
             return new GameStateDataBlob
             {
@@ -73,7 +84,8 @@ namespace OnlyWar.Scripts.Helpers.Database
         public void SaveData(string fileName, 
                              IEnumerable<Planet> planets, 
                              IEnumerable<Fleet> fleets,
-                             IEnumerable<Unit> units)
+                             IEnumerable<Unit> units,
+                             IEnumerable<PlayerSoldier> playerSoldiers)
         {
             string path = $"{Application.streamingAssetsPath}/Saves/{fileName}";
             if(File.Exists(path))
@@ -119,11 +131,22 @@ namespace OnlyWar.Scripts.Helpers.Database
                     {
                         _unitDataAccess.SaveSquad(transaction, squad);
                     }
+
+                    var soldiers = squads.SelectMany(s => s.Members);
+                    foreach(ISoldier soldier in soldiers)
+                    {
+                        _soldierDataAccess.SaveSoldier(transaction, soldier);
+                    }
+
+                    foreach(PlayerSoldier playerSoldier in playerSoldiers)
+                    {
+                        _playerSoldierDataAccess.SavePlayerSoldier(transaction, playerSoldier);
+                    }
                 }
                 catch (Exception e)
                 {
                     transaction.Rollback();
-                    throw e;
+                    throw;
                 }
                 transaction.Commit();
                 dbCon.Close();

@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
     public class UnitDataAccess
     {
         public Dictionary<int, List<Squad>> GetSquadsByUnitId(IDbConnection connection,
-                                                               Dictionary<int, SquadTemplate> squadTemplateMap,
-                                                               Dictionary<int, Ship> shipMap,
+                                                               IReadOnlyDictionary<int, SquadTemplate> squadTemplateMap,
+                                                               IReadOnlyDictionary<int, Ship> shipMap,
                                                                List<Planet> planetList)
         {
             Dictionary<int, List<Squad>> squadMap = new Dictionary<int, List<Squad>>();
@@ -55,8 +55,8 @@ namespace OnlyWar.Scripts.Helpers.Database
         }
 
         public List<Unit> GetUnits(IDbConnection connection,
-                                    Dictionary<int, UnitTemplate> unitTemplateMap,
-                                    Dictionary<int, List<Squad>> unitSquadMap)
+                                   IReadOnlyDictionary<int, UnitTemplate> unitTemplateMap,
+                                   IReadOnlyDictionary<int, List<Squad>> unitSquadMap)
         {
             List<Unit> unitList = new List<Unit>();
             Dictionary<int, Unit> unitMap = new Dictionary<int, Unit>();

@@ -43,8 +43,11 @@ namespace OnlyWar.Scripts.Helpers
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
-                soldier.AddSkillPoints(skillTemplate.BaseSkill, 
-                    skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation));
+                float roll = skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
+                if(roll > 0)
+                {
+                    soldier.AddSkillPoints(skillTemplate.BaseSkill, roll);
+                }
             }
 
             return soldier;

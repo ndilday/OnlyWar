@@ -26,6 +26,7 @@ namespace OnlyWar.Scripts.Helpers
                     foreach (Soldier soldier in soldiers)
                     {
                         root.HQSquad.AddSquadMember(soldier);
+                        soldier.AssignedSquad = root.HQSquad;
                         soldier.Type = type;
                         soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
                     }
@@ -44,6 +45,7 @@ namespace OnlyWar.Scripts.Helpers
                     foreach(Soldier soldier in soldiers)
                     {
                         squad.AddSquadMember(soldier);
+                        soldier.AssignedSquad = squad;
                         soldier.Type = type;
                         soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
                     }

@@ -13,7 +13,6 @@ using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Views;
 
 namespace OnlyWar.Scripts.Controllers
@@ -42,6 +41,7 @@ namespace OnlyWar.Scripts.Controllers
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
         private Faction _opposingFaction;
+        private BaseSkill _baseMeleeSkill;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -59,6 +59,12 @@ namespace OnlyWar.Scripts.Controllers
             _woundResolver.OnSoldierFall.AddListener(WoundResolver_OnSoldierFall);
             _casualtyMap = new Dictionary<int, BattleSoldier>();
             _startingPlayerBattleSoldiers = new List<BattleSoldier>();
+        }
+
+        public void Start()
+        {
+            _baseMeleeSkill =
+                GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
         }
 
         public void GalaxyController_OnBattleStarted(Planet planet)
@@ -598,13 +604,13 @@ namespace OnlyWar.Scripts.Controllers
                     {
                         if (soldier.MeleeWeapons.Count > 0)
                         {
-                            soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill,
+                            soldier.Soldier.AddSkillPoints(soldier.MeleeWeapons[0].Template.RelatedSkill,
                                                                soldier.TurnsSwinging * 0.0005f);
                         }
                         else
                         {
-                            soldier.Soldier.AddSkillPoints(TempBaseSkillList.Instance.Fist,
-                                                               soldier.TurnsSwinging * 0.0005f);
+                            soldier.Soldier.AddSkillPoints(_baseMeleeSkill,
+                                                           soldier.TurnsSwinging * 0.0005f);
                         }
                         soldier.Soldier.AddAttributePoints(Models.Soldiers.Attribute.Strength,
                                                                soldier.TurnsSwinging * 0.0005f);
@@ -626,7 +632,7 @@ namespace OnlyWar.Scripts.Controllers
                         dead.Add(soldier.Soldier);
                         PlayerSoldier playerSoldier = 
                             GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
-                        playerSoldier.RemoveFromSquad();
+                        playerSoldier.AssignedSquad = null;
                         GameSettings.Chapter.PlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }

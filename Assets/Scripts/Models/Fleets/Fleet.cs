@@ -31,11 +31,11 @@ namespace OnlyWar.Scripts.Models.Fleets
             }
         }
 
-        public Fleet(Faction faction, int templateId) : this(faction)
+        public Fleet(Faction faction, FleetTemplate template) : this(faction)
         {
             int i = Id * 1000;
             BoatTemplate boatTemplate = faction.BoatTemplates.First().Value;
-            foreach(ShipTemplate shipTemplate in faction.FleetTemplates[templateId].Ships)
+            foreach(ShipTemplate shipTemplate in template.Ships)
             {
                 Ship newShip = new Ship(i, $"{shipTemplate.ClassName}-{i}", shipTemplate, boatTemplate)
                 {

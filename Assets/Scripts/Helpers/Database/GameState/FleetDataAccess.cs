@@ -6,12 +6,12 @@ using System.Data;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
     public class FleetDataAccess
     {
         public Dictionary<int, List<Ship>> GetShipsByFleetId(IDbConnection connection,
-                                                              Dictionary<int, ShipTemplate> shipTemplateMap)
+                                                             IReadOnlyDictionary<int, ShipTemplate> shipTemplateMap)
         {
             Dictionary<int, List<Ship>> fleetShipMap = new Dictionary<int, List<Ship>>();
             IDbCommand command = connection.CreateCommand();
@@ -36,9 +36,9 @@ namespace OnlyWar.Scripts.Helpers.Database
         }
 
         public List<Fleet> GetFleetsByFactionId(IDbConnection connection,
-                                                 Dictionary<int, List<Ship>> fleetShipMap,
-                                                 Dictionary<int, Faction> factionMap,
-                                                 List<Planet> planetList)
+                                                IReadOnlyDictionary<int, List<Ship>> fleetShipMap,
+                                                IReadOnlyDictionary<int, Faction> factionMap,
+                                                IReadOnlyList<Planet> planetList)
         {
             List<Fleet> fleetList = new List<Fleet>();
             IDbCommand command = connection.CreateCommand();

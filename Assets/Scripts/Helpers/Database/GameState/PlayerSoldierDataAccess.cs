@@ -1,59 +1,60 @@
-﻿using Mono.Data.Sqlite;
-using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
     class PlayerSoldierDataAccess
     {
-        public Dictionary<int, PlayerSoldier> GetData(string fileName, Dictionary<int, Soldier> soldierMap)
+        public Dictionary<int, PlayerSoldier> GetData(IDbConnection dbCon, 
+                                                      Dictionary<int, Soldier> soldierMap)
         {
-            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
-            IDbConnection dbCon = new SqliteConnection(connection);
-            dbCon.Open();
-
             var factionCasualtyMap = GetFactionCasualtiesBySoldierId(dbCon);
             var weaponCasualtyMap = GetWeaponCasualtiesBySoldierId(dbCon);
             var historyMap = GetHistoryBySoldierId(dbCon);
             var playerSoldiers = GetPlayerSoldiers(dbCon, soldierMap, factionCasualtyMap, 
                                                    weaponCasualtyMap, historyMap);
-
-            foreach(PlayerSoldier playerSoldier in playerSoldiers.Values)
-            {
-                // replace the soldier in the squad with the playerSoldier
-                Squad squad = playerSoldier.AssignedSquad;
-                playerSoldier.RemoveFromSquad();
-                playerSoldier.AssignToSquad(squad);
-            }
-
-            dbCon.Close();
             return playerSoldiers;
         }
 
-        public void SaveData(string fileName, List<PlayerSoldier> playerSoldiers)
+        public void SavePlayerSoldier(IDbTransaction transaction, PlayerSoldier playerSoldier)
         {
-            string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
-            IDbConnection dbCon = new SqliteConnection(connection);
-            using (var transaction = dbCon.BeginTransaction())
+            string insert = $@"INSERT INTO PlayerSoldier VALUES ({playerSoldier.Id}, 
+                {playerSoldier.MeleeRating}, {playerSoldier.RangedRating}, {playerSoldier.LeadershipRating},
+                {playerSoldier.MedicalRating}, {playerSoldier.TechRating}, {playerSoldier.PietyRating},
+                {playerSoldier.AncientRating},{playerSoldier.ProgenoidImplantDate.Millenium},
+                {playerSoldier.ProgenoidImplantDate.Year},{playerSoldier.ProgenoidImplantDate.Week});";
+            IDbCommand command = transaction.Connection.CreateCommand();
+            command.CommandText = insert;
+            command.ExecuteNonQuery();
+
+            foreach (KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.WeaponCasualtyCountMap)
             {
-                try
-                {
-                    foreach(PlayerSoldier playerSoldier in playerSoldiers)
-                    {
-                        SavePlayerSoldier(transaction, playerSoldier);
-                    }
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    throw e;
-                }
-                transaction.Commit();
+                insert = $@"INSERT INTO PlayerSoldierWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
+                    {weaponCasualtyCount.Key}, {weaponCasualtyCount.Value});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
+
+            foreach (KeyValuePair<int, ushort> factionCasualtyCount in playerSoldier.FactionCasualtyCountMap)
+            {
+                insert = $@"INSERT INTO PlayerSoldierFactionCasualtyCount VALUES ({playerSoldier.Id}, 
+                    {factionCasualtyCount.Key}, {factionCasualtyCount.Value});";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
+
+            foreach (string entry in playerSoldier.SoldierHistory)
+            {
+                string safeEntry = entry.Replace("\'", "\'\'");
+                insert = $@"INSERT INTO PlayerSoldierHistory VALUES ({playerSoldier.Id}, '{safeEntry}');";
+                command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
             }
         }
 
@@ -66,9 +67,9 @@ namespace OnlyWar.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int soldierId = reader.GetInt32(1);
-                int factionId = reader.GetInt32(2);
-                ushort count = (ushort)reader.GetInt32(3);
+                int soldierId = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
+                ushort count = (ushort)reader.GetInt32(2);
 
                 if (!soldierFactionCasualtyMap.ContainsKey(soldierId))
                 {
@@ -89,9 +90,9 @@ namespace OnlyWar.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int soldierId = reader.GetInt32(1);
-                int weaponTemplateId = reader.GetInt32(2);
-                ushort count = (ushort)reader.GetInt32(3);
+                int soldierId = reader.GetInt32(0);
+                int weaponTemplateId = reader.GetInt32(1);
+                ushort count = (ushort)reader.GetInt32(2);
 
                 if (!soldierWeaponCasualtyMap.ContainsKey(soldierId))
                 {
@@ -111,8 +112,8 @@ namespace OnlyWar.Scripts.Helpers.Database
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int soldierId = reader.GetInt32(1);
-                string entry = reader[2].ToString();
+                int soldierId = reader.GetInt32(0);
+                string entry = reader[1].ToString();
 
                 if (!soldierEntryListMap.ContainsKey(soldierId))
                 {
@@ -125,10 +126,10 @@ namespace OnlyWar.Scripts.Helpers.Database
         }
     
         private Dictionary<int, PlayerSoldier> GetPlayerSoldiers(IDbConnection connection,
-                                                                 Dictionary<int, Soldier> baseSoldierMap,
-                                                                 Dictionary<int, Dictionary<int, ushort>> factionCasualtyMap,
-                                                                 Dictionary<int, Dictionary<int, ushort>> weaponCasualtyMap,
-                                                                 Dictionary<int, List<string>> historyMap)
+                                                                 IReadOnlyDictionary<int, Soldier> baseSoldierMap,
+                                                                 IReadOnlyDictionary<int, Dictionary<int, ushort>> factionCasualtyMap,
+                                                                 IReadOnlyDictionary<int, Dictionary<int, ushort>> weaponCasualtyMap,
+                                                                 IReadOnlyDictionary<int, List<string>> historyMap)
         {
             Dictionary<int, PlayerSoldier> playerSoldierMap = new Dictionary<int, PlayerSoldier>();
             IDbCommand command = connection.CreateCommand();
@@ -189,45 +190,6 @@ namespace OnlyWar.Scripts.Helpers.Database
 
             }
             return playerSoldierMap;
-        }
-    
-        private void SavePlayerSoldier(IDbTransaction transaction, PlayerSoldier playerSoldier)
-        {
-            string insert = $@"INSERT INTO PlayerSoldier VALUES ({playerSoldier.Id}, 
-                {playerSoldier.MeleeRating}, {playerSoldier.RangedRating}, {playerSoldier.LeadershipRating},
-                {playerSoldier.MedicalRating}, {playerSoldier.TechRating}, {playerSoldier.PietyRating},
-                {playerSoldier.AncientRating},{playerSoldier.ProgenoidImplantDate.Millenium},
-                {playerSoldier.ProgenoidImplantDate.Year},{playerSoldier.ProgenoidImplantDate.Week});";
-            IDbCommand command = transaction.Connection.CreateCommand();
-            command.CommandText = insert;
-            command.ExecuteNonQuery();
-
-            foreach(KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.WeaponCasualtyCountMap)
-            {
-                insert = $@"INSERT INTO PlayerSoldierWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
-                    {weaponCasualtyCount.Key}, {weaponCasualtyCount.Value});";
-                command = transaction.Connection.CreateCommand();
-                command.CommandText = insert;
-                command.ExecuteNonQuery();
-            }
-
-            foreach (KeyValuePair<int, ushort> factionCasualtyCount in playerSoldier.FactionCasualtyCountMap)
-            {
-                insert = $@"INSERT INTO PlayerSoldierFactionCasualtyCount VALUES ({playerSoldier.Id}, 
-                    {factionCasualtyCount.Key}, {factionCasualtyCount.Value});";
-                command = transaction.Connection.CreateCommand();
-                command.CommandText = insert;
-                command.ExecuteNonQuery();
-            }
-
-            foreach (string entry in playerSoldier.SoldierHistory)
-            {
-                string safeEntry = entry.Replace("\'", "\'\'");
-                insert = $@"INSERT INTO PlayerSoldierHistory VALUES ({playerSoldier.Id}, '{safeEntry}');";
-                command = transaction.Connection.CreateCommand();
-                command.CommandText = insert;
-                command.ExecuteNonQuery();
-            }
         }
     }
 }

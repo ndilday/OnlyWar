@@ -1,11 +1,10 @@
-﻿using Mono.Data.Sqlite;
-using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Scripts.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Database
+namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
     public class PlanetDataAccess
     {
