@@ -2,10 +2,10 @@
 using System.Linq;
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     class ArchiveController : MonoBehaviour
     {

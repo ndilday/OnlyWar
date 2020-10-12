@@ -1,14 +1,18 @@
-﻿using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
+﻿using System.Linq;
 
-namespace Iam.Scripts.Helpers
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+
+namespace OnlyWar.Scripts.Helpers
 {
     public sealed class TempTyranidArmyGenerator
     {
-        public static Unit GenerateTyranidArmy(int armyId)
+        public static Unit GenerateTyranidArmy(int armyId, Faction faction)
         {
-            Unit root = TempTyranidUnitTemplates.Instance.UnitTemplates[armyId].GenerateUnitFromTemplateWithoutChildren(666, "Tyranid Challenge Force");
+            Unit root = faction.UnitTemplates.Values.Where(ut => ut.IsTopLevelUnit).ToList()[armyId]
+                            .GenerateUnitFromTemplateWithoutChildren("Tyranid Challenge Force");
             if(root.HQSquad != null)
             {
                 root.HQSquad.IsInReserve = false;
@@ -16,12 +20,13 @@ namespace Iam.Scripts.Helpers
                 {
                     // this is cheat... the soldier type id and the template ids match
                     SoldierType type = element.SoldierType;
-                    SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
+                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach (Soldier soldier in soldiers)
                     {
                         root.HQSquad.AddSquadMember(soldier);
+                        soldier.AssignedSquad = root.HQSquad;
                         soldier.Type = type;
                         soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
                     }
@@ -34,12 +39,13 @@ namespace Iam.Scripts.Helpers
                 {
                     // this is cheat... the soldier type id and the template ids match
                     SoldierType type = element.SoldierType;
-                    SoldierTemplate template = TempTyranidSoldierTemplates.Instance.SoldierTemplates[type.Id];
+                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach(Soldier soldier in soldiers)
                     {
                         squad.AddSquadMember(soldier);
+                        soldier.AssignedSquad = squad;
                         soldier.Type = type;
                         soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
                     }

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Helpers;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class RecruitmentController : MonoBehaviour
     {
@@ -23,7 +23,7 @@ namespace Iam.Scripts.Controllers
         private int _scoutCount;
         private int _squadCount;
         private int _readyCount;
-        private readonly SoldierTrainingHelper _trainingHelper;
+        private SoldierTrainingHelper _trainingHelper;
 
         private const string RECRUITER_FORMAT = @"Greetings, sir. My report on the current status of our Neophytes and Aspriants is as follows.
 
@@ -37,11 +37,11 @@ I await any further instructions you have on our recruiting and training efforts
         {
             _scoutSquads = new Dictionary<int, Squad>();
             _squadSkillFocusMap = new Dictionary<int, TrainingFocuses>();
-            _trainingHelper = new SoldierTrainingHelper();
         }
 
-        public void GalaxyController_OnChapterCreated()
+        private void Start()
         {
+            _trainingHelper = new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);
             PopulateScoutSquadMap();
             EvaluateScouts();
         }
@@ -87,7 +87,7 @@ I await any further instructions you have on our recruiting and training efforts
             }
         }
 
-        public void UnitTreeView_OnUnitSelected(int squadId)
+        public void UnitTreeView_OnSquadSelected(int squadId)
         {
             string squadReport = "";
             Squad squad = _scoutSquads[squadId];
@@ -134,41 +134,33 @@ I await any further instructions you have on our recruiting and training efforts
             Unit parentUnit = deletedSquad.ParentUnit;
             parentUnit.RemoveSquad(deletedSquad);
             _scoutSquads.Remove(squadId);
-            GameSettings.SquadMap.Remove(squadId);
+            GameSettings.Chapter.SquadMap.Remove(squadId);
             PopulateScoutSquadMap();
         }
 
         private string GetRecruiterDescription(PlayerSoldier soldier)
         {
-            if (soldier.MeleeRating > 400)
+            if (soldier.RangedRating > 105)
             {
-                if (soldier.RangedRating > 60)
+                if (soldier.MeleeRating > 90)
                 {
-                    if (soldier.MeleeRating > 500 && soldier.RangedRating > 70)
+                    if (soldier.MeleeRating > 100 && soldier.RangedRating > 105)
                     {
                         return soldier.Name + " is ready to accept the Black Carapace and join a Devastator Squad; I think he will rise through the ranks quickly.\n";
                     }
                     else
                     {
-                        return soldier.Name + " could be promoted to a Devastator Squad if needed, but I would prefer he earn more seasoning first.\n";
+                        return soldier.Name + " is ready to be promoted to a Devastator Squad, but I would prefer he earn more seasoning first.\n";
                     }
-                }
-                else if (soldier.MeleeRating > 500)
-                {
-                    return soldier.Name + " is able in hand to hand combat, but needs more training with the bolter to be ready to don the Black Carapace.\n";
                 }
                 else
                 {
-                    return soldier.Name + " could be promoted in an emergency, but I would not recommend it.\n";
+                    return soldier.Name + " could be promoted in an emergency, but is not ready to face hand-to-hand combat.\n";
                 }
             }
-            else if (soldier.RangedRating > 70)
+            else if (soldier.MeleeRating > 90)
             {
-                return soldier.Name + " could be assigned to devastator duties if necessary, but is underwhelming with the chainsword, and it may be some time before he is ready to leave the ranks of the Devastators.\n";
-            }
-            else if (soldier.RangedRating > 60)
-            {
-                return soldier.Name + " could be promoted to a devastator squad in an emergency, but I would not recommend it, especially considering his poor melee skills.\n";
+                return soldier.Name + " has a good grasp of the sword, but his mastery of the bolter leaves something to be desired.\n";
             }
             else
             {
@@ -209,11 +201,11 @@ I await any further instructions you have on our recruiting and training efforts
                 _squadCount++;
                 foreach(PlayerSoldier soldier in squad.Members)
                 {
-                    soldier.UpdateRatings();
+                    _trainingHelper.UpdateRatings(soldier);
                     if(soldier.Type.Name == "Scout Marine")
                     {
                         _scoutCount++;
-                        if(soldier.MeleeRating > 500 && soldier.RangedRating > 70)
+                        if(soldier.MeleeRating > 95 && soldier.RangedRating > 98)
                         {
                             _readyCount++;
                         }

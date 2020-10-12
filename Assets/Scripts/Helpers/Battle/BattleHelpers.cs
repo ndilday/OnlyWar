@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers.Battle
+namespace OnlyWar.Scripts.Helpers.Battle
 {
     public static class BattleHelpers
     {
@@ -33,8 +33,8 @@ namespace Iam.Scripts.Helpers.Battle
         public static float CalculateDamageAtRange(RangedWeapon weapon, float range)
         {
             return weapon.Template.DoesDamageDegradeWithRange ?
-                                weapon.Template.BaseDamage * (1 - (range / weapon.Template.MaximumDistance)) :
-                                weapon.Template.BaseDamage;
+                                weapon.Template.DamageMultiplier * (1 - (range / weapon.Template.MaximumRange)) :
+                                weapon.Template.DamageMultiplier;
         }
     }
 }

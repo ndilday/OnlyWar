@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Models.Squads
+namespace OnlyWar.Scripts.Models.Squads
 {
     public class SquadTemplateElement
     {

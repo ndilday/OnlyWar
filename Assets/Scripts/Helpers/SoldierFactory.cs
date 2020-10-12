@@ -1,6 +1,6 @@
-﻿using Iam.Scripts.Models.Soldiers;
+﻿using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     class SoldierFactory
     {
@@ -32,7 +32,7 @@ namespace Iam.Scripts.Helpers
             soldier.Dexterity = template.Dexterity.BaseValue + (float)(RNG.NextGaussianDouble() * template.Dexterity.StandardDeviation);
             soldier.Constitution = template.Constitution.BaseValue + (float)(RNG.NextGaussianDouble() * template.Constitution.StandardDeviation);
             soldier.Ego = template.Ego.BaseValue + (float)(RNG.NextGaussianDouble() * template.Ego.StandardDeviation);
-            soldier.Presence = template.Presence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Presence.StandardDeviation);
+            soldier.Charisma = template.Charisma.BaseValue + (float)(RNG.NextGaussianDouble() * template.Charisma.StandardDeviation);
             soldier.Perception = template.Perception.BaseValue + (float)(RNG.NextGaussianDouble() * template.Perception.StandardDeviation);
             soldier.Intelligence = template.Intelligence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Intelligence.StandardDeviation);
 
@@ -43,8 +43,11 @@ namespace Iam.Scripts.Helpers
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
-                soldier.AddSkillPoints(skillTemplate.BaseSkill, 
-                    skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation));
+                float roll = skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
+                if(roll > 0)
+                {
+                    soldier.AddSkillPoints(skillTemplate.BaseSkill, roll);
+                }
             }
 
             return soldier;

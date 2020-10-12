@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-namespace Iam.Scripts
+namespace OnlyWar.Scripts
 {
     public static class TempNameGenerator
     {
-        private static string[] _names =
+        private static readonly string[] _names =
         {
             "Abel",
             "Abronio",

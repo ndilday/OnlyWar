@@ -1,9 +1,9 @@
-﻿using Iam.Scripts.Models.Squads;
+﻿using OnlyWar.Scripts.Models.Squads;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Iam.Scripts.Models.Fleets
+namespace OnlyWar.Scripts.Models.Fleets
 {
     public class Boat
     {
@@ -39,6 +39,7 @@ namespace Iam.Scripts.Models.Fleets
 
         public int Id { get; }
         public string Name { get; }
+        public Fleet Fleet { get; set; }
         public ShipTemplate Template { get; }
         public IReadOnlyCollection<Squad> LoadedSquads { get => _loadedSquads; } 
         public List<Boat> Boats { get; }
@@ -49,11 +50,15 @@ namespace Iam.Scripts.Models.Fleets
         {
             Id = id;
             Name = name;
+            Template = template;
+            Boats = new List<Boat>();
+        }
+
+        public Ship(int id, string name, ShipTemplate template, BoatTemplate boatTemplate) 
+            : this(id, name, template)
+        {
             _loadedSquads = new List<Squad>();
             LoadedSoldierCount = 0;
-            Template = template;
-            BoatTemplate boatTemplate = TempSpaceMarineShipTemplates.Instance.BoatTemplates[4];
-            Boats = new List<Boat>();
             for (byte i = 0; i < Template.BoatCapacity; i++)
             {
                 Boats.Add(new Boat(boatTemplate));

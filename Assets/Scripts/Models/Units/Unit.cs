@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Models.Units
+namespace OnlyWar.Scripts.Models.Units
 {
     public class Unit
     {
+        private static int _nextId = 0;
         private readonly List<Squad> _squads;
         public int Id { get; private set; }
         public string Name { get; set; }
@@ -19,9 +20,23 @@ namespace Iam.Scripts.Models.Units
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
-        public Unit(int id, string name, UnitTemplate template)
+
+        public Unit(int id, string name, UnitTemplate template, 
+                    Squad hq, List<Squad> squads)
         {
             Id = id;
+            if(id > _nextId)
+            {
+                _nextId = id + 1;
+            }
+            Name = name;
+            UnitTemplate = template;
+            HQSquad = hq;
+            _squads = squads;
+        }
+        public Unit(string name, UnitTemplate template)
+        {
+            Id = _nextId++;
             Name = name;
             UnitTemplate = template;
             AssignedVehicles = new List<int>();
@@ -31,14 +46,14 @@ namespace Iam.Scripts.Models.Units
 
             if (template.HQSquad != null)
             {
-                HQSquad = new Squad(id * 100 + i, name + " HQ Squad", this, template.HQSquad);
+                HQSquad = new Squad(name + " HQ Squad", this, template.HQSquad);
                 i++;
             }
             
             _squads = new List<Squad>();
             foreach(SquadTemplate squadTemplate in template.GetChildSquads())
             {
-                _squads.Add(new Squad(id * 100 + i, squadTemplate.Name, this, squadTemplate));
+                _squads.Add(new Squad(squadTemplate.Name, this, squadTemplate));
                 i++;
             }
         }
@@ -62,14 +77,17 @@ namespace Iam.Scripts.Models.Units
         
         public IEnumerable<Squad> GetAllSquads()
         {
+            List<Squad> squads = new List<Squad>();
+            squads.AddRange(squads);
             if (HQSquad != null)
             {
-                return Squads.Union(new[] { HQSquad }).Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+                squads.Add(HQSquad);
             }
-            else
+            if(ChildUnits != null)
             {
-                return Squads.Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+                squads.AddRange(ChildUnits.SelectMany(cu => cu.GetAllSquads()));
             }
+            return squads;
         }
 
         public void AddHQSquad(Squad hq)

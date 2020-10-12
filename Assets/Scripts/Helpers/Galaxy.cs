@@ -3,26 +3,44 @@ using System.Linq;
 
 using UnityEngine;
 
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models;
+using OnlyWar.Scripts.Helpers.Database.GameRules;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models;
 using System;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public class Galaxy
     {
         private readonly List<Fleet> _fleets;
         private readonly List<Planet> _planets;
+        private readonly List<Faction> _factions;
+        private readonly Dictionary<int, BaseSkill> _baseSkillMap;
+        private readonly Dictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly int _galaxySize;
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
+        public IReadOnlyList<Faction> Factions { get => _factions; }
+        public Faction PlayerFaction { get; }
+        public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
+        public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
 
         public Galaxy(int galaxySize)
         {
+            var gameBlob = GameRulesDataAccess.Instance.GetData();
+            _factions = gameBlob.Factions;
+            _baseSkillMap = gameBlob.BaseSkills;
+            _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
+            PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
             _fleets = new List<Fleet>();
+        }
+
+        public IReadOnlyList<Faction> GetNonPlayerFactions()
+        {
+            return _factions.Where(f => !f.IsPlayerFaction).ToList();
         }
 
         public Planet GetPlanet(int planetId)
@@ -40,9 +58,19 @@ namespace Iam.Scripts.Helpers
             return Fleets.Where(f => f.Position == worldPosition);
         }
 
+        public void GenerateGalaxy(List<Planet> planets, List<Fleet> fleets)
+        {
+            _planets.Clear();
+            _planets.AddRange(planets);
+            _fleets.Clear();
+            _fleets.AddRange(fleets);
+        }
+
         public void GenerateGalaxy(int seed)
         {
+            _planets.Clear();
             UnityEngine.Random.InitState(seed);
+            int id = 0;
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
@@ -52,31 +80,32 @@ namespace Iam.Scripts.Helpers
                         string name;
                         PlanetType type;
 
-                        if (Planets.Count < 60)
+                        if (id < TempPlanetList.Planets.Length)
                         {
-                            name = TempPlanetList.Planets[Planets.Count].Name;
-                            type = TempPlanetList.Planets[Planets.Count].Type;
+                            name = TempPlanetList.Planets[id].Name;
+                            type = TempPlanetList.Planets[id].Type;
                         }
                         else
                         {
-                            name = i.ToString() + j.ToString();
+                            name = $"{i},{j}";
                             type = PlanetType.Death;
                         }
                         
-                        Planet p = new Planet(Planets.Count, name, new Vector2(i, j), type);
+                        Planet p = new Planet(id, name, new Vector2(i, j), type);
                         
                         if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
                         {
-                            p.ControllingFaction = TempFactions.Instance.TyranidFaction;
+                            p.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
                         }
 
                         _planets.Add(p);
+                        id++;
                     }
                 }
             }
         }
 
-        public void AddFleet(Fleet newFleet)
+        public void AddNewFleet(Fleet newFleet)
         {
             _fleets.Add(newFleet);
             if(newFleet.Planet != null)
@@ -125,7 +154,7 @@ namespace Iam.Scripts.Helpers
             return newFleet;
         }
 
-        public void TakeControlOfPlanet(Planet planet, FactionTemplate faction)
+        public void TakeControlOfPlanet(Planet planet, Faction faction)
         {
             planet.ControllingFaction = faction;
         }

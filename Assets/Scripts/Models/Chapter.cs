@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Models
+namespace OnlyWar.Scripts.Models
 {
     public class EventHistory
     {
@@ -22,14 +23,41 @@ namespace Iam.Scripts.Models
         public Dictionary<Date, List<EventHistory>> BattleHistory { get; }
         public Unit OrderOfBattle { get; }
         public List<Fleet> Fleets { get; }
-        public Dictionary<int, PlayerSoldier> ChapterPlayerSoldierMap { get; }
+        public Dictionary<int, PlayerSoldier> PlayerSoldierMap { get; }
+        public Dictionary<int, Squad> SquadMap { get; private set; }
         public Chapter(Unit unit, IEnumerable<PlayerSoldier> soldiers)
         {
             GeneseedStockpile = 0;
             OrderOfBattle = unit;
             BattleHistory = new Dictionary<Date, List<EventHistory>>();
-            ChapterPlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
+            PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
             Fleets = new List<Fleet>();
+        }
+
+        public void PopulateSquadMap()
+        {
+            if (SquadMap == null)
+            {
+                SquadMap = new Dictionary<int, Squad>
+                {
+                    [OrderOfBattle.HQSquad.Id] = OrderOfBattle.HQSquad
+                };
+                foreach (Squad squad in OrderOfBattle.Squads)
+                {
+                    SquadMap[squad.Id] = squad;
+                }
+                foreach (Unit company in OrderOfBattle.ChildUnits)
+                {
+                    if (company.HQSquad != null)
+                    {
+                        SquadMap[company.HQSquad.Id] = company.HQSquad;
+                    }
+                    foreach (Squad squad in company.Squads)
+                    {
+                        SquadMap[squad.Id] = squad;
+                    }
+                }
+            }
         }
     }
 }

@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Helpers.Database.GameState;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections;
 
-using Iam.Scripts.Models;
-
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class UIController : MonoBehaviour
     {
@@ -17,6 +19,8 @@ namespace Iam.Scripts.Controllers
         private Text ScreenTitle;
         [SerializeField]
         private GameSettings GameSettings;
+        [SerializeField]
+        private Text SaveButtonText;
 
         public void Start()
         {
@@ -77,6 +81,25 @@ namespace Iam.Scripts.Controllers
             ScreenTitle.text = planet.Name;
         }
 
+        public void TempSaveButton_OnClick()
+        {
+            var ships = GameSettings.Galaxy.Fleets.SelectMany(fleet => fleet.Ships);
+            var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
+            GameStateDataAccess.Instance.SaveData("default.s3db",
+                                                  GameSettings.Date,
+                                                  GameSettings.Galaxy.Planets,
+                                                  GameSettings.Galaxy.Fleets,
+                                                  units,
+                                                  GameSettings.Chapter.PlayerSoldierMap.Values,
+                                                  GameSettings.Chapter.BattleHistory);
+            StartCoroutine(TemporarySaveButtonUpdateCoroutine());
+        }
+
+        public void TempLoadButton_OnClick()
+        {
+
+        }
+
         private void DisableUI()
         {
             BottomUI.SetActive(false);
@@ -85,6 +108,13 @@ namespace Iam.Scripts.Controllers
         private void EnableUI()
         {
             BottomUI.SetActive(true);
+        }
+
+        private IEnumerator TemporarySaveButtonUpdateCoroutine()
+        {
+            SaveButtonText.text = "<b>SAVED!</b>";
+            yield return new WaitForSeconds(2);
+            SaveButtonText.text = "Save";
         }
     }
 }

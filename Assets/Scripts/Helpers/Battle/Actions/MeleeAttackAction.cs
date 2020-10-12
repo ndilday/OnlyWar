@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Scripts.Helpers.Battle.Actions
 {
     public class MeleeAttackAction : IAction
     {
@@ -15,15 +15,14 @@ namespace Iam.Scripts.Helpers.Battle.Actions
         private readonly ConcurrentBag<WoundResolution> _resultList;
         private readonly ConcurrentQueue<string> _log;
         private readonly bool _didMove;
-        public MeleeAttackAction(BattleSoldier attacker, BattleSoldier target, MeleeWeapon weapon, bool didMove, ConcurrentBag<WoundResolution> resultList, ConcurrentQueue<string> log)
+        public MeleeAttackAction(BattleSoldier attacker, BattleSoldier target, 
+                                 MeleeWeapon weapon, bool didMove, 
+                                 ConcurrentBag<WoundResolution> resultList, 
+                                 ConcurrentQueue<string> log)
         {
             _attacker = attacker;
             _target = target;
             _weapon = weapon;
-            if(_weapon == null)
-            {
-                _weapon = new MeleeWeapon(TempSpaceMarineEquippables.Instance.MeleeWeaponTemplates[113]);
-            }
             _didMove = didMove;
             _resultList = resultList;
             _log = log;
@@ -74,7 +73,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)
                 {
-                    float totalDamage = penDamage * _weapon.Template.PenetrationMultiplier;
+                    float totalDamage = penDamage * _weapon.Template.WoundMultiplier;
                     _resultList.Add(new WoundResolution(_attacker, _weapon.Template, _target, totalDamage, hitLocation));
                 }
             }
@@ -89,7 +88,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             int roll = RNG.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
             foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
-                int locationChance = location.Template.HitProbabilityMap[soldier.Stance];
+                int locationChance = location.Template.HitProbabilityMap[(int)soldier.Stance];
                 if (roll < locationChance)
                 {
                     return location;

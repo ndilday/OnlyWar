@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Units;
 
-namespace Iam.Scripts.Models.Squads
+namespace OnlyWar.Scripts.Models.Squads
 {
     public class Squad
     {
+        private static int _nextId = 0;
         private readonly List<ISoldier> _members;
         public int Id { get; private set; }
         public string Name { get; set; }
-        public Unit ParentUnit { get; }
+        public Unit ParentUnit { get; set; }
         public SquadTemplate SquadTemplate { get; private set; }
         public bool IsInReserve { get; set; }
         public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Type.IsSquadLeader); }
@@ -22,9 +23,25 @@ namespace Iam.Scripts.Models.Squads
         public Planet Location { get; set; }
         public Ship BoardedLocation { get; set; }
         //public List<int> AssignedVehicles;
+        public Squad(string name, Unit parentUnit, SquadTemplate template)
+        {
+            Id = _nextId++;
+            Name = name;
+            ParentUnit = parentUnit;
+            SquadTemplate = template;
+            IsInReserve = true;
+            _members = new List<ISoldier>();
+            //AssignedVehicles = new List<int>();
+            Loadout = new List<WeaponSet>();
+        }
+
         public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
         {
             Id = id;
+            if(id > _nextId)
+            {
+                _nextId = id + 1;
+            }
             Name = name;
             ParentUnit = parentUnit;
             SquadTemplate = template;

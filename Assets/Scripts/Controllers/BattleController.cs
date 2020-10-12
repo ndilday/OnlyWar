@@ -6,18 +6,16 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-using Iam.Scripts.Helpers.Battle;
-using Iam.Scripts.Helpers.Battle.Actions;
-using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Helpers.Battle;
+using OnlyWar.Scripts.Helpers.Battle.Actions;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class BattleController : MonoBehaviour
     {
@@ -42,7 +40,8 @@ namespace Iam.Scripts.Controllers
         private readonly MoveResolver _moveResolver;
         private readonly WoundResolver _woundResolver;
         private Planet _planet;
-        private FactionTemplate _opposingFaction;
+        private Faction _opposingFaction;
+        private BaseSkill _baseMeleeSkill;
 
         private const int MAP_WIDTH = 100;
         private const int MAP_HEIGHT = 450;
@@ -62,22 +61,27 @@ namespace Iam.Scripts.Controllers
             _startingPlayerBattleSoldiers = new List<BattleSoldier>();
         }
 
+        public void Start()
+        {
+            _baseMeleeSkill =
+                GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
+        }
+
         public void GalaxyController_OnBattleStarted(Planet planet)
         {
             _planet = planet;
             ResetBattleValues();
 
-            foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+            foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
             {
-                if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
+                if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
                 {
-                    PopulateMapsFromUnitList(_playerBattleSquads, kvp.Value, true);
+                    PopulateMapsFromSquadList(_playerBattleSquads, kvp.Value, true);
                 }
                 else
                 {
-                    // TODO: clean this up when we add more factions
-                    _opposingFaction = TempFactions.Instance.TyranidFaction;
-                    PopulateMapsFromUnitList(_opposingBattleSquads, kvp.Value, false);
+                    _opposingFaction = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key);
+                    PopulateMapsFromSquadList(_opposingBattleSquads, kvp.Value, false);
                 }
             }
 
@@ -158,7 +162,7 @@ namespace Iam.Scripts.Controllers
             {
                 // add death note to soldier history, though we currently just delete it 
                 // we'll probably want it later
-                GameSettings.Chapter.ChapterPlayerSoldierMap[casualty.Soldier.Id]
+                GameSettings.Chapter.PlayerSoldierMap[casualty.Soldier.Id]
                     .AddEntryToHistory($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
             }
             else
@@ -253,7 +257,7 @@ namespace Iam.Scripts.Controllers
             if(_opposingBattleSquads == null || _opposingBattleSquads.Count == 0)
             {
                 // The marines finish off any xenos still moving
-                _planet.FactionGroundUnitListMap.Remove(TempFactions.Instance.TyranidFaction.Id);
+                _planet.FactionSquadListMap.Remove(_opposingFaction.Id);
             }
             // we'll be nice to the Marines despite losing the battle... for now
             Debug.Log("Battle completed");
@@ -283,16 +287,29 @@ namespace Iam.Scripts.Controllers
             // use the thread pool to handle the BattleSquadPlanner classes;
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
+            MeleeWeapon defaultWeapon = new MeleeWeapon(
+                GameSettings.Galaxy.PlayerFaction.MeleeWeaponTemplates.Values
+                    .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
+                                                                    shootSegmentActions, moveSegmentActions, 
+                                                                    meleeSegmentActions, 
+                                                                    _woundResolver.WoundQueue, 
+                                                                    _moveResolver.MoveQueue, 
+                                                                    log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
             //Parallel.ForEach(_opposingSquads.Values, (squad) =>
             foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, shootSegmentActions, moveSegmentActions, meleeSegmentActions, _woundResolver.WoundQueue, _moveResolver.MoveQueue, log);
+                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
+                                                                    shootSegmentActions, moveSegmentActions, 
+                                                                    meleeSegmentActions, 
+                                                                    _woundResolver.WoundQueue, 
+                                                                    _moveResolver.MoveQueue, 
+                                                                    log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
         }
@@ -406,29 +423,26 @@ namespace Iam.Scripts.Controllers
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
 
-        private void PopulateMapsFromUnitList(Dictionary<int, BattleSquad> map, List<Unit> units, bool isPlayerSquad)
+        private void PopulateMapsFromSquadList(Dictionary<int, BattleSquad> map, List<Squad> squads, bool isPlayerSquad)
         {
-            foreach (Unit unit in units)
+            var activeSquads = squads.Where(s => !s.IsInReserve);
+            foreach (Squad squad in activeSquads)
             {
-                var activeSquads = unit.GetAllSquads().Where(s => !s.IsInReserve);
-                foreach (Squad squad in activeSquads)
-                {
-                    BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
+                BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
 
-                    map[bs.Id] = bs;
-                    foreach(BattleSoldier soldier in bs.Soldiers)
-                    {
-                        _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
-                    }
-                    if(isPlayerSquad)
-                    {
-                        // making a separate list 
-                        _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
-                    }
-                    else
-                    {
-                        _startingEnemyCount += bs.Soldiers.Count;
-                    }
+                map[bs.Id] = bs;
+                foreach(BattleSoldier soldier in bs.Soldiers)
+                {
+                    _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
+                }
+                if(isPlayerSquad)
+                {
+                    // making a separate list 
+                    _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
+                }
+                else
+                {
+                    _startingEnemyCount += bs.Soldiers.Count;
                 }
             }
         }
@@ -551,7 +565,7 @@ namespace Iam.Scripts.Controllers
                         historyEntry += $"Was greviously wounded.";
                     }
                 }
-                GameSettings.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
+                GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
             }
 
         }
@@ -590,13 +604,13 @@ namespace Iam.Scripts.Controllers
                     {
                         if (soldier.MeleeWeapons.Count > 0)
                         {
-                            soldier.Soldier.AddSkillPoints(soldier.RangedWeapons[0].Template.RelatedSkill,
+                            soldier.Soldier.AddSkillPoints(soldier.MeleeWeapons[0].Template.RelatedSkill,
                                                                soldier.TurnsSwinging * 0.0005f);
                         }
                         else
                         {
-                            soldier.Soldier.AddSkillPoints(TempBaseSkillList.Instance.Fist,
-                                                               soldier.TurnsSwinging * 0.0005f);
+                            soldier.Soldier.AddSkillPoints(_baseMeleeSkill,
+                                                           soldier.TurnsSwinging * 0.0005f);
                         }
                         soldier.Soldier.AddAttributePoints(Models.Soldiers.Attribute.Strength,
                                                                soldier.TurnsSwinging * 0.0005f);
@@ -617,9 +631,11 @@ namespace Iam.Scripts.Controllers
                         // if a vital part is severed, they're dead
                         dead.Add(soldier.Soldier);
                         PlayerSoldier playerSoldier = 
-                            GameSettings.Chapter.ChapterPlayerSoldierMap[soldier.Soldier.Id];
-                        playerSoldier.RemoveFromSquad();
-                        GameSettings.Chapter.ChapterPlayerSoldierMap.Remove(soldier.Soldier.Id);
+                            GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
+                        Squad squad = playerSoldier.AssignedSquad;
+                        playerSoldier.AssignedSquad = null;
+                        squad.RemoveSquadMember(playerSoldier);
+                        GameSettings.Chapter.PlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }
                 }
@@ -658,7 +674,7 @@ namespace Iam.Scripts.Controllers
     
         private void CreditSoldierForKill(BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            GameSettings.Chapter.ChapterPlayerSoldierMap[inflicter.Soldier.Id]
+            GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
                 .AddKill(_opposingFaction.Id, weapon.Id);
             inflicter.EnemiesTakenDown++;
         }

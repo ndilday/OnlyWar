@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Iam.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
 {
     public interface IResolver
     {

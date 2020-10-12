@@ -4,15 +4,14 @@ using System.Linq;
 
 using UnityEngine;
 
-using Iam.Scripts.Models;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Squads;
-using Iam.Scripts.Models.Units;
-using Iam.Scripts.Views;
+using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Scripts.Views;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     class PlanetController : ChapterUnitTreeController
     {
@@ -36,15 +35,17 @@ namespace Iam.Scripts.Controllers
         public void GalaxyController_OnPlanetSelected(Planet planet)
         {
             _selectedPlanet = planet;
+            bool playerSquadsPresent = false;
             // assume player is Space Marine
-            List<Unit> unitList = null;
-            if (planet.FactionGroundUnitListMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            if (planet.FactionSquadListMap != null 
+                && planet.FactionSquadListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                unitList = planet.FactionGroundUnitListMap?[TempFactions.Instance.SpaceMarineFaction.Id];
+                playerSquadsPresent = 
+                    planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
             CreateScoutingReport(planet);
-            if(unitList?.Count > 0)
+            if(playerSquadsPresent)
             {
                 PopulateUnitTree();
             }
@@ -108,7 +109,7 @@ namespace Iam.Scripts.Controllers
         public void UnitView_OnSquadSelected(int squadId)
         {
             // populate the SquadArmamentView
-            _selectedSquad = GameSettings.SquadMap[squadId];
+            _selectedSquad = GameSettings.Chapter.SquadMap[squadId];
             _selectedUnit = null;
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
@@ -146,7 +147,7 @@ namespace Iam.Scripts.Controllers
         public void FleetView_OnSquadSelected(int squadId)
         {
             _selectedShip = null;
-            _selectedShipSquad = GameSettings.SquadMap[squadId];
+            _selectedShipSquad = GameSettings.Chapter.SquadMap[squadId];
             PlanetView.EnableLoadInShipButton(false);
             PlanetView.EnableRemoveFromShipButton(true);
         }
@@ -192,7 +193,7 @@ namespace Iam.Scripts.Controllers
             // on the planet so it doesn't think there should be a battle
             if(!anySquadsLeft)
             {
-                _selectedPlanet.FactionGroundUnitListMap.Remove(TempFactions.Instance.SpaceMarineFaction.Id);
+                _selectedPlanet.FactionSquadListMap.Remove(GameSettings.Galaxy.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -210,18 +211,13 @@ namespace Iam.Scripts.Controllers
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableRemoveFromShipButton(false);
 
-            var factionUnitMap = _selectedShipSquad.Location.FactionGroundUnitListMap;
-            if (!factionUnitMap.ContainsKey(TempFactions.Instance.SpaceMarineFaction.Id))
+            var factionSquadMap = _selectedShipSquad.Location.FactionSquadListMap;
+            if (!factionSquadMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
             {
-                factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id] =
-                    new List<Unit>();
+                factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id] = new List<Squad>();
             }
-            var unitList = factionUnitMap[TempFactions.Instance.SpaceMarineFaction.Id];
-            if (!unitList.Contains(GameSettings.Chapter.OrderOfBattle))
-            {
-                // this feels hacky, but I think it's the safest choice
-                unitList.Add(GameSettings.Chapter.OrderOfBattle);
-            }
+            factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id].Add(_selectedShipSquad);
+            
             _selectedShipSquad = null;
             _selectedShip = null;
             _selectedSquad = null;
@@ -233,25 +229,21 @@ namespace Iam.Scripts.Controllers
             PlanetView.UpdateScoutingReport("");
             string newReport = "";
             bool hasMarineForces = false;
-            if (planet.FactionGroundUnitListMap != null)
+            if (planet.FactionSquadListMap != null)
             {
-                foreach (KeyValuePair<int, List<Unit>> kvp in planet.FactionGroundUnitListMap)
+                foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
                 {
-                    string factionName = "Xenos";
-                    if (kvp.Key == TempFactions.Instance.TyranidFaction.Id)
-                    {
-                        factionName = "Tyranid";
-                    }
                     int factionSoldierCount = 0;
-                    if (kvp.Key == TempFactions.Instance.SpaceMarineFaction.Id)
+                    if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
                     {
                         hasMarineForces = true;
                     }
                     else
                     {
-                        foreach (Unit unit in kvp.Value)
+                        string factionName = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key).Name;
+                        foreach (Squad squad in kvp.Value)
                         {
-                            factionSoldierCount += unit.GetAllMembers().Count();
+                            factionSoldierCount += squad.Members.Count;
                         }
                         newReport = factionName + " forces on the planet number in the ";
                         if (factionSoldierCount >= 2000) newReport += "thousands.";
@@ -391,7 +383,7 @@ namespace Iam.Scripts.Controllers
 
         private Tuple<Color, int> DetermineSquadDisplayValues(Squad squad)
         {
-            var deployables = squad.Members.Select(s => GameSettings.PlayerSoldierMap[s.Id])
+            var deployables = squad.Members.Select(s => GameSettings.Chapter.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
             var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
             bool isFull = true;

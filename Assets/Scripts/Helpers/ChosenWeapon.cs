@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public class ChosenRangedWeapon
     {
@@ -16,7 +16,7 @@ namespace Iam.Scripts.Helpers
 
         public float GetStrengthAtRange(float range)
         {
-            return ActiveWeapon.Template.BaseDamage * (1 - (range / ActiveWeapon.Template.MaximumDistance));
+            return ActiveWeapon.Template.DamageMultiplier * (1 - (range / ActiveWeapon.Template.MaximumRange));
         }
 
         public float GetAccuracyAtRange(float range)

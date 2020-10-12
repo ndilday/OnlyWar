@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using OnlyWar.Scripts.Models.Squads;
+using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
     public class Soldier : ISoldier
     {
@@ -13,6 +14,12 @@ namespace Iam.Scripts.Models.Soldiers
         {
             _skills = new Dictionary<int, Skill>();
             Body = new Body(body);
+        }
+
+        public Soldier(List<HitLocation> hitLocations, List<Skill> skills)
+        {
+            _skills = skills.ToDictionary(skill => skill.BaseSkill.Id);
+            Body = new Body(hitLocations);
         }
 
         public int FunctioningHands
@@ -37,7 +44,7 @@ namespace Iam.Scripts.Models.Soldiers
         public float Perception { get; set; }
         public float Intelligence { get; set; }
         public float Ego { get; set; }
-        public float Presence { get; set; }
+        public float Charisma { get; set; }
         public float Constitution { get; set; }
         public float PsychicPower { get; set; }
         public float AttackSpeed { get; set; }
@@ -47,6 +54,9 @@ namespace Iam.Scripts.Models.Soldiers
         public int Id { get; set; }
         public string Name { get; set; }
         public SoldierType Type { get; set; }
+        public IReadOnlyCollection<Skill> Skills { get => _skills.Values; }
+
+        public Squad AssignedSquad { get; set; }
 
         public void AddSkillPoints(BaseSkill skill, float points)
         {
@@ -82,7 +92,7 @@ namespace Iam.Scripts.Models.Soldiers
                 case Attribute.Ego:
                     return Ego;
                 case Attribute.Presence:
-                    return Presence;
+                    return Charisma;
                 case Attribute.Strength:
                     return Strength;
                 case Attribute.Constitution:
@@ -114,8 +124,8 @@ namespace Iam.Scripts.Models.Soldiers
                     Intelligence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
                     break;
                 case Attribute.Presence:
-                    curPoints = Mathf.Pow(2, Presence - 11) * 10;
-                    Presence = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
+                    curPoints = Mathf.Pow(2, Charisma - 11) * 10;
+                    Charisma = Mathf.Log((curPoints + points) / 10.0f, 2) + 11;
                     break;
                 case Attribute.Strength:
                     curPoints = Mathf.Pow(2, Strength - 11) * 10;

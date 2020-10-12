@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Iam.Scripts.Models.Equippables
+namespace OnlyWar.Scripts.Models.Equippables
 {
     public class WeaponSet
     {

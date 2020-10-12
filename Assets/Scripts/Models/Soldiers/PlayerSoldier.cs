@@ -1,43 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Iam.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Models.Soldiers
+namespace OnlyWar.Scripts.Models.Soldiers
 {
-    public class SkillRanking
-    {
-
-    }
-
     // PlayerSoldier uses the decorator pattern to extend the Soldier class
     // with features we're only interested in for the player's troops
     public class PlayerSoldier : ISoldier
     {
         private readonly Soldier _soldier;
-
-        private float _meleeRating;
-        private float _rangedRating;
-        private float _leadershipRating;
-        private float _medicalRating;
-        private float _techRating;
-        private float _pietyRating;
-        private float _ancientRating;
-
         private readonly List<string> _soldierHistory;
         private readonly Dictionary<int, ushort> _weaponCasualtyCountMap;
         private readonly Dictionary<int, ushort> _factionCasualtyCountMap;
+        private Squad _assignedSquad;
 
-        public Squad AssignedSquad { get; private set; }
         public Date ProgenoidImplantDate { get; set; }
         public IReadOnlyCollection<string> SoldierHistory { get => _soldierHistory; }
-        public float MeleeRating { get => _meleeRating; }
-        public float RangedRating { get => _rangedRating; }
-        public float LeadershipRating { get => _leadershipRating; }
-        public float MedicalRating { get => _medicalRating; }
-        public float TechRating { get => _techRating; }
-        public float PietyRating { get => _pietyRating; }
-        public float AncientRating { get => _ancientRating; }
+        public float MeleeRating { get; set; }
+        public float RangedRating { get; set; }
+        public float LeadershipRating { get; set; }
+        public float MedicalRating { get; set; }
+        public float TechRating { get; set; }
+        public float PietyRating { get; set; }
+        public float AncientRating { get; set; }
+        public IReadOnlyDictionary<int, ushort> WeaponCasualtyCountMap { get => _weaponCasualtyCountMap; }
+        public IReadOnlyDictionary<int, ushort> FactionCasualtyCountMap { get => _factionCasualtyCountMap; }
         #region ISoldier passthrough
         public int Id => _soldier.Id;
 
@@ -57,7 +45,7 @@ namespace Iam.Scripts.Models.Soldiers
 
         public float Ego => _soldier.Ego;
 
-        public float Presence => _soldier.Presence;
+        public float Charisma => _soldier.Charisma;
 
         public float PsychicPower => _soldier.PsychicPower;
 
@@ -70,6 +58,14 @@ namespace Iam.Scripts.Models.Soldiers
         public Body Body => _soldier.Body;
 
         public int FunctioningHands => _soldier.FunctioningHands;
+
+        public IReadOnlyCollection<Skill> Skills => _soldier.Skills;
+
+        public Squad AssignedSquad
+        {
+            get { return _assignedSquad; }
+            set { _assignedSquad = value; }
+        }
 
         public bool IsWounded
         {
@@ -107,6 +103,7 @@ namespace Iam.Scripts.Models.Soldiers
         {
             return _soldier.GetBestSkillInCategory(category);
         }
+
         #endregion
 
         public PlayerSoldier(Soldier soldier, string name)
@@ -116,22 +113,41 @@ namespace Iam.Scripts.Models.Soldiers
             _soldierHistory = new List<string>();
             _weaponCasualtyCountMap = new Dictionary<int, ushort>();
             _factionCasualtyCountMap = new Dictionary<int, ushort>();
-        }
-
-        public void AssignToSquad(Squad squad)
-        {
-            if(AssignedSquad != null)
+            if (soldier.AssignedSquad != null)
             {
-                RemoveFromSquad();
+                _assignedSquad = soldier.AssignedSquad;
+                soldier.AssignedSquad = null;
+                AssignedSquad.RemoveSquadMember(soldier);
+                AssignedSquad.AddSquadMember(this);
             }
-            AssignedSquad = squad;
-            squad.AddSquadMember(this);
         }
 
-        public void RemoveFromSquad()
+        public PlayerSoldier(Soldier soldier, float melee, float ranged,
+                             float leadership, float medical, float tech,
+                             float piety, float ancient, Date implantDate,
+                             List<string> history,
+                             Dictionary<int, ushort> weaponCasualties,
+                             Dictionary<int, ushort> factionCasualties)
         {
-            AssignedSquad.RemoveSquadMember(this);
-            AssignedSquad = null;
+            _soldier = soldier;
+            _soldierHistory = history;
+            MeleeRating = melee;
+            RangedRating = ranged;
+            LeadershipRating = leadership;
+            MedicalRating = medical;
+            TechRating = tech;
+            PietyRating = piety;
+            AncientRating = ancient;
+            ProgenoidImplantDate = implantDate;
+            _weaponCasualtyCountMap = weaponCasualties;
+            _factionCasualtyCountMap = factionCasualties;
+            if(soldier.AssignedSquad != null)
+            {
+                _assignedSquad = soldier.AssignedSquad;
+                soldier.AssignedSquad = null;
+                AssignedSquad.RemoveSquadMember(soldier);
+                AssignedSquad.AddSquadMember(this);
+            }
         }
 
         public void AddEntryToHistory(string entry)
@@ -158,40 +174,6 @@ namespace Iam.Scripts.Models.Soldiers
             {
                 _factionCasualtyCountMap[factionId] = 1;
             }
-        }
-
-        public void UpdateRatings()
-        {
-            // Melee score = (Speed * STR * Melee)
-            // Expected score = 16 * 16 * 15.5/8 = 1000
-            // low-end = 15 * 15 * 14/8 = 850
-            // high-end = 17 * 17 * 16/8 = 578
-            _meleeRating = _soldier.AttackSpeed * _soldier.Strength
-                * GetTotalSkillValue(TempBaseSkillList.Instance.Sword) /
-                (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
-            // marksman, sharpshooter, sniper
-            // Ranged Score = PER * Ranged
-            Skill bestRanged = _soldier.GetBestSkillInCategory(SkillCategory.Ranged);
-            _rangedRating = Perception * (Dexterity + bestRanged.SkillBonus) / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
-            // Leadership Score = EGO * Leadership * Tactics
-            _leadershipRating = _soldier.Ego
-                * GetTotalSkillValue(TempBaseSkillList.Instance.Leadership)
-                * GetTotalSkillValue(TempBaseSkillList.Instance.Tactics)
-                / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
-            // Ancient Score = EGO * BOD
-            _ancientRating = _soldier.Ego * _soldier.Constitution 
-                / (UnityEngine.Random.Range(1.8f, 2.2f) * UnityEngine.Random.Range(1.8f, 2.2f));
-            // Medical Score = INT * Medicine
-            _medicalRating = GetTotalSkillValue(TempBaseSkillList.Instance.Diagnosis)
-                * GetTotalSkillValue(TempBaseSkillList.Instance.FirstAid)
-                / (UnityEngine.Random.Range(0.9f, 1.1f) * UnityEngine.Random.Range(0.9f, 1.1f));
-            // Tech Score =  INT * TechRapair
-            _techRating = GetTotalSkillValue(TempBaseSkillList.Instance.ArmorySmallArms)
-                * GetTotalSkillValue(TempBaseSkillList.Instance.ArmoryVehicle)
-                / (UnityEngine.Random.Range(0.9f, 1.1f) * UnityEngine.Random.Range(0.9f, 1.1f));
-            // Piety Score = Piety * Ritual * Persuade
-            _pietyRating = GetTotalSkillValue(TempBaseSkillList.Instance.Piety)
-                / UnityEngine.Random.Range(0.09f, 0.11f);
         }
     }
 }

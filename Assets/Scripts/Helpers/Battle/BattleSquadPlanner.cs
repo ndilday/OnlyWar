@@ -5,12 +5,12 @@ using System.Linq;
 
 using UnityEngine;
 
-using Iam.Scripts.Helpers.Battle.Actions;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Helpers.Battle.Actions;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
 
-namespace Iam.Scripts.Helpers.Battle
+namespace OnlyWar.Scripts.Helpers.Battle
 {
     public class BattleSquadPlanner
     {
@@ -21,6 +21,7 @@ namespace Iam.Scripts.Helpers.Battle
         private readonly Dictionary<int, BattleSquad> _opposingSoldierIdSquadMap;
         private readonly ConcurrentBag<WoundResolution> _woundResolutionBag;
         private readonly ConcurrentBag<MoveResolution> _moveResolutionBag;
+        private readonly MeleeWeapon _defaultMeleeWeapon;
         private readonly ConcurrentQueue<string> _log;
 
         public BattleSquadPlanner(BattleGrid grid, 
@@ -30,7 +31,8 @@ namespace Iam.Scripts.Helpers.Battle
                                   ConcurrentBag<IAction> meleeActionBag,
                                   ConcurrentBag<WoundResolution> woundBag, 
                                   ConcurrentBag<MoveResolution> moveBag, 
-                                  ConcurrentQueue<string> log)
+                                  ConcurrentQueue<string> log,
+                                  MeleeWeapon defaultMeleeWeapon)
         {
             _grid = grid;
             _opposingSoldierIdSquadMap = opposingSoldierIdSquadMap;
@@ -39,6 +41,7 @@ namespace Iam.Scripts.Helpers.Battle
             _meleeActionBag = meleeActionBag;
             _moveResolutionBag = moveBag;
             _woundResolutionBag = woundBag;
+            _defaultMeleeWeapon = defaultMeleeWeapon;
             _log = log;
         }
 
@@ -250,7 +253,7 @@ namespace Iam.Scripts.Helpers.Battle
                 // ugh, this is a decision with a lot of factors that will only come up rarely
                 // for now, let's go with the longer ranged weapon
                 soldier.CurrentSpeed = 0;
-                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First()));
+                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First()));
 
             }
         }
@@ -305,7 +308,8 @@ namespace Iam.Scripts.Helpers.Battle
                 if (distance != 1) throw new InvalidOperationException("Attempting to melee with no adjacent enemy");
                 BattleSoldier enemy = _opposingSoldierIdSquadMap[closestEnemyId].Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 soldier.CurrentSpeed = 0;
-                MeleeWeapon weapon = soldier.EquippedMeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0];
+                MeleeWeapon weapon = soldier.EquippedMeleeWeapons.Count == 0 ? 
+                    _defaultMeleeWeapon : soldier.EquippedMeleeWeapons[0];
                 _meleeActionBag.Add(new MeleeAttackAction(soldier, enemy, weapon, false, _woundResolutionBag, _log));
             }
         }
@@ -428,7 +432,7 @@ namespace Iam.Scripts.Helpers.Battle
             else if (!isMoving)
             {
                 // aim with longest ranged weapon
-                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance).First(), _log));
+                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First(), _log));
             }
         }
 
@@ -441,7 +445,7 @@ namespace Iam.Scripts.Helpers.Battle
                 return -1;
             }
             float range = 0;
-            var weapons = soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumDistance);
+            var weapons = soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange);
             foreach(RangedWeapon weapon in weapons)
             {
                 float hitRange = EstimateHitDistance(soldier.Soldier, weapon, targetSize, freeHands);
@@ -481,31 +485,31 @@ namespace Iam.Scripts.Helpers.Battle
         private float EstimateKillDistance(RangedWeapon weapon, float targetArmor, float targetCon)
         {
             // if range doesn't matter for damage, we can just limit on hitting 
-            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
+            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumRange;
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
             
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
+            if (weapon.Template.DamageMultiplier * 6 < effectiveArmor) return -1;
             //if we can't kill in one shot at point blank range, we still need to get as close as possible to have the best chance of taking the target down
-            if ((weapon.Template.BaseDamage * 6 - effectiveArmor) * weapon.Template.PenetrationMultiplier < targetCon) return 0;
+            if ((weapon.Template.DamageMultiplier * 6 - effectiveArmor) * weapon.Template.WoundMultiplier < targetCon) return 0;
             // find the range with a 1/3 chance of a killshot
-            float distanceRatio = 1 - (((targetCon / weapon.Template.PenetrationMultiplier) + effectiveArmor) / (4.25f * weapon.Template.BaseDamage));
+            float distanceRatio = 1 - (((targetCon / weapon.Template.WoundMultiplier) + effectiveArmor) / (4.25f * weapon.Template.DamageMultiplier));
             if (distanceRatio < 0) return 0;
-            return weapon.Template.MaximumDistance * distanceRatio;
+            return weapon.Template.MaximumRange * distanceRatio;
         }
 
         private float EstimateArmorPenDistance(RangedWeapon weapon, float targetArmor)
         {
             // if range doesn't matter for damage, we can just limit on hitting 
-            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumDistance;
+            if (!weapon.Template.DoesDamageDegradeWithRange) return weapon.Template.MaximumRange;
             float effectiveArmor = targetArmor * weapon.Template.ArmorMultiplier;
 
             // if there's no chance of doing a wound, maybe we should run?
-            if (weapon.Template.BaseDamage * 6 < effectiveArmor) return -1;
+            if (weapon.Template.DamageMultiplier * 6 < effectiveArmor) return -1;
             // find the range with a 1/3 chance of armor pen
-            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.BaseDamage));
+            float distanceRatio = 1 - ( effectiveArmor / (4.25f * weapon.Template.DamageMultiplier));
             if (distanceRatio < 0) return 0;
-            return weapon.Template.MaximumDistance * distanceRatio;
+            return weapon.Template.MaximumRange * distanceRatio;
         }
 
         private Tuple<float, float, RangedWeapon> ShouldShootAtRange(BattleSoldier soldier, BattleSoldier target, float range, bool useBulk)
@@ -513,7 +517,7 @@ namespace Iam.Scripts.Helpers.Battle
             RangedWeapon bestWeapon = null;
             float bestAccuracy = 0;
             float bestDamage = -0;
-            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.BaseDamage))
+            foreach(RangedWeapon weapon in soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.DamageMultiplier))
             {
                 Tuple<float, float> hitAndDamage = EstimateHitAndDamage(soldier, target, weapon, range, useBulk ? -2 : 0);
                 // if not likely to break through armor, there's little point

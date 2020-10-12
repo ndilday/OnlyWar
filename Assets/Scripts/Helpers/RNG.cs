@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Iam.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     public static class RNG
     {
-        private readonly static Random _random = new Random(1);
+        private readonly static Random _random = new Random();
         public static double NextGaussianDouble()
         {
             double u1 = 1.0 - _random.NextDouble(); //uniform(0,1] random doubles

@@ -2,7 +2,7 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace Iam.Scripts.Views
+namespace OnlyWar.Scripts.Views
 {
     public class RecruitmentView : MonoBehaviour
     {
@@ -31,7 +31,7 @@ namespace Iam.Scripts.Views
             _toggles = ToggleParent.GetComponentsInChildren<Toggle>();
         }
 
-        public void Unit_Selected(int id)
+        public void UnitTreeView_OnSquadSelected(int id)
         {
             ToggleHeaderText.text = _toggleText;
             ToggleParent.SetActive(true);

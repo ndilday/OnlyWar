@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Iam.Scripts.Models
+namespace OnlyWar.Scripts.Models
 {
     public static class TempPlanetList
     {
@@ -35,7 +35,7 @@ namespace Iam.Scripts.Models
             new PlanetData{ Name="Spite", Type=PlanetType.Fortress},
             new PlanetData{ Name="Thesmiskon Point", Type=PlanetType.Dead},
             new PlanetData{ Name="Wrath", Type=PlanetType.Fortress},
-            new PlanetData{ Name="Mataras", Type=PlanetType.Agri},
+            new PlanetData{ Name="Thannis", Type=PlanetType.Agri},
             new PlanetData{ Name="Argoth", Type=PlanetType.Hive},
             new PlanetData{ Name="Kaggeran", Type=PlanetType.Agri},
             new PlanetData{ Name="Rheelas", Type=PlanetType.Mining},
@@ -58,7 +58,7 @@ namespace Iam.Scripts.Models
             new PlanetData{ Name="Jove's Descent", Type=PlanetType.Feral},
             new PlanetData{ Name="Polyphemnos", Type=PlanetType.Death},
             new PlanetData{ Name="Shedu", Type=PlanetType.Desert},
-            new PlanetData{ Name="Mataras", Type=PlanetType.Agri},
+            new PlanetData{ Name="Quantarast", Type=PlanetType.Agri},
             new PlanetData{ Name="Credos", Type=PlanetType.Frontier},
             new PlanetData{ Name="Sedu", Type=PlanetType.Frontier},
             new PlanetData{ Name="Lovat IV", Type=PlanetType.Frontier},
@@ -74,10 +74,21 @@ namespace Iam.Scripts.Models
             new PlanetData{ Name="Va'Jiya", Type=PlanetType.Feral},
             new PlanetData{ Name="Vallia", Type=PlanetType.Death},
             new PlanetData{ Name="Zurcon", Type=PlanetType.Feudal},
-
-
-
-
+            new PlanetData{ Name="Nathan's Planet", Type=PlanetType.Feudal},
+            new PlanetData{ Name="Dildainia", Type=PlanetType.Agri},
+            new PlanetData{ Name="Ivia", Type=PlanetType.Death},
+            new PlanetData{ Name="Drius", Type=PlanetType.Desert},
+            new PlanetData{ Name="Fidia", Type=PlanetType.Feral},
+            new PlanetData{ Name="Suvia", Type=PlanetType.Forge},
+            new PlanetData{ Name="Griballa", Type=PlanetType.Fortress},
+            new PlanetData{ Name="Croquet", Type=PlanetType.Frontier},
+            new PlanetData{ Name="Nethor", Type=PlanetType.Hive},
+            new PlanetData{ Name="Iochol", Type=PlanetType.Ice},
+            new PlanetData{ Name="Simmon's Folly", Type=PlanetType.Mining},
+            new PlanetData{ Name="Caqulla", Type=PlanetType.Ocean},
+            new PlanetData{ Name="Poena", Type=PlanetType.Penal},
+            new PlanetData{ Name="Tabilla", Type=PlanetType.Pleasure},
+            new PlanetData{ Name="Agneta", Type=PlanetType.Shrine}
         };
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using Iam.Scripts.Models.Factions;
-using Iam.Scripts.Models.Fleets;
-using Iam.Scripts.Models.Units;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Squads;
 
-namespace Iam.Scripts.Models
+namespace OnlyWar.Scripts.Models
 {
     public enum PlanetType
     {
@@ -30,14 +29,13 @@ namespace Iam.Scripts.Models
 
     public class Planet
     {
-        //public Planet(Vector2 position) { Position = position; }
         public int Id;
         public string Name;
         public readonly Vector2 Position;
         public PlanetType PlanetType;
         public List<Fleet> Fleets;
-        public Dictionary<int, List<Unit>> FactionGroundUnitListMap;
-        public FactionTemplate ControllingFaction;
+        public Dictionary<int, List<Squad>> FactionSquadListMap;
+        public Faction ControllingFaction;
         
         public Planet(int id, string name, Vector2 position, PlanetType type)
         {
@@ -46,7 +44,7 @@ namespace Iam.Scripts.Models
             Position = position;
             PlanetType = type;
             Fleets = new List<Fleet>();
-            FactionGroundUnitListMap = new Dictionary<int, List<Unit>>();
+            FactionSquadListMap = new Dictionary<int, List<Squad>>();
         }
 
     }

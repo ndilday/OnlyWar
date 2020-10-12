@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Iam.Scripts.Models.Fleets
+namespace OnlyWar.Scripts.Models.Fleets
 {
     public class FleetTemplate
     {

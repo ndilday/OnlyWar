@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-using Iam.Scripts.Helpers.Battle.Resolutions;
-using Iam.Scripts.Models.Equippables;
-using Iam.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
 using UnityEngine;
 
-namespace Iam.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Scripts.Helpers.Battle.Actions
 {
     class ShootAction : IAction
     {
@@ -82,7 +82,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)
                 {
-                    float totalDamage = penDamage * _weapon.Template.PenetrationMultiplier;
+                    float totalDamage = penDamage * _weapon.Template.WoundMultiplier;
                     _resultList.Add(new WoundResolution(_soldier, _weapon.Template, _target, totalDamage, hitLocation));
                 }
             }
@@ -97,7 +97,7 @@ namespace Iam.Scripts.Helpers.Battle.Actions
             int roll = RNG.GetIntBelowMax(0, soldier.Soldier.Body.TotalProbabilityMap[soldier.Stance]);
             foreach (HitLocation location in soldier.Soldier.Body.HitLocations)
             {
-                int locationChance = location.Template.HitProbabilityMap[soldier.Stance];
+                int locationChance = location.Template.HitProbabilityMap[(int)soldier.Stance];
                 if (roll < locationChance)
                 {
                     return location;

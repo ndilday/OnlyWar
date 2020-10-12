@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-using Iam.Scripts.Models;
+using OnlyWar.Scripts.Models;
 
-namespace Iam.Scripts.Views
+namespace OnlyWar.Scripts.Views
 {
     public class DateTreeView : MonoBehaviour
     {

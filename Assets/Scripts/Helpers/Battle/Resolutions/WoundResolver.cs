@@ -2,10 +2,10 @@
 
 using UnityEngine.Events;
 
-using Iam.Scripts.Models.Soldiers;
-using Iam.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Scripts.Models.Equippables;
 
-namespace Iam.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
 {
     public class WoundResolver : IResolver
     {
@@ -50,7 +50,7 @@ namespace Iam.Scripts.Helpers.Battle.Resolutions
                 totalDamage -= wound.HitLocation.Template.NaturalArmor;
                 // for now, natural armor reducing the damange below 0 will still cause a Negligible injury
                 // multiply damage by wound.HitLocation modifier
-                totalDamage *= wound.HitLocation.Template.DamageMultiplier;
+                totalDamage *= wound.HitLocation.Template.WoundMultiplier;
                 // compare total damage to soldier Constitution
                 float ratio = totalDamage / wound.Suffererer.Soldier.Constitution;
                 if (ratio >= 8.0f)
