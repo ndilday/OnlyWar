@@ -86,10 +86,12 @@ namespace OnlyWar.Scripts.Controllers
             var ships = GameSettings.Galaxy.Fleets.SelectMany(fleet => fleet.Ships);
             var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
             GameStateDataAccess.Instance.SaveData("default.s3db",
+                                                  GameSettings.Date,
                                                   GameSettings.Galaxy.Planets,
                                                   GameSettings.Galaxy.Fleets,
                                                   units,
-                                                  GameSettings.Chapter.PlayerSoldierMap.Values);
+                                                  GameSettings.Chapter.PlayerSoldierMap.Values,
+                                                  GameSettings.Chapter.BattleHistory);
             StartCoroutine(TemporarySaveButtonUpdateCoroutine());
         }
 

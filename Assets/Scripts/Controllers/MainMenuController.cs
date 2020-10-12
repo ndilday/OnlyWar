@@ -50,6 +50,11 @@ namespace OnlyWar.Scripts.Controllers
                                                      soldierTypeMap);
 
             GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
+            GameSettings.Date = gameData.CurrentDate;
+            foreach(KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
+            {
+                GameSettings.Chapter.BattleHistory[kvp.Key] = kvp.Value;
+            }
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
                                              .ToDictionary(g => g.Key, g => g.ToList());
             foreach(Faction faction in GameSettings.Galaxy.Factions)

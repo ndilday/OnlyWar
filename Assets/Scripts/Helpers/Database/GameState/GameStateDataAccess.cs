@@ -10,6 +10,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using Assets.Scripts.Helpers.Database.GameState;
 
 namespace OnlyWar.Scripts.Helpers.Database.GameState
 {
@@ -18,6 +19,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         public List<Planet> Planets { get; set; }
         public List<Fleet> Fleets { get; set; }
         public List<Unit> Units { get; set; }
+        public Date CurrentDate { get; set; }
+        public Dictionary<Date, List<EventHistory>> History { get; set; }
     }
 
     public class GameStateDataAccess
@@ -27,6 +30,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         private readonly UnitDataAccess _unitDataAccess;
         private readonly SoldierDataAccess _soldierDataAccess;
         private readonly PlayerSoldierDataAccess _playerSoldierDataAccess;
+        private readonly GlobalDataAccess _globalDataAccess;
+        private readonly PlayerFactionEventDataAccess _playerFactionEventDataAccess;
         private readonly string CREATE_TABLE_FILE =
             $"{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
         private static GameStateDataAccess _instance;
@@ -49,6 +54,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             _unitDataAccess = new UnitDataAccess();
             _soldierDataAccess = new SoldierDataAccess();
             _playerSoldierDataAccess = new PlayerSoldierDataAccess();
+            _globalDataAccess = new GlobalDataAccess();
+            _playerFactionEventDataAccess = new PlayerFactionEventDataAccess();
         }
 
         public GameStateDataBlob GetData(string fileName, Dictionary<int, Faction> factionMap,
@@ -72,20 +79,26 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             var soldiers = _soldierDataAccess.GetData(dbCon, hitLocationTemplates, baseSkillMap,
                                                       soldierTypeMap, squadMap);
             var playerSoldiers = _playerSoldierDataAccess.GetData(dbCon, soldiers);
+            var date = _globalDataAccess.GetGlobalData(dbCon);
+            var history = _playerFactionEventDataAccess.GetHistory(dbCon);
             dbCon.Close();
             return new GameStateDataBlob
             {
                 Planets = planets,
                 Fleets = fleets,
-                Units = units
+                Units = units,
+                CurrentDate = date,
+                History = history
             };
         }
 
         public void SaveData(string fileName, 
+                             Date currentDate,
                              IEnumerable<Planet> planets, 
                              IEnumerable<Fleet> fleets,
                              IEnumerable<Unit> units,
-                             IEnumerable<PlayerSoldier> playerSoldiers)
+                             IEnumerable<PlayerSoldier> playerSoldiers,
+                             IReadOnlyDictionary<Date, List<EventHistory>> history)
         {
             string path = $"{Application.streamingAssetsPath}/Saves/{fileName}";
             if(File.Exists(path))
@@ -142,6 +155,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                     {
                         _playerSoldierDataAccess.SavePlayerSoldier(transaction, playerSoldier);
                     }
+                    _globalDataAccess.SaveDate(transaction, currentDate);
+                    _playerFactionEventDataAccess.SaveData(transaction, history);
                 }
                 catch (Exception e)
                 {

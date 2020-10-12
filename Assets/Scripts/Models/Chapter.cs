@@ -38,8 +38,10 @@ namespace OnlyWar.Scripts.Models
         {
             if (SquadMap == null)
             {
-                SquadMap = new Dictionary<int, Squad>();
-                SquadMap[OrderOfBattle.HQSquad.Id] = OrderOfBattle.HQSquad;
+                SquadMap = new Dictionary<int, Squad>
+                {
+                    [OrderOfBattle.HQSquad.Id] = OrderOfBattle.HQSquad
+                };
                 foreach (Squad squad in OrderOfBattle.Squads)
                 {
                     SquadMap[squad.Id] = squad;
