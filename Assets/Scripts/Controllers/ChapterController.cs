@@ -162,11 +162,15 @@ namespace OnlyWar.Scripts.Controllers
                 toe.AddRange(GetSquadHeadcounts(squad));
             }
             var summedList = toe.GroupBy(tuple => tuple.Item1)
-                    .Select(g => new Tuple<SquadTemplateElement, int, int>(g.Key, g.Sum(t => t.Item2), g.Sum(q => q.Item3)))
-                    .OrderBy(tuple => tuple.Item1.SoldierType.Id);
-            foreach(Tuple<SquadTemplateElement, int, int> tuple in summedList)
+                    .Select(g => new Tuple<SquadTemplateElement, int, int, int>
+                        (g.Key, 
+                        g.Sum(t => t.Item2), 
+                        g.Sum(t => t.Item1.MaximumNumber), 
+                        g.Sum(q => q.Item3)))
+                    .OrderByDescending(tuple => tuple.Item1.SoldierType.Rank);
+            foreach(Tuple<SquadTemplateElement, int, int, int> tuple in summedList)
             {
-                unitReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item3}\n";
+                unitReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item3} ({tuple.Item4} healthy)\n";
             }
             return unitReport;
         }
