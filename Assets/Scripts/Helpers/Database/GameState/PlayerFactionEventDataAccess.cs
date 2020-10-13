@@ -12,7 +12,7 @@ namespace Assets.Scripts.Helpers.Database.GameState
                 new Dictionary<Date, List<EventHistory>>();
             var subEvents = GetPlayerFactionSubEvents(connection);
             IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM PlayerFactionSubEvent";
+            command.CommandText = "SELECT * FROM PlayerFactionEvent";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {

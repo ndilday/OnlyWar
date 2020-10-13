@@ -8,7 +8,6 @@ BEGIN TRANSACTION;
 
 -- Table: Fleet
 CREATE TABLE Fleet (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, FactionId INTEGER NOT NULL, x REAL NOT NULL, y REAL NOT NULL, DestinationPlanetId INTEGER REFERENCES Planet (Id));
-INSERT INTO Fleet (Id, FactionId, x, y, DestinationPlanetId) VALUES (0, 1, 10.0, 7.0, NULL);
 
 -- Table: GlobalData
 CREATE TABLE GlobalData (Millenium INTEGER NOT NULL, Year INTEGER NOT NULL, Week INTEGER NOT NULL, SaveVersion INTEGER NOT NULL);
@@ -20,7 +19,7 @@ CREATE TABLE HitLocation (SoldierId INTEGER NOT NULL REFERENCES Soldier (Id), Hi
 CREATE TABLE Planet (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, Name STRING NOT NULL UNIQUE, x INTEGER NOT NULL, y INTEGER NOT NULL, PlanetType INTEGER NOT NULL, FactionId INTEGER);
 
 -- Table: PlayeFactionSubEvent
-CREATE TABLE PlayeFactionSubEvent (PlayerFactionEventId INTEGER REFERENCES PlayerFactionEvent (Id) NOT NULL, Entry TEXT NOT NULL);
+CREATE TABLE PlayerFactionSubEvent (PlayerFactionEventId INTEGER REFERENCES PlayerFactionEvent (Id) NOT NULL, Entry TEXT NOT NULL);
 
 -- Table: PlayerFactionEvent
 CREATE TABLE PlayerFactionEvent (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, Millenium INTEGER NOT NULL, Year INTEGER NOT NULL, Week INTEGER NOT NULL, Title TEXT NOT NULL);

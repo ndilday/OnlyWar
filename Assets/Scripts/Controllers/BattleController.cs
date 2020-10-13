@@ -649,33 +649,24 @@ namespace OnlyWar.Scripts.Controllers
 
         private void LogBattleToChapterHistory(List<PlayerSoldier> killedInBattle)
         {
-            List<EventHistory> eventHistories;
-            if (!GameSettings.Chapter.BattleHistory.ContainsKey(GameSettings.Date))
-            {
-                eventHistories = new List<EventHistory>();
-                GameSettings.Chapter.BattleHistory[GameSettings.Date] = eventHistories;
-            }
-            else
-            {
-                eventHistories = GameSettings.Chapter.BattleHistory[GameSettings.Date];
-            }
-            EventHistory battleLog = new EventHistory();
-            eventHistories.Add(battleLog);
-
-            WriteBattleLog(battleLog, killedInBattle);
+            var subEvents = GetBattleLog(killedInBattle);
+            GameSettings.Chapter.AddToBattleHistory(GameSettings.Date,
+                                                    $"A skirmish on {_planet.Name}",
+                                                    subEvents);
         }
 
-        private void WriteBattleLog(EventHistory battleLog, List<PlayerSoldier> killedInBattle)
+        private List<string> GetBattleLog(List<PlayerSoldier> killedInBattle)
         {
-            battleLog.EventTitle = "A skirmish on " + _planet.Name;
+            List<string> battleEvents = new List<string>();
             int marineCount = _startingPlayerBattleSoldiers.Count;
-            battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
+            battleEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
             foreach(PlayerSoldier soldier in killedInBattle)
             {
                 string geneseedStatus = GetGeneseedStatusDescription(soldier);
-                battleLog.SubEvents.Add(
+                battleEvents.Add(
                     $"{soldier.Type.Name} {soldier.Name} died in the service of the emperor. Geneseed: {geneseedStatus}.");
             }
+            return battleEvents;
         }
 
         private string GetGeneseedStatusDescription(PlayerSoldier soldier)

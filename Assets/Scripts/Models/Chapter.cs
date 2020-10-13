@@ -19,8 +19,9 @@ namespace OnlyWar.Scripts.Models
 
     public class Chapter
     {
+        private readonly Dictionary<Date, List<EventHistory>> _battleHistory;
         public ushort GeneseedStockpile { get; set; }
-        public Dictionary<Date, List<EventHistory>> BattleHistory { get; }
+        public IReadOnlyDictionary<Date, List<EventHistory>> BattleHistory => _battleHistory;
         public Unit OrderOfBattle { get; }
         public List<Fleet> Fleets { get; }
         public Dictionary<int, PlayerSoldier> PlayerSoldierMap { get; }
@@ -29,7 +30,7 @@ namespace OnlyWar.Scripts.Models
         {
             GeneseedStockpile = 0;
             OrderOfBattle = unit;
-            BattleHistory = new Dictionary<Date, List<EventHistory>>();
+            _battleHistory = new Dictionary<Date, List<EventHistory>>();
             PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
             Fleets = new List<Fleet>();
         }
@@ -58,6 +59,20 @@ namespace OnlyWar.Scripts.Models
                     }
                 }
             }
+        }
+
+        public void AddToBattleHistory(Date date, string title, List<string> events)
+        {
+            if (!_battleHistory.ContainsKey(date))
+            {
+                _battleHistory[date] = new List<EventHistory>();
+            }
+            EventHistory history = new EventHistory
+            {
+                EventTitle = title
+            };
+            history.SubEvents.AddRange(events);
+            _battleHistory[date].Add(history);
         }
     }
 }

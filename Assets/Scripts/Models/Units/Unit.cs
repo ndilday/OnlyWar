@@ -78,7 +78,7 @@ namespace OnlyWar.Scripts.Models.Units
         public IEnumerable<Squad> GetAllSquads()
         {
             List<Squad> squads = new List<Squad>();
-            squads.AddRange(squads);
+            squads.AddRange(Squads);
             if (HQSquad != null)
             {
                 squads.Add(HQSquad);

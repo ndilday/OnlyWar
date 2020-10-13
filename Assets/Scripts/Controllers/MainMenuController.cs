@@ -51,10 +51,6 @@ namespace OnlyWar.Scripts.Controllers
 
             GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
             GameSettings.Date = gameData.CurrentDate;
-            foreach(KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
-            {
-                GameSettings.Chapter.BattleHistory[kvp.Key] = kvp.Value;
-            }
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
                                              .ToDictionary(g => g.Key, g => g.ToList());
             foreach(Faction faction in GameSettings.Galaxy.Factions)
@@ -84,6 +80,16 @@ namespace OnlyWar.Scripts.Controllers
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
             GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
             GameSettings.Chapter.PopulateSquadMap();
+            foreach (KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
+            {
+                foreach (EventHistory history in kvp.Value)
+                {
+                    GameSettings.Chapter.AddToBattleHistory(kvp.Key,
+                                                            history.EventTitle,
+                                                            history.SubEvents);
+                }
+            }
+
             SceneManager.LoadScene("GalaxyView");
         }
 
@@ -134,8 +140,14 @@ namespace OnlyWar.Scripts.Controllers
             GameSettings.Chapter =
                 NewChapterBuilder.CreateChapter(soldiers,
                                                 GameSettings.Galaxy.PlayerFaction,
-                                                new Date(GameSettings.Date.Millenium,
-                                                    (GameSettings.Date.Year), 1).ToString());
+                                                GameSettings.Date.ToString());
+            List<string> foundingHistoryEntries = new List<string>
+            {
+                $"{GameSettings.Chapter.OrderOfBattle.Name} officially forms with its first 1,000 battle brothers."
+            };
+            GameSettings.Chapter.AddToBattleHistory(GameSettings.Date, 
+                                                    "Chapter Founding", 
+                                                    foundingHistoryEntries);
             // post-MOS evaluations
             foreach(PlayerSoldier soldier in soldiers)
             {
