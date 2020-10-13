@@ -90,5 +90,12 @@ namespace OnlyWar.Scripts.Models
                 && Year == otherDate.Year
                 && Week == otherDate.Week;
         }
+
+        public int GetWeeksDifference(Date otherDate)
+        {
+            return ((Millenium - otherDate.Millenium) * 52000)
+                + ((Year - otherDate.Year) * 52)
+                + (Week - otherDate.Week);
+        }
     }
 }

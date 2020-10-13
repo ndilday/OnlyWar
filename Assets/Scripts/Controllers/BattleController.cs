@@ -259,11 +259,15 @@ namespace OnlyWar.Scripts.Controllers
                 // The marines finish off any xenos still moving
                 _planet.FactionSquadListMap.Remove(_opposingFaction.Id);
             }
+            else
+            {
+                // kill all marines?
+            }
             // we'll be nice to the Marines despite losing the battle... for now
             Debug.Log("Battle completed");
             ProcessSoldierHistoryForBattle();
             ApplySoldierExperienceForBattle();
-            List<ISoldier> dead = RemoveSoldiersKilledInBattle();
+            List<PlayerSoldier> dead = RemoveSoldiersKilledInBattle();
             LogBattleToChapterHistory(dead);
             BattleView.gameObject.SetActive(false);
             OnBattleComplete.Invoke();
@@ -619,9 +623,9 @@ namespace OnlyWar.Scripts.Controllers
             }
         }
 
-        private List<ISoldier> RemoveSoldiersKilledInBattle()
+        private List<PlayerSoldier> RemoveSoldiersKilledInBattle()
         {
-            List<ISoldier> dead = new List<ISoldier>();
+            List<PlayerSoldier> dead = new List<PlayerSoldier>();
             foreach(BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
                 foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
@@ -629,9 +633,9 @@ namespace OnlyWar.Scripts.Controllers
                     if(hl.Template.IsVital && hl.IsSevered)
                     {
                         // if a vital part is severed, they're dead
-                        dead.Add(soldier.Soldier);
                         PlayerSoldier playerSoldier = 
                             GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
+                        dead.Add(playerSoldier);
                         Squad squad = playerSoldier.AssignedSquad;
                         playerSoldier.AssignedSquad = null;
                         squad.RemoveSquadMember(playerSoldier);
@@ -643,7 +647,7 @@ namespace OnlyWar.Scripts.Controllers
             return dead;
         }
 
-        private void LogBattleToChapterHistory(List<ISoldier> killedInBattle)
+        private void LogBattleToChapterHistory(List<PlayerSoldier> killedInBattle)
         {
             List<EventHistory> eventHistories;
             if (!GameSettings.Chapter.BattleHistory.ContainsKey(GameSettings.Date))
@@ -661,14 +665,37 @@ namespace OnlyWar.Scripts.Controllers
             WriteBattleLog(battleLog, killedInBattle);
         }
 
-        private void WriteBattleLog(EventHistory battleLog, List<ISoldier> killedInBattle)
+        private void WriteBattleLog(EventHistory battleLog, List<PlayerSoldier> killedInBattle)
         {
             battleLog.EventTitle = "A skirmish on " + _planet.Name;
             int marineCount = _startingPlayerBattleSoldiers.Count;
             battleLog.SubEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
             foreach(PlayerSoldier soldier in killedInBattle)
             {
-                battleLog.SubEvents.Add($"{soldier.Type.Name} {soldier.Name} died in the service of the emperor");
+                string geneseedStatus = GetGeneseedStatusDescription(soldier);
+                battleLog.SubEvents.Add(
+                    $"{soldier.Type.Name} {soldier.Name} died in the service of the emperor. Geneseed: {geneseedStatus}.");
+            }
+        }
+
+        private string GetGeneseedStatusDescription(PlayerSoldier soldier)
+        {
+            if(soldier.Body.HitLocations.First(hl => hl.Template.Name == "Face").IsSevered)
+            {
+                return "Destroyed";
+            }
+            else if(soldier.Body.HitLocations.First(hl => hl.Template.Name == "Torso").IsSevered)
+            {
+                return "Destroyed";
+            }
+            else if(GameSettings.Date.GetWeeksDifference(soldier.ProgenoidImplantDate) < 260)
+            {
+                return "Immature, Unrecoverable";
+            }
+            else
+            {
+                GameSettings.Chapter.GeneseedStockpile++;
+                return "Recovered";
             }
         }
     

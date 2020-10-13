@@ -19,7 +19,7 @@ namespace OnlyWar.Scripts.Models
 
     public class Chapter
     {
-        public ushort GeneseedStockpile { get; }
+        public ushort GeneseedStockpile { get; set; }
         public Dictionary<Date, List<EventHistory>> BattleHistory { get; }
         public Unit OrderOfBattle { get; }
         public List<Fleet> Fleets { get; }
