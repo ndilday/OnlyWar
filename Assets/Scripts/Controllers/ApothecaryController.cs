@@ -26,7 +26,7 @@ namespace OnlyWar.Scripts.Controllers
         private const string GENESEED_FORMAT = @"Sir! Currently, we have {0} Geneseed stored.
 Within the next year, we anticipate {1} implanted Progenoid Glands will mature.";
         private const string SQUAD_FORMAT = @"{0} has {1} wounded members.
-Of those, {2} are unfit for field duty under any circumstances; {3} require cybernetic replacements.
+Of those, {2} are unfit for field duty under any circumstances; {3} require cybernetic replacements and will be fitted within the next few days.
 It will require approximately {4} weeks before all marines in the squad (other than those replacing cybernetic replacements) are fully fit.";
 
         public void ApothecaryButton_OnClick()
@@ -65,11 +65,52 @@ It will require approximately {4} weeks before all marines in the squad (other t
             {
                 foreach(HitLocation hitLocation in soldier.Body.HitLocations)
                 {
-                    if(hitLocation.Wounds.WoundTotal > 0 && !hitLocation.IsSevered)
+                    if(hitLocation.IsSevered)
                     {
-                        hitLocation.Wounds.ApplyWeekOfHealing();
+                        // for now, just give it a cybernetic replacement
+                        ApplyBionics(hitLocation, soldier);
+                    }
+                    else if(hitLocation.Wounds.WoundTotal > 0 )
+                    {
+                        if (hitLocation.IsCybernetic)
+                        {
+                            // assume replacement, for now
+                            hitLocation.Wounds.HealWounds();
+                        }
+                        else
+                        {
+                            hitLocation.Wounds.ApplyWeekOfHealing();
+                        }
                     }
                 }
+            }
+        }
+
+        private void ApplyBionics(HitLocation hitLocation, PlayerSoldier soldier)
+        {
+            // NOTE: We don't heal the wound here. 
+            // The wound will heal automatically in the next turn.
+            // This represents the marine learning how to use the new body part.
+            hitLocation.IsCybernetic = true;
+            soldier.AddEntryToHistory($"Received bioic {hitLocation.Template.Name} replacement");
+
+            if (hitLocation.Template.Name.Contains("Arm"))
+            {
+                hitLocation.Armor = 2;
+                string otherName = hitLocation.Template.Name.Replace("Arm", "Hand");
+                var otherHitLocation = soldier.Body.HitLocations
+                    .First(hl => hl.Template.Name == otherName);
+                otherHitLocation.Armor = 2;
+                otherHitLocation.IsCybernetic = true;
+            }
+            else if(hitLocation.Template.Name.Contains("Leg"))
+            {
+                hitLocation.Armor = 3;
+                string otherName = hitLocation.Template.Name.Replace("Leg", "Foot");
+                var otherHitLocation = soldier.Body.HitLocations
+                    .First(hl => hl.Template.Name == otherName);
+                otherHitLocation.Armor = 3;
+                otherHitLocation.IsCybernetic = true;
             }
         }
 

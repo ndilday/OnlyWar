@@ -208,6 +208,11 @@ namespace OnlyWar.Scripts.Models.Soldiers
             }
             return 0;
         }
+    
+        public void HealWounds()
+        {
+            WoundTotal = 0;
+        }
     }
 
     public enum WoundLevel
@@ -242,6 +247,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
     {
         public Wounds Wounds;
         public bool IsCybernetic;
+        public float Armor;
         
         public bool IsSevered
         {
@@ -264,13 +270,16 @@ namespace OnlyWar.Scripts.Models.Soldiers
         {
             Wounds = new Wounds(0, 0);
             IsCybernetic = false;
+            Armor = 0;
             Template = template;
         }
 
-        public HitLocation(HitLocationTemplate template, uint woundTotal, uint weeksOfHealing)
+        public HitLocation(HitLocationTemplate template, bool isCybernetic, float armor, 
+            uint woundTotal, uint weeksOfHealing)
         {
             Wounds = new Wounds(woundTotal, weeksOfHealing);
-            IsCybernetic = false;
+            IsCybernetic = isCybernetic;
+            Armor = armor;
             Template = template;
         }
 

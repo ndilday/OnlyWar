@@ -66,5 +66,10 @@ namespace OnlyWar.Scripts.Models.Squads
                 _members.Remove(soldier);
             }
         }
+
+        public override string ToString()
+        {
+            return Name + ", " + ParentUnit.Name;
+        }
     }
 }

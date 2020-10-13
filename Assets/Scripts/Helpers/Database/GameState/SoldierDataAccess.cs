@@ -43,7 +43,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
 
             foreach (HitLocation hitLocation in soldier.Body.HitLocations)
             {
-                insert = $@"INSERT INTO HitLocation VALUES ({soldier.Id}, {hitLocation.Template.Id}, 
+                insert = $@"INSERT INTO HitLocation VALUES ({soldier.Id}, 
+                    {hitLocation.Template.Id}, {hitLocation.IsCybernetic}, {hitLocation.Armor}, 
                     {hitLocation.Wounds.WoundTotal}, {hitLocation.Wounds.WeeksOfHealing});";
                 command = transaction.Connection.CreateCommand();
                 command.CommandText = insert;
@@ -62,10 +63,13 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             {
                 int soldierId = reader.GetInt32(0);
                 int hitLocationTemplateId = reader.GetInt32(1);
-                int woundTotal = reader.GetInt32(2);
-                int weeksOfHealing = reader.GetInt32(3);
-                HitLocation hitLocation = new HitLocation(hitLocationTemplateMap[hitLocationTemplateId],
-                                                          (uint)woundTotal, (uint)weeksOfHealing);
+                bool isCybernetic = reader.GetBoolean(2);
+                float armor = (float)reader[3];
+                int woundTotal = reader.GetInt32(4);
+                int weeksOfHealing = reader.GetInt32(5);
+                HitLocation hitLocation = 
+                    new HitLocation(hitLocationTemplateMap[hitLocationTemplateId],
+                                    isCybernetic, armor, (uint)woundTotal, (uint)weeksOfHealing);
 
                 if (!hitLocationMap.ContainsKey(soldierId))
                 {

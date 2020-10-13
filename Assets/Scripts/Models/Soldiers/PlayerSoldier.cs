@@ -175,5 +175,10 @@ namespace OnlyWar.Scripts.Models.Soldiers
                 _factionCasualtyCountMap[factionId] = 1;
             }
         }
+
+        public override string ToString()
+        {
+            return _soldier.ToString();
+        }
     }
 }

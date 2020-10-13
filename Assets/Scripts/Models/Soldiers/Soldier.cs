@@ -139,5 +139,10 @@ namespace OnlyWar.Scripts.Models.Soldiers
         {
             return _skills.Values.Where(s => s.BaseSkill.Category == category).OrderByDescending(s => s.SkillBonus).First();
         }
+
+        public override string ToString()
+        {
+            return Type + " " + Name;
+        }
     }
 }
