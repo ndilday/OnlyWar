@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using OnlyWar.Scripts.Models.Planets;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
-using OnlyWar.Scripts.Models;
 
 namespace OnlyWar.Scripts.Models.Fleets
 {

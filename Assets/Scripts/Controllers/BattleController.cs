@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
-using UnityEngine.Events;
-
-using OnlyWar.Scripts.Helpers.Battle;
+﻿using OnlyWar.Scripts.Helpers.Battle;
 using OnlyWar.Scripts.Helpers.Battle.Actions;
 using OnlyWar.Scripts.Helpers.Battle.Resolutions;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Views;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Events;
 
 namespace OnlyWar.Scripts.Controllers
 {

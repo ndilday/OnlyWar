@@ -1,6 +1,7 @@
 ﻿using Mono.Data.Sqlite;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Models.Soldiers;
@@ -59,6 +60,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         }
 
         public GameStateDataBlob GetData(string fileName, Dictionary<int, Faction> factionMap,
+                            IReadOnlyDictionary<int, PlanetTemplate> planetTemplateMap,
                             IReadOnlyDictionary<int, ShipTemplate> shipTemplateMap,
                             IReadOnlyDictionary<int, UnitTemplate> unitTemplateMap,
                             IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
@@ -69,7 +71,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
-            var planets = _planetDataAccess.GetPlanets(dbCon, factionMap);
+            var planets = _planetDataAccess.GetPlanets(dbCon, factionMap, planetTemplateMap);
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);

@@ -4,10 +4,12 @@ using System.Linq;
 using UnityEngine;
 
 using OnlyWar.Scripts.Helpers.Database.GameRules;
-using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Planets;
 using System;
 using OnlyWar.Scripts.Models.Soldiers;
+using Assets.Scripts.Helpers;
 
 namespace OnlyWar.Scripts.Helpers
 {
@@ -18,6 +20,7 @@ namespace OnlyWar.Scripts.Helpers
         private readonly List<Faction> _factions;
         private readonly Dictionary<int, BaseSkill> _baseSkillMap;
         private readonly Dictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
+        private readonly Dictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
@@ -25,6 +28,7 @@ namespace OnlyWar.Scripts.Helpers
         public Faction PlayerFaction { get; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
+        public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplateMap { get => _planetTemplateMap; }
 
         public Galaxy(int galaxySize)
         {
@@ -32,6 +36,7 @@ namespace OnlyWar.Scripts.Helpers
             _factions = gameBlob.Factions;
             _baseSkillMap = gameBlob.BaseSkills;
             _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
+            _planetTemplateMap = gameBlob.PlanetTemplates;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
@@ -70,36 +75,14 @@ namespace OnlyWar.Scripts.Helpers
         {
             _planets.Clear();
             UnityEngine.Random.InitState(seed);
-            int id = 0;
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
                 {
                     if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.05f)
                     {
-                        string name;
-                        PlanetType type;
-
-                        if (id < TempPlanetList.Planets.Length)
-                        {
-                            name = TempPlanetList.Planets[id].Name;
-                            type = TempPlanetList.Planets[id].Type;
-                        }
-                        else
-                        {
-                            name = $"{i},{j}";
-                            type = PlanetType.Death;
-                        }
-                        
-                        Planet p = new Planet(id, name, new Vector2(i, j), type);
-                        
-                        if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
-                        {
-                            p.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
-                        }
-
-                        _planets.Add(p);
-                        id++;
+                        Planet planet = GeneratePlanet(new Vector2(i, j));
+                        _planets.Add(planet);
                     }
                 }
             }
@@ -157,6 +140,43 @@ namespace OnlyWar.Scripts.Helpers
         public void TakeControlOfPlanet(Planet planet, Faction faction)
         {
             planet.ControllingFaction = faction;
+        }
+
+        private Planet GeneratePlanet(Vector2 position)
+        {
+            PlanetTemplate template = DeterminePlanetTemplate(_planetTemplateMap);
+
+            Planet planet = PlanetFactory.Instance.GenerateNewPlanet(template, position);
+
+            if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
+            {
+                planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
+            }
+
+            return planet;
+        }
+
+        private PlanetTemplate DeterminePlanetTemplate(IReadOnlyDictionary<int, PlanetTemplate> templates)
+        {
+            // we're using the "lottery ball" approach to randomness here, where each point 
+            // of probability for each available body party 
+            // defines the size of the random linear distribution
+            int max = templates.Values.Sum(pt => pt.Probability);
+            int roll = RNG.GetIntBelowMax(0, max);
+            foreach (PlanetTemplate template in templates.Values)
+            {
+                if (roll < template.Probability)
+                {
+                    return template;
+                }
+                else
+                {
+                    // this is basically an easy iterative way to figure out which body part on the "chart" the roll matches
+                    roll -= template.Probability;
+                }
+            }
+            // this should never happen
+            throw new InvalidOperationException("Could not determine a planet template");
         }
     }
 }

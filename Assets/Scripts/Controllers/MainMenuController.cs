@@ -1,6 +1,7 @@
 ﻿using OnlyWar.Scripts.Helpers;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
@@ -45,6 +46,7 @@ namespace OnlyWar.Scripts.Controllers
             var gameData = 
                 GameStateDataAccess.Instance.GetData("default.s3db", 
                                                      GameSettings.Galaxy.Factions.ToDictionary(f => f.Id), 
+                                                     GameSettings.Galaxy.PlanetTemplateMap,
                                                      shipTemplateMap, unitTemplateMap, squadTemplateMap,
                                                      hitLocations, GameSettings.Galaxy.BaseSkillMap,
                                                      soldierTypeMap);

@@ -1,4 +1,5 @@
 ﻿using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Planets;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +10,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
     public class PlanetDataAccess
     {
         public List<Planet> GetPlanets(IDbConnection connection,
-                                        Dictionary<int, Faction> factionMap)
+                                       IReadOnlyDictionary<int, Faction> factionMap,
+                                       IReadOnlyDictionary<int, PlanetTemplate> planetTemplateMap)
         {
             List<Planet> planetList = new List<Planet>();
             IDbCommand command = connection.CreateCommand();
@@ -18,11 +20,14 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                string name = reader[1].ToString();
-                int x = reader.GetInt32(2);
-                int y = reader.GetInt32(3);
-                PlanetType planetType = (PlanetType)reader.GetInt32(4);
-
+                int planetTemplateId = reader.GetInt32(1);
+                string name = reader[2].ToString();
+                int x = reader.GetInt32(3);
+                int y = reader.GetInt32(4);
+                int population = reader.GetInt32(6);
+                int importance = reader.GetInt32(7);
+                int taxLevel = reader.GetInt32(8);
+                var template = planetTemplateMap[planetTemplateId];
                 Faction controllingFaction;
                 if (reader[5].GetType() != typeof(DBNull))
                 {
@@ -32,9 +37,11 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 {
                     controllingFaction = null;
                 }
-                Planet planet = new Planet(id, name, new Vector2(x, y), planetType)
+                Planet planet = 
+                    new Planet(id, name, new Vector2(x, y), template, importance, taxLevel)
                 {
-                    ControllingFaction = controllingFaction
+                    ControllingFaction = controllingFaction,
+                    ImperialPopulation = population
                 };
 
                 planetList.Add(planet);
@@ -48,9 +55,10 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 "null" : planet.ControllingFaction.Id.ToString();
 
             string insert = $@"INSERT INTO Planet 
-                (Id, Name, x, y, PlanetType, FactionId) VALUES 
-                ({planet.Id}, '{planet.Name.Replace("\'", "\'\'")}', {planet.Position.x}, 
-                {planet.Position.y}, {(int)planet.PlanetType}, {controllingFactionId});";
+                (Id, PlanetTemplateId, Name, x, y, FactionId, Population, Importance, TaxLevel) VALUES 
+                ({planet.Id}, {planet.Template.Id}, '{planet.Name.Replace("\'", "\'\'")}', 
+                {planet.Position.x}, {planet.Position.y}, {controllingFactionId},
+                {planet.ImperialPopulation}, {planet.Importance}, {planet.TaxLevel});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

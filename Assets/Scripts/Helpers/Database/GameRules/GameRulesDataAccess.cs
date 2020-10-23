@@ -3,9 +3,9 @@ using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -18,6 +18,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         public List<Faction> Factions { get; set; }
         public Dictionary<int, BaseSkill> BaseSkills { get; set; }
         public Dictionary<int, List<HitLocationTemplate>> BodyTemplates { get; set; }
+        public Dictionary<int, PlanetTemplate> PlanetTemplates { get; set; } 
     }
 
     public class GameRulesDataAccess
@@ -25,6 +26,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         private readonly BaseSkillDataAccess _baseSkillDataAccess;
         private readonly HitLocationTemplateDataAccess _hitLocationDataAccess;
         private readonly FleetDataAccess _fleetDataAccess;
+        private readonly PlanetTemplateDataAccess _planetDataAccess;
         private readonly SquadDataAccess _squadDataAccess;
 
         private static GameRulesDataAccess _instance;
@@ -34,6 +36,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             _baseSkillDataAccess = new BaseSkillDataAccess();
             _hitLocationDataAccess = new HitLocationTemplateDataAccess();
             _fleetDataAccess = new FleetDataAccess();
+            _planetDataAccess = new PlanetTemplateDataAccess();
             _squadDataAccess = new SquadDataAccess();
         }
 
@@ -68,6 +71,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 dbCon, squadDataBlob.SoldierTypesById, attributes, 
                 hitLocations, skillTemplatesBySoldierTemplate);
 
+            var planetTemplates = _planetDataAccess.GetData(dbCon);
+
             var fleetDataBlob = _fleetDataAccess.GetFleetData(dbCon);
             var factions = GetFactionTemplates(dbCon, squadDataBlob.SoldierTypesByFactionId, 
                                                squadDataBlob.RangedWeaponTemplatesByFactionId, 
@@ -84,7 +89,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             {
                 Factions = factions,
                 BaseSkills = baseSkills,
-                BodyTemplates = hitLocations
+                BodyTemplates = hitLocations,
+                PlanetTemplates = planetTemplates
             };
         }
 
@@ -197,10 +203,10 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             return factionUnitTemplateMap;
         }
 
-        private Dictionary<int, AttributeTemplate> GetAttributeTemplates(IDbConnection connection)
+        private Dictionary<int, NormalizedValueTemplate> GetAttributeTemplates(IDbConnection connection)
         {
-            Dictionary<int, AttributeTemplate> attributeTemplateMap =
-                new Dictionary<int, AttributeTemplate>();
+            Dictionary<int, NormalizedValueTemplate> attributeTemplateMap =
+                new Dictionary<int, NormalizedValueTemplate>();
             IDbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT * FROM AttributeTemplate";
             var reader = command.ExecuteReader();
@@ -209,7 +215,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 int id = reader.GetInt32(0);
                 float baseValue = (float)reader[1];
                 float stdDev = (float)reader[2];
-                AttributeTemplate attributeTemplate = new AttributeTemplate
+                NormalizedValueTemplate attributeTemplate = new NormalizedValueTemplate
                 {
                     BaseValue = baseValue,
                     StandardDeviation = stdDev
@@ -270,7 +276,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
         private Dictionary<int, List<SoldierTemplate>> GetSoldierTemplatesByFactionId(IDbConnection connection,
                                                                                          Dictionary<int, SoldierType> soldierTypeMap,
-                                                                                         Dictionary<int, AttributeTemplate> attributeMap,
+                                                                                         Dictionary<int, NormalizedValueTemplate> attributeMap,
                                                                                          Dictionary<int, List<HitLocationTemplate>> hitLocationTemplateMap,
                                                                                          Dictionary<int, List<SkillTemplate>> skillTemplateMap)
         {

@@ -1,5 +1,5 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
+﻿using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Views;
 using System;
 using System.Collections.Generic;

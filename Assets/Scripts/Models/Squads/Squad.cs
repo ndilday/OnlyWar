@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Fleets;
+using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Units;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OnlyWar.Scripts.Models.Squads
 {

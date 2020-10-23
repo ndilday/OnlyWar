@@ -18,7 +18,7 @@ namespace OnlyWar.Scripts.Helpers
             }
         }
 
-        private int _nextId = 0;
+        private static int _nextId = 0;
 
         public Soldier GenerateNewSoldier(SoldierTemplate template)
         {

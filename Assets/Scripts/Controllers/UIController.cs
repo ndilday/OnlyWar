@@ -1,10 +1,10 @@
-﻿using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Helpers.Database.GameState;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using System.Collections;
 
 namespace OnlyWar.Scripts.Controllers
 {
