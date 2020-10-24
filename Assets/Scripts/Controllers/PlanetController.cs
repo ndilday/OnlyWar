@@ -1,4 +1,5 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
@@ -221,6 +222,25 @@ namespace OnlyWar.Scripts.Controllers
             _selectedShip = null;
             _selectedSquad = null;
             _selectedUnit = null;
+        }
+
+        public void UIController_OnTurnEnd()
+        {
+            foreach(Planet planet in GameSettings.Galaxy.Planets)
+            {
+                EndOfTurnPlanetUpdate(planet);
+            }
+        }
+
+        private void EndOfTurnPlanetUpdate(Planet planet)
+        {
+            // increase the population of the planet
+            float newPop = planet.ImperialPopulation * 1.001f;
+            planet.ImperialPopulation = (int)newPop;
+            if(RNG.GetLinearDouble() < newPop%1)
+            {
+                planet.ImperialPopulation++;
+            }
         }
 
         private void PopulateScoutingReport(Planet planet)

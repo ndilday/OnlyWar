@@ -16,5 +16,10 @@ namespace OnlyWar.Scripts.Helpers
         {
             return _random.Next(min, max);
         }
+        
+        public static double GetLinearDouble()
+        {
+            return _random.NextDouble();
+        }
     }
 }
