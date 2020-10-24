@@ -43,7 +43,7 @@ namespace OnlyWar.Scripts.Controllers
                     planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
-            CreateScoutingReport(planet);
+            PopulateScoutingReport(planet);
             if(playerSquadsPresent)
             {
                 PopulateUnitTree();
@@ -223,10 +223,11 @@ namespace OnlyWar.Scripts.Controllers
             _selectedUnit = null;
         }
 
-        private void CreateScoutingReport(Planet planet)
+        private void PopulateScoutingReport(Planet planet)
         {
             PlanetView.UpdateScoutingReport("");
-            string newReport = "";
+            string newReport = CreateBasicPlanetReadout(planet);
+            string factionForces = "";
             bool hasMarineForces = false;
             if (planet.FactionSquadListMap != null)
             {
@@ -244,7 +245,7 @@ namespace OnlyWar.Scripts.Controllers
                         {
                             factionSoldierCount += squad.Members.Count;
                         }
-                        newReport = factionName + " forces on the planet number in the ";
+                        factionForces += factionName + " forces on the planet number in the ";
                         if (factionSoldierCount >= 2000) newReport += "thousands.";
                         else if (factionSoldierCount >= 200) newReport += "hundreds.";
                         else if (factionSoldierCount >= 24) newReport += "dozens.";
@@ -254,11 +255,99 @@ namespace OnlyWar.Scripts.Controllers
             }
             if (!hasMarineForces && planet.Fleets.Count == 0)
             {
-                PlanetView.UpdateScoutingReport("With no forces on planet, we have no sense of what xenos or heretics may exist here.");
+                newReport +=
+                    "With no forces on planet, we have no insight into what xenos or heretics may exist here.";
             }
             else
             {
-                PlanetView.UpdateScoutingReport(newReport);
+                newReport += factionForces;
+            }
+            PlanetView.UpdateScoutingReport(newReport);
+        }
+
+        private string CreateBasicPlanetReadout(Planet planet)
+        {
+            string planetDescription = $"{planet.Name}\n";
+            planetDescription += $"Type: {planet.Template.Name}\n";
+            planetDescription += $"Population: {(planet.ImperialPopulation*1000).ToString("#,#")}\n";
+            string importance = ConvertImportanceToString(planet.Importance);
+            string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
+            planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n\n";
+            return planetDescription;
+        }
+
+        private string ConvertImportanceToString(int importance)
+        {
+            if(importance > 6000)
+            {
+                return $"G{importance%1000}";
+            }
+            else if (importance > 5000)
+            {
+                return $"F{importance % 1000}";
+            }
+            else if (importance > 4000)
+            {
+                return $"E{importance % 1000}";
+            }
+            else if (importance > 3000)
+            {
+                return $"D{importance % 1000}";
+            }
+            else if (importance > 2000)
+            {
+                return $"C{importance % 1000}";
+            }
+            else if (importance > 1000)
+            {
+                return $"B{importance % 1000}";
+            }
+            else
+            {
+                return $"A{importance}";
+            }
+        }
+
+        private string ConvertTaxRangeToString(int taxRate)
+        {
+            switch(taxRate)
+            {
+                case 0:
+                    return "Adeptus Non";
+                case 1:
+                    return "Solutio Tertius";
+                case 2:
+                    return "Solutio Secundus";
+                case 3:
+                    return "Solutio Prima";
+                case 4:
+                    return "Solutio Particular";
+                case 5:
+                    return "Solutio Extremis";
+                case 6:
+                    return "Decuma Tertius";
+                case 7:
+                    return "Decuma Secundus";
+                case 8:
+                    return "Decuma Prima";
+                case 9:
+                    return "Decuma Particular";
+                case 10:
+                    return "Decuma Extremis";
+                case 11:
+                    return "Exactis Tertius";
+                case 12:
+                    return "Exactis Secundus";
+                case 13:
+                    return "Exactis Prima";
+                case 14:
+                    return "Exactis Median";
+                case 15:
+                    return "Exactis Particular";
+                case 16:
+                    return "Exactis Extremis";
+                default:
+                    return "";
             }
         }
 

@@ -22,7 +22,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 int probability = reader.GetInt32(2);
                 int popBase = reader.GetInt32(3);
                 float popStdDev = (float)reader[4];
-                long importanceBase = reader.GetInt64(5);
+                int importanceBase = reader.GetInt32(5);
                 float importanceStdDev = (float)reader[6];
                 int taxMin = reader.GetInt32(7);
                 int taxMax = reader.GetInt32(8);

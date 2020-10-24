@@ -13,7 +13,7 @@ namespace OnlyWar.Scripts.Models.Planets
         public readonly Vector2 Position;
         public readonly PlanetTemplate Template;
         public int ImperialPopulation;
-        public readonly long Importance;
+        public readonly int Importance;
         public readonly int TaxLevel;
 
         public List<Fleet> Fleets;
@@ -21,7 +21,7 @@ namespace OnlyWar.Scripts.Models.Planets
         public Faction ControllingFaction;
         
         public Planet(int id, string name, Vector2 position, PlanetTemplate template,
-            long importance, int taxLevel)
+            int importance, int taxLevel)
         {
             Id = id;
             Name = name;

@@ -36,8 +36,8 @@ namespace Assets.Scripts.Helpers
                 nameIndex = RNG.GetIntBelowMax(0, TempPlanetList.PlanetNames.Length);
             }
             _usedPlanetNameIndexes.Add(nameIndex);
-            long importance = (long)(template.ImportanceRange.BaseValue)
-                + (long)(RNG.NextGaussianDouble() * template.ImportanceRange.StandardDeviation);
+            int importance = (int)(template.ImportanceRange.BaseValue)
+                + (int)(RNG.NextGaussianDouble() * template.ImportanceRange.StandardDeviation);
             int taxLevel = 
                 RNG.GetIntBelowMax(template.TaxRange.MinValue, template.TaxRange.MaxValue + 1);
             Planet planet = new Planet(_nextId, TempPlanetList.PlanetNames[nameIndex], 
