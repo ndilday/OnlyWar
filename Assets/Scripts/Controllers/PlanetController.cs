@@ -236,11 +236,26 @@ namespace OnlyWar.Scripts.Controllers
         {
             // increase the population of the planet
             float newPop = planet.ImperialPopulation * 1.001f;
+            float newMil = planet.ImperialPopulation * 0.01f;
             planet.ImperialPopulation = (int)newPop;
+            planet.PlanetaryDefenseForces += (int)newMil;
             if(RNG.GetLinearDouble() < newPop%1)
             {
                 planet.ImperialPopulation++;
             }
+
+            // see if the planet is called to tithe a regiment
+            //tax level / 50
+            if(RNG.GetLinearDouble() < planet.TaxLevel / 50f)
+            {
+                GenerateNewRegiment(planet);
+            }
+        }
+
+        private void GenerateNewRegiment(Planet planet)
+        {
+            int size = planet.PlanetaryDefenseForces / 10;
+            planet.PlanetaryDefenseForces -= size;
         }
 
         private void PopulateScoutingReport(Planet planet)
@@ -290,6 +305,7 @@ namespace OnlyWar.Scripts.Controllers
             string planetDescription = $"{planet.Name}\n";
             planetDescription += $"Type: {planet.Template.Name}\n";
             planetDescription += $"Population: {(planet.ImperialPopulation*1000).ToString("#,#")}\n";
+            planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces.ToString("#,#")}\n";
             string importance = ConvertImportanceToString(planet.Importance);
             string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
             planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n\n";

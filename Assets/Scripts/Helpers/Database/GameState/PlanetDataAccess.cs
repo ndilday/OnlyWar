@@ -27,6 +27,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 int population = reader.GetInt32(6);
                 int importance = reader.GetInt32(7);
                 int taxLevel = reader.GetInt32(8);
+                int pdf = reader.GetInt32(9);
+                float reputation = (float)reader[10];
                 var template = planetTemplateMap[planetTemplateId];
                 Faction controllingFaction;
                 if (reader[5].GetType() != typeof(DBNull))
@@ -37,12 +39,14 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 {
                     controllingFaction = null;
                 }
-                Planet planet = 
+                Planet planet =
                     new Planet(id, name, new Vector2(x, y), template, importance, taxLevel)
-                {
-                    ControllingFaction = controllingFaction,
-                    ImperialPopulation = population
-                };
+                    {
+                        ControllingFaction = controllingFaction,
+                        ImperialPopulation = population,
+                        PlanetaryDefenseForces = pdf,
+                        PlayerReputation = reputation
+                    };
 
                 planetList.Add(planet);
             }
@@ -55,10 +59,12 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 "null" : planet.ControllingFaction.Id.ToString();
 
             string insert = $@"INSERT INTO Planet 
-                (Id, PlanetTemplateId, Name, x, y, FactionId, Population, Importance, TaxLevel) VALUES 
+                (Id, PlanetTemplateId, Name, x, y, FactionId, Population, Importance, 
+                TaxLevel, PlanetaryDefenseForces, PlayerReputation) VALUES 
                 ({planet.Id}, {planet.Template.Id}, '{planet.Name.Replace("\'", "\'\'")}', 
                 {planet.Position.x}, {planet.Position.y}, {controllingFactionId},
-                {planet.ImperialPopulation}, {planet.Importance}, {planet.TaxLevel});";
+                {planet.ImperialPopulation}, {planet.Importance}, {planet.TaxLevel},
+                {planet.PlanetaryDefenseForces}, {planet.PlayerReputation});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

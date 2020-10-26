@@ -45,6 +45,8 @@ namespace Assets.Scripts.Helpers
             _nextId++;
             planet.ImperialPopulation = (int)(template.PopulationRange.BaseValue)
                 + (int)(Mathf.Pow(10, (float)RNG.NextGaussianDouble()) * template.PopulationRange.StandardDeviation);
+            planet.PlayerReputation = 0;
+            planet.PlanetaryDefenseForces = planet.ImperialPopulation * 10;
             return planet;
         }
     }
