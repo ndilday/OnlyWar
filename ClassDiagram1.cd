@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Iam.Scripts.Models.Units.Unit">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <AssociationLine Name="HQSquad" Type="Iam.Scripts.Models.Units.Squad" ManuallyRouted="true" FixedToPoint="true">
+      <Path>
+        <Point X="2" Y="0.862" />
+        <Point X="3" Y="0.862" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="UnitTemplate" Type="Iam.Scripts.Models.Units.UnitTemplate" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="1.25" Y="4.045" />
+        <Point X="1.25" Y="4.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAABAJAAAAEAAAAAAwAAggAAAQAIACEAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Models\Units\Unit.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="HQSquad" />
+      <Property Name="UnitTemplate" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Squads" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Units.Squad">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAgAABAAAAAAEAAAAAAQAAAggQAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Models\Units\Squad.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SquadLeader" />
+      <Property Name="SquadTemplate" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="Members" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Units.UnitTemplate">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <AssociationLine Name="_childUnits" Type="Iam.Scripts.Models.Units.UnitTemplate" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="0.625" Y="7.651" />
+        <Point X="0.625" Y="7.901" />
+        <Point X="1.688" Y="7.901" />
+        <Point X="1.688" Y="7.651" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>IAACAAAAgAJAAAAAAAAAEEwAAAAABAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Models\Units\UnitTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="HQSquad" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_childSquads" />
+      <Field Name="_childUnits" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Soldiers.Soldier">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACIgCAEAAAgBCABAQBAAAIADhAAgIBAIGAAAAAIGA=</HashCode>
+      <FileName>Assets\Scripts\Models\Soldiers\Soldier.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Units.SquadTemplate">
+    <Position X="3" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAgAAAAAAAAEIQAAAAQAAAKAAAAAEAAEAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Models\Units\SquadTemplate.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Members" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Soldiers.SoldierTemplate">
+    <Position X="7.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAgCAAAAAgBAAABQAAAQAABBAAAIDAAEAAAAAACA=</HashCode>
+      <FileName>Assets\Scripts\Models\Soldiers\SoldierTemplate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Iam.Scripts.Models.Soldiers.SpaceMarine">
+    <Position X="9" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgABAGABAAAIAAAEABAAAAAAAAQAAAAAAICAAAAAEGg=</HashCode>
+      <FileName>Assets\Scripts\Models\Soldiers\SpaceMarine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Iam.Scripts.Helpers.Battle.BattleSoldier">
+    <Position X="10.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIIAAoAAAAEAMIUIEAAAYFgIgAAAQGAAAAABAIAg=</HashCode>
+      <FileName>Assets\Scripts\Helpers\Battle\BattleSoldier.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Soldier" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Iam.Scripts.Helpers.Battle.BattleSquad">
+    <Position X="13.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiACAAAAAQICAgAEAAAAAAUAJABAAAASAAQAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Helpers\Battle\BattleSquad.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Squad" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Soldiers" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
