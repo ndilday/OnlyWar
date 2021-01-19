@@ -174,11 +174,8 @@ namespace OnlyWar.Scripts.Controllers
             {
                 if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
-                    planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
-                    {
-                        [GameSettings.Galaxy.PlayerFaction.Id] =
-                            GameSettings.Chapter.SquadMap.Values.ToList()
-                    };
+                    planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id] =
+                            GameSettings.Chapter.SquadMap.Values.ToList();
                     SetChapterSquadsLocation(planet);
                     foreach(Fleet fleet in GameSettings.Chapter.Fleets)
                     {
@@ -198,11 +195,8 @@ namespace OnlyWar.Scripts.Controllers
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
-                    planet.FactionSquadListMap = new Dictionary<int, List<Squad>>
-                    {
-                        // TODO: generalize this
-                        [planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList()
-                    };
+                    // TODO: generalize this
+                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
                 }
             }
         }

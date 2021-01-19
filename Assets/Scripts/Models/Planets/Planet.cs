@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 using OnlyWar.Scripts.Models.Fleets;
@@ -14,16 +15,31 @@ namespace OnlyWar.Scripts.Models.Planets
         public readonly PlanetTemplate Template;
         public readonly int Importance;
         public readonly int TaxLevel;
-        public int ImperialPopulation;
-        public float PlayerReputation;
-        // I suspect I'm going to change my mind regularly on the scale for this value
-        // for now, let's be simple, and let it be headcount
-        public int PlanetaryDefenseForces;
 
         public List<Fleet> Fleets;
-        public Dictionary<int, List<Squad>> FactionSquadListMap;
+        public readonly Dictionary<int, List<Squad>> FactionSquadListMap;
+        public readonly Dictionary<int, PlanetFaction> PlanetFactionMap;
         public Faction ControllingFaction;
         
+        // planetary population is in thousands
+        public int Population
+        {
+            get
+            {
+                return PlanetFactionMap.Sum(pfm => pfm.Value.Population);
+            }
+        }
+
+        // I suspect I'm going to change my mind regularly on the scale for this value
+        // for now, let's be simple, and let it be headcount
+        public int PlanetaryDefenseForces
+        {
+            get
+            {
+                return PlanetFactionMap.Sum(pfm => pfm.Value.PDFMembers);
+            }
+        }
+
         public Planet(int id, string name, Vector2 position, PlanetTemplate template,
             int importance, int taxLevel)
         {
@@ -35,7 +51,7 @@ namespace OnlyWar.Scripts.Models.Planets
             TaxLevel = taxLevel;
             Fleets = new List<Fleet>();
             FactionSquadListMap = new Dictionary<int, List<Squad>>();
-            PlayerReputation = 0;
+            PlanetFactionMap = new Dictionary<int, PlanetFaction>();
         }
 
     }

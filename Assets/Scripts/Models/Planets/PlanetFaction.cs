@@ -10,6 +10,13 @@ namespace OnlyWar.Scripts.Models.Planets
     {
         public Faction Faction { get; }
         public bool IsPublic { get; set; }
-        public bool Population { get; set; }
+        public int Population { get; set; }
+        public int PDFMembers { get; set; }
+        public float PlayerReputation { get; set; }
+
+        public PlanetFaction(Faction faction)
+        {
+            Faction = faction;
+        }
     }
 }

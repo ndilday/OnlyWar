@@ -1,9 +1,9 @@
-﻿using OnlyWar.Scripts.Helpers;
+﻿using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Planets;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts.Helpers
+namespace OnlyWar.Scripts.Helpers
 {
     class PlanetFactory
     {
@@ -28,7 +28,7 @@ namespace Assets.Scripts.Helpers
 
         private static int _nextId = 0;
 
-        public Planet GenerateNewPlanet(PlanetTemplate template, Vector2 position)
+        public Planet GenerateNewPlanet(PlanetTemplate template, Vector2 position, Faction defaultFaction, Faction invadingFaction)
         {
             int nameIndex = RNG.GetIntBelowMax(0, TempPlanetList.PlanetNames.Length);
             while(_usedPlanetNameIndexes.Contains(nameIndex))
@@ -43,10 +43,17 @@ namespace Assets.Scripts.Helpers
             Planet planet = new Planet(_nextId, TempPlanetList.PlanetNames[nameIndex], 
                                        position, template, importance, taxLevel);
             _nextId++;
-            planet.ImperialPopulation = (int)(template.PopulationRange.BaseValue)
+
+            int popToDistribute = (int)(template.PopulationRange.BaseValue)
                 + (int)(Mathf.Pow(10, (float)RNG.NextGaussianDouble()) * template.PopulationRange.StandardDeviation);
-            planet.PlayerReputation = 0;
-            planet.PlanetaryDefenseForces = planet.ImperialPopulation * 10;
+            // TODO: determine if this planet starts with a genestealer cult in place
+
+            PlanetFaction planetFaction = new PlanetFaction(defaultFaction);
+            planetFaction.PlayerReputation = 0;
+            planetFaction.IsPublic = true;
+            planetFaction.Population = popToDistribute;
+            planetFaction.PDFMembers = popToDistribute * 10;
+            planet.PlanetFactionMap[defaultFaction.Id] = planetFaction;
             return planet;
         }
     }

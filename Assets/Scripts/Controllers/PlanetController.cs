@@ -235,13 +235,24 @@ namespace OnlyWar.Scripts.Controllers
         private void EndOfTurnPlanetUpdate(Planet planet)
         {
             // increase the population of the planet
-            float newPop = planet.ImperialPopulation * 1.001f;
-            float newMil = planet.ImperialPopulation * 0.01f;
-            planet.ImperialPopulation = (int)newPop;
-            planet.PlanetaryDefenseForces += (int)newMil;
-            if(RNG.GetLinearDouble() < newPop%1)
+            float pdfRatio = ((float)planet.PlanetaryDefenseForces) / planet.Population;
+            foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                planet.ImperialPopulation++;
+                float newPop = planetFaction.Population * 1.001f;
+                planetFaction.Population = (int)newPop;
+                if (RNG.GetLinearDouble() < newPop % 1)
+                {
+                    planetFaction.Population++;
+                }
+
+                if(pdfRatio < 0.1f || !planetFaction.IsPublic)
+                {
+                    planetFaction.PDFMembers += (int)(newPop * 0.02f);
+                }
+                else if (planetFaction.Faction == planet.ControllingFaction || !planetFaction.IsPublic)
+                {
+                    planetFaction.PDFMembers += (int)(newPop * 0.01f);
+                }
             }
 
             // see if the planet is called to tithe a regiment
@@ -255,7 +266,12 @@ namespace OnlyWar.Scripts.Controllers
         private void GenerateNewRegiment(Planet planet)
         {
             int size = planet.PlanetaryDefenseForces / 10;
-            planet.PlanetaryDefenseForces -= size;
+            foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
+            {
+                int troopsLost = planetFaction.PDFMembers / 10;
+                planetFaction.PDFMembers -= troopsLost;
+                planetFaction.Population -= troopsLost;
+            }
         }
 
         private void PopulateScoutingReport(Planet planet)
@@ -304,7 +320,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             string planetDescription = $"{planet.Name}\n";
             planetDescription += $"Type: {planet.Template.Name}\n";
-            planetDescription += $"Population: {(planet.ImperialPopulation*1000).ToString("#,#")}\n";
+            planetDescription += $"Population: {(planet.Population*1000).ToString("#,#")}\n";
             planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces.ToString("#,#")}\n";
             string importance = ConvertImportanceToString(planet.Importance);
             string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
