@@ -238,13 +238,49 @@ namespace OnlyWar.Scripts.Controllers
             float pdfRatio = ((float)planet.PlanetaryDefenseForces) / planet.Population;
             foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                float newPop = planetFaction.Population * 1.001f;
+                float newPop = 0;
+                switch(planetFaction.Faction.GrowthType)
+                {
+                    case Models.GrowthType.Logistic:
+                        newPop = planetFaction.Population * 1.001f;
+                        break;
+                    case Models.GrowthType.Conversion:
+                        PlanetFaction defaultFaction = planet.PlanetFactionMap
+                                                             .Values
+                                                             .First(pf => pf.Faction.IsDefaultFaction);
+                        // converting factions always convert one new member per week
+                        if (defaultFaction?.Population > 0)
+                        {
+                            defaultFaction.Population--;
+                            planetFaction.Population++;
+                            float pdfChance = (float)(defaultFaction.PDFMembers) / defaultFaction.Population;
+                            if(RNG.GetLinearDouble() < pdfChance)
+                            {
+                                defaultFaction.PDFMembers--;
+                                planetFaction.PDFMembers++;
+                            }
+                            if(planetFaction.Population > 100)
+                            {
+                                // at larger sizes, converting factions
+                                // also grow organically 
+                                // at a faster rate than a normal population
+                                newPop = planetFaction.Population * 1.002f;
+                            }
+                        }
+                        break;
+                    default:
+                        newPop = planetFaction.Population;
+                        break;
+                }
+
                 planetFaction.Population = (int)newPop;
                 if (RNG.GetLinearDouble() < newPop % 1)
                 {
                     planetFaction.Population++;
                 }
 
+                // if the pdf is less than one percent of the population, more people are drafted
+                // additionally, secret factions love to infiltrate the PDF
                 if(pdfRatio < 0.1f || !planetFaction.IsPublic)
                 {
                     planetFaction.PDFMembers += (int)(newPop * 0.02f);
@@ -266,6 +302,9 @@ namespace OnlyWar.Scripts.Controllers
         private void GenerateNewRegiment(Planet planet)
         {
             int size = planet.PlanetaryDefenseForces / 10;
+            // TODO: Right now, the new regiment just disappears
+            // TODO: should we track faction membership in IG regiments, so that as they move, 
+            // that faction grows where they settle?
             foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
                 int troopsLost = planetFaction.PDFMembers / 10;

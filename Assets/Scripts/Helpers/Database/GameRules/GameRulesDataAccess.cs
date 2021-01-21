@@ -116,6 +116,9 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 string name = reader[1].ToString();
                 Color color = ConvertDatabaseObjectToColor(reader[2]);
                 bool isPlayer = (bool)reader[3];
+                bool isDefault = (bool)reader[4];
+                bool canInfiltrate = (bool)reader[5];
+                GrowthType growthType = (GrowthType)reader.GetInt32(6);
 
                 var soldierTypeMap = factionSoldierTypeMap[id].ToDictionary(st => st.Id);
                 var rangedMap = factionRangedWeaponMap[id].ToDictionary(rw => rw.Id);
@@ -134,12 +137,9 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                     fleetMap = factionFleetMap[id].ToDictionary(ft => ft.Id);
                 }
 
-                Faction factionTemplate = new Faction(id, name, color, isPlayer,
-                                                                      soldierTypeMap, rangedMap,
-                                                                      meleeMap, armorMap,
-                                                                      soldierMap,
-                                                                      squadMap, unitMap,
-                                                                      boatMap, shipMap, fleetMap);
+                Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, canInfiltrate, growthType,
+                                                      soldierTypeMap, rangedMap, meleeMap, armorMap, soldierMap,
+                                                      squadMap, unitMap, boatMap, shipMap, fleetMap);
                 factionList.Add(factionTemplate);
             }
             return factionList;

@@ -9,12 +9,22 @@ using OnlyWar.Scripts.Models.Fleets;
 
 namespace OnlyWar.Scripts.Models
 {
+    public enum GrowthType
+    {
+        None = 0,
+        Logistic = 1,
+        Conversion = 2
+    }
+
     public class Faction
     {
         public int Id { get; }
         public string Name { get; }
         public Color Color { get; }
         public bool IsPlayerFaction { get; }
+        public bool IsDefaultFaction { get; }
+        public bool CanInfiltrate { get; }
+        public GrowthType GrowthType { get; }
         public IReadOnlyDictionary<int, SoldierType> SoldierTypes { get; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
@@ -28,22 +38,26 @@ namespace OnlyWar.Scripts.Models
 
         public List<Unit> Units { get; set; }
         
-        public Faction(int id, string name, Color color, bool isPlayerFaction,
-                               IReadOnlyDictionary<int, SoldierType> soldierTypes,
-                               IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
-                               IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
-                               IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
-                               IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
-                               IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
-                               IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
-                               IReadOnlyDictionary<int, BoatTemplate> boatTemplates,
-                               IReadOnlyDictionary<int, ShipTemplate> shipTemplates,
-                               IReadOnlyDictionary<int, FleetTemplate> fleetTemplates)
+        public Faction(int id, string name, Color color, bool isPlayerFaction, 
+                       bool isDefaultFaction, bool canInfiltrate, GrowthType growthType,
+                       IReadOnlyDictionary<int, SoldierType> soldierTypes,
+                       IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
+                       IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
+                       IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
+                       IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
+                       IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
+                       IReadOnlyDictionary<int, UnitTemplate> unitTemplates,
+                       IReadOnlyDictionary<int, BoatTemplate> boatTemplates,
+                       IReadOnlyDictionary<int, ShipTemplate> shipTemplates,
+                       IReadOnlyDictionary<int, FleetTemplate> fleetTemplates)
         {
             Id = id;
             Name = name;
             Color = color;
             IsPlayerFaction = isPlayerFaction;
+            IsDefaultFaction = isDefaultFaction;
+            CanInfiltrate = canInfiltrate;
+            GrowthType = growthType;
             SoldierTypes = soldierTypes;
             RangedWeaponTemplates = rangedWeaponTemplates;
             MeleeWeaponTemplates = meleeWeaponTemplates;

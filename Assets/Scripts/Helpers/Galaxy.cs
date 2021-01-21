@@ -144,13 +144,17 @@ namespace OnlyWar.Scripts.Helpers
 
         private Planet GeneratePlanet(Vector2 position)
         {
+            // TODO: Genericize this function
             PlanetTemplate template = DeterminePlanetTemplate(_planetTemplateMap);
 
-            Planet planet = PlanetFactory.Instance.GenerateNewPlanet(template, position);
+            Planet planet = PlanetFactory.Instance.GenerateNewPlanet(template, position, 
+                                                                     Factions.First(f => f.IsDefaultFaction), 
+                                                                     Factions.First(f => f.CanInfiltrate)); ;
 
+            // TODO: There should be game start config settings for planet ownership by specific factions
             if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
             {
-                planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
+                planet.ControllingFaction = _factions.First(f => f.Id == 2);
             }
 
             return planet;
