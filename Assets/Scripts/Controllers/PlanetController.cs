@@ -360,7 +360,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             string planetDescription = $"{planet.Name}\n";
             planetDescription += $"Type: {planet.Template.Name}\n";
-            planetDescription += $"Population: {(planet.Population*1000).ToString("#,#")}\n";
+            planetDescription += $"Population: {(planet.Population).ToString("#,#")}\n";
             planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces.ToString("#,#")}\n";
             string importance = ConvertImportanceToString(planet.Importance);
             string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
