@@ -242,9 +242,10 @@ namespace OnlyWar.Scripts.Controllers
                 switch(planetFaction.Faction.GrowthType)
                 {
                     case Models.GrowthType.Logistic:
-                        newPop = planetFaction.Population * 1.001f;
+                        newPop = planetFaction.Population * 1.00015f;
                         break;
                     case Models.GrowthType.Conversion:
+
                         PlanetFaction defaultFaction = planet.PlanetFactionMap
                                                              .Values
                                                              .First(pf => pf.Faction.IsDefaultFaction);
@@ -263,7 +264,7 @@ namespace OnlyWar.Scripts.Controllers
                             {
                                 // at larger sizes, converting factions
                                 // also grow organically 
-                                // at a faster rate than a normal population
+                                // at a much faster rate than a normal population
                                 newPop = planetFaction.Population * 1.002f;
                             }
                         }

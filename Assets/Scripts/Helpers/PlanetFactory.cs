@@ -28,7 +28,8 @@ namespace OnlyWar.Scripts.Helpers
 
         private static int _nextId = 0;
 
-        public Planet GenerateNewPlanet(PlanetTemplate template, Vector2 position, Faction defaultFaction, Faction invadingFaction)
+        public Planet GenerateNewPlanet(PlanetTemplate template, Vector2 position, 
+                                        Faction defaultFaction, Faction infiltratingFaction)
         {
             int nameIndex = RNG.GetIntBelowMax(0, TempPlanetList.PlanetNames.Length);
             while(_usedPlanetNameIndexes.Contains(nameIndex))
@@ -46,13 +47,25 @@ namespace OnlyWar.Scripts.Helpers
 
             int popToDistribute = (int)(template.PopulationRange.BaseValue)
                 + (int)(Mathf.Pow(10, (float)RNG.NextGaussianDouble()) * template.PopulationRange.StandardDeviation);
-            // TODO: determine if this planet starts with a genestealer cult in place
+            // determine if this planet starts with a genestealer cult in place
+            // TODO: make this configurable
+            double odds = RNG.GetLinearDouble();
+            if(odds <= 0.01)
+            {
+                PlanetFaction infiltration = new PlanetFaction(infiltratingFaction);
+                infiltration.PlayerReputation = 0;
+                infiltration.IsPublic = false;
+                infiltration.Population = (int)(popToDistribute * odds);
+                infiltration.PDFMembers = (int)(infiltration.Population / 100);
+                planet.PlanetFactionMap[infiltratingFaction.Id] = infiltration;
+
+            }
 
             PlanetFaction planetFaction = new PlanetFaction(defaultFaction);
             planetFaction.PlayerReputation = 0;
             planetFaction.IsPublic = true;
             planetFaction.Population = popToDistribute;
-            planetFaction.PDFMembers = popToDistribute * 10;
+            planetFaction.PDFMembers = popToDistribute / 100;
             planet.PlanetFactionMap[defaultFaction.Id] = planetFaction;
             return planet;
         }
