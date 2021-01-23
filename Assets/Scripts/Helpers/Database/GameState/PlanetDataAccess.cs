@@ -28,6 +28,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 int y = reader.GetInt32(4);
                 int importance = reader.GetInt32(6);
                 int taxLevel = reader.GetInt32(7);
+                bool isUnderAssault = reader.GetBoolean(8);
                 var template = planetTemplateMap[planetTemplateId];
                 Faction controllingFaction;
                 if (reader[5].GetType() != typeof(DBNull))
@@ -41,7 +42,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 Planet planet =
                     new Planet(id, name, new Vector2(x, y), template, importance, taxLevel)
                     {
-                        ControllingFaction = controllingFaction
+                        ControllingFaction = controllingFaction,
+                        IsUnderAssault = isUnderAssault
                     };
                 foreach (PlanetFaction planetFaction in planetFactions[id])
                 {
@@ -93,10 +95,11 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 "null" : planet.ControllingFaction.Id.ToString();
 
             string insert = $@"INSERT INTO Planet 
-                (Id, PlanetTemplateId, Name, x, y, FactionId, Importance, TaxLevel) VALUES 
+                (Id, PlanetTemplateId, Name, x, y, FactionId, 
+                Importance, TaxLevel, IsUnderAssault) VALUES 
                 ({planet.Id}, {planet.Template.Id}, '{planet.Name.Replace("\'", "\'\'")}', 
                 {planet.Position.x}, {planet.Position.y}, {controllingFactionId},
-                {planet.Importance}, {planet.TaxLevel});";
+                {planet.Importance}, {planet.TaxLevel}, {planet.IsUnderAssault});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

@@ -267,6 +267,14 @@ namespace OnlyWar.Scripts.Controllers
                                 // at a much faster rate than a normal population
                                 newPop = planetFaction.Population * 1.002f;
                             }
+                            // if the converting population is larger than
+                            // the non-converted PDF force, they start their revolt
+                            if(newPop > (planet.PlanetaryDefenseForces - planetFaction.PDFMembers)
+                                && !planet.IsUnderAssault)
+                            {
+                                planetFaction.IsPublic = true;
+                                planet.IsUnderAssault = true;
+                            }
                         }
                         break;
                     default:
@@ -302,7 +310,6 @@ namespace OnlyWar.Scripts.Controllers
 
         private void GenerateNewRegiment(Planet planet)
         {
-            int size = planet.PlanetaryDefenseForces / 10;
             // TODO: Right now, the new regiment just disappears
             // TODO: should we track faction membership in IG regiments, so that as they move, 
             // that faction grows where they settle?
@@ -360,8 +367,8 @@ namespace OnlyWar.Scripts.Controllers
         {
             string planetDescription = $"{planet.Name}\n";
             planetDescription += $"Type: {planet.Template.Name}\n";
-            planetDescription += $"Population: {(planet.Population).ToString("#,#")}\n";
-            planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces.ToString("#,#")}\n";
+            planetDescription += $"Population: {planet.Population:#,#}\n";
+            planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces:#,#}\n";
             string importance = ConvertImportanceToString(planet.Importance);
             string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
             planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n\n";
@@ -402,45 +409,27 @@ namespace OnlyWar.Scripts.Controllers
 
         private string ConvertTaxRangeToString(int taxRate)
         {
-            switch(taxRate)
+            return taxRate switch
             {
-                case 0:
-                    return "Adeptus Non";
-                case 1:
-                    return "Solutio Tertius";
-                case 2:
-                    return "Solutio Secundus";
-                case 3:
-                    return "Solutio Prima";
-                case 4:
-                    return "Solutio Particular";
-                case 5:
-                    return "Solutio Extremis";
-                case 6:
-                    return "Decuma Tertius";
-                case 7:
-                    return "Decuma Secundus";
-                case 8:
-                    return "Decuma Prima";
-                case 9:
-                    return "Decuma Particular";
-                case 10:
-                    return "Decuma Extremis";
-                case 11:
-                    return "Exactis Tertius";
-                case 12:
-                    return "Exactis Secundus";
-                case 13:
-                    return "Exactis Prima";
-                case 14:
-                    return "Exactis Median";
-                case 15:
-                    return "Exactis Particular";
-                case 16:
-                    return "Exactis Extremis";
-                default:
-                    return "";
-            }
+                0 => "Adeptus Non",
+                1 => "Solutio Tertius",
+                2 => "Solutio Secundus",
+                3 => "Solutio Prima",
+                4 => "Solutio Particular",
+                5 => "Solutio Extremis",
+                6 => "Decuma Tertius",
+                7 => "Decuma Secundus",
+                8 => "Decuma Prima",
+                9 => "Decuma Particular",
+                10 => "Decuma Extremis",
+                11 => "Exactis Tertius",
+                12 => "Exactis Secundus",
+                13 => "Exactis Prima",
+                14 => "Exactis Median",
+                15 => "Exactis Particular",
+                16 => "Exactis Extremis",
+                _ => "",
+            };
         }
 
         private List<WeaponSet> ConvertToWeaponSetList(List<Tuple<string, int>> tuples)

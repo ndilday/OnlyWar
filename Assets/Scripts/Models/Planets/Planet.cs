@@ -15,6 +15,7 @@ namespace OnlyWar.Scripts.Models.Planets
         public readonly PlanetTemplate Template;
         public readonly int Importance;
         public readonly int TaxLevel;
+        public bool IsUnderAssault { get; set; }
 
         public List<Fleet> Fleets;
         public readonly Dictionary<int, List<Squad>> FactionSquadListMap;
@@ -22,7 +23,7 @@ namespace OnlyWar.Scripts.Models.Planets
         public Faction ControllingFaction;
         
         // planetary population is in thousands
-        public int Population
+        public long Population
         {
             get
             {
