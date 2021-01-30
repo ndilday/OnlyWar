@@ -15,10 +15,13 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 {
     public class GameRulesBlob
     {
-        public List<Faction> Factions { get; set; }
-        public Dictionary<int, BaseSkill> BaseSkills { get; set; }
-        public Dictionary<int, List<HitLocationTemplate>> BodyTemplates { get; set; }
-        public Dictionary<int, PlanetTemplate> PlanetTemplates { get; set; } 
+        public IReadOnlyList<Faction> Factions { get; set; }
+        public IReadOnlyDictionary<int, BaseSkill> BaseSkills { get; set; }
+        public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyTemplates { get; set; }
+        public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplates { get; set; }
+        public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; set; }
+        public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; set; }
+
     }
 
     public class GameRulesDataAccess
@@ -74,9 +77,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             var planetTemplates = _planetDataAccess.GetData(dbCon);
 
             var fleetDataBlob = _fleetDataAccess.GetFleetData(dbCon);
-            var factions = GetFactionTemplates(dbCon, squadDataBlob.SoldierTypesByFactionId, 
-                                               squadDataBlob.RangedWeaponTemplatesByFactionId, 
-                                               squadDataBlob.MeleeWeaponTemplatesByFactionId, 
+            var factions = GetFactionTemplates(dbCon, squadDataBlob.SoldierTypesByFactionId,  
                                                squadDataBlob.ArmorTemplatesByFactionId,
                                                soldierTemplates, 
                                                squadDataBlob.SquadTemplatesByFactionId, 
@@ -90,14 +91,14 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 Factions = factions,
                 BaseSkills = baseSkills,
                 BodyTemplates = hitLocations,
-                PlanetTemplates = planetTemplates
+                PlanetTemplates = planetTemplates,
+                RangedWeaponTemplates = squadDataBlob.RangedWeaponTemplateMap,
+                MeleeWeaponTemplates = squadDataBlob.MeleeWeaponTemplateMap
             };
         }
 
         private List<Faction> GetFactionTemplates(IDbConnection connection,
                                          Dictionary<int, List<SoldierType>> factionSoldierTypeMap,
-                                         Dictionary<int, List<RangedWeaponTemplate>> factionRangedWeaponMap,
-                                         Dictionary<int, List<MeleeWeaponTemplate>> factionMeleeWeaponMap,
                                          Dictionary<int, List<ArmorTemplate>> factionArmorMap,
                                          Dictionary<int, List<SoldierTemplate>> factionSoldierMap,
                                          Dictionary<int, List<SquadTemplate>> factionSquadMap,
@@ -121,8 +122,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 GrowthType growthType = (GrowthType)reader.GetInt32(6);
 
                 var soldierTypeMap = factionSoldierTypeMap[id].ToDictionary(st => st.Id);
-                var rangedMap = factionRangedWeaponMap[id].ToDictionary(rw => rw.Id);
-                var meleeMap = factionMeleeWeaponMap[id].ToDictionary(mw => mw.Id);
                 var armorMap = factionArmorMap[id].ToDictionary(at => at.Id);
                 var soldierMap = factionSoldierMap[id].ToDictionary(st => st.Id);
                 var squadMap = factionSquadMap[id].ToDictionary(st => st.Id);
@@ -138,7 +137,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 }
 
                 Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, canInfiltrate, growthType,
-                                                      soldierTypeMap, rangedMap, meleeMap, armorMap, soldierMap,
+                                                      soldierTypeMap, armorMap, soldierMap,
                                                       squadMap, unitMap, boatMap, shipMap, fleetMap);
                 factionList.Add(factionTemplate);
             }

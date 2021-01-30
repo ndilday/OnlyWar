@@ -11,8 +11,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
     public class SquadDataBlob
     {
         public Dictionary<int, List<ArmorTemplate>> ArmorTemplatesByFactionId { get; set; }
-        public Dictionary<int, List<RangedWeaponTemplate>> RangedWeaponTemplatesByFactionId { get; set; }
-        public Dictionary<int, List<MeleeWeaponTemplate>> MeleeWeaponTemplatesByFactionId { get; set; }
+        public Dictionary<int, RangedWeaponTemplate> RangedWeaponTemplateMap { get; set; }
+        public Dictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplateMap { get; set; }
         public Dictionary<int, List<SoldierType>> SoldierTypesByFactionId { get; set; }
         public Dictionary<int, SoldierType> SoldierTypesById { get; set; }
         public Dictionary<int, List<SquadTemplate>> SquadTemplatesByFactionId { get; set; }
@@ -27,8 +27,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             var soldierTypeSkills = GetSoldierTypeTrainingBySoldierTypeId(connection, baseSkillMap);
             var soldierTypes = GetSoldierTypesById(connection, soldierTypeSkills);
             var armorTemplates = GetArmorTemplatesByFactionId(connection);
-            var meleeWeapons = GetMeleeWeaponTemplatesByFactionId(connection, baseSkillMap);
-            var rangedWeapons = GetRangedWeaponTemplatesByFactionId(connection, baseSkillMap);
+            var meleeWeapons = GetMeleeWeaponTemplates(connection, baseSkillMap);
+            var rangedWeapons = GetRangedWeaponTemplates(connection, baseSkillMap);
             var weaponSets = GetWeaponSetMap(connection, meleeWeapons, rangedWeapons);
             var squadTemplateWeaponSetIds = 
                 GetSquadTemplateWeaponSetIdsBySquadTemplateWeaponOptionId(connection);
@@ -41,8 +41,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             return new SquadDataBlob
             {
                 ArmorTemplatesByFactionId = armorTemplates,
-                MeleeWeaponTemplatesByFactionId = meleeWeapons,
-                RangedWeaponTemplatesByFactionId = rangedWeapons,
+                MeleeWeaponTemplateMap= meleeWeapons,
+                RangedWeaponTemplateMap = rangedWeapons,
                 SquadTemplatesByFactionId = squadTemplates.Item1,
                 SquadTemplatesById = squadTemplates.Item2,
                 SoldierTypesByFactionId = soldierTypes.Item1,
@@ -75,30 +75,29 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             return factionArmorTemplateMap;
         }
 
-        private Dictionary<int, List<MeleeWeaponTemplate>> GetMeleeWeaponTemplatesByFactionId(
+        private Dictionary<int, MeleeWeaponTemplate> GetMeleeWeaponTemplates(
             IDbConnection connection,
             Dictionary<int, BaseSkill> baseSkillMap)
         {
-            Dictionary<int, List<MeleeWeaponTemplate>> factionWeaponTemplateMap =
-                new Dictionary<int, List<MeleeWeaponTemplate>>();
+            Dictionary<int, MeleeWeaponTemplate> factionWeaponTemplateMap =
+                new Dictionary<int, MeleeWeaponTemplate>();
             IDbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT * FROM MeleeWeaponTemplate";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                int location = reader.GetInt32(3);
-                int baseSkillId = reader.GetInt32(4);
-                float accuracy = (float)reader[5];
-                float armorMultiplier = (float)reader[6];
-                float woundMultiplier = (float)reader[7];
-                float requiredStrength = (float)reader[8];
-                float strengthMultiplier = (float)reader[9];
-                float extraDamage = (float)reader[10];
-                float parryMod = (float)reader[11];
-                float extraAttacks = (float)reader[12];
+                string name = reader[1].ToString();
+                int location = reader.GetInt32(2);
+                int baseSkillId = reader.GetInt32(3);
+                float accuracy = (float)reader[4];
+                float armorMultiplier = (float)reader[5];
+                float woundMultiplier = (float)reader[6];
+                float requiredStrength = (float)reader[7];
+                float strengthMultiplier = (float)reader[8];
+                float extraDamage = (float)reader[9];
+                float parryMod = (float)reader[10];
+                float extraAttacks = (float)reader[11];
 
                 BaseSkill baseSkill = baseSkillMap[baseSkillId];
 
@@ -107,42 +106,37 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                                             accuracy, armorMultiplier, woundMultiplier,
                                             requiredStrength, strengthMultiplier, extraDamage,
                                             parryMod, extraAttacks);
-                if (!factionWeaponTemplateMap.ContainsKey(factionId))
-                {
-                    factionWeaponTemplateMap[factionId] = new List<MeleeWeaponTemplate>();
-                }
-                factionWeaponTemplateMap[factionId].Add(weaponTemplate);
+                factionWeaponTemplateMap[id] = weaponTemplate;
             }
             return factionWeaponTemplateMap;
         }
 
-        private Dictionary<int, List<RangedWeaponTemplate>> GetRangedWeaponTemplatesByFactionId(
+        private Dictionary<int, RangedWeaponTemplate> GetRangedWeaponTemplates(
             IDbConnection connection,
             Dictionary<int, BaseSkill> baseSkillMap)
         {
-            Dictionary<int, List<RangedWeaponTemplate>> factionWeaponTemplateMap =
-                new Dictionary<int, List<RangedWeaponTemplate>>();
+            Dictionary<int, RangedWeaponTemplate> factionWeaponTemplateMap =
+                new Dictionary<int, RangedWeaponTemplate>();
             IDbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT * FROM RangedWeaponTemplate";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                int location = reader.GetInt32(3);
-                int baseSkillId = reader.GetInt32(4);
-                float accuracy = (float)reader[5];
-                float armorMultiplier = (float)reader[6];
-                float woundMultiplier = (float)reader[7];
-                float requiredStrength = (float)reader[8];
-                float damageMultiplier = (float)reader[9];
-                float maxRange = (float)reader[10];
-                byte rof = reader.GetByte(11);
-                ushort ammo = (ushort)reader.GetInt16(12);
-                ushort recoil = (ushort)reader.GetInt16(13);
-                ushort bulk = (ushort)reader.GetInt16(14);
-                bool doesDamageDegrade = (bool)reader[15];
+                string name = reader[1].ToString();
+                int location = reader.GetInt32(2);
+                int baseSkillId = reader.GetInt32(3);
+                float accuracy = (float)reader[4];
+                float armorMultiplier = (float)reader[5];
+                float woundMultiplier = (float)reader[6];
+                float requiredStrength = (float)reader[7];
+                float damageMultiplier = (float)reader[8];
+                float maxRange = (float)reader[9];
+                byte rof = reader.GetByte(10);
+                ushort ammo = (ushort)reader.GetInt16(11);
+                ushort recoil = (ushort)reader.GetInt16(12);
+                ushort bulk = (ushort)reader.GetInt16(13);
+                bool doesDamageDegrade = (bool)reader[14];
 
                 BaseSkill baseSkill = baseSkillMap[baseSkillId];
 
@@ -151,19 +145,15 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                                             accuracy, armorMultiplier, woundMultiplier,
                                             requiredStrength, damageMultiplier, maxRange,
                                             rof, ammo, recoil, bulk, doesDamageDegrade);
-                if (!factionWeaponTemplateMap.ContainsKey(factionId))
-                {
-                    factionWeaponTemplateMap[factionId] = new List<RangedWeaponTemplate>();
-                }
-                factionWeaponTemplateMap[factionId].Add(weaponTemplate);
+                factionWeaponTemplateMap[id] = weaponTemplate;
             }
             return factionWeaponTemplateMap;
         }
 
         private Dictionary<int, WeaponSet> GetWeaponSetMap(
             IDbConnection connection,
-            Dictionary<int, List<MeleeWeaponTemplate>> meleeWeaponMap,
-            Dictionary<int, List<RangedWeaponTemplate>> rangedWeaponMap)
+            Dictionary<int, MeleeWeaponTemplate> meleeWeaponMap,
+            Dictionary<int, RangedWeaponTemplate> rangedWeaponMap)
         {
             RangedWeaponTemplate primaryRanged, secondaryRanged;
             MeleeWeaponTemplate primaryMelee, secondaryMelee;
@@ -180,7 +170,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
                 if (reader[3].GetType() != typeof(DBNull))
                 {
-                    primaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == reader.GetInt32(3));
+                    primaryRanged = rangedWeaponMap[reader.GetInt32(3)];
                 }
                 else
                 {
@@ -189,7 +179,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
                 if (reader[4].GetType() != typeof(DBNull))
                 {
-                    secondaryRanged = rangedWeaponMap[factionId].First(rw => rw.Id == reader.GetInt32(4));
+                    secondaryRanged = rangedWeaponMap[reader.GetInt32(4)];
                 }
                 else
                 {
@@ -198,7 +188,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
                 if (reader[5].GetType() != typeof(DBNull))
                 {
-                    primaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == reader.GetInt32(5));
+                    primaryMelee = meleeWeaponMap[reader.GetInt32(5)];
                 }
                 else
                 {
@@ -207,7 +197,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
                 if (reader[6].GetType() != typeof(DBNull))
                 {
-                    secondaryMelee = meleeWeaponMap[factionId].First(mw => mw.Id == reader.GetInt32(6));
+                    secondaryMelee = meleeWeaponMap[reader.GetInt32(6)];
                 }
                 else
                 {

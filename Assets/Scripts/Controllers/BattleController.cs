@@ -291,7 +291,7 @@ namespace OnlyWar.Scripts.Controllers
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
             MeleeWeapon defaultWeapon = new MeleeWeapon(
-                GameSettings.Galaxy.PlayerFaction.MeleeWeaponTemplates.Values
+                GameSettings.Galaxy.MeleeWeaponTemplates.Values
                     .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)

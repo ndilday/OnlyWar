@@ -26,8 +26,6 @@ namespace OnlyWar.Scripts.Models
         public bool CanInfiltrate { get; }
         public GrowthType GrowthType { get; }
         public IReadOnlyDictionary<int, SoldierType> SoldierTypes { get; }
-        public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
-        public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
         public IReadOnlyDictionary<int, ArmorTemplate> ArmorTemplates { get; }
         public IReadOnlyDictionary<int, SoldierTemplate> SoldierTemplates { get; }
         public IReadOnlyDictionary<int, SquadTemplate> SquadTemplates { get; }
@@ -41,8 +39,6 @@ namespace OnlyWar.Scripts.Models
         public Faction(int id, string name, Color color, bool isPlayerFaction, 
                        bool isDefaultFaction, bool canInfiltrate, GrowthType growthType,
                        IReadOnlyDictionary<int, SoldierType> soldierTypes,
-                       IReadOnlyDictionary<int, RangedWeaponTemplate> rangedWeaponTemplates,
-                       IReadOnlyDictionary<int, MeleeWeaponTemplate> meleeWeaponTemplates,
                        IReadOnlyDictionary<int, ArmorTemplate> armorTemplates,
                        IReadOnlyDictionary<int, SoldierTemplate> soldierTemplates,
                        IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
@@ -59,8 +55,6 @@ namespace OnlyWar.Scripts.Models
             CanInfiltrate = canInfiltrate;
             GrowthType = growthType;
             SoldierTypes = soldierTypes;
-            RangedWeaponTemplates = rangedWeaponTemplates;
-            MeleeWeaponTemplates = meleeWeaponTemplates;
             ArmorTemplates = armorTemplates;
             SoldierTemplates = soldierTemplates;
             SquadTemplates = squadTemplates;

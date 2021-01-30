@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
-
-using OnlyWar.Scripts.Helpers.Database.GameRules;
+﻿using OnlyWar.Scripts.Helpers.Database.GameRules;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
-using System;
 using OnlyWar.Scripts.Models.Soldiers;
-using Assets.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Equippables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace OnlyWar.Scripts.Helpers
 {
@@ -17,10 +15,10 @@ namespace OnlyWar.Scripts.Helpers
     {
         private readonly List<Fleet> _fleets;
         private readonly List<Planet> _planets;
-        private readonly List<Faction> _factions;
-        private readonly Dictionary<int, BaseSkill> _baseSkillMap;
-        private readonly Dictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
-        private readonly Dictionary<int, PlanetTemplate> _planetTemplateMap;
+        private readonly IReadOnlyList<Faction> _factions;
+        private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
+        private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
+        private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
@@ -29,6 +27,8 @@ namespace OnlyWar.Scripts.Helpers
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplateMap { get => _planetTemplateMap; }
+        public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
+        public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
 
         public Galaxy(int galaxySize)
         {
