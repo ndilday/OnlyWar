@@ -121,11 +121,16 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 bool canInfiltrate = (bool)reader[5];
                 GrowthType growthType = (GrowthType)reader.GetInt32(6);
 
-                var soldierTypeMap = factionSoldierTypeMap[id].ToDictionary(st => st.Id);
-                var armorMap = factionArmorMap[id].ToDictionary(at => at.Id);
-                var soldierMap = factionSoldierMap[id].ToDictionary(st => st.Id);
-                var squadMap = factionSquadMap[id].ToDictionary(st => st.Id);
-                var unitMap = factionUnitMap[id].ToDictionary(ut => ut.Id);
+                var soldierTypeMap = factionSoldierTypeMap.ContainsKey(id) ? 
+                    factionSoldierTypeMap[id].ToDictionary(st => st.Id) : null;
+                var armorMap = factionArmorMap.ContainsKey(id) ? 
+                    factionArmorMap[id].ToDictionary(at => at.Id) : null;
+                var soldierMap = factionSoldierMap.ContainsKey(id) ?
+                    factionSoldierMap[id].ToDictionary(st => st.Id) : null;
+                var squadMap = factionSquadMap.ContainsKey(id) ? 
+                    factionSquadMap[id].ToDictionary(st => st.Id) : null;
+                var unitMap = factionUnitMap.ContainsKey(id) ? 
+                    factionUnitMap[id].ToDictionary(ut => ut.Id) : null;
                 Dictionary<int, BoatTemplate> boatMap = null;
                 Dictionary<int, ShipTemplate> shipMap = null;
                 Dictionary<int, FleetTemplate> fleetMap = null;

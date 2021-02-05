@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Models.Fleets;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace OnlyWar.Scripts.Models
 {
@@ -62,7 +62,7 @@ namespace OnlyWar.Scripts.Models
             BoatTemplates = boatTemplates ?? new Dictionary<int, BoatTemplate>();
             ShipTemplates = shipTemplates ?? new Dictionary<int, ShipTemplate>();
             FleetTemplates = fleetTemplates ?? new Dictionary<int, FleetTemplate>();
-            foreach(UnitTemplate template in UnitTemplates.Values)
+            foreach(UnitTemplate template in UnitTemplates?.Values ?? Enumerable.Empty<UnitTemplate>())
             {
                 template.Faction = this;
             }
