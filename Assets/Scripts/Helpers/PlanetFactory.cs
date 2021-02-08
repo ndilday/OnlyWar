@@ -56,7 +56,7 @@ namespace OnlyWar.Scripts.Helpers
                 infiltration.PlayerReputation = 0;
                 infiltration.IsPublic = false;
                 infiltration.Population = (int)(popToDistribute * odds);
-                infiltration.PDFMembers = (int)(infiltration.Population / 100);
+                infiltration.PDFMembers = (int)(infiltration.Population / 33);
                 planet.PlanetFactionMap[infiltratingFaction.Id] = infiltration;
 
             }
@@ -65,7 +65,7 @@ namespace OnlyWar.Scripts.Helpers
             planetFaction.PlayerReputation = 0;
             planetFaction.IsPublic = true;
             planetFaction.Population = popToDistribute;
-            planetFaction.PDFMembers = popToDistribute / 100;
+            planetFaction.PDFMembers = popToDistribute / 33;
             planet.PlanetFactionMap[defaultFaction.Id] = planetFaction;
             return planet;
         }

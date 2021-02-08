@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace OnlyWar.Scripts.Views
 {
-    class PlanetView : MonoBehaviour
+    class PlanetDetailView : MonoBehaviour
     {
         [SerializeField]
         private Text ScoutingReport;

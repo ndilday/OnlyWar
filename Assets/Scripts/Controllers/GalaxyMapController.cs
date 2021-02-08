@@ -1,4 +1,5 @@
-﻿using OnlyWar.Scripts.Models.Fleets;
+﻿using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Views;
 using System;
@@ -36,16 +37,7 @@ namespace OnlyWar.Scripts.Controllers
             _selectedShips = new List<Ship>();
             foreach(Planet planet in GameSettings.Galaxy.Planets)
             {
-                Color color;
-                if(planet.ControllingFaction != null)
-                {
-                    color = planet.ControllingFaction.Color;
-                }
-                else
-                {
-                    color = Color.white;
-                }
-                Map.CreatePlanet(planet.Id, planet.Position, planet.Name, color);
+                Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
                 if(planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
                     Map.CenterCameraOnPlanet(planet.Id);
@@ -54,6 +46,14 @@ namespace OnlyWar.Scripts.Controllers
             foreach (Fleet fleet in GameSettings.Galaxy.Fleets)
             {
                 Map.CreateFleet(fleet.Id, fleet.Position, false);
+            }
+        }
+
+        public void GalaxyMapController_OnTurnStart()
+        {
+            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            {
+                Map.UpdatePlanetColor(planet.Id, GetPlanetColor(planet));
             }
         }
 
@@ -355,6 +355,19 @@ namespace OnlyWar.Scripts.Controllers
             PopulateFleetView((int)_selectedFleetId);
         }
 
+        private Color GetPlanetColor(Planet planet)
+        {
+            if (planet.IsUnderAssault)
+            {
+                return Color.red;
+            }
+            else if (planet.ControllingFaction != null)
+            {
+                return planet.ControllingFaction.Color;
+            }
+            return Color.white;
+        }
+
         private void PopulateFleetView(int fleetId)
         {
             Fleet fleet = GameSettings.Galaxy.Fleets[fleetId];
@@ -383,6 +396,46 @@ namespace OnlyWar.Scripts.Controllers
                     _planetBattleStartedId = i;
                     OnBattleStart.Invoke(planet);
                     return;
+                }
+                else if(planet.IsUnderAssault)
+                {
+                    PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
+                    foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
+                    {
+                        if(planetFaction != controllingForce && planetFaction.IsPublic)
+                        {
+                            // this is a revolting force
+                            long attackPower = planetFaction.Population * 3/4;
+                            long defensePower = controllingForce.PDFMembers;
+                            // revolting PDF members count triple for their ability to wreck defensive forces
+                            attackPower += planetFaction.PDFMembers * 2;
+                            double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+                            double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+
+                            if (planetFaction.PDFMembers > 0)
+                            {
+                                // having PDF members means it's the first round of revolt, triple defensive casualties
+                                attackMultiplier *= 3;
+                                planetFaction.PDFMembers = 0;
+                            }
+                            int defendCasualties = (int)(attackPower * attackMultiplier / defensePower);
+                            int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
+                            planetFaction.Population -= attackCasualties;
+                            if(planetFaction.Population <= 100)
+                            {
+                                planet.IsUnderAssault = false;
+                                planetFaction.IsPublic = false;
+                            }
+                            controllingForce.PDFMembers -= defendCasualties;
+                            controllingForce.Population -= defendCasualties;
+                            if(controllingForce.PDFMembers <= 0)
+                            {
+                                controllingForce.Population += controllingForce.PDFMembers;
+                                controllingForce.PDFMembers = 0;
+                                planet.ControllingFaction = planetFaction.Faction;
+                            }
+                        }
+                    }
                 }
                 i++;
             }
