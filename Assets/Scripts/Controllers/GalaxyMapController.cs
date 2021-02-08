@@ -418,7 +418,9 @@ namespace OnlyWar.Scripts.Controllers
                                 attackMultiplier *= 3;
                                 planetFaction.PDFMembers = 0;
                             }
-                            int defendCasualties = (int)(attackPower * attackMultiplier / defensePower);
+                            int defendCasualties = defensePower == 0 ?
+                                (int)(attackPower * attackMultiplier * 1000) :
+                                (int)(attackPower * attackMultiplier / defensePower);
                             int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
                             planetFaction.Population -= attackCasualties;
                             if(planetFaction.Population <= 100)
