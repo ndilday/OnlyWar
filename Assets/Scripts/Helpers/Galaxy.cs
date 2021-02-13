@@ -152,9 +152,13 @@ namespace OnlyWar.Scripts.Helpers
                                                                      Factions.First(f => f.CanInfiltrate)); ;
 
             // TODO: There should be game start config settings for planet ownership by specific factions
-            if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.1f)
+            if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.2f)
             {
-                planet.ControllingFaction = _factions.First(f => f.Id == 2);
+                planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
+            }
+            else
+            {
+                planet.ControllingFaction = Factions.First(f => f.IsDefaultFaction);
             }
 
             return planet;

@@ -160,7 +160,7 @@ namespace OnlyWar.Scripts.Controllers
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
             // on the Marine starting planet
-            var emptyPlanets = GameSettings.Galaxy.Planets.Where(p => p.ControllingFaction == null);
+            var emptyPlanets = GameSettings.Galaxy.Planets.Where(p => p.ControllingFaction.IsDefaultFaction);
             int max = emptyPlanets.Count();
             int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
             Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
@@ -184,18 +184,18 @@ namespace OnlyWar.Scripts.Controllers
                         GameSettings.Galaxy.AddNewFleet(fleet);
                     }
                 }
-                else if (planet.ControllingFaction != null)
+                else if (planet.ControllingFaction.UnitTemplates != null)
                 {
                     int potentialArmies = planet.ControllingFaction
                                                 .UnitTemplates
                                                 .Values
                                                 .Where(ut => ut.IsTopLevelUnit)
                                                 .Count();
+                    // TODO: generalize this
                     Unit newArmy = TempTyranidArmyGenerator.GenerateTyranidArmy(
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
-                    // TODO: generalize this
                     planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
                 }
             }

@@ -151,7 +151,7 @@ namespace OnlyWar.Scripts.Controllers
         private void HandleMouseMove()
         {
             // check to see if there's a selected fleet
-            if (_selectedShips.Count > 0)
+            if (_selectedShips?.Count > 0)
             {
                 Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
 

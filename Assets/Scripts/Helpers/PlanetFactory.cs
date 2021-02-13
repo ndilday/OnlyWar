@@ -50,7 +50,7 @@ namespace OnlyWar.Scripts.Helpers
             // determine if this planet starts with a genestealer cult in place
             // TODO: make this configurable
             double odds = RNG.GetLinearDouble();
-            if(odds <= 0.01)
+            if(odds <= 0.02)
             {
                 PlanetFaction infiltration = new PlanetFaction(infiltratingFaction);
                 infiltration.PlayerReputation = 0;

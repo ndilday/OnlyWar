@@ -240,16 +240,16 @@ namespace OnlyWar.Scripts.Controllers
                     }
                     else
                     {
-                        string factionName = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key).Name;
+                        string factionName = planet.ControllingFaction.Name;
                         foreach (Squad squad in kvp.Value)
                         {
                             factionSoldierCount += squad.Members.Count;
                         }
                         factionForces += factionName + " forces on the planet number in the ";
-                        if (factionSoldierCount >= 2000) newReport += "thousands.";
-                        else if (factionSoldierCount >= 200) newReport += "hundreds.";
-                        else if (factionSoldierCount >= 24) newReport += "dozens.";
-                        else newReport = factionName + " forces on the planet are minimal, and should be easy to deal with.";
+                        if (factionSoldierCount >= 2000) factionForces += "thousands.";
+                        else if (factionSoldierCount >= 200) factionForces += "hundreds.";
+                        else if (factionSoldierCount >= 24) factionForces += "dozens.";
+                        else factionForces = factionName + " forces on the planet are minimal, and should be easy to deal with.";
                     }
                 }
             }
@@ -268,12 +268,20 @@ namespace OnlyWar.Scripts.Controllers
         private string CreateBasicPlanetReadout(Planet planet)
         {
             string planetDescription = $"{planet.Name}\n";
-            planetDescription += $"Type: {planet.Template.Name}\n";
-            planetDescription += $"Population: {planet.Population:#,#}\n";
-            planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces:#,#}\n";
-            string importance = ConvertImportanceToString(planet.Importance);
-            string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
-            planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n\n";
+            
+            if (planet.ControllingFaction.IsDefaultFaction || planet.ControllingFaction.IsPlayerFaction)
+            {
+                planetDescription += $"Type: {planet.Template.Name}\n";
+                planetDescription += $"Population: {planet.Population:#,#}\n";
+                planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces:#,#}\n";
+                string importance = ConvertImportanceToString(planet.Importance);
+                string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
+                planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n\n";
+            }
+            else
+            {
+                planetDescription += planet.ControllingFaction.Name + " Controlled\n\n\n";
+            }
             return planetDescription;
         }
 
