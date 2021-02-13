@@ -71,7 +71,8 @@ namespace OnlyWar.Scripts.Controllers
         public void UIController_OnTurnEnd()
         {
             // move fleets
-            foreach(Fleet fleet in GameSettings.Galaxy.Fleets)
+            // doing a copy of the list here so I can delete elements from the underlying collection
+            foreach(Fleet fleet in GameSettings.Galaxy.Fleets.ToList())
             {
                 if (fleet.Destination != null)
                 {
@@ -255,7 +256,8 @@ namespace OnlyWar.Scripts.Controllers
                     fleet = GameSettings.Galaxy.SplitOffNewFleet(fleet, _selectedShips);
                 }
 
-                foreach(Fleet adjacentFleet in fleet.Planet.Fleets)
+                // doing a copy so I can remove things from the underlying collection
+                foreach(Fleet adjacentFleet in fleet.Planet.Fleets.ToList())
                 {
                     // if there's another fleet at this planet doing what this fleet
                     // is now doing, just merge them

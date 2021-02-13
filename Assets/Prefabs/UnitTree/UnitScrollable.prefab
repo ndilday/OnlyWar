@@ -182,6 +182,10 @@ MonoBehaviour:
   OnUnitSelected:
     m_PersistentCalls:
       m_Calls: []
+  OnSquadSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  Initialized: 0
   LeafSquadPrefab: {fileID: 5625477731902270755, guid: 325ee3481434b114199d56a56163211f,
     type: 3}
   TreeUnitPrefab: {fileID: 2665211793912963394, guid: fda6029737f1dec408a0fc70c4d96701,
@@ -189,7 +193,6 @@ MonoBehaviour:
   ChildLeafPrefab: {fileID: 8633168762155294532, guid: f5778d2fb2d883c47aceab9a7be01a6f,
     type: 3}
   UnitContent: {fileID: 1438110532292625982}
-  Initialized: 0
 --- !u!1 &1438110532292625982
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,7 +451,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 10
   m_Viewport: {fileID: 2638438654210757213}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 873390077136946442}
@@ -586,6 +589,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
