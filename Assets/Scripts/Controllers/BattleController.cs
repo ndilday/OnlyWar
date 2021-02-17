@@ -79,7 +79,7 @@ namespace OnlyWar.Scripts.Controllers
                 }
                 else
                 {
-                    _opposingFaction = GameSettings.OpposingFactions.First(f => f.Id == kvp.Key);
+                    _opposingFaction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
                     PopulateMapsFromSquadList(_opposingBattleSquads, kvp.Value, false);
                 }
             }

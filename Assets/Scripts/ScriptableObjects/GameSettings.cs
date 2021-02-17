@@ -24,8 +24,6 @@ public class GameSettings : ScriptableObject
     [HideInInspector]
     public Galaxy Galaxy;
     [HideInInspector]
-    public IReadOnlyList<Faction> OpposingFactions;
-    [HideInInspector]
     public Chapter Chapter;
 
     [Header("Date")]
