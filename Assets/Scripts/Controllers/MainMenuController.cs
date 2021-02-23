@@ -32,16 +32,20 @@ namespace OnlyWar.Scripts.Controllers
             // TODO: open file screen
             // load that file
             GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
-            var shipTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.ShipTemplates.Values)
+            var shipTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.ShipTemplates != null)
+                                                              .SelectMany(f => f.ShipTemplates.Values)
                                                               .ToDictionary(s => s.Id);
-            var unitTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.UnitTemplates.Values)
+            var unitTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.UnitTemplates != null)
+                                                              .SelectMany(f => f.UnitTemplates.Values)
                                                               .ToDictionary(u => u.Id);
-            var squadTemplateMap = GameSettings.Galaxy.Factions.SelectMany(f => f.SquadTemplates.Values)
-                                                              .ToDictionary(s => s.Id);
+            var squadTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.SquadTemplates != null)
+                                                               .SelectMany(f => f.SquadTemplates.Values)
+                                                               .ToDictionary(s => s.Id);
             var hitLocations = GameSettings.Galaxy.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
                                                                                     .Distinct()
                                                                                     .ToDictionary(hl => hl.Id);
-            var soldierTypeMap = GameSettings.Galaxy.Factions.SelectMany(f => f.SoldierTypes.Values)
+            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTypes != null)
+                                                             .SelectMany(f => f.SoldierTypes.Values)
                                                              .ToDictionary(st => st.Id);
             var gameData = 
                 GameStateDataAccess.Instance.GetData("default.s3db", 
