@@ -108,6 +108,7 @@ namespace OnlyWar.Scripts.Helpers
             foreach(Ship ship in mergingFleet.Ships)
             {
                 remainingFleet.Ships.Add(ship);
+                ship.Fleet = remainingFleet;
             }
             mergingFleet.Ships.Clear();
             remainingFleet.Ships.Sort((x, y) => x.Template.Id.CompareTo(y.Template.Id));
@@ -128,6 +129,7 @@ namespace OnlyWar.Scripts.Helpers
             {
                 originalFleet.Ships.Remove(ship);
                 newFleet.Ships.Add(ship);
+                ship.Fleet = newFleet;
             }
             if(newFleet.Planet != null)
             {
