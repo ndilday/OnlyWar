@@ -4,7 +4,7 @@ using OnlyWar.Scripts.Models.Planets;
 using System.Linq;
 using UnityEngine;
 
-namespace Iam.Scripts.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
     public class PlanetController : MonoBehaviour
     {

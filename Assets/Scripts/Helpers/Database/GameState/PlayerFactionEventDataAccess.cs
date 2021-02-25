@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace Assets.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class PlayerFactionEventDataAccess
     {
