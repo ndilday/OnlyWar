@@ -74,12 +74,13 @@ namespace OnlyWar.Scripts.Helpers
         public void GenerateGalaxy(int seed)
         {
             _planets.Clear();
-            UnityEngine.Random.InitState(seed);
+            RNG.Reset(seed);
             for(int i = 0; i < _galaxySize; i++)
             {
                 for (int j = 0; j < _galaxySize; j++)
                 {
-                    if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.05f)
+                    double random = RNG.GetLinearDouble();
+                    if (random <= 0.05)
                     {
                         Planet planet = GeneratePlanet(new Vector2(i, j));
                         _planets.Add(planet);
@@ -154,7 +155,12 @@ namespace OnlyWar.Scripts.Helpers
                                                                      Factions.First(f => f.CanInfiltrate)); ;
 
             // TODO: There should be game start config settings for planet ownership by specific factions
-            if (UnityEngine.Random.Range(0.0f, 1.0f) <= 0.2f)
+            double random = RNG.GetLinearDouble();
+            if (random <= 0.02)
+            {
+                planet.ControllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+            }
+            else if (random <= 0.2f)
             {
                 planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
             }
