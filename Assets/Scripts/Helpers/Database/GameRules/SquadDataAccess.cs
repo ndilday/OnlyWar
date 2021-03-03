@@ -10,7 +10,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 {
     public class SquadDataBlob
     {
-        public Dictionary<int, List<ArmorTemplate>> ArmorTemplatesByFactionId { get; set; }
+        public Dictionary<int, ArmorTemplate> ArmorTemplates { get; set; }
         public Dictionary<int, RangedWeaponTemplate> RangedWeaponTemplateMap { get; set; }
         public Dictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplateMap { get; set; }
         public Dictionary<int, List<SoldierType>> SoldierTypesByFactionId { get; set; }
@@ -26,7 +26,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         {
             var soldierTypeSkills = GetSoldierTypeTrainingBySoldierTypeId(connection, baseSkillMap);
             var soldierTypes = GetSoldierTypesById(connection, soldierTypeSkills);
-            var armorTemplates = GetArmorTemplatesByFactionId(connection);
+            var armorTemplates = GetArmorTemplates(connection);
             var meleeWeapons = GetMeleeWeaponTemplates(connection, baseSkillMap);
             var rangedWeapons = GetRangedWeaponTemplates(connection, baseSkillMap);
             var weaponSets = GetWeaponSetMap(connection, meleeWeapons, rangedWeapons);
@@ -40,7 +40,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                                                        squadWeaponOptions, armorTemplates);
             return new SquadDataBlob
             {
-                ArmorTemplatesByFactionId = armorTemplates,
+                ArmorTemplates = armorTemplates,
                 MeleeWeaponTemplateMap= meleeWeapons,
                 RangedWeaponTemplateMap = rangedWeapons,
                 SquadTemplatesByFactionId = squadTemplates.Item1,
@@ -50,29 +50,23 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             };
         }
 
-        private Dictionary<int, List<ArmorTemplate>> GetArmorTemplatesByFactionId(
-            IDbConnection connection)
+        private Dictionary<int, ArmorTemplate> GetArmorTemplates(IDbConnection connection)
         {
-            Dictionary<int, List<ArmorTemplate>> factionArmorTemplateMap =
-                new Dictionary<int, List<ArmorTemplate>>();
+            Dictionary<int, ArmorTemplate> armorTemplateMap = new Dictionary<int, ArmorTemplate>();
             IDbCommand command = connection.CreateCommand();
             command.CommandText = "SELECT * FROM ArmorTemplate";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
+                //int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
                 //int location = reader.GetInt32(3);
                 int armorProvided = reader.GetInt32(4);
                 ArmorTemplate armorTemplate = new ArmorTemplate(id, name, (byte)armorProvided);
-                if (!factionArmorTemplateMap.ContainsKey(factionId))
-                {
-                    factionArmorTemplateMap[factionId] = new List<ArmorTemplate>();
-                }
-                factionArmorTemplateMap[factionId].Add(armorTemplate);
+                armorTemplateMap[id] = armorTemplate;
             }
-            return factionArmorTemplateMap;
+            return armorTemplateMap;
         }
 
         private Dictionary<int, MeleeWeaponTemplate> GetMeleeWeaponTemplates(
@@ -165,7 +159,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
+                //int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
 
                 if (reader[3].GetType() != typeof(DBNull))
@@ -297,7 +291,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             Dictionary<int, List<SquadTemplateElement>> elementMap,
             Dictionary<int, WeaponSet> weaponSetMap,
             Dictionary<int, List<SquadWeaponOption>> squadWeaponOptionMap,
-            Dictionary<int, List<ArmorTemplate>> armorTemplateMap)
+            Dictionary<int, ArmorTemplate> armorTemplateMap)
         {
             Dictionary<int, SquadTemplate> squadTemplateMap = new Dictionary<int, SquadTemplate>();
             Dictionary<int, List<SquadTemplate>> squadTemplatesByFactionId = new Dictionary<int, List<SquadTemplate>>();
@@ -313,8 +307,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 int defaultWeaponSetId = reader.GetInt32(4);
                 int squadType = reader.GetInt32(5);
 
-                List<ArmorTemplate> armorList = armorTemplateMap[factionId];
-                ArmorTemplate defaultArmor = armorList.First(at => at.Id == defaultArmorId);
+                ArmorTemplate defaultArmor = armorTemplateMap[defaultArmorId];
                 List<SquadWeaponOption> options = squadWeaponOptionMap.ContainsKey(id) ?
                     squadWeaponOptionMap[id] : null;
                 SquadTemplate squadTemplate = new SquadTemplate(id, name, weaponSetMap[defaultWeaponSetId],

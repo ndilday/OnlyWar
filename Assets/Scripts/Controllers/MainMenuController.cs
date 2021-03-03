@@ -196,7 +196,7 @@ namespace OnlyWar.Scripts.Controllers
                                                 .Where(ut => ut.IsTopLevelUnit)
                                                 .Count();
                     // TODO: generalize this
-                    Unit newArmy = TempTyranidArmyGenerator.GenerateTyranidArmy(
+                    Unit newArmy = TempArmyGenerator.GenerateArmy(
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);

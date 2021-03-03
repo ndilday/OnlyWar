@@ -78,7 +78,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
             var fleetDataBlob = _fleetDataAccess.GetFleetData(dbCon);
             var factions = GetFactionTemplates(dbCon, squadDataBlob.SoldierTypesByFactionId,  
-                                               squadDataBlob.ArmorTemplatesByFactionId,
                                                soldierTemplates, 
                                                squadDataBlob.SquadTemplatesByFactionId, 
                                                unitTemplates,
@@ -99,7 +98,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
         private List<Faction> GetFactionTemplates(IDbConnection connection,
                                          Dictionary<int, List<SoldierType>> factionSoldierTypeMap,
-                                         Dictionary<int, List<ArmorTemplate>> factionArmorMap,
                                          Dictionary<int, List<SoldierTemplate>> factionSoldierMap,
                                          Dictionary<int, List<SquadTemplate>> factionSquadMap,
                                          Dictionary<int, List<UnitTemplate>> factionUnitMap,
@@ -123,8 +121,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
 
                 var soldierTypeMap = factionSoldierTypeMap.ContainsKey(id) ? 
                     factionSoldierTypeMap[id].ToDictionary(st => st.Id) : null;
-                var armorMap = factionArmorMap.ContainsKey(id) ? 
-                    factionArmorMap[id].ToDictionary(at => at.Id) : null;
                 var soldierMap = factionSoldierMap.ContainsKey(id) ?
                     factionSoldierMap[id].ToDictionary(st => st.Id) : null;
                 var squadMap = factionSquadMap.ContainsKey(id) ? 
@@ -142,7 +138,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 }
 
                 Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, canInfiltrate, growthType,
-                                                      soldierTypeMap, armorMap, soldierMap,
+                                                      soldierTypeMap, soldierMap,
                                                       squadMap, unitMap, boatMap, shipMap, fleetMap);
                 factionList.Add(factionTemplate);
             }

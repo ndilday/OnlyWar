@@ -7,18 +7,17 @@ using OnlyWar.Scripts.Models.Units;
 
 namespace OnlyWar.Scripts.Helpers
 {
-    public sealed class TempTyranidArmyGenerator
+    public sealed class TempArmyGenerator
     {
-        public static Unit GenerateTyranidArmy(int armyId, Faction faction)
+        public static Unit GenerateArmy(int armyId, Faction faction)
         {
             Unit root = faction.UnitTemplates.Values.Where(ut => ut.IsTopLevelUnit).ToList()[armyId]
-                            .GenerateUnitFromTemplateWithoutChildren("Tyranid Challenge Force");
+                            .GenerateUnitFromTemplateWithoutChildren(faction.Name + " Force");
             if(root.HQSquad != null)
             {
                 root.HQSquad.IsInReserve = false;
                 foreach (SquadTemplateElement element in root.HQSquad.SquadTemplate.Elements)
                 {
-                    // this is cheat... the soldier type id and the template ids match
                     SoldierType type = element.SoldierType;
                     SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
