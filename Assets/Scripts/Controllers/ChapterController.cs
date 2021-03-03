@@ -45,8 +45,8 @@ namespace OnlyWar.Scripts.Controllers
         {
             Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
-                .OrderByDescending(s => s.Type.Rank)
-                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                .OrderByDescending(s => s.Template.Rank)
+                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Template.Name, s.Name, DetermineDisplayColor(s)))
                 .ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
             SquadMemberView.ReplaceSelectedUnitText(GenerateUnitSummary(selectedUnit));
@@ -56,8 +56,8 @@ namespace OnlyWar.Scripts.Controllers
         {
             Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
             List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
-                .OrderByDescending(s => s.Type.Rank)
-                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Type.Name, s.Name, DetermineDisplayColor(s)))
+                .OrderByDescending(s => s.Template.Rank)
+                .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Template.Name, s.Name, DetermineDisplayColor(s)))
                 .ToList();
             SquadMemberView.ReplaceSquadMemberContent(memberList);
             SquadMemberView.ReplaceSelectedUnitText(GenerateSquadSummary(selectedSquad));
@@ -74,22 +74,22 @@ namespace OnlyWar.Scripts.Controllers
             SquadMemberView.ReplaceSelectedUnitText(newText);
             var openings = GetOpeningsInUnit(GameSettings.Chapter.OrderOfBattle, 
                                              _selectedSoldier.AssignedSquad,
-                                             _selectedSoldier.Type);
+                                             _selectedSoldier.Template);
             // insert current assignment at top
-            openings.Insert(0, new Tuple<int, SoldierType, string>(
+            openings.Insert(0, new Tuple<int, SoldierTemplate, string>(
                 _selectedSoldier.AssignedSquad.Id,
-                _selectedSoldier.Type,
-                $"{_selectedSoldier.Type.Name}, {_selectedSoldier.AssignedSquad.Name}, {_selectedSoldier.AssignedSquad.ParentUnit.Name}"));
+                _selectedSoldier.Template,
+                $"{_selectedSoldier.Template.Name}, {_selectedSoldier.AssignedSquad.Name}, {_selectedSoldier.AssignedSquad.ParentUnit.Name}"));
             SquadMemberView.PopulateTransferDropdown(openings);
         }
 
-        public void SquadMemberView_OnSoldierTransferred(Tuple<int, SoldierType, string> newPosition)
+        public void SquadMemberView_OnSoldierTransferred(Tuple<int, SoldierTemplate, string> newPosition)
         {
             Squad currentSquad = _selectedSoldier.AssignedSquad;
             // move soldier to his new role
             _selectedSoldier.AssignedSquad = null;
             currentSquad.RemoveSquadMember(_selectedSoldier);
-            if(_selectedSoldier.Type.IsSquadLeader 
+            if(_selectedSoldier.Template.IsSquadLeader 
                 && (currentSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
             {
                 // if soldier is squad leader and its not an HQ Squad, change name
@@ -101,13 +101,13 @@ namespace OnlyWar.Scripts.Controllers
 
             UpdateSquadLocations(currentSquad, newSquad);
 
-            if (_selectedSoldier.Type != newPosition.Item2)
+            if (_selectedSoldier.Template != newPosition.Item2)
             {
                 string entry = $"{GameSettings.Date}: promoted to {newPosition.Item2.Name}";
                 _selectedSoldier.AddEntryToHistory(entry);
-                _selectedSoldier.Type = newPosition.Item2;
+                _selectedSoldier.Template = newPosition.Item2;
             }
-            if(_selectedSoldier.Type.IsSquadLeader
+            if(_selectedSoldier.Template.IsSquadLeader
                 && (newSquad.SquadTemplate.SquadType & SquadTypes.HQ) == 0)
             {
                 // if soldier is squad leader and its not an HQ Squad, change name
@@ -177,10 +177,10 @@ namespace OnlyWar.Scripts.Controllers
                         g.Sum(t => t.Item2), 
                         g.Sum(t => t.Item1.MaximumNumber), 
                         g.Sum(q => q.Item3)))
-                    .OrderByDescending(tuple => tuple.Item1.SoldierType.Rank);
+                    .OrderByDescending(tuple => tuple.Item1.SoldierTemplate.Rank);
             foreach(Tuple<SquadTemplateElement, int, int, int> tuple in summedList)
             {
-                unitReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item3} ({tuple.Item4} healthy)\n";
+                unitReport += $"{tuple.Item1.SoldierTemplate.Name}: {tuple.Item2}/{tuple.Item3} ({tuple.Item4} healthy)\n";
             }
             return unitReport;
         }
@@ -209,9 +209,9 @@ namespace OnlyWar.Scripts.Controllers
             {
                 if(tuple.Item3 < tuple.Item1.MinimumNumber)
                 {
-                    alerts += $"Insufficient healthy {tuple.Item1.SoldierType.Name} to field this squad.\n";
+                    alerts += $"Insufficient healthy {tuple.Item1.SoldierTemplate.Name} to field this squad.\n";
                 }
-                popReport += $"{tuple.Item1.SoldierType.Name}: {tuple.Item2}/{tuple.Item1.MaximumNumber}";
+                popReport += $"{tuple.Item1.SoldierTemplate.Name}: {tuple.Item2}/{tuple.Item1.MaximumNumber}";
                 if(tuple.Item3 != tuple.Item2)
                 {
                     popReport += $" ({tuple.Item2 - tuple.Item3} unfit for duty)";
@@ -230,7 +230,7 @@ namespace OnlyWar.Scripts.Controllers
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
                 // get the members of the squad that match this element
-                var matches = soldiers?.Where(s => element.SoldierType == s.Type);
+                var matches = soldiers?.Where(s => element.SoldierTemplate == s.Template);
                 var healthyMatches = matches?.Where(s => GameSettings.Chapter.PlayerSoldierMap[s.Id].IsDeployable);
                 int count = matches == null ? 0 : matches.Count();
                 int healthyCount = healthyMatches == null ? 0 : healthyMatches.Count();
@@ -239,77 +239,82 @@ namespace OnlyWar.Scripts.Controllers
             return entryList;
         }
 
-        private List<Tuple<int, SoldierType, string>> GetOpeningsInUnit(Unit unit, Squad currentSquad, SoldierType soldierType)
+        private List<Tuple<int, SoldierTemplate, string>> GetOpeningsInUnit(Unit unit, Squad currentSquad, 
+                                                                            SoldierTemplate soldierTemplate)
         {
-            List<Tuple<int, SoldierType, string>> openSlots = 
-                new List<Tuple<int, SoldierType, string>>();
-            IEnumerable<SoldierType> squadTypes;
+            List<Tuple<int, SoldierTemplate, string>> openSlots = 
+                new List<Tuple<int, SoldierTemplate, string>>();
+            IEnumerable<SoldierTemplate> squadSlots;
             if (unit.HQSquad != null)
             {
-                squadTypes = GetOpeningsInSquad(unit.HQSquad, currentSquad, soldierType);
-                if(squadTypes.Count() > 0)
+                squadSlots = GetOpeningsInSquad(unit.HQSquad, currentSquad, soldierTemplate);
+                if(squadSlots.Count() > 0)
                 {
-                    foreach(SoldierType type in squadTypes)
+                    foreach(SoldierTemplate template in squadSlots)
                     {
-                        openSlots.Add(new Tuple<int, SoldierType, string>(unit.HQSquad.Id,type,
-                            $"{type.Name}, {unit.HQSquad.Name}, {unit.Name}"));
+                        openSlots.Add(new Tuple<int, SoldierTemplate, string>(
+                            unit.HQSquad.Id, 
+                            template,
+                            $"{template.Name}, {unit.HQSquad.Name}, {unit.Name}"));
                     }
                 }
             }
             foreach(Squad squad in unit.Squads)
             {
-                squadTypes = GetOpeningsInSquad(squad, currentSquad, soldierType);
-                if (squadTypes.Count() > 0)
+                squadSlots = GetOpeningsInSquad(squad, currentSquad, soldierTemplate);
+                if (squadSlots.Count() > 0)
                 {
-                    foreach (SoldierType type in squadTypes)
+                    foreach (SoldierTemplate template in squadSlots)
                     {
-                        openSlots.Add(new Tuple<int, SoldierType, string>(squad.Id, type,
-                            $"{type.Name}, {squad.Name}, {unit.Name}"));
+                        openSlots.Add(new Tuple<int, SoldierTemplate, string>(squad.Id, template,
+                            $"{template.Name}, {squad.Name}, {unit.Name}"));
                     }
                 }
             }
             foreach(Unit childUnit in unit.ChildUnits ?? Enumerable.Empty<Unit>())
             {
-                openSlots.AddRange(GetOpeningsInUnit(childUnit, currentSquad, soldierType));
+                openSlots.AddRange(GetOpeningsInUnit(childUnit, currentSquad, soldierTemplate));
             }
             return openSlots;
         }
 
-        private IEnumerable<SoldierType> GetOpeningsInSquad(Squad squad, Squad currentSquad, SoldierType soldierType)
+        private IEnumerable<SoldierTemplate> GetOpeningsInSquad(Squad squad, Squad currentSquad, 
+                                                                SoldierTemplate soldierTemplate)
         {
-            List<SoldierType> openTypes = new List<SoldierType>();
+            List<SoldierTemplate> openSpots = new List<SoldierTemplate>();
             bool hasSquadLeader = squad.SquadLeader != null;
             // get the count of each soldier type in the squad
             // compare to the max count of each type
-            Dictionary<SoldierType, int> typeCountMap = 
-                squad.Members.GroupBy(s => s.Type).ToDictionary(g => g.Key, g => g.Count());
+            Dictionary<SoldierTemplate, int> typeCountMap = 
+                squad.Members.GroupBy(s => s.Template)
+                             .ToDictionary(g => g.Key, g => g.Count());
             foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
                 // if the squad has no squad leader, only squad leader elements can be added now
-                if(!hasSquadLeader && !element.SoldierType.IsSquadLeader)
+                if(!hasSquadLeader && !element.SoldierTemplate.IsSquadLeader)
                 {
                     continue;
                 }
-                if(currentSquad == squad && element.SoldierType == soldierType)
+                if(currentSquad == squad && element.SoldierTemplate == soldierTemplate)
                 {
                     continue;
                 }
-                if(element.SoldierType.Rank < soldierType.Rank 
-                    || element.SoldierType.Rank > soldierType.Rank + 1)
+                if(element.SoldierTemplate.Rank < soldierTemplate.Rank 
+                    || element.SoldierTemplate.Rank > soldierTemplate.Rank + 1)
                 {
                     continue;
                 }
                 int existingHeadcount = 0;
-                if(typeCountMap.ContainsKey(element.SoldierType))
+                if(typeCountMap.ContainsKey(element.SoldierTemplate))
                 {
-                    existingHeadcount += typeCountMap[element.SoldierType];
+                    existingHeadcount += typeCountMap[element.SoldierTemplate];
                 }
                 if(existingHeadcount < element.MaximumNumber)
                 {
-                    openTypes.Add(element.SoldierType);
+                    openSpots.Add(element.SoldierTemplate);
                 }
             }
-            return openTypes;
+            return openSpots;
         }
 
         private void UpdateSquadLocations(Squad oldSquad, Squad newSquad)

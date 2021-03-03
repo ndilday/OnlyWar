@@ -469,13 +469,13 @@ namespace OnlyWar.Scripts.Controllers
             // if any element has less than the minimum number, display red
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
-                if (typeGroups.ContainsKey(element.SoldierType))
+                if (typeGroups.ContainsKey(element.SoldierTemplate))
                 {
-                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    if (typeGroups[element.SoldierTemplate].Count() < element.MinimumNumber)
                     {
                         return new Tuple<Color, int>(Color.red, Badge.INSUFFICIENT_MEN);
                     }
-                    else if (typeGroups[element.SoldierType].Count() < element.MaximumNumber)
+                    else if (typeGroups[element.SoldierTemplate].Count() < element.MaximumNumber)
                     {
                         isFull = false;
                     }

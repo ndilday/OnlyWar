@@ -44,8 +44,8 @@ namespace OnlyWar.Scripts.Controllers
             var hitLocations = GameSettings.Galaxy.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
                                                                                     .Distinct()
                                                                                     .ToDictionary(hl => hl.Id);
-            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTypes != null)
-                                                             .SelectMany(f => f.SoldierTypes.Values)
+            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTemplates != null)
+                                                             .SelectMany(f => f.SoldierTemplates.Values)
                                                              .ToDictionary(st => st.Id);
             var gameData = 
                 GameStateDataAccess.Instance.GetData("default.s3db", 

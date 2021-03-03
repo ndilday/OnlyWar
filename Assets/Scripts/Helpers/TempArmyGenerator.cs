@@ -18,16 +18,15 @@ namespace OnlyWar.Scripts.Helpers
                 root.HQSquad.IsInReserve = false;
                 foreach (SquadTemplateElement element in root.HQSquad.SquadTemplate.Elements)
                 {
-                    SoldierType type = element.SoldierType;
-                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
+                    SoldierTemplate template = element.SoldierTemplate;
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach (Soldier soldier in soldiers)
                     {
                         root.HQSquad.AddSquadMember(soldier);
                         soldier.AssignedSquad = root.HQSquad;
-                        soldier.Type = type;
-                        soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
+                        soldier.Template = template;
+                        soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
                     }
                 }
             }
@@ -36,17 +35,15 @@ namespace OnlyWar.Scripts.Helpers
                 squad.IsInReserve = false;
                 foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
                 {
-                    // this is cheat... the soldier type id and the template ids match
-                    SoldierType type = element.SoldierType;
-                    SoldierTemplate template = faction.SoldierTemplates.Values.First(st => st.Type == type);
+                    SoldierTemplate template = element.SoldierTemplate;
                     Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
 
                     foreach(Soldier soldier in soldiers)
                     {
                         squad.AddSquadMember(soldier);
                         soldier.AssignedSquad = squad;
-                        soldier.Type = type;
-                        soldier.Name = $"{soldier.Type.Name} {soldier.Id}";
+                        soldier.Template = template;
+                        soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
                     }
                 }
             }

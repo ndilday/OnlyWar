@@ -17,7 +17,7 @@ namespace OnlyWar.Scripts.Models.Squads
         public Unit ParentUnit { get; set; }
         public SquadTemplate SquadTemplate { get; private set; }
         public bool IsInReserve { get; set; }
-        public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Type.IsSquadLeader); }
+        public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Template.IsSquadLeader); }
         public IReadOnlyCollection<ISoldier> Members { get => _members; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<WeaponSet> Loadout { get; set; }

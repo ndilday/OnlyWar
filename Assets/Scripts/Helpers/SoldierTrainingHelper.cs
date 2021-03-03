@@ -116,7 +116,7 @@ namespace OnlyWar.Scripts.Helpers
 
         public void ApplyMarineWorkExperienceByType(ISoldier soldier, float points)
         {
-            switch(soldier.Type.Name)
+            switch(soldier.Template.Name)
             {
                 case "Chapter Master":
                 case "Captain":
@@ -168,7 +168,7 @@ namespace OnlyWar.Scripts.Helpers
             soldier.AddSkillPoints(_skillsByName["Armory (Small Arms)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Drive (Bike)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Jump Pack"], pointShare);
-            if (soldier.Type.IsSquadLeader)
+            if (soldier.Template.IsSquadLeader)
             {
                 soldier.AddSkillPoints(_skillsByName["Tactics"], pointShare);
                 soldier.AddSkillPoints(_skillsByName["Leadership"], pointShare);
@@ -189,7 +189,7 @@ namespace OnlyWar.Scripts.Helpers
             soldier.AddSkillPoints(_skillsByName["Gun (Bolter)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Sword"], pointShare);
 
-            if (soldier.Type.IsSquadLeader)
+            if (soldier.Template.IsSquadLeader)
             {
                 soldier.AddSkillPoints(_skillsByName["Tactics"], pointShare * 2);
                 soldier.AddSkillPoints(_skillsByName["Leadership"], pointShare * 2);
@@ -214,7 +214,7 @@ namespace OnlyWar.Scripts.Helpers
             soldier.AddSkillPoints(_skillsByName["Gun (Bolter)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Sword"], pointShare);
 
-            if (soldier.Type.IsSquadLeader)
+            if (soldier.Template.IsSquadLeader)
             {
                 soldier.AddSkillPoints(_skillsByName["Tactics"], pointShare);
                 soldier.AddSkillPoints(_skillsByName["Leadership"], pointShare);
@@ -235,7 +235,7 @@ namespace OnlyWar.Scripts.Helpers
             soldier.AddSkillPoints(_skillsByName["Gun (Bolter)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Gunnery (Bolter)"], pointShare);
 
-            if (soldier.Type.IsSquadLeader)
+            if (soldier.Template.IsSquadLeader)
             {
                 soldier.AddSkillPoints(_skillsByName["Tactics"], pointShare * 2);
                 soldier.AddSkillPoints(_skillsByName["Leadership"], pointShare * 2);
@@ -260,7 +260,7 @@ namespace OnlyWar.Scripts.Helpers
             soldier.AddSkillPoints(_skillsByName["Gunnery (Bolter)"], pointShare);
             soldier.AddSkillPoints(_skillsByName["Stealth"], pointShare);
 
-            if (soldier.Type.IsSquadLeader)
+            if (soldier.Template.IsSquadLeader)
             {
                 soldier.AddSkillPoints(_skillsByName["Tactics"], pointShare);
                 soldier.AddSkillPoints(_skillsByName["Leadership"], pointShare);

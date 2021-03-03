@@ -70,7 +70,7 @@ namespace OnlyWar.Scripts.Models
         public int CompareTo(object obj)
         {
             if (obj == null) return 1;
-            if (!(obj is Date otherDate))
+            if (obj is not Date otherDate)
             {
                 throw new ArgumentException("Object is not a Date");
             }
@@ -82,7 +82,7 @@ namespace OnlyWar.Scripts.Models
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
-            if (!(obj is Date otherDate))
+            if (obj is not Date otherDate)
             {
                 return false;
             }

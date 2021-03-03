@@ -22,28 +22,40 @@ namespace OnlyWar.Scripts.Helpers
 
         public Soldier GenerateNewSoldier(SoldierTemplate template)
         {
-            Soldier soldier = new Soldier(template.BodyTemplate)
+            Soldier soldier = new Soldier(template.Species.BodyTemplate)
             {
                 Id = _nextId
             };
             _nextId++;
 
-            soldier.Strength = template.Strength.BaseValue + (float)(RNG.NextGaussianDouble() * template.Strength.StandardDeviation);
-            soldier.Dexterity = template.Dexterity.BaseValue + (float)(RNG.NextGaussianDouble() * template.Dexterity.StandardDeviation);
-            soldier.Constitution = template.Constitution.BaseValue + (float)(RNG.NextGaussianDouble() * template.Constitution.StandardDeviation);
-            soldier.Ego = template.Ego.BaseValue + (float)(RNG.NextGaussianDouble() * template.Ego.StandardDeviation);
-            soldier.Charisma = template.Charisma.BaseValue + (float)(RNG.NextGaussianDouble() * template.Charisma.StandardDeviation);
-            soldier.Perception = template.Perception.BaseValue + (float)(RNG.NextGaussianDouble() * template.Perception.StandardDeviation);
-            soldier.Intelligence = template.Intelligence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Intelligence.StandardDeviation);
+            soldier.Strength = template.Species.Strength.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Strength.StandardDeviation);
+            soldier.Dexterity = template.Species.Dexterity.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Dexterity.StandardDeviation);
+            soldier.Constitution = template.Species.Constitution.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Constitution.StandardDeviation);
+            soldier.Ego = template.Species.Ego.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Ego.StandardDeviation);
+            soldier.Charisma = template.Species.Charisma.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Charisma.StandardDeviation);
+            soldier.Perception = template.Species.Perception.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Perception.StandardDeviation);
+            soldier.Intelligence = template.Species.Intelligence.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Intelligence.StandardDeviation);
 
-            soldier.AttackSpeed = template.AttackSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.AttackSpeed.StandardDeviation);
-            soldier.MoveSpeed = template.MoveSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
-            soldier.Size = template.Size.BaseValue + (float)(RNG.NextGaussianDouble() * template.Size.StandardDeviation);
-            soldier.PsychicPower = template.PsychicPower.BaseValue + (float)(RNG.NextGaussianDouble() * template.PsychicPower.StandardDeviation);
+            soldier.AttackSpeed = template.Species.AttackSpeed.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.AttackSpeed.StandardDeviation);
+            soldier.MoveSpeed = template.Species.MoveSpeed.BaseValue
+                + (float)(RNG.NextGaussianDouble() * template.Species.MoveSpeed.StandardDeviation);
+            soldier.Size = template.Species.Size.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.Size.StandardDeviation);
+            soldier.PsychicPower = template.Species.PsychicPower.BaseValue 
+                + (float)(RNG.NextGaussianDouble() * template.Species.PsychicPower.StandardDeviation);
 
             foreach (SkillTemplate skillTemplate in template.SkillTemplates)
             {
-                float roll = skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
+                float roll = skillTemplate.BaseValue 
+                    + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
                 if(roll > 0)
                 {
                     soldier.AddSkillPoints(skillTemplate.BaseSkill, roll);

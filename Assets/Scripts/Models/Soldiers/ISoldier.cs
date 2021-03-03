@@ -7,7 +7,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
     {
         int Id { get; }
         string Name { get; }
-        SoldierType Type { get; }
+        SoldierTemplate Template { get; }
 
         float Strength { get; }
         float Dexterity { get; }

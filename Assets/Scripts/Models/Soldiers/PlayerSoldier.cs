@@ -31,7 +31,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
 
         public string Name => _soldier.Name;
 
-        public SoldierType Type { get => _soldier.Type; set => _soldier.Type = value; }
+        public SoldierTemplate Template { get => _soldier.Template; set => _soldier.Template = value; }
 
         public float Strength => _soldier.Strength;
 

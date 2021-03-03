@@ -53,7 +53,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
         public Body Body { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
-        public SoldierType Type { get; set; }
+        public SoldierTemplate Template { get; set; }
         public IReadOnlyCollection<Skill> Skills { get => _skills.Values; }
 
         public Squad AssignedSquad { get; set; }
@@ -142,7 +142,7 @@ namespace OnlyWar.Scripts.Models.Soldiers
 
         public override string ToString()
         {
-            return Type + " " + Name;
+            return Template + " " + Name;
         }
     }
 }

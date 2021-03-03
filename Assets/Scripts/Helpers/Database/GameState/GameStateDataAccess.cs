@@ -66,7 +66,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                             IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
                             IReadOnlyDictionary<int, HitLocationTemplate> hitLocationTemplates,
                             IReadOnlyDictionary<int, BaseSkill> baseSkillMap, 
-                            IReadOnlyDictionary<int, SoldierType> soldierTypeMap)
+                            IReadOnlyDictionary<int, SoldierTemplate> soldierTemplateMap)
         {
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
@@ -79,7 +79,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             var units = _unitDataAccess.GetUnits(dbCon, unitTemplateMap, squads);
             var squadMap = squads.Values.SelectMany(s => s).ToDictionary(s => s.Id);
             var soldiers = _soldierDataAccess.GetData(dbCon, hitLocationTemplates, baseSkillMap,
-                                                      soldierTypeMap, squadMap);
+                                                      soldierTemplateMap, squadMap);
             var playerSoldiers = _playerSoldierDataAccess.GetData(dbCon, soldiers);
             var date = _globalDataAccess.GetGlobalData(dbCon);
             var history = _playerFactionEventDataAccess.GetHistory(dbCon);
