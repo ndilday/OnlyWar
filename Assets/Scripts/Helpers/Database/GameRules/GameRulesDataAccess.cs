@@ -6,6 +6,7 @@ using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -181,15 +182,21 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 int factionId = reader.GetInt32(1);
                 string name = reader[2].ToString();
                 bool isTop = (bool)reader[3];
-                int hqSquadTemplateId = reader.GetInt32(4);
+                SquadTemplate hqSquad;
+                if (reader[4].GetType() != typeof(DBNull))
+                {
+                    hqSquad = squadTemplateMap[reader.GetInt32(4)];
+                }
+                else
+                {
+                    hqSquad = null;
+                }
 
                 if (!factionUnitTemplateMap.ContainsKey(factionId))
                 {
                     factionUnitTemplateMap[factionId] = new List<UnitTemplate>();
                 }
-                UnitTemplate unitTemplate = new UnitTemplate(id, name, isTop, 
-                                                             squadTemplateMap[hqSquadTemplateId], 
-                                                             unitSquadMap[id]);
+                UnitTemplate unitTemplate = new UnitTemplate(id, name, isTop, hqSquad, unitSquadMap[id]);
                 factionUnitTemplateMap[factionId].Add(unitTemplate);
                 unitTemplateMap[id] = unitTemplate;
             }
