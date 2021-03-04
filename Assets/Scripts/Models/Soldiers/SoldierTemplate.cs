@@ -10,23 +10,18 @@ namespace OnlyWar.Scripts.Models.Soldiers
         public bool IsSquadLeader { get; }
         public byte Rank { get; }
         public Species Species { get; }
-        public IReadOnlyCollection<SkillTemplate> SkillTemplates { get; }
-        public IReadOnlyCollection<Tuple<BaseSkill, float>> BasicTraining { get; } 
+        public IReadOnlyCollection<Tuple<BaseSkill, float>> MosTraining { get; } 
 
         public SoldierTemplate(int id, Species species, string name, 
                                bool isSquadLeader, byte rank, 
-                               IReadOnlyCollection<Tuple<BaseSkill, float>> basicTraining)
+                               IReadOnlyCollection<Tuple<BaseSkill, float>> mosTraining)
         {
             Id = id;
             Species = species;
             Name = name;
             IsSquadLeader = isSquadLeader;
             Rank = rank;
-            BasicTraining = basicTraining;
-            if(BasicTraining == null)
-            {
-                BasicTraining = new List<Tuple<BaseSkill, float>>();
-            }
+            MosTraining = mosTraining;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
     {
         public IReadOnlyList<Faction> Factions { get; set; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkills { get; set; }
+        public IReadOnlyList<SkillTemplate> SkillTemplates { get; set; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyTemplates { get; set; }
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplates { get; set; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; set; }
@@ -61,6 +62,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
             var baseSkills = _baseSkillDataAccess.GetBaseSkills(dbCon);
+            var skillTemplates = GetSkillTemplates(dbCon, baseSkills);
             var hitLocations = _hitLocationDataAccess.GetHitLocationsByBodyId(dbCon);
             var squadDataBlob = _squadDataAccess.GetSquadDataBlob(dbCon, baseSkills, hitLocations);
             var unitSquadTemplates = GetSquadTemplatesByUnitTemplateId(
@@ -84,6 +86,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             {
                 Factions = factions,
                 BaseSkills = baseSkills,
+                SkillTemplates = skillTemplates,
                 BodyTemplates = hitLocations,
                 PlanetTemplates = planetTemplates,
                 RangedWeaponTemplates = squadDataBlob.RangedWeaponTemplateMap,
@@ -139,6 +142,31 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 factionList.Add(factionTemplate);
             }
             return factionList;
+        }
+
+        private List<SkillTemplate> GetSkillTemplates(IDbConnection connection,
+                                                      Dictionary<int, BaseSkill> baseSkillMap)
+        {
+            List<SkillTemplate> skillTemplateList = new List<SkillTemplate>();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM SkillTemplate";
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                int baseSkillId = reader.GetInt32(1);
+                float baseValue = (float)reader[2];
+                float stdDev = (float)reader[3];
+                SkillTemplate skillTemplate = new SkillTemplate
+                {
+                    BaseSkill = baseSkillMap[baseSkillId],
+                    BaseValue = baseValue,
+                    StandardDeviation = stdDev
+                };
+
+                skillTemplateList.Add(skillTemplate);
+            }
+            return skillTemplateList;
         }
 
         private Dictionary<int, List<int>> GetUnitTemplateHierarchy(IDbConnection connection)

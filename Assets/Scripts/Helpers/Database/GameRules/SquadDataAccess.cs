@@ -27,10 +27,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                                               Dictionary<int, List<HitLocationTemplate>> hitLocationMap)
         {
             var attributes = GetAttributeTemplates(connection);
-            var skillTemplates = GetSkillTemplates(connection, baseSkillMap);
-            var skillTemplatesBySoldierTemplate =
-                GetSoldierSkillTemplatesBySoldierTemplateId(connection, skillTemplates);
-            var soldierTemplateSkills = GetSoldierTemplateTrainingBySoldierTemplateId(connection, baseSkillMap);
+            var soldierTemplateSkills = GetSoldierMosTrainingBySoldierTemplateId(connection, baseSkillMap);
             var species = GetSpeciesByFactionId(connection, attributes, hitLocationMap);
             var soldierTemplates = 
                 GetSoldierTemplatesByFactionId(connection, soldierTemplateSkills, species);
@@ -62,52 +59,31 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             };
         }
 
-        private Dictionary<int, SkillTemplate> GetSkillTemplates(IDbConnection connection,
-                                                                    Dictionary<int, BaseSkill> baseSkillMap)
+        private Dictionary<int, List<Tuple<BaseSkill, float>>> GetSoldierMosTrainingBySoldierTemplateId(
+            IDbConnection connection, Dictionary<int, BaseSkill> baseSkillMap)
         {
-            Dictionary<int, SkillTemplate> skillTemplateMap =
-                new Dictionary<int, SkillTemplate>();
+            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTemplateMosMap =
+                new Dictionary<int, List<Tuple<BaseSkill, float>>>();
             IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SkillTemplate";
+            command.CommandText = "SELECT * FROM SoldierMosTraining";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int id = reader.GetInt32(0);
+                int soldierTemplateId = reader.GetInt32(0);
                 int baseSkillId = reader.GetInt32(1);
-                float baseValue = (float)reader[2];
-                float stdDev = (float)reader[3];
-                SkillTemplate skillTemplate = new SkillTemplate
+                float points = (float)reader[2];
+
+                BaseSkill baseSkill = baseSkillMap[baseSkillId];
+
+                Tuple<BaseSkill, float> training = new Tuple<BaseSkill, float>(baseSkill, points);
+
+                if (!soldierTemplateMosMap.ContainsKey(soldierTemplateId))
                 {
-                    BaseSkill = baseSkillMap[baseSkillId],
-                    BaseValue = baseValue,
-                    StandardDeviation = stdDev
-                };
-
-                skillTemplateMap[id] = skillTemplate;
-            }
-            return skillTemplateMap;
-        }
-
-        private Dictionary<int, List<SkillTemplate>> GetSoldierSkillTemplatesBySoldierTemplateId(IDbConnection connection,
-                                                                                             Dictionary<int, SkillTemplate> skillTemplateMap)
-        {
-            Dictionary<int, List<SkillTemplate>> skillTemplateListMap =
-                new Dictionary<int, List<SkillTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierTemplateSkillTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int soldierTemplateId = reader.GetInt32(1);
-                int skillTemplateId = reader.GetInt32(2);
-
-                if (!skillTemplateListMap.ContainsKey(soldierTemplateId))
-                {
-                    skillTemplateListMap[soldierTemplateId] = new List<SkillTemplate>();
+                    soldierTemplateMosMap[soldierTemplateId] = new List<Tuple<BaseSkill, float>>();
                 }
-                skillTemplateListMap[soldierTemplateId].Add(skillTemplateMap[skillTemplateId]);
+                soldierTemplateMosMap[soldierTemplateId].Add(training);
             }
-            return skillTemplateListMap;
+            return soldierTemplateMosMap;
         }
 
 
@@ -382,33 +358,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 squadTemplatesByFactionId[factionId].Add(squadTemplate);
             }
             return new Tuple<Dictionary<int, List<SquadTemplate>>, Dictionary<int, SquadTemplate>>(squadTemplatesByFactionId, squadTemplateMap);
-        }
-
-        private Dictionary<int, List<Tuple<BaseSkill, float>>> GetSoldierTemplateTrainingBySoldierTemplateId(
-            IDbConnection connection, Dictionary<int, BaseSkill> baseSkillMap)
-        {
-            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTemplateMap =
-                new Dictionary<int, List<Tuple<BaseSkill, float>>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierTemplateTraining";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int soldierTemplateId = reader.GetInt32(0);
-                int baseSkillId = reader.GetInt32(1);
-                float points = (float)reader[2];
-
-                BaseSkill baseSkill = baseSkillMap[baseSkillId];
-
-                Tuple<BaseSkill, float> training = new Tuple<BaseSkill, float>(baseSkill, points);
-
-                if (!soldierTemplateMap.ContainsKey(soldierTemplateId))
-                {
-                    soldierTemplateMap[soldierTemplateId] = new List<Tuple<BaseSkill, float>>();
-                }
-                soldierTemplateMap[soldierTemplateId].Add(training);
-            }
-            return soldierTemplateMap;
         }
 
         private Dictionary<int, NormalizedValueTemplate> GetAttributeTemplates(IDbConnection connection)

@@ -17,6 +17,7 @@ namespace OnlyWar.Scripts.Helpers
         private readonly List<Planet> _planets;
         private readonly IReadOnlyList<Faction> _factions;
         private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
+        private readonly IReadOnlyList<SkillTemplate> _skillTemplateList;
         private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
@@ -25,6 +26,7 @@ namespace OnlyWar.Scripts.Helpers
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
+        public IReadOnlyList<SkillTemplate> SkillTemplateList { get => _skillTemplateList; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplateMap { get => _planetTemplateMap; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
@@ -35,6 +37,7 @@ namespace OnlyWar.Scripts.Helpers
             var gameBlob = GameRulesDataAccess.Instance.GetData();
             _factions = gameBlob.Factions;
             _baseSkillMap = gameBlob.BaseSkills;
+            _skillTemplateList = gameBlob.SkillTemplates;
             _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
             _planetTemplateMap = gameBlob.PlanetTemplates;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);

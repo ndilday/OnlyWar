@@ -464,7 +464,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             var deployables = squad.Members.Select(s => GameSettings.Chapter.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
-            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            var typeGroups = deployables.GroupBy(ps => ps.Template).ToDictionary(g => g.Key);
             bool isFull = true;
             // if any element has less than the minimum number, display red
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)

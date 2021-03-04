@@ -663,7 +663,7 @@ namespace OnlyWar.Scripts.Controllers
             {
                 string geneseedStatus = GetGeneseedStatusDescription(soldier);
                 battleEvents.Add(
-                    $"{soldier.Type.Name} {soldier.Name} died in the service of the emperor. Geneseed: {geneseedStatus}.");
+                    $"{soldier.Template.Name} {soldier.Name} died in the service of the emperor. Geneseed: {geneseedStatus}.");
             }
             return battleEvents;
         }

@@ -705,7 +705,7 @@ namespace OnlyWar.Scripts.Helpers
 
         private static void ApplySoldierTypeTraining(PlayerSoldier soldier)
         {
-            foreach(Tuple<BaseSkill, float> tuple in soldier.Template.BasicTraining)
+            foreach(Tuple<BaseSkill, float> tuple in soldier.Template.MosTraining)
             {
                 soldier.AddSkillPoints(tuple.Item1, tuple.Item2);
             }

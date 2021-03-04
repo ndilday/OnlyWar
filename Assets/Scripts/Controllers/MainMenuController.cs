@@ -119,7 +119,7 @@ namespace OnlyWar.Scripts.Controllers
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
             var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
             var soldiers = 
-                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
+                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Galaxy.SkillTemplateList)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToList();
 
