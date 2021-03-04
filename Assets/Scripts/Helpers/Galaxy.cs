@@ -150,52 +150,28 @@ namespace OnlyWar.Scripts.Helpers
 
         private Planet GeneratePlanet(Vector2 position)
         {
-            // TODO: Genericize this function
-            PlanetTemplate template = DeterminePlanetTemplate(_planetTemplateMap);
-
-            Planet planet = PlanetFactory.Instance.GenerateNewPlanet(template, position, 
-                                                                     Factions.First(f => f.IsDefaultFaction), 
-                                                                     Factions.First(f => f.CanInfiltrate)); ;
-
             // TODO: There should be game start config settings for planet ownership by specific factions
+            // TODO: Once genericized, move into planet factory
             double random = RNG.GetLinearDouble();
+            Faction controllingFaction, infiltratingFaction;
             if (random <= 0.02)
             {
-                planet.ControllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                infiltratingFaction = null;
             }
             else if (random <= 0.2f)
             {
-                planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
+                controllingFaction = _factions.First(f => f.Name == "Tyranids");
+                infiltratingFaction = null;
             }
             else
             {
-                planet.ControllingFaction = Factions.First(f => f.IsDefaultFaction);
+                controllingFaction = Factions.First(f => f.IsDefaultFaction);
+                random = RNG.GetLinearDouble();
+                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
             }
 
-            return planet;
-        }
-
-        private PlanetTemplate DeterminePlanetTemplate(IReadOnlyDictionary<int, PlanetTemplate> templates)
-        {
-            // we're using the "lottery ball" approach to randomness here, where each point 
-            // of probability for each available body party 
-            // defines the size of the random linear distribution
-            int max = templates.Values.Sum(pt => pt.Probability);
-            int roll = RNG.GetIntBelowMax(0, max);
-            foreach (PlanetTemplate template in templates.Values)
-            {
-                if (roll < template.Probability)
-                {
-                    return template;
-                }
-                else
-                {
-                    // this is basically an easy iterative way to figure out which body part on the "chart" the roll matches
-                    roll -= template.Probability;
-                }
-            }
-            // this should never happen
-            throw new InvalidOperationException("Could not determine a planet template");
+            return PlanetFactory.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
         }
     }
 }
