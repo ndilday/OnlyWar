@@ -421,16 +421,6 @@ namespace OnlyWar.Scripts.Controllers
             Tuple<Color, int> display;
             List<Tuple<int, string, Color, int>> squadList =
                 new List<Tuple<int, string, Color, int>>();
-            // check HQ Squad
-            if (company.HQSquad?.Location == _selectedPlanet)
-            {
-                display = DetermineSquadDisplayValues(company.HQSquad);
-                if (display.Item2 == 2) company.HQSquad.IsInReserve = true;
-                squadList.Add(
-                    new Tuple<int, string, Color, int>(company.HQSquad.Id,
-                                                       company.HQSquad.Name,
-                                                       display.Item1, display.Item2));
-            }
             foreach (Squad squad in company.Squads)
             {
                 if (squad.Location == _selectedPlanet)

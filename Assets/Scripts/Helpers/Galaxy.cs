@@ -72,6 +72,13 @@ namespace OnlyWar.Scripts.Helpers
             _planets.AddRange(planets);
             _fleets.Clear();
             _fleets.AddRange(fleets);
+            foreach(Fleet fleet in fleets)
+            {
+                if(fleet.Planet != null)
+                {
+                    fleet.Planet.Fleets.Add(fleet);
+                }
+            }
         }
 
         public void GenerateGalaxy(int seed)
