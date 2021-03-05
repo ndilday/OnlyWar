@@ -40,6 +40,8 @@ namespace OnlyWar.Scripts.Helpers
             _skillTemplateList = gameBlob.SkillTemplates;
             _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
             _planetTemplateMap = gameBlob.PlanetTemplates;
+            RangedWeaponTemplates = gameBlob.RangedWeaponTemplates;
+            MeleeWeaponTemplates = gameBlob.MeleeWeaponTemplates;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
