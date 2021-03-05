@@ -36,7 +36,7 @@ namespace OnlyWar.Scripts.Models.Squads
             Loadout = new List<WeaponSet>();
         }
 
-        public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
+        public Squad(int id, string name, Unit parentUnit, SquadTemplate template, bool isInReserve)
         {
             Id = id;
             if(id > _nextId)
@@ -46,7 +46,7 @@ namespace OnlyWar.Scripts.Models.Squads
             Name = name;
             ParentUnit = parentUnit;
             SquadTemplate = template;
-            IsInReserve = true;
+            IsInReserve = isInReserve;
             _members = new List<ISoldier>();
             //AssignedVehicles = new List<int>();
             Loadout = new List<WeaponSet>();

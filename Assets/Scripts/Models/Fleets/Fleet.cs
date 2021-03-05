@@ -19,6 +19,10 @@ namespace OnlyWar.Scripts.Models.Fleets
                      Planet location, Planet destination, List<Ship> ships)
         {
             Id = id;
+            if(_nextFleetId <= id)
+            {
+                _nextFleetId = id + 1;
+            }
             Faction = faction;
             Position = position;
             Planet = location;

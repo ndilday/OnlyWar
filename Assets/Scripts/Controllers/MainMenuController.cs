@@ -202,6 +202,10 @@ namespace OnlyWar.Scripts.Controllers
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
                     planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
+                    foreach(Squad squad in newArmy.GetAllSquads())
+                    {
+                        squad.Location = planet;
+                    }
                 }
             }
         }

@@ -62,9 +62,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void UnitView_OnUnitSelected(int unitId)
         {
-            SquadArmamentView.Clear();
-            _selectedSquad = null;
-
+            ClearGroundSelections();
             // populate the SquadArmamentView
             if (unitId == GameSettings.Chapter.OrderOfBattle.Id)
             {
@@ -107,9 +105,9 @@ namespace OnlyWar.Scripts.Controllers
 
         public void UnitView_OnSquadSelected(int squadId)
         {
+            ClearGroundSelections();
             // populate the SquadArmamentView
             _selectedSquad = GameSettings.Chapter.SquadMap[squadId];
-            _selectedUnit = null;
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
             SquadArmamentView.Initialize(deployData.Item2 < 2,
@@ -126,6 +124,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void FleetView_OnShipSelected(int shipId)
         {
+            _selectedShip = null;
             foreach(Fleet fleet in _selectedPlanet.Fleets)
             {
                 Ship ship = fleet.Ships.FirstOrDefault(s => s.Id == shipId);
@@ -135,7 +134,6 @@ namespace OnlyWar.Scripts.Controllers
                     break;
                 }
             }
-            _selectedShipSquad = null;
             PlanetView.EnableRemoveFromShipButton(false);
             if(_selectedSquad != null || _selectedUnit != null)
             {
@@ -145,7 +143,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void FleetView_OnSquadSelected(int squadId)
         {
-            _selectedShip = null;
+            ClearGroundSelections();
             _selectedShipSquad = GameSettings.Chapter.SquadMap[squadId];
             PlanetView.EnableLoadInShipButton(false);
             PlanetView.EnableRemoveFromShipButton(true);
@@ -196,9 +194,7 @@ namespace OnlyWar.Scripts.Controllers
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
-            _selectedShip = null;
-            _selectedSquad = null;
-            _selectedUnit = null;
+            ClearGroundSelections();
         }
 
         public void RemoveFromShipButton_OnClick()
@@ -216,10 +212,14 @@ namespace OnlyWar.Scripts.Controllers
                 factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id] = new List<Squad>();
             }
             factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id].Add(_selectedShipSquad);
-            
-            _selectedShipSquad = null;
-            _selectedShip = null;
+            //ClearSelections();
+        }
+
+        private void ClearGroundSelections()
+        {
+            SquadArmamentView.Clear();
             _selectedSquad = null;
+            _selectedShipSquad = null;
             _selectedUnit = null;
         }
 

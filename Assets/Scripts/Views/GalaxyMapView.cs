@@ -178,9 +178,12 @@ namespace OnlyWar.Scripts.Views
 
         public void RemoveFleet(int fleetId)
         {
-            Vector2 location = _fleetViewMap[fleetId].position;
-            Destroy(_fleetViewMap[fleetId].gameObject);
-            _fleetViewMap.Remove(fleetId);
+            if (_fleetViewMap.ContainsKey(fleetId))
+            {
+                Vector2 location = _fleetViewMap[fleetId].position;
+                Destroy(_fleetViewMap[fleetId].gameObject);
+                _fleetViewMap.Remove(fleetId);
+            }
             RemoveFleetDestination(fleetId);
             var entry = 
                 _movingFleetsAtLocationMap.FirstOrDefault(kvp => kvp.Value.Contains(fleetId));

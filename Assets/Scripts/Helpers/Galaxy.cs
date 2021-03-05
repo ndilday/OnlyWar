@@ -160,13 +160,14 @@ namespace OnlyWar.Scripts.Helpers
             // TODO: There should be game start config settings for planet ownership by specific factions
             // TODO: Once genericized, move into planet factory
             double random = RNG.GetLinearDouble();
+            Debug.Log(random);
             Faction controllingFaction, infiltratingFaction;
-            if (random <= 0.02)
+            if (random <= 0.05)
             {
                 controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
                 infiltratingFaction = null;
             }
-            else if (random <= 0.2f)
+            else if (random <= 0.25f)
             {
                 controllingFaction = _factions.First(f => f.Name == "Tyranids");
                 infiltratingFaction = null;
