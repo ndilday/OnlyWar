@@ -17,7 +17,7 @@ namespace OnlyWar.Scripts.Models.Squads
         public Unit ParentUnit { get; set; }
         public SquadTemplate SquadTemplate { get; private set; }
         public bool IsInReserve { get; set; }
-        public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Type.IsSquadLeader); }
+        public ISoldier SquadLeader { get => Members.FirstOrDefault(m => m.Template.IsSquadLeader); }
         public IReadOnlyCollection<ISoldier> Members { get => _members; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<WeaponSet> Loadout { get; set; }
@@ -36,7 +36,7 @@ namespace OnlyWar.Scripts.Models.Squads
             Loadout = new List<WeaponSet>();
         }
 
-        public Squad(int id, string name, Unit parentUnit, SquadTemplate template)
+        public Squad(int id, string name, Unit parentUnit, SquadTemplate template, bool isInReserve)
         {
             Id = id;
             if(id > _nextId)
@@ -46,7 +46,7 @@ namespace OnlyWar.Scripts.Models.Squads
             Name = name;
             ParentUnit = parentUnit;
             SquadTemplate = template;
-            IsInReserve = true;
+            IsInReserve = isInReserve;
             _members = new List<ISoldier>();
             //AssignedVehicles = new List<int>();
             Loadout = new List<WeaponSet>();

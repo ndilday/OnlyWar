@@ -149,7 +149,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             List<BattleSoldier> tempSquad = new List<BattleSoldier>(Soldiers);
             var wsList = Squad.Loadout.ToList();
             // need to allocate weapons from squad weapon sets
-            if (Soldiers[0].Soldier.Type.IsSquadLeader)
+            if (Soldiers[0].Soldier.Template.IsSquadLeader)
             {
                 // for now, sgt always gets default weapons
                 Soldiers[0].AddWeapons(Squad.SquadTemplate.DefaultWeapons.GetRangedWeapons(), Squad.SquadTemplate.DefaultWeapons.GetMeleeWeapons());

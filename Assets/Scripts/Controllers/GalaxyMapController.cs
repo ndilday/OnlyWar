@@ -1,6 +1,8 @@
 ﻿using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
+using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Views;
 using System;
 using System.Collections.Generic;
@@ -298,7 +300,7 @@ namespace OnlyWar.Scripts.Controllers
                     DeselectFleet();
                     fleet.Destination = null;
                 }
-                else
+                else if(fleet.Planet != destination)
                 {
                     // the click was not at the current planet
                     if(fleet.Destination == null)
@@ -391,7 +393,7 @@ namespace OnlyWar.Scripts.Controllers
             while (i < GameSettings.Galaxy.Planets.Count)
             {
                 Planet planet = GameSettings.Galaxy.GetPlanet(i);
-                if (planet.FactionSquadListMap.Count > 1)
+                if (planet.FactionSquadListMap.Count > 1 && FactionsCanBattle(planet))
                 {
                     // a battle breaks out on this planet
                     Debug.Log("Battle breaks out on " + planet.Name);
@@ -446,6 +448,27 @@ namespace OnlyWar.Scripts.Controllers
             // if we've scanned through the whole galaxy, battles are done, start a new turn
             Map.gameObject.SetActive(true);
             OnTurnStart.Invoke();
+        }
+
+        private bool FactionsCanBattle(Planet planet)
+        {
+            bool containsNonDefaultNonPlayer = false;
+            bool containsActivePlayerSquads = false;
+            foreach(KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
+            {
+                Faction faction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
+                if(!faction.IsDefaultFaction && !faction.IsPlayerFaction)
+                {
+                    containsNonDefaultNonPlayer = true;
+                }
+                else if(faction.IsPlayerFaction)
+                {
+                    containsActivePlayerSquads = 
+                        kvp.Value.Any(squad => !squad.IsInReserve);
+                }
+            }
+
+            return containsActivePlayerSquads && containsNonDefaultNonPlayer;
         }
     }
 }

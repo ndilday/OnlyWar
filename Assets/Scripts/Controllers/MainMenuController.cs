@@ -44,8 +44,8 @@ namespace OnlyWar.Scripts.Controllers
             var hitLocations = GameSettings.Galaxy.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
                                                                                     .Distinct()
                                                                                     .ToDictionary(hl => hl.Id);
-            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTypes != null)
-                                                             .SelectMany(f => f.SoldierTypes.Values)
+            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTemplates != null)
+                                                             .SelectMany(f => f.SoldierTemplates.Values)
                                                              .ToDictionary(st => st.Id);
             var gameData = 
                 GameStateDataAccess.Instance.GetData("default.s3db", 
@@ -77,6 +77,10 @@ namespace OnlyWar.Scripts.Controllers
                                         new List<Squad>();
                                 }
                                 squad.Location.FactionSquadListMap[faction.Id].Add(squad);
+                            }
+                            else if(squad.BoardedLocation != null)
+                            {
+                                squad.BoardedLocation.LoadSquad(squad);
                             }
                         }
                     }
@@ -119,7 +123,7 @@ namespace OnlyWar.Scripts.Controllers
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
             var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
             var soldiers = 
-                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate)
+                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Galaxy.SkillTemplateList)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToList();
 
@@ -186,6 +190,7 @@ namespace OnlyWar.Scripts.Controllers
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;
                         GameSettings.Galaxy.AddNewFleet(fleet);
+                        planet.Fleets.Add(fleet);
                     }
                 }
                 else if (planet.ControllingFaction.UnitTemplates != null)
@@ -201,6 +206,10 @@ namespace OnlyWar.Scripts.Controllers
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
                     planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
+                    foreach(Squad squad in newArmy.GetAllSquads())
+                    {
+                        squad.Location = planet;
+                    }
                 }
             }
         }

@@ -106,7 +106,7 @@ I await any further instructions you have on our recruiting and training efforts
             {
                 foreach (PlayerSoldier soldier in squad.Members)
                 {
-                    if (soldier.Type.IsSquadLeader)
+                    if (soldier.Template.IsSquadLeader)
                     {
                         // TODO: add code to test whether the SGT still feels he has things
                         // to teach the soldiers
@@ -202,7 +202,7 @@ I await any further instructions you have on our recruiting and training efforts
                 foreach(PlayerSoldier soldier in squad.Members)
                 {
                     _trainingHelper.UpdateRatings(soldier);
-                    if(soldier.Type.Name == "Scout Marine")
+                    if(soldier.Template.Name == "Scout Marine")
                     {
                         _scoutCount++;
                         if(soldier.MeleeRating > 95 && soldier.RangedRating > 98)

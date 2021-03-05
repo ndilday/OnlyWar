@@ -26,16 +26,16 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 int squadTemplateId = reader.GetInt32(1);
                 int parentUnitId = reader.GetInt32(2);
                 string name = reader[3].ToString();
+                bool isInReserve = reader.GetBoolean(6);
 
                 SquadTemplate template = squadTemplateMap[squadTemplateId];
 
-                Squad squad = new Squad(id, name, null, template);
+                Squad squad = new Squad(id, name, null, template, isInReserve);
 
 
                 if (reader[4].GetType() != typeof(DBNull))
                 {
                     Ship ship = shipMap[reader.GetInt32(4)];
-                    ship.LoadSquad(squad);
                     squad.BoardedLocation = ship;
                 }
 
@@ -139,7 +139,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             string ship = squad.BoardedLocation == null ? "null" : squad.BoardedLocation.Id.ToString();
             string planet = squad.Location == null ? "null" : squad.Location.Id.ToString();
             string insert = $@"INSERT INTO Squad VALUES ({squad.Id}, {squad.SquadTemplate.Id}, 
-                {squad.ParentUnit.Id}, '{safeName}', {ship}, {planet});";
+                {squad.ParentUnit.Id}, '{safeName}', {ship}, {planet}, {squad.IsInReserve});";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

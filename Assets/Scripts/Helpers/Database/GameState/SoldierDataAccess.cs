@@ -10,12 +10,12 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         public Dictionary<int, Soldier> GetData(IDbConnection dbCon, 
                                                 IReadOnlyDictionary<int, HitLocationTemplate> hitLocationTemplateMap,
                                                 IReadOnlyDictionary<int, BaseSkill> baseSkillMap, 
-                                                IReadOnlyDictionary<int, SoldierType> soldierTypeMap,
+                                                IReadOnlyDictionary<int, SoldierTemplate> soldierTemplateMap,
                                                 IReadOnlyDictionary<int, Squad> squadMap)
         {
             var hitLocationMap = GetHitLocationsBySoldierId(dbCon, hitLocationTemplateMap);
             var soldierSkillMap = GetSkillsBySoldierId(dbCon, baseSkillMap);
-            var soldierMap = GetSoldiers(dbCon, soldierTypeMap, squadMap, soldierSkillMap, hitLocationMap);
+            var soldierMap = GetSoldiers(dbCon, soldierTemplateMap, squadMap, soldierSkillMap, hitLocationMap);
 
             return soldierMap;
         }
@@ -24,7 +24,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         {
             string safeName = soldier.Name.Replace("\'", "\'\'");
             string insert = $@"INSERT INTO Soldier VALUES ({soldier.Id}, 
-                {soldier.Type.Id}, {soldier.AssignedSquad.Id}, '{safeName}',
+                {soldier.Template.Id}, {soldier.AssignedSquad.Id}, '{safeName}',
                 {soldier.Strength}, {soldier.Dexterity}, {soldier.Constitution},
                 {soldier.Intelligence},{soldier.Perception}, {soldier.Ego}, {soldier.Charisma}, 
                 {soldier.PsychicPower},{soldier.AttackSpeed}, {soldier.Size}, {soldier.MoveSpeed});";
@@ -106,7 +106,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
         }
 
         private Dictionary<int, Soldier> GetSoldiers(IDbConnection connection, 
-                                                     IReadOnlyDictionary<int, SoldierType> soldierTypeMap,
+                                                     IReadOnlyDictionary<int, SoldierTemplate> soldierTemplateMap,
                                                      IReadOnlyDictionary<int, Squad> squadMap,
                                                      IReadOnlyDictionary<int, List<Skill>> skillMap,
                                                      IReadOnlyDictionary<int, List<HitLocation>> hitLocationMap)
@@ -118,7 +118,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
-                int soldierTypeId = reader.GetInt32(1);
+                int soldierTemplateId = reader.GetInt32(1);
                 int squadId = reader.GetInt32(2);
                 string name = reader[3].ToString();
                 float strength = (float)reader[4];
@@ -149,7 +149,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                     MoveSpeed = move,
                     Id = id,
                     Name = name,
-                    Type = soldierTypeMap[soldierTypeId]
+                    Template = soldierTemplateMap[soldierTemplateId]
                 };
 
                 // due to how we handle decorating with PlayerSoldier, we may need to adjust this

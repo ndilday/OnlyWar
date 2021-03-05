@@ -62,9 +62,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void UnitView_OnUnitSelected(int unitId)
         {
-            SquadArmamentView.Clear();
-            _selectedSquad = null;
-
+            ClearGroundSelections();
             // populate the SquadArmamentView
             if (unitId == GameSettings.Chapter.OrderOfBattle.Id)
             {
@@ -107,9 +105,9 @@ namespace OnlyWar.Scripts.Controllers
 
         public void UnitView_OnSquadSelected(int squadId)
         {
+            ClearGroundSelections();
             // populate the SquadArmamentView
             _selectedSquad = GameSettings.Chapter.SquadMap[squadId];
-            _selectedUnit = null;
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
             SquadArmamentView.Initialize(deployData.Item2 < 2,
@@ -126,6 +124,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void FleetView_OnShipSelected(int shipId)
         {
+            _selectedShip = null;
             foreach(Fleet fleet in _selectedPlanet.Fleets)
             {
                 Ship ship = fleet.Ships.FirstOrDefault(s => s.Id == shipId);
@@ -135,7 +134,6 @@ namespace OnlyWar.Scripts.Controllers
                     break;
                 }
             }
-            _selectedShipSquad = null;
             PlanetView.EnableRemoveFromShipButton(false);
             if(_selectedSquad != null || _selectedUnit != null)
             {
@@ -145,7 +143,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void FleetView_OnSquadSelected(int squadId)
         {
-            _selectedShip = null;
+            ClearGroundSelections();
             _selectedShipSquad = GameSettings.Chapter.SquadMap[squadId];
             PlanetView.EnableLoadInShipButton(false);
             PlanetView.EnableRemoveFromShipButton(true);
@@ -196,9 +194,7 @@ namespace OnlyWar.Scripts.Controllers
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
-            _selectedShip = null;
-            _selectedSquad = null;
-            _selectedUnit = null;
+            ClearGroundSelections();
         }
 
         public void RemoveFromShipButton_OnClick()
@@ -216,10 +212,14 @@ namespace OnlyWar.Scripts.Controllers
                 factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id] = new List<Squad>();
             }
             factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id].Add(_selectedShipSquad);
-            
-            _selectedShipSquad = null;
-            _selectedShip = null;
+            //ClearSelections();
+        }
+
+        private void ClearGroundSelections()
+        {
+            SquadArmamentView.Clear();
             _selectedSquad = null;
+            _selectedShipSquad = null;
             _selectedUnit = null;
         }
 
@@ -421,16 +421,6 @@ namespace OnlyWar.Scripts.Controllers
             Tuple<Color, int> display;
             List<Tuple<int, string, Color, int>> squadList =
                 new List<Tuple<int, string, Color, int>>();
-            // check HQ Squad
-            if (company.HQSquad?.Location == _selectedPlanet)
-            {
-                display = DetermineSquadDisplayValues(company.HQSquad);
-                if (display.Item2 == 2) company.HQSquad.IsInReserve = true;
-                squadList.Add(
-                    new Tuple<int, string, Color, int>(company.HQSquad.Id,
-                                                       company.HQSquad.Name,
-                                                       display.Item1, display.Item2));
-            }
             foreach (Squad squad in company.Squads)
             {
                 if (squad.Location == _selectedPlanet)
@@ -464,18 +454,18 @@ namespace OnlyWar.Scripts.Controllers
         {
             var deployables = squad.Members.Select(s => GameSettings.Chapter.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
-            var typeGroups = deployables.GroupBy(ps => ps.Type).ToDictionary(g => g.Key);
+            var typeGroups = deployables.GroupBy(ps => ps.Template).ToDictionary(g => g.Key);
             bool isFull = true;
             // if any element has less than the minimum number, display red
             foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
             {
-                if (typeGroups.ContainsKey(element.SoldierType))
+                if (typeGroups.ContainsKey(element.SoldierTemplate))
                 {
-                    if (typeGroups[element.SoldierType].Count() < element.MinimumNumber)
+                    if (typeGroups[element.SoldierTemplate].Count() < element.MinimumNumber)
                     {
                         return new Tuple<Color, int>(Color.red, Badge.INSUFFICIENT_MEN);
                     }
-                    else if (typeGroups[element.SoldierType].Count() < element.MaximumNumber)
+                    else if (typeGroups[element.SoldierTemplate].Count() < element.MaximumNumber)
                     {
                         isFull = false;
                     }

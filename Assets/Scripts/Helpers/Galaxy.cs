@@ -17,6 +17,7 @@ namespace OnlyWar.Scripts.Helpers
         private readonly List<Planet> _planets;
         private readonly IReadOnlyList<Faction> _factions;
         private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
+        private readonly IReadOnlyList<SkillTemplate> _skillTemplateList;
         private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
@@ -25,6 +26,7 @@ namespace OnlyWar.Scripts.Helpers
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
+        public IReadOnlyList<SkillTemplate> SkillTemplateList { get => _skillTemplateList; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplateMap { get => _planetTemplateMap; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
@@ -35,8 +37,11 @@ namespace OnlyWar.Scripts.Helpers
             var gameBlob = GameRulesDataAccess.Instance.GetData();
             _factions = gameBlob.Factions;
             _baseSkillMap = gameBlob.BaseSkills;
+            _skillTemplateList = gameBlob.SkillTemplates;
             _bodyHitLocationTemplateMap = gameBlob.BodyTemplates;
             _planetTemplateMap = gameBlob.PlanetTemplates;
+            RangedWeaponTemplates = gameBlob.RangedWeaponTemplates;
+            MeleeWeaponTemplates = gameBlob.MeleeWeaponTemplates;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();
@@ -69,6 +74,13 @@ namespace OnlyWar.Scripts.Helpers
             _planets.AddRange(planets);
             _fleets.Clear();
             _fleets.AddRange(fleets);
+            foreach(Fleet fleet in fleets)
+            {
+                if(fleet.Planet != null)
+                {
+                    fleet.Planet.Fleets.Add(fleet);
+                }
+            }
         }
 
         public void GenerateGalaxy(int seed)
@@ -147,52 +159,29 @@ namespace OnlyWar.Scripts.Helpers
 
         private Planet GeneratePlanet(Vector2 position)
         {
-            // TODO: Genericize this function
-            PlanetTemplate template = DeterminePlanetTemplate(_planetTemplateMap);
-
-            Planet planet = PlanetFactory.Instance.GenerateNewPlanet(template, position, 
-                                                                     Factions.First(f => f.IsDefaultFaction), 
-                                                                     Factions.First(f => f.CanInfiltrate)); ;
-
             // TODO: There should be game start config settings for planet ownership by specific factions
+            // TODO: Once genericized, move into planet factory
             double random = RNG.GetLinearDouble();
-            if (random <= 0.02)
+            Debug.Log(random);
+            Faction controllingFaction, infiltratingFaction;
+            if (random <= 0.05)
             {
-                planet.ControllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                infiltratingFaction = null;
             }
-            else if (random <= 0.2f)
+            else if (random <= 0.25f)
             {
-                planet.ControllingFaction = _factions.First(f => f.Name == "Tyranids");
+                controllingFaction = _factions.First(f => f.Name == "Tyranids");
+                infiltratingFaction = null;
             }
             else
             {
-                planet.ControllingFaction = Factions.First(f => f.IsDefaultFaction);
+                controllingFaction = Factions.First(f => f.IsDefaultFaction);
+                random = RNG.GetLinearDouble();
+                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
             }
 
-            return planet;
-        }
-
-        private PlanetTemplate DeterminePlanetTemplate(IReadOnlyDictionary<int, PlanetTemplate> templates)
-        {
-            // we're using the "lottery ball" approach to randomness here, where each point 
-            // of probability for each available body party 
-            // defines the size of the random linear distribution
-            int max = templates.Values.Sum(pt => pt.Probability);
-            int roll = RNG.GetIntBelowMax(0, max);
-            foreach (PlanetTemplate template in templates.Values)
-            {
-                if (roll < template.Probability)
-                {
-                    return template;
-                }
-                else
-                {
-                    // this is basically an easy iterative way to figure out which body part on the "chart" the roll matches
-                    roll -= template.Probability;
-                }
-            }
-            // this should never happen
-            throw new InvalidOperationException("Could not determine a planet template");
+            return PlanetFactory.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
         }
     }
 }

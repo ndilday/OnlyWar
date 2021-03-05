@@ -1,4 +1,6 @@
 ﻿using OnlyWar.Scripts.Models.Soldiers;
+using System;
+using System.Collections.Generic;
 
 namespace OnlyWar.Scripts.Helpers
 {
@@ -22,32 +24,60 @@ namespace OnlyWar.Scripts.Helpers
 
         public Soldier GenerateNewSoldier(SoldierTemplate template)
         {
-            Soldier soldier = new Soldier(template.BodyTemplate)
+            Soldier soldier = GenerateNewSoldier(template.Species, null);
+
+            foreach (Tuple<BaseSkill, float> skillBoost in template.MosTraining)
+            {
+                soldier.AddSkillPoints(skillBoost.Item1, skillBoost.Item2);
+            }
+
+            return soldier;
+        }
+
+        public Soldier GenerateNewSoldier(Species species, IReadOnlyList<SkillTemplate> newRecruitSkills)
+        {
+            Soldier soldier = new Soldier(species.BodyTemplate)
             {
                 Id = _nextId
             };
             _nextId++;
 
-            soldier.Strength = template.Strength.BaseValue + (float)(RNG.NextGaussianDouble() * template.Strength.StandardDeviation);
-            soldier.Dexterity = template.Dexterity.BaseValue + (float)(RNG.NextGaussianDouble() * template.Dexterity.StandardDeviation);
-            soldier.Constitution = template.Constitution.BaseValue + (float)(RNG.NextGaussianDouble() * template.Constitution.StandardDeviation);
-            soldier.Ego = template.Ego.BaseValue + (float)(RNG.NextGaussianDouble() * template.Ego.StandardDeviation);
-            soldier.Charisma = template.Charisma.BaseValue + (float)(RNG.NextGaussianDouble() * template.Charisma.StandardDeviation);
-            soldier.Perception = template.Perception.BaseValue + (float)(RNG.NextGaussianDouble() * template.Perception.StandardDeviation);
-            soldier.Intelligence = template.Intelligence.BaseValue + (float)(RNG.NextGaussianDouble() * template.Intelligence.StandardDeviation);
+            soldier.Strength = species.Strength.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Strength.StandardDeviation);
+            soldier.Dexterity = species.Dexterity.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Dexterity.StandardDeviation);
+            soldier.Constitution = species.Constitution.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Constitution.StandardDeviation);
+            soldier.Ego = species.Ego.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Ego.StandardDeviation);
+            soldier.Charisma = species.Charisma.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Charisma.StandardDeviation);
+            soldier.Perception = species.Perception.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Perception.StandardDeviation);
+            soldier.Intelligence = species.Intelligence.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Intelligence.StandardDeviation);
 
-            soldier.AttackSpeed = template.AttackSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.AttackSpeed.StandardDeviation);
-            soldier.MoveSpeed = template.MoveSpeed.BaseValue + (float)(RNG.NextGaussianDouble() * template.MoveSpeed.StandardDeviation);
-            soldier.Size = template.Size.BaseValue + (float)(RNG.NextGaussianDouble() * template.Size.StandardDeviation);
-            soldier.PsychicPower = template.PsychicPower.BaseValue + (float)(RNG.NextGaussianDouble() * template.PsychicPower.StandardDeviation);
+            soldier.AttackSpeed = species.AttackSpeed.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.AttackSpeed.StandardDeviation);
+            soldier.MoveSpeed = species.MoveSpeed.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.MoveSpeed.StandardDeviation);
+            soldier.Size = species.Size.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.Size.StandardDeviation);
+            soldier.PsychicPower = species.PsychicPower.BaseValue
+                + (float)(RNG.NextGaussianDouble() * species.PsychicPower.StandardDeviation);
 
-            foreach (SkillTemplate skillTemplate in template.SkillTemplates)
+            if (newRecruitSkills != null)
             {
-                float roll = skillTemplate.BaseValue + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
-                if(roll > 0)
+                foreach (SkillTemplate skillTemplate in newRecruitSkills)
                 {
-                    soldier.AddSkillPoints(skillTemplate.BaseSkill, roll);
+                    float roll = skillTemplate.BaseValue
+                        + (float)(RNG.NextGaussianDouble() * skillTemplate.StandardDeviation);
+                    if (roll > 0)
+                    {
+                        soldier.AddSkillPoints(skillTemplate.BaseSkill, roll);
+                    }
                 }
+
             }
 
             return soldier;
@@ -59,6 +89,16 @@ namespace OnlyWar.Scripts.Helpers
             for(int i = 0; i < count; i++)
             {
                 soldierArray[i] = GenerateNewSoldier(template);
+            }
+            return soldierArray;
+        }
+
+        public Soldier[] GenerateNewSoldiers(int count, Species species, IReadOnlyList<SkillTemplate> newRecruitSkills)
+        {
+            Soldier[] soldierArray = new Soldier[count];
+            for (int i = 0; i < count; i++)
+            {
+                soldierArray[i] = GenerateNewSoldier(species, newRecruitSkills);
             }
             return soldierArray;
         }

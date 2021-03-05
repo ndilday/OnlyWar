@@ -1,4 +1,5 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Soldiers;
 using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Squads;
 using System;
@@ -13,8 +14,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         public Dictionary<int, ArmorTemplate> ArmorTemplates { get; set; }
         public Dictionary<int, RangedWeaponTemplate> RangedWeaponTemplateMap { get; set; }
         public Dictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplateMap { get; set; }
-        public Dictionary<int, List<SoldierType>> SoldierTypesByFactionId { get; set; }
-        public Dictionary<int, SoldierType> SoldierTypesById { get; set; }
+        public Dictionary<int, List<SoldierTemplate>> SoldierTemplatesByFactionId { get; set; }
+        public Dictionary<int, List<Species>> SpeciesByFactionId { get; set; }
         public Dictionary<int, List<SquadTemplate>> SquadTemplatesByFactionId { get; set; }
         public Dictionary<int, SquadTemplate> SquadTemplatesById { get; set; }
     }
@@ -22,20 +23,28 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
     public class SquadDataAccess
     {
         public SquadDataBlob GetSquadDataBlob(IDbConnection connection, 
-                                              Dictionary<int, BaseSkill> baseSkillMap)
+                                              Dictionary<int, BaseSkill> baseSkillMap,
+                                              Dictionary<int, List<HitLocationTemplate>> hitLocationMap)
         {
-            var soldierTypeSkills = GetSoldierTypeTrainingBySoldierTypeId(connection, baseSkillMap);
-            var soldierTypes = GetSoldierTypesById(connection, soldierTypeSkills);
+            var attributes = GetAttributeTemplates(connection);
+            var soldierTemplateSkills = GetSoldierMosTrainingBySoldierTemplateId(connection, baseSkillMap);
+            var species = GetSpeciesByFactionId(connection, attributes, hitLocationMap);
+            var soldierTemplates = 
+                GetSoldierTemplatesByFactionId(connection, soldierTemplateSkills, species);
             var armorTemplates = GetArmorTemplates(connection);
             var meleeWeapons = GetMeleeWeaponTemplates(connection, baseSkillMap);
             var rangedWeapons = GetRangedWeaponTemplates(connection, baseSkillMap);
             var weaponSets = GetWeaponSetMap(connection, meleeWeapons, rangedWeapons);
             var squadTemplateWeaponSetIds = 
                 GetSquadTemplateWeaponSetIdsBySquadTemplateWeaponOptionId(connection);
-            var squadWeaponOptions = GetSquadWeaponOptionsBySquadTemplateId(connection, 
-                                                                            squadTemplateWeaponSetIds, 
-                                                                            weaponSets);
-            var squadElements = GetSquadTemplateElementsBySquadId(connection, soldierTypes.Item2);
+            var squadWeaponOptions = 
+                GetSquadWeaponOptionsBySquadTemplateId(connection, 
+                                                       squadTemplateWeaponSetIds, 
+                                                       weaponSets);
+            var basicSoldierTemplateMap = soldierTemplates.Values
+                                                          .SelectMany(st => st)
+                                                          .ToDictionary(st => st.Id);
+            var squadElements = GetSquadTemplateElementsBySquadId(connection, basicSoldierTemplateMap);
             var squadTemplates = GetSquadTemplatesById(connection, squadElements, weaponSets, 
                                                        squadWeaponOptions, armorTemplates);
             return new SquadDataBlob
@@ -45,10 +54,38 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 RangedWeaponTemplateMap = rangedWeapons,
                 SquadTemplatesByFactionId = squadTemplates.Item1,
                 SquadTemplatesById = squadTemplates.Item2,
-                SoldierTypesByFactionId = soldierTypes.Item1,
-                SoldierTypesById = soldierTypes.Item2
+                SoldierTemplatesByFactionId = soldierTemplates,
+                SpeciesByFactionId = species
             };
         }
+
+        private Dictionary<int, List<Tuple<BaseSkill, float>>> GetSoldierMosTrainingBySoldierTemplateId(
+            IDbConnection connection, Dictionary<int, BaseSkill> baseSkillMap)
+        {
+            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTemplateMosMap =
+                new Dictionary<int, List<Tuple<BaseSkill, float>>>();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM SoldierMosTraining";
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int soldierTemplateId = reader.GetInt32(0);
+                int baseSkillId = reader.GetInt32(1);
+                float points = (float)reader[2];
+
+                BaseSkill baseSkill = baseSkillMap[baseSkillId];
+
+                Tuple<BaseSkill, float> training = new Tuple<BaseSkill, float>(baseSkill, points);
+
+                if (!soldierTemplateMosMap.ContainsKey(soldierTemplateId))
+                {
+                    soldierTemplateMosMap[soldierTemplateId] = new List<Tuple<BaseSkill, float>>();
+                }
+                soldierTemplateMosMap[soldierTemplateId].Add(training);
+            }
+            return soldierTemplateMosMap;
+        }
+
 
         private Dictionary<int, ArmorTemplate> GetArmorTemplates(IDbConnection connection)
         {
@@ -261,7 +298,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         }
 
         private Dictionary<int, List<SquadTemplateElement>> GetSquadTemplateElementsBySquadId(IDbConnection connection,
-                                                                                              Dictionary<int, SoldierType> soldierTypeMap)
+                                                                                              Dictionary<int, SoldierTemplate> soldierTemplateMap)
         {
             Dictionary<int, List<SquadTemplateElement>> elementsMap =
                 new Dictionary<int, List<SquadTemplateElement>>();
@@ -271,17 +308,17 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             while (reader.Read())
             {
                 int squadTemplateId = reader.GetInt32(1);
-                int soldierTypeId = reader.GetInt32(2);
+                int soldierTemplateId = reader.GetInt32(2);
                 int min = reader.GetInt32(3);
                 int max = reader.GetInt32(4);
 
-                SoldierType type = soldierTypeMap[soldierTypeId];
+                SoldierTemplate template = soldierTemplateMap[soldierTemplateId];
 
                 if (!elementsMap.ContainsKey(squadTemplateId))
                 {
                     elementsMap[squadTemplateId] = new List<SquadTemplateElement>();
                 }
-                elementsMap[squadTemplateId].Add(new SquadTemplateElement(type, (byte)min, (byte)max));
+                elementsMap[squadTemplateId].Add(new SquadTemplateElement(template, (byte)min, (byte)max));
             }
             return elementsMap;
         }
@@ -323,65 +360,111 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             return new Tuple<Dictionary<int, List<SquadTemplate>>, Dictionary<int, SquadTemplate>>(squadTemplatesByFactionId, squadTemplateMap);
         }
 
-        private Dictionary<int, List<Tuple<BaseSkill, float>>> GetSoldierTypeTrainingBySoldierTypeId(
-            IDbConnection connection, Dictionary<int, BaseSkill> baseSkillMap)
+        private Dictionary<int, NormalizedValueTemplate> GetAttributeTemplates(IDbConnection connection)
         {
-            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTypeMap =
-                new Dictionary<int, List<Tuple<BaseSkill, float>>>();
+            Dictionary<int, NormalizedValueTemplate> attributeTemplateMap =
+                new Dictionary<int, NormalizedValueTemplate>();
             IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierTypeTraining";
+            command.CommandText = "SELECT * FROM AttributeTemplate";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int soldierTypeId = reader.GetInt32(0);
-                int baseSkillId = reader.GetInt32(1);
-                float points = (float)reader[2];
-
-                BaseSkill baseSkill = baseSkillMap[baseSkillId];
-
-                Tuple<BaseSkill, float> training = new Tuple<BaseSkill, float>(baseSkill, points);
-
-                if (!soldierTypeMap.ContainsKey(soldierTypeId))
+                int id = reader.GetInt32(0);
+                float baseValue = (float)reader[1];
+                float stdDev = (float)reader[2];
+                NormalizedValueTemplate attributeTemplate = new NormalizedValueTemplate
                 {
-                    soldierTypeMap[soldierTypeId] = new List<Tuple<BaseSkill, float>>();
-                }
-                soldierTypeMap[soldierTypeId].Add(training);
+                    BaseValue = baseValue,
+                    StandardDeviation = stdDev
+                };
+
+                attributeTemplateMap[id] = attributeTemplate;
             }
-            return soldierTypeMap;
+            return attributeTemplateMap;
         }
 
-        private Tuple<Dictionary<int, List<SoldierType>>, Dictionary<int, SoldierType>> GetSoldierTypesById(
-            IDbConnection connection,
-            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTypeTrainingMap)
+        private Dictionary<int, List<Species>> GetSpeciesByFactionId(IDbConnection connection,
+                                                                     Dictionary<int, NormalizedValueTemplate> attributeMap,
+                                                                     Dictionary<int, List<HitLocationTemplate>> hitLocationTemplateMap)
         {
-            Dictionary<int, SoldierType> soldierTypeMap = new Dictionary<int, SoldierType>();
-            Dictionary<int, List<SoldierType>> soldierTypesByFactionId = new Dictionary<int, List<SoldierType>>();
+            Dictionary<int, List<Species>> speciesMap = new Dictionary<int, List<Species>>();
             IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierType";
+            command.CommandText = "SELECT * FROM Species";
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 int id = reader.GetInt32(0);
                 int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                int rank = reader.GetInt32(3);
-                bool isSquadLeader = (bool)reader[4];
-                List<Tuple<BaseSkill, float>> trainingList = null;
-                if(soldierTypeTrainingMap.ContainsKey(id))
-                {
-                    trainingList = soldierTypeTrainingMap[id];
-                }
-                SoldierType soldierType = 
-                    new SoldierType(id, name, isSquadLeader, (byte)rank, trainingList);
-                soldierTypeMap[id] = soldierType;
+                int bodyId = reader.GetInt32(2);
+                string name = reader[3].ToString();
+                int strengthTemplateId = reader.GetInt32(4);
+                int dexterityTemplateId = reader.GetInt32(5);
+                int constitutionTemplateId = reader.GetInt32(6);
+                int intelligenceTemplateId = reader.GetInt32(7);
+                int perceptionTemplateId = reader.GetInt32(8);
+                int egoTemplateId = reader.GetInt32(9);
+                int charismaTemplateId = reader.GetInt32(10);
+                int psychicTemplateId = reader.GetInt32(11);
+                int attackSpeedTemplateId = reader.GetInt32(12);
+                int moveSpeedTemplateId = reader.GetInt32(13);
+                int sizeTemplateId = reader.GetInt32(14);
+                Species species = new Species(id, name,
+                                              attributeMap[strengthTemplateId],
+                                              attributeMap[dexterityTemplateId],
+                                              attributeMap[constitutionTemplateId],
+                                              attributeMap[intelligenceTemplateId],
+                                              attributeMap[perceptionTemplateId],
+                                              attributeMap[egoTemplateId],
+                                              attributeMap[charismaTemplateId],
+                                              attributeMap[psychicTemplateId],
+                                              attributeMap[attackSpeedTemplateId],
+                                              attributeMap[moveSpeedTemplateId],
+                                              attributeMap[sizeTemplateId],
+                                              new BodyTemplate(hitLocationTemplateMap[bodyId]));
 
-                if (!soldierTypesByFactionId.ContainsKey(factionId))
+                if (!speciesMap.ContainsKey(factionId))
                 {
-                    soldierTypesByFactionId[factionId] = new List<SoldierType>();
+                    speciesMap[factionId] = new List<Species>();
                 }
-                soldierTypesByFactionId[factionId].Add(soldierType);
+                speciesMap[factionId].Add(species);
             }
-            return new Tuple<Dictionary<int, List<SoldierType>>, Dictionary<int, SoldierType>>(soldierTypesByFactionId, soldierTypeMap);
+            return speciesMap;
+        }
+
+        private Dictionary<int, List<SoldierTemplate>> GetSoldierTemplatesByFactionId(
+            IDbConnection connection,
+            Dictionary<int, List<Tuple<BaseSkill, float>>> soldierTemplateTrainingMap,
+            Dictionary<int, List<Species>> speciesMap)
+        {
+            Dictionary<int, List<SoldierTemplate>> soldierTemplatesByFactionId = 
+                new Dictionary<int, List<SoldierTemplate>>();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM SoldierTemplate";
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                int factionId = reader.GetInt32(1);
+                int speciesId = reader.GetInt32(2);
+                string name = reader[3].ToString();
+                int rank = reader.GetInt32(4);
+                bool isSquadLeader = (bool)reader[5];
+                List<Tuple<BaseSkill, float>> trainingList = null;
+                if(soldierTemplateTrainingMap.ContainsKey(id))
+                {
+                    trainingList = soldierTemplateTrainingMap[id];
+                }
+                var species = speciesMap[factionId].First(s => s.Id == speciesId);
+                SoldierTemplate soldierTemplate = 
+                    new SoldierTemplate(id, species, name, isSquadLeader, (byte)rank, trainingList);
+
+                if (!soldierTemplatesByFactionId.ContainsKey(factionId))
+                {
+                    soldierTemplatesByFactionId[factionId] = new List<SoldierTemplate>();
+                }
+                soldierTemplatesByFactionId[factionId].Add(soldierTemplate);
+            }
+            return soldierTemplatesByFactionId;
         }
 
     }

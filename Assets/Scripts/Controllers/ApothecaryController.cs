@@ -149,7 +149,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
         private void SquadSelected(Squad squad)
         {
             _selectedSquad = squad;
-            List<Tuple<int, string, string>> memberList = _selectedSquad.Members.Select(s => new Tuple<int, string, string>(s.Id, s.Type.Name, s.ToString())).ToList();
+            List<Tuple<int, string, string>> memberList = _selectedSquad.Members.Select(s => new Tuple<int, string, string>(s.Id, s.Template.Name, s.ToString())).ToList();
             ApothecaryView.ReplaceSquadMemberContent(memberList);
             ApothecaryView.ReplaceSelectedSoldierText(GenerateSquadSummary(_selectedSquad));
         }

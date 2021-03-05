@@ -52,6 +52,7 @@ namespace OnlyWar.Scripts.Models.Fleets
             Name = name;
             Template = template;
             Boats = new List<Boat>();
+            _loadedSquads = new List<Squad>();
         }
 
         public Ship(int id, string name, ShipTemplate template, BoatTemplate boatTemplate) 

@@ -18,6 +18,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
     {
         public IReadOnlyList<Faction> Factions { get; set; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkills { get; set; }
+        public IReadOnlyList<SkillTemplate> SkillTemplates { get; set; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyTemplates { get; set; }
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplates { get; set; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; set; }
@@ -61,25 +62,20 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
             var baseSkills = _baseSkillDataAccess.GetBaseSkills(dbCon);
-            var squadDataBlob = _squadDataAccess.GetSquadDataBlob(dbCon, baseSkills);
+            var skillTemplates = GetSkillTemplates(dbCon, baseSkills);
+            var hitLocations = _hitLocationDataAccess.GetHitLocationsByBodyId(dbCon);
+            var squadDataBlob = _squadDataAccess.GetSquadDataBlob(dbCon, baseSkills, hitLocations);
             var unitSquadTemplates = GetSquadTemplatesByUnitTemplateId(
                 dbCon, squadDataBlob.SquadTemplatesById);
             var unitHierarchy = GetUnitTemplateHierarchy(dbCon);
-            var unitTemplates = GetUnitTemplatesByFactionId(dbCon, unitHierarchy, unitSquadTemplates, 
-                                                            squadDataBlob.SquadTemplatesById);
-            var attributes = GetAttributeTemplates(dbCon);
-            var skillTemplates = GetSkillTemplates(dbCon, baseSkills);
-            var skillTemplatesBySoldierTemplate = GetSkillTemplatesBySoldierTemplateId(dbCon, skillTemplates);
-            var hitLocations = _hitLocationDataAccess.GetHitLocationsByBodyId(dbCon);
-            var soldierTemplates = GetSoldierTemplatesByFactionId(
-                dbCon, squadDataBlob.SoldierTypesById, attributes, 
-                hitLocations, skillTemplatesBySoldierTemplate);
-
+            var unitTemplates = 
+                GetUnitTemplatesByFactionId(dbCon, unitHierarchy, unitSquadTemplates, 
+                                            squadDataBlob.SquadTemplatesById);
             var planetTemplates = _planetDataAccess.GetData(dbCon);
 
             var fleetDataBlob = _fleetDataAccess.GetFleetData(dbCon);
-            var factions = GetFactionTemplates(dbCon, squadDataBlob.SoldierTypesByFactionId,  
-                                               soldierTemplates, 
+            var factions = GetFactionTemplates(dbCon, squadDataBlob.SpeciesByFactionId,  
+                                               squadDataBlob.SoldierTemplatesByFactionId, 
                                                squadDataBlob.SquadTemplatesByFactionId, 
                                                unitTemplates,
                                                fleetDataBlob.BoatTemplates, 
@@ -90,6 +86,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             {
                 Factions = factions,
                 BaseSkills = baseSkills,
+                SkillTemplates = skillTemplates,
                 BodyTemplates = hitLocations,
                 PlanetTemplates = planetTemplates,
                 RangedWeaponTemplates = squadDataBlob.RangedWeaponTemplateMap,
@@ -98,8 +95,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         }
 
         private List<Faction> GetFactionTemplates(IDbConnection connection,
-                                         Dictionary<int, List<SoldierType>> factionSoldierTypeMap,
-                                         Dictionary<int, List<SoldierTemplate>> factionSoldierMap,
+                                         Dictionary<int, List<Species>> factionSpeciesMap,
+                                         Dictionary<int, List<SoldierTemplate>> factionSoldierTemplateMap,
                                          Dictionary<int, List<SquadTemplate>> factionSquadMap,
                                          Dictionary<int, List<UnitTemplate>> factionUnitMap,
                                          Dictionary<int, List<BoatTemplate>> factionBoatMap,
@@ -120,10 +117,10 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 bool canInfiltrate = (bool)reader[5];
                 GrowthType growthType = (GrowthType)reader.GetInt32(6);
 
-                var soldierTypeMap = factionSoldierTypeMap.ContainsKey(id) ? 
-                    factionSoldierTypeMap[id].ToDictionary(st => st.Id) : null;
-                var soldierMap = factionSoldierMap.ContainsKey(id) ?
-                    factionSoldierMap[id].ToDictionary(st => st.Id) : null;
+                var speciesMap = factionSpeciesMap.ContainsKey(id) ? 
+                    factionSpeciesMap[id].ToDictionary(st => st.Id) : null;
+                var soldierMap = factionSoldierTemplateMap.ContainsKey(id) ?
+                    factionSoldierTemplateMap[id].ToDictionary(st => st.Id) : null;
                 var squadMap = factionSquadMap.ContainsKey(id) ? 
                     factionSquadMap[id].ToDictionary(st => st.Id) : null;
                 var unitMap = factionUnitMap.ContainsKey(id) ? 
@@ -138,12 +135,38 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                     fleetMap = factionFleetMap[id].ToDictionary(ft => ft.Id);
                 }
 
-                Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, canInfiltrate, growthType,
-                                                      soldierTypeMap, soldierMap,
-                                                      squadMap, unitMap, boatMap, shipMap, fleetMap);
+                Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, 
+                                                      canInfiltrate, growthType, speciesMap, 
+                                                      soldierMap, squadMap, unitMap, boatMap, 
+                                                      shipMap, fleetMap);
                 factionList.Add(factionTemplate);
             }
             return factionList;
+        }
+
+        private List<SkillTemplate> GetSkillTemplates(IDbConnection connection,
+                                                      Dictionary<int, BaseSkill> baseSkillMap)
+        {
+            List<SkillTemplate> skillTemplateList = new List<SkillTemplate>();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM SkillTemplate";
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int id = reader.GetInt32(0);
+                int baseSkillId = reader.GetInt32(1);
+                float baseValue = (float)reader[2];
+                float stdDev = (float)reader[3];
+                SkillTemplate skillTemplate = new SkillTemplate
+                {
+                    BaseSkill = baseSkillMap[baseSkillId],
+                    BaseValue = baseValue,
+                    StandardDeviation = stdDev
+                };
+
+                skillTemplateList.Add(skillTemplate);
+            }
+            return skillTemplateList;
         }
 
         private Dictionary<int, List<int>> GetUnitTemplateHierarchy(IDbConnection connection)
@@ -208,130 +231,6 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
             }
 
             return factionUnitTemplateMap;
-        }
-
-        private Dictionary<int, NormalizedValueTemplate> GetAttributeTemplates(IDbConnection connection)
-        {
-            Dictionary<int, NormalizedValueTemplate> attributeTemplateMap =
-                new Dictionary<int, NormalizedValueTemplate>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM AttributeTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int id = reader.GetInt32(0);
-                float baseValue = (float)reader[1];
-                float stdDev = (float)reader[2];
-                NormalizedValueTemplate attributeTemplate = new NormalizedValueTemplate
-                {
-                    BaseValue = baseValue,
-                    StandardDeviation = stdDev
-                };
-
-                attributeTemplateMap[id] = attributeTemplate;
-            }
-            return attributeTemplateMap;
-        }
-
-        private Dictionary<int, SkillTemplate> GetSkillTemplates(IDbConnection connection,
-                                                                    Dictionary<int, BaseSkill> baseSkillMap)
-        {
-            Dictionary<int, SkillTemplate> skillTemplateMap =
-                new Dictionary<int, SkillTemplate>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SkillTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int id = reader.GetInt32(0);
-                int baseSkillId = reader.GetInt32(1);
-                float baseValue = (float)reader[2];
-                float stdDev = (float)reader[3];
-                SkillTemplate skillTemplate = new SkillTemplate
-                {
-                    BaseSkill = baseSkillMap[baseSkillId],
-                    BaseValue = baseValue,
-                    StandardDeviation = stdDev
-                };
-
-                skillTemplateMap[id] = skillTemplate;
-            }
-            return skillTemplateMap;
-        }
-
-        private Dictionary<int, List<SkillTemplate>> GetSkillTemplatesBySoldierTemplateId(IDbConnection connection,
-                                                                                             Dictionary<int, SkillTemplate> skillTemplateMap)
-        {
-            Dictionary<int, List<SkillTemplate>> skillTemplateListMap =
-                new Dictionary<int, List<SkillTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierTemplateSkillTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int soldierTemplateId = reader.GetInt32(1);
-                int skillTemplateId = reader.GetInt32(2);
-
-                if (!skillTemplateListMap.ContainsKey(soldierTemplateId))
-                {
-                    skillTemplateListMap[soldierTemplateId] = new List<SkillTemplate>();
-                }
-                skillTemplateListMap[soldierTemplateId].Add(skillTemplateMap[skillTemplateId]);
-            }
-            return skillTemplateListMap;
-        }
-
-        private Dictionary<int, List<SoldierTemplate>> GetSoldierTemplatesByFactionId(IDbConnection connection,
-                                                                                         Dictionary<int, SoldierType> soldierTypeMap,
-                                                                                         Dictionary<int, NormalizedValueTemplate> attributeMap,
-                                                                                         Dictionary<int, List<HitLocationTemplate>> hitLocationTemplateMap,
-                                                                                         Dictionary<int, List<SkillTemplate>> skillTemplateMap)
-        {
-            Dictionary<int, List<SoldierTemplate>> soldierTemplateMap = new Dictionary<int, List<SoldierTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SoldierTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                int bodyId = reader.GetInt32(2);
-                int soldierTypeId = reader.GetInt32(3);
-                string name = reader[4].ToString();
-                int strengthTemplateId = reader.GetInt32(5);
-                int dexterityTemplateId = reader.GetInt32(6);
-                int constitutionTemplateId = reader.GetInt32(7);
-                int intelligenceTemplateId = reader.GetInt32(8);
-                int perceptionTemplateId = reader.GetInt32(9);
-                int egoTemplateId = reader.GetInt32(10);
-                int charismaTemplateId = reader.GetInt32(11);
-                int psychicTemplateId = reader.GetInt32(12);
-                int attackSpeedTemplateId = reader.GetInt32(13);
-                int moveSpeedTemplateId = reader.GetInt32(14);
-                int sizeTemplateId = reader.GetInt32(15);
-                SoldierType type = soldierTypeMap[soldierTypeId];
-                SoldierTemplate soldierTemplate = new SoldierTemplate(id, name, type,
-                                                                      attributeMap[strengthTemplateId],
-                                                                      attributeMap[dexterityTemplateId],
-                                                                      attributeMap[constitutionTemplateId],
-                                                                      attributeMap[intelligenceTemplateId],
-                                                                      attributeMap[perceptionTemplateId],
-                                                                      attributeMap[egoTemplateId],
-                                                                      attributeMap[charismaTemplateId],
-                                                                      attributeMap[psychicTemplateId],
-                                                                      attributeMap[attackSpeedTemplateId],
-                                                                      attributeMap[moveSpeedTemplateId],
-                                                                      attributeMap[sizeTemplateId],
-                                                                      skillTemplateMap[id],
-                                                                      new BodyTemplate(hitLocationTemplateMap[bodyId]));
-
-                if (!soldierTemplateMap.ContainsKey(factionId))
-                {
-                    soldierTemplateMap[factionId] = new List<SoldierTemplate>();
-                }
-                soldierTemplateMap[factionId].Add(soldierTemplate);
-            }
-            return soldierTemplateMap;
         }
 
         private Dictionary<int, List<SquadTemplate>> GetSquadTemplatesByUnitTemplateId(IDbConnection connection,

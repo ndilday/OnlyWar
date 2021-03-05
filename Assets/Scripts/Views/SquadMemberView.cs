@@ -11,7 +11,7 @@ namespace OnlyWar.Scripts.Views
     public class SquadMemberView : MonoBehaviour
     {
         public UnityEvent<int> OnSoldierSelected;
-        public UnityEvent<Tuple<int, SoldierType, string>> OnSoldierTransferred;
+        public UnityEvent<Tuple<int, SoldierTemplate, string>> OnSoldierTransferred;
 
         [SerializeField]
         private GameObject SquadMemberPrefab;
@@ -26,7 +26,7 @@ namespace OnlyWar.Scripts.Views
         private Button _selectedButton;
         private Dropdown _transferDropdown;
         private Button _transferConfirmationButton;
-        private List<Tuple<int, SoldierType, string>> _openingsList;
+        private List<Tuple<int, SoldierTemplate, string>> _openingsList;
 
         private void SquadMemberButton_OnClick(int id)
         {
@@ -91,7 +91,7 @@ namespace OnlyWar.Scripts.Views
             _transferConfirmationButton.interactable = false;
         }
 
-        public void PopulateTransferDropdown(List<Tuple<int, SoldierType, string>> entries)
+        public void PopulateTransferDropdown(List<Tuple<int, SoldierTemplate, string>> entries)
         {
             if(!TransferPanel.activeSelf)
             {
