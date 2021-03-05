@@ -1,6 +1,7 @@
 ﻿using Mono.Data.Sqlite;
 using OnlyWar.Helpers.Database.GameState;
 using OnlyWar.Scripts.Models;
+using OnlyWar.Scripts.Models.Equippables;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
@@ -64,6 +65,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                             IReadOnlyDictionary<int, ShipTemplate> shipTemplateMap,
                             IReadOnlyDictionary<int, UnitTemplate> unitTemplateMap,
                             IReadOnlyDictionary<int, SquadTemplate> squadTemplates,
+                            IReadOnlyDictionary<int, WeaponSet> weaponSets,
                             IReadOnlyDictionary<int, HitLocationTemplate> hitLocationTemplates,
                             IReadOnlyDictionary<int, BaseSkill> baseSkillMap, 
                             IReadOnlyDictionary<int, SoldierTemplate> soldierTemplateMap)
@@ -75,7 +77,9 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
-            var squads = _unitDataAccess.GetSquadsByUnitId(dbCon, squadTemplates, shipMap, planets);
+            var loadouts = _unitDataAccess.GetSquadWeaponSets(dbCon, weaponSets);
+            var squads = _unitDataAccess.GetSquadsByUnitId(dbCon, squadTemplates, loadouts, 
+                                                           shipMap, planets);
             var units = _unitDataAccess.GetUnits(dbCon, unitTemplateMap, squads);
             var squadMap = squads.Values.SelectMany(s => s).ToDictionary(s => s.Id);
             var soldiers = _soldierDataAccess.GetData(dbCon, hitLocationTemplates, baseSkillMap,

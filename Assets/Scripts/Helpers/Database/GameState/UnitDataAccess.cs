@@ -1,4 +1,5 @@
-﻿using OnlyWar.Scripts.Models.Fleets;
+﻿using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
@@ -13,6 +14,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
     {
         public Dictionary<int, List<Squad>> GetSquadsByUnitId(IDbConnection connection,
                                                                IReadOnlyDictionary<int, SquadTemplate> squadTemplateMap,
+                                                               IReadOnlyDictionary<int, List<WeaponSet>> squadWeaponSetMap,
                                                                IReadOnlyDictionary<int, Ship> shipMap,
                                                                List<Planet> planetList)
         {
@@ -49,6 +51,12 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 {
                     squadMap[parentUnitId] = new List<Squad>();
                 }
+
+                if(squadWeaponSetMap.ContainsKey(id))
+                {
+                    squad.Loadout = squadWeaponSetMap[id];
+                }
+
                 squadMap[parentUnitId].Add(squad);
             }
             return squadMap;
@@ -122,6 +130,30 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             return unitList.Where(u => u.ParentUnit == null).ToList();
         }
 
+        public Dictionary<int, List<WeaponSet>> GetSquadWeaponSets(IDbConnection connection, 
+                                                                   IReadOnlyDictionary<int, WeaponSet> weaponSets)
+        {
+            Dictionary<int, List<WeaponSet>> squadWeaponSetMap = 
+                new Dictionary<int, List<WeaponSet>>();
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM SquadWeaponSet";
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int squadId = reader.GetInt32(0);
+                int weaponSetId = reader.GetInt32(1);
+
+                WeaponSet weaponSet = weaponSets[weaponSetId];
+
+                if(!squadWeaponSetMap.ContainsKey(squadId))
+                {
+                    squadWeaponSetMap[squadId] = new List<WeaponSet>();
+                }
+                squadWeaponSetMap[squadId].Add(weaponSet);
+            }
+            return squadWeaponSetMap;
+        }
+
         public void SaveUnit(IDbTransaction transaction, Unit unit)
         {
             string hq = unit.HQSquad == null ? "null" : unit.HQSquad.Id.ToString();
@@ -143,6 +175,23 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();
+
+            if(squad.Loadout != null && squad.Loadout.Count > 0)
+            {
+                SaveSquadLoadout(transaction, squad);
+            }
+        }
+
+        private void SaveSquadLoadout(IDbTransaction transaction, Squad squad)
+        {
+            foreach(WeaponSet weaponSet in squad.Loadout)
+            {
+                string insert = $@"INSERT INTO SquadWeaponSet VALUES 
+                    ({squad.Id}, {weaponSet.Id});";
+                IDbCommand command = transaction.Connection.CreateCommand();
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

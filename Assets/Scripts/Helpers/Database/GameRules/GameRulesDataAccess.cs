@@ -23,6 +23,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplates { get; set; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; set; }
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; set; }
+        public IReadOnlyDictionary<int, WeaponSet> WeaponSets { get; set; }
 
     }
 
@@ -90,7 +91,8 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 BodyTemplates = hitLocations,
                 PlanetTemplates = planetTemplates,
                 RangedWeaponTemplates = squadDataBlob.RangedWeaponTemplateMap,
-                MeleeWeaponTemplates = squadDataBlob.MeleeWeaponTemplateMap
+                MeleeWeaponTemplates = squadDataBlob.MeleeWeaponTemplateMap,
+                WeaponSets = squadDataBlob.WeaponSetMap
             };
         }
 

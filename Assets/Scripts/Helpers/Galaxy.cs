@@ -31,6 +31,7 @@ namespace OnlyWar.Scripts.Helpers
         public IReadOnlyDictionary<int, PlanetTemplate> PlanetTemplateMap { get => _planetTemplateMap; }
         public IReadOnlyDictionary<int, RangedWeaponTemplate> RangedWeaponTemplates { get; }
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
+        public IReadOnlyDictionary<int, WeaponSet> WeaponSets { get; }
 
         public Galaxy(int galaxySize)
         {
@@ -42,6 +43,7 @@ namespace OnlyWar.Scripts.Helpers
             _planetTemplateMap = gameBlob.PlanetTemplates;
             RangedWeaponTemplates = gameBlob.RangedWeaponTemplates;
             MeleeWeaponTemplates = gameBlob.MeleeWeaponTemplates;
+            WeaponSets = gameBlob.WeaponSets;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
             _planets = new List<Planet>();

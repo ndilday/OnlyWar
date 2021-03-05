@@ -52,6 +52,7 @@ namespace OnlyWar.Scripts.Controllers
                                                      GameSettings.Galaxy.Factions.ToDictionary(f => f.Id), 
                                                      GameSettings.Galaxy.PlanetTemplateMap,
                                                      shipTemplateMap, unitTemplateMap, squadTemplateMap,
+                                                     GameSettings.Galaxy.WeaponSets,
                                                      hitLocations, GameSettings.Galaxy.BaseSkillMap,
                                                      soldierTypeMap);
 

@@ -14,6 +14,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
         public Dictionary<int, ArmorTemplate> ArmorTemplates { get; set; }
         public Dictionary<int, RangedWeaponTemplate> RangedWeaponTemplateMap { get; set; }
         public Dictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplateMap { get; set; }
+        public Dictionary<int, WeaponSet> WeaponSetMap { get; set; }
         public Dictionary<int, List<SoldierTemplate>> SoldierTemplatesByFactionId { get; set; }
         public Dictionary<int, List<Species>> SpeciesByFactionId { get; set; }
         public Dictionary<int, List<SquadTemplate>> SquadTemplatesByFactionId { get; set; }
@@ -52,6 +53,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameRules
                 ArmorTemplates = armorTemplates,
                 MeleeWeaponTemplateMap= meleeWeapons,
                 RangedWeaponTemplateMap = rangedWeapons,
+                WeaponSetMap = weaponSets,
                 SquadTemplatesByFactionId = squadTemplates.Item1,
                 SquadTemplatesById = squadTemplates.Item2,
                 SoldierTemplatesByFactionId = soldierTemplates,
