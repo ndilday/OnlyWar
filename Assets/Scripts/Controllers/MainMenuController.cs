@@ -78,6 +78,10 @@ namespace OnlyWar.Scripts.Controllers
                                 }
                                 squad.Location.FactionSquadListMap[faction.Id].Add(squad);
                             }
+                            else if(squad.BoardedLocation != null)
+                            {
+                                squad.BoardedLocation.LoadSquad(squad);
+                            }
                         }
                     }
                 }
