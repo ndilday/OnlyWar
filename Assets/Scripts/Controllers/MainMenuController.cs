@@ -191,7 +191,6 @@ namespace OnlyWar.Scripts.Controllers
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;
                         GameSettings.Galaxy.AddNewFleet(fleet);
-                        planet.Fleets.Add(fleet);
                     }
                 }
                 else if (planet.ControllingFaction.UnitTemplates != null)

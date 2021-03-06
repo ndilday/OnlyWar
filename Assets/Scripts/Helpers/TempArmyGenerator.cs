@@ -9,45 +9,52 @@ namespace OnlyWar.Scripts.Helpers
 {
     public sealed class TempArmyGenerator
     {
+        private static int id = 0;
         public static Unit GenerateArmy(int armyId, Faction faction)
         {
-            Unit root = faction.UnitTemplates.Values.Where(ut => ut.IsTopLevelUnit).ToList()[armyId]
-                            .GenerateUnitFromTemplateWithoutChildren(faction.Name + " Force");
-            if(root.HQSquad != null)
-            {
-                root.HQSquad.IsInReserve = false;
-                foreach (SquadTemplateElement element in root.HQSquad.SquadTemplate.Elements)
-                {
-                    SoldierTemplate template = element.SoldierTemplate;
-                    Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
-
-                    foreach (Soldier soldier in soldiers)
-                    {
-                        root.HQSquad.AddSquadMember(soldier);
-                        soldier.AssignedSquad = root.HQSquad;
-                        soldier.Template = template;
-                        soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
-                    }
-                }
-            }
-            foreach(Squad squad in root.Squads)
-            {
-                squad.IsInReserve = false;
-                foreach(SquadTemplateElement element in squad.SquadTemplate.Elements)
-                {
-                    SoldierTemplate template = element.SoldierTemplate;
-                    Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
-
-                    foreach(Soldier soldier in soldiers)
-                    {
-                        squad.AddSquadMember(soldier);
-                        soldier.AssignedSquad = squad;
-                        soldier.Template = template;
-                        soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
-                    }
-                }
-            }
+            UnitTemplate template = faction.UnitTemplates.Values
+                                                         .Where(ut => ut.IsTopLevelUnit)
+                                                         .ToList()[armyId];
+            Unit root = CreateUnit(template);
             return root;
+        }
+
+        private static Unit CreateUnit(UnitTemplate template)
+        {
+            Unit unit = template.GenerateUnitFromTemplateWithoutChildren(template.Name);
+            foreach (UnitTemplate childUnit in template.GetChildUnits())
+            {
+                unit.ChildUnits.Add(CreateUnit(childUnit));
+            }
+
+            if (unit.HQSquad != null)
+            {
+                AddSquad(unit.HQSquad);
+            }
+            
+            foreach(Squad squad in unit.Squads)
+            {
+                AddSquad(squad);
+            }
+            return unit;
+        }
+
+        private static void AddSquad(Squad squad)
+        {
+            squad.IsInReserve = false;
+            foreach (SquadTemplateElement element in squad.SquadTemplate.Elements)
+            {
+                SoldierTemplate template = element.SoldierTemplate;
+                Soldier[] soldiers = SoldierFactory.Instance.GenerateNewSoldiers(element.MaximumNumber, template);
+
+                foreach (Soldier soldier in soldiers)
+                {
+                    squad.AddSquadMember(soldier);
+                    soldier.AssignedSquad = squad;
+                    soldier.Template = template;
+                    soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
+                }
+            }
         }
     }
 }
