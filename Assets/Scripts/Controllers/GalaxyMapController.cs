@@ -3,6 +3,7 @@ using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Views;
 using System;
 using System.Collections.Generic;
@@ -403,42 +404,55 @@ namespace OnlyWar.Scripts.Controllers
                 }
                 else if(planet.IsUnderAssault)
                 {
-                    PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
-                    foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
+                    if (planet.FactionSquadListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id)
+                        && planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Any(s => !s.IsInReserve))
                     {
-                        if(planetFaction != controllingForce && planetFaction.IsPublic)
+                        PlanetFaction targetFaction = planet.PlanetFactionMap
+                                                            .Values
+                                                            .First(f => f.Faction.CanInfiltrate && f.IsPublic);
+                        // if we got here, the assaulting force doesn't have an army generated
+                        // generate an army (and decrement it from the population
+                        Unit newArmy = TempArmyGenerator.GenerateArmyFromPlanetFaction(targetFaction);
+                    }
+                    else
+                    {
+                        PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
+                        foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
                         {
-                            // this is a revolting force
-                            long attackPower = planetFaction.Population * 3/4;
-                            long defensePower = controllingForce.PDFMembers;
-                            // revolting PDF members count triple for their ability to wreck defensive forces
-                            attackPower += planetFaction.PDFMembers * 2;
-                            double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
-                            double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+                            if (planetFaction != controllingForce && planetFaction.IsPublic)
+                            {
+                                // this is a revolting force
+                                long attackPower = planetFaction.Population * 3 / 4;
+                                long defensePower = controllingForce.PDFMembers;
+                                // revolting PDF members count triple for their ability to wreck defensive forces
+                                attackPower += planetFaction.PDFMembers * 2;
+                                double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+                                double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
 
-                            if (planetFaction.PDFMembers > 0)
-                            {
-                                // having PDF members means it's the first round of revolt, triple defensive casualties
-                                attackMultiplier *= 3;
-                                planetFaction.PDFMembers = 0;
-                            }
-                            int defendCasualties = defensePower == 0 ?
-                                (int)(attackPower * attackMultiplier * 1000) :
-                                (int)(attackPower * attackMultiplier / defensePower);
-                            int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
-                            planetFaction.Population -= attackCasualties;
-                            if(planetFaction.Population <= 100)
-                            {
-                                planet.IsUnderAssault = false;
-                                planetFaction.IsPublic = false;
-                            }
-                            controllingForce.PDFMembers -= defendCasualties;
-                            controllingForce.Population -= defendCasualties;
-                            if(controllingForce.PDFMembers <= 0)
-                            {
-                                controllingForce.Population += controllingForce.PDFMembers;
-                                controllingForce.PDFMembers = 0;
-                                planet.ControllingFaction = planetFaction.Faction;
+                                if (planetFaction.PDFMembers > 0)
+                                {
+                                    // having PDF members means it's the first round of revolt, triple defensive casualties
+                                    attackMultiplier *= 3;
+                                    planetFaction.PDFMembers = 0;
+                                }
+                                int defendCasualties = defensePower == 0 ?
+                                    (int)(attackPower * attackMultiplier * 1000) :
+                                    (int)(attackPower * attackMultiplier / defensePower);
+                                int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
+                                planetFaction.Population -= attackCasualties;
+                                if (planetFaction.Population <= 100)
+                                {
+                                    planet.IsUnderAssault = false;
+                                    planetFaction.IsPublic = false;
+                                }
+                                controllingForce.PDFMembers -= defendCasualties;
+                                controllingForce.Population -= defendCasualties;
+                                if (controllingForce.PDFMembers <= 0)
+                                {
+                                    controllingForce.Population += controllingForce.PDFMembers;
+                                    controllingForce.PDFMembers = 0;
+                                    planet.ControllingFaction = planetFaction.Faction;
+                                }
                             }
                         }
                     }
@@ -457,11 +471,11 @@ namespace OnlyWar.Scripts.Controllers
             foreach(KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
             {
                 Faction faction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
-                if(!faction.IsDefaultFaction && !faction.IsPlayerFaction)
+                if (!faction.IsDefaultFaction && !faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
                 {
                     containsNonDefaultNonPlayer = true;
                 }
-                else if(faction.IsPlayerFaction)
+                else if(faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
                 {
                     containsActivePlayerSquads = 
                         kvp.Value.Any(squad => !squad.IsInReserve);

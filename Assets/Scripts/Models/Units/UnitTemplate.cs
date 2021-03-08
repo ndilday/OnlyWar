@@ -64,6 +64,20 @@ namespace OnlyWar.Scripts.Models.Units
         {
             return new Unit(name, this);
         }
+
+        public int GetMaximumSoldierCount()
+        {
+            int maxSoldierCount = 0;
+            foreach(UnitTemplate childUnit in GetChildUnits())
+            {
+                maxSoldierCount += childUnit.GetMaximumSoldierCount();
+            }
+            foreach(SquadTemplate childSquad in GetChildSquads())
+            {
+                maxSoldierCount += childSquad.Elements.Sum(e => e.MaximumNumber);
+            }
+            return maxSoldierCount;
+        }
     }
 
 }
