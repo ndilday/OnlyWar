@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 
 using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
 
 namespace OnlyWar.Scripts.Helpers.Battle
 {
-    public static class BattleHelpers
+    public static class BattleModifiersUtil
     {
         public static float GetRangeForModifier(float modifier)
         {

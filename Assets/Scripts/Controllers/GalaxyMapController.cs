@@ -1,4 +1,5 @@
 ﻿using OnlyWar.Scripts.Helpers;
+using OnlyWar.Scripts.Helpers.Battle;
 using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
@@ -21,7 +22,7 @@ namespace OnlyWar.Scripts.Controllers
         public UnityEvent OnTurnStart;
         public UnityEvent OnEscapeKey;
         public UnityEvent<Planet> OnPlanetSelected;
-        public UnityEvent<Planet> OnBattleStart;
+        public UnityEvent<BattleConfiguration> OnBattleStart;
         
         [SerializeField]
         private GameSettings GameSettings;
@@ -394,13 +395,20 @@ namespace OnlyWar.Scripts.Controllers
             while (i < GameSettings.Galaxy.Planets.Count)
             {
                 Planet planet = GameSettings.Galaxy.GetPlanet(i);
+                BattleConfiguration battleConfig = 
+                    BattleConfigurationBuilder.BuildBattleConfiguration(planet);
+                if (battleConfig != null)
+                {
+                    Debug.Log("Battle breaks out on " + planet.Name);
+                    _planetBattleStartedId = i;
+                    OnBattleStart.Invoke(battleConfig);
+                    return;
+                }
+
                 if (planet.FactionSquadListMap.Count > 1 && FactionsCanBattle(planet))
                 {
                     // a battle breaks out on this planet
-                    Debug.Log("Battle breaks out on " + planet.Name);
-                    _planetBattleStartedId = i;
-                    OnBattleStart.Invoke(planet);
-                    return;
+                   
                 }
                 else if(planet.IsUnderAssault)
                 {
@@ -412,7 +420,7 @@ namespace OnlyWar.Scripts.Controllers
                                                             .First(f => f.Faction.CanInfiltrate && f.IsPublic);
                         // if we got here, the assaulting force doesn't have an army generated
                         // generate an army (and decrement it from the population
-                        Unit newArmy = TempArmyGenerator.GenerateArmyFromPlanetFaction(targetFaction);
+                        Unit newArmy = TempArmyBuilder.GenerateArmyFromPlanetFaction(targetFaction);
                     }
                     else
                     {

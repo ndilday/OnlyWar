@@ -64,9 +64,9 @@ namespace OnlyWar.Scripts.Helpers.Battle.Actions
             {
                 totalModifier += _soldier.Aim.Item3 + _weapon.Template.Accuracy + 1;
             }
-            totalModifier += BattleHelpers.CalculateRateOfFireModifier(_numberOfShots);
-            totalModifier += BattleHelpers.CalculateSizeModifier(_target.Soldier.Size);
-            totalModifier += BattleHelpers.CalculateRangeModifier(_range, _target.CurrentSpeed);
+            totalModifier += BattleMathHelpers.CalculateRateOfFireModifier(_numberOfShots);
+            totalModifier += BattleMathHelpers.CalculateSizeModifier(_target.Soldier.Size);
+            totalModifier += BattleMathHelpers.CalculateRangeModifier(_range, _target.CurrentSpeed);
 
             return totalModifier;
         }
@@ -77,7 +77,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Actions
             // make sure this body part hasn't already been shot off
             if(!hitLocation.IsSevered)
             {
-                float damage = BattleHelpers.CalculateDamageAtRange(_weapon, _range) * (3.5f + ((float)RNG.NextGaussianDouble() * 1.75f));
+                float damage = BattleMathHelpers.CalculateDamageAtRange(_weapon, _range) * (3.5f + ((float)RNG.NextGaussianDouble() * 1.75f));
                 float effectiveArmor = _target.Armor.Template.ArmorProvided * _weapon.Template.ArmorMultiplier;
                 float penDamage = damage - effectiveArmor;
                 if (penDamage > 0)

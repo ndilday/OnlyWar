@@ -23,7 +23,7 @@ namespace OnlyWar.Scripts.Controllers
         private int _scoutCount;
         private int _squadCount;
         private int _readyCount;
-        private SoldierTrainingHelper _trainingHelper;
+        private SoldierTrainingCalculator _trainingHelper;
 
         private const string RECRUITER_FORMAT = @"Greetings, sir. My report on the current status of our Neophytes and Aspriants is as follows.
 
@@ -41,7 +41,7 @@ I await any further instructions you have on our recruiting and training efforts
 
         private void Start()
         {
-            _trainingHelper = new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);
+            _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
             PopulateScoutSquadMap();
             EvaluateScouts();
         }

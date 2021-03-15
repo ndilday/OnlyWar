@@ -8,7 +8,7 @@ using OnlyWar.Scripts.Models.Units;
 
 namespace OnlyWar.Scripts.Helpers
 {
-    public sealed class TempArmyGenerator
+    public sealed class TempArmyBuilder
     {
         private static int id = 0;
         public static Unit GenerateArmy(int armyId, Faction faction)

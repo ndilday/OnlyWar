@@ -129,8 +129,8 @@ namespace OnlyWar.Scripts.Controllers
                 .ToList();
 
             string foo = "";
-            SoldierTrainingHelper trainingHelper =
-                new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);
+            SoldierTrainingCalculator trainingHelper =
+                new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
             foreach (PlayerSoldier soldier in soldiers)
             {
                 soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
@@ -201,7 +201,7 @@ namespace OnlyWar.Scripts.Controllers
                                                 .Where(ut => ut.IsTopLevelUnit)
                                                 .Count();
                     // TODO: generalize this
-                    Unit newArmy = TempArmyGenerator.GenerateArmy(
+                    Unit newArmy = TempArmyBuilder.GenerateArmy(
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);

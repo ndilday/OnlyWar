@@ -18,13 +18,13 @@ namespace OnlyWar.Scripts.Controllers
         private SquadMemberView SquadMemberView;
         [SerializeField]
         private GameSettings GameSettings;
-        private SoldierTrainingHelper _trainingHelper;
+        private SoldierTrainingCalculator _trainingHelper;
         private PlayerSoldier _selectedSoldier;
 
         // Start is called before the first frame update
         void Start()
         {
-            _trainingHelper = new SoldierTrainingHelper(GameSettings.Galaxy.BaseSkillMap.Values);            
+            _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);            
         }
 
         public void ChapterButton_OnClick()
