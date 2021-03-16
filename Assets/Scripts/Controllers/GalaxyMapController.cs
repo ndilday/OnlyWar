@@ -1,10 +1,7 @@
 ﻿using OnlyWar.Scripts.Helpers;
 using OnlyWar.Scripts.Helpers.Battle;
-using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Fleets;
 using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
 using OnlyWar.Scripts.Views;
 using System;
 using System.Collections.Generic;
@@ -23,6 +20,7 @@ namespace OnlyWar.Scripts.Controllers
         public UnityEvent OnEscapeKey;
         public UnityEvent<Planet> OnPlanetSelected;
         public UnityEvent<BattleConfiguration> OnBattleStart;
+        private UnityEvent OnAllBattlesComplete;
         
         [SerializeField]
         private GameSettings GameSettings;
@@ -39,6 +37,7 @@ namespace OnlyWar.Scripts.Controllers
         void Start()
         {
             _selectedShips = new List<Ship>();
+            OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
             foreach(Planet planet in GameSettings.Galaxy.Planets)
             {
                 Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
@@ -78,43 +77,7 @@ namespace OnlyWar.Scripts.Controllers
             // doing a copy of the list here so I can delete elements from the underlying collection
             foreach(Fleet fleet in GameSettings.Galaxy.Fleets.ToList())
             {
-                if (fleet.Destination != null)
-                {
-                    Map.RemoveFleetDestination(fleet.Id);
-                    //Map.RemoveFleet(fleet.Id);
-
-                    // if the fleet has a destination, we need to move the fleet
-                    // determine distance of line between two points
-                    float distance = Vector2.Distance(fleet.Destination.Position, fleet.Position);
-                    if (distance <= 1)
-                    {
-                        // the journey is done!
-                        fleet.Planet = fleet.Destination;
-                        fleet.Destination = null;
-                        fleet.Position = fleet.Planet.Position;
-                        var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
-                        if (mergeFleet != null)
-                        {
-                            GameSettings.Galaxy.CombineFleets(mergeFleet, fleet);
-                            Map.RemoveFleet(fleet.Id);
-                        }
-                        else
-                        {
-                            fleet.Planet.Fleets.Add(fleet);
-                            Map.MoveFleet(fleet.Id, fleet.Position, false);
-                        }
-                    }
-                    else
-                    {
-                        fleet.Planet = null;
-                        // calculate one unit of movement along line between current position and destination
-                        Vector2 path = (fleet.Destination.Position - fleet.Position);
-                        path.Normalize();
-                        fleet.Position += path;
-                        Map.MoveFleet(fleet.Id, fleet.Position, true);
-                        Map.DrawFleetDestination(fleet.Id, fleet.Destination.Position);
-                    }
-                }
+                UpdateFleetPosition(fleet);
             }
             // TODO: Update resources
             _planetBattleStartedId = -1;
@@ -123,9 +86,58 @@ namespace OnlyWar.Scripts.Controllers
 
         }
 
+        private void UpdateFleetPosition(Fleet fleet)
+        {
+            if (fleet.Destination != null)
+            {
+                Map.RemoveFleetDestination(fleet.Id);
+                //Map.RemoveFleet(fleet.Id);
+
+                // if the fleet has a destination, we need to move the fleet
+                // determine distance of line between two points
+                float distance = Vector2.Distance(fleet.Destination.Position, fleet.Position);
+                if (distance <= 1)
+                {
+                    // the journey is done!
+                    fleet.Planet = fleet.Destination;
+                    fleet.Destination = null;
+                    fleet.Position = fleet.Planet.Position;
+                    var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
+                    if (mergeFleet != null)
+                    {
+                        GameSettings.Galaxy.CombineFleets(mergeFleet, fleet);
+                        Map.RemoveFleet(fleet.Id);
+                    }
+                    else
+                    {
+                        fleet.Planet.Fleets.Add(fleet);
+                        Map.MoveFleet(fleet.Id, fleet.Position, false);
+                    }
+                }
+                else
+                {
+                    fleet.Planet = null;
+                    // calculate one unit of movement along line between current position and destination
+                    Vector2 path = (fleet.Destination.Position - fleet.Position);
+                    path.Normalize();
+                    fleet.Position += path;
+                    Map.MoveFleet(fleet.Id, fleet.Position, true);
+                    Map.DrawFleetDestination(fleet.Id, fleet.Destination.Position);
+                }
+            }
+        }
+
         public void BattleController_OnBattleComplete()
         {
             HandleBattles();
+        }
+
+        public void GalaxyMapController_OnAllBattlesComplete()
+        {
+            HandlePlanetaryAssaults();
+            // if we've scanned through the whole galaxy, battles are done, start a new turn
+            Map.gameObject.SetActive(true);
+            OnTurnStart.Invoke();
         }
 
         public void FleetView_OnShipSelected(int shipId)
@@ -404,72 +416,58 @@ namespace OnlyWar.Scripts.Controllers
                     OnBattleStart.Invoke(battleConfig);
                     return;
                 }
+                i++;
+            }
+            OnAllBattlesComplete.Invoke();
+        }
 
-                if (planet.FactionSquadListMap.Count > 1 && FactionsCanBattle(planet))
+        private void HandlePlanetaryAssaults()
+        {
+            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            {
+                if (planet.IsUnderAssault)
                 {
-                    // a battle breaks out on this planet
-                   
-                }
-                else if(planet.IsUnderAssault)
-                {
-                    if (planet.FactionSquadListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id)
-                        && planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Any(s => !s.IsInReserve))
+                    PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
+                    foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
                     {
-                        PlanetFaction targetFaction = planet.PlanetFactionMap
-                                                            .Values
-                                                            .First(f => f.Faction.CanInfiltrate && f.IsPublic);
-                        // if we got here, the assaulting force doesn't have an army generated
-                        // generate an army (and decrement it from the population
-                        Unit newArmy = TempArmyBuilder.GenerateArmyFromPlanetFaction(targetFaction);
-                    }
-                    else
-                    {
-                        PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
-                        foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
+                        if (planetFaction != controllingForce && planetFaction.IsPublic)
                         {
-                            if (planetFaction != controllingForce && planetFaction.IsPublic)
-                            {
-                                // this is a revolting force
-                                long attackPower = planetFaction.Population * 3 / 4;
-                                long defensePower = controllingForce.PDFMembers;
-                                // revolting PDF members count triple for their ability to wreck defensive forces
-                                attackPower += planetFaction.PDFMembers * 2;
-                                double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
-                                double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+                            // this is a revolting force
+                            long attackPower = planetFaction.Population * 3 / 4;
+                            long defensePower = controllingForce.PDFMembers;
+                            // revolting PDF members count triple for their ability to wreck defensive forces
+                            attackPower += planetFaction.PDFMembers * 2;
+                            double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
+                            double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
 
-                                if (planetFaction.PDFMembers > 0)
-                                {
-                                    // having PDF members means it's the first round of revolt, triple defensive casualties
-                                    attackMultiplier *= 3;
-                                    planetFaction.PDFMembers = 0;
-                                }
-                                int defendCasualties = defensePower == 0 ?
-                                    (int)(attackPower * attackMultiplier * 1000) :
-                                    (int)(attackPower * attackMultiplier / defensePower);
-                                int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
-                                planetFaction.Population -= attackCasualties;
-                                if (planetFaction.Population <= 100)
-                                {
-                                    planet.IsUnderAssault = false;
-                                    planetFaction.IsPublic = false;
-                                }
-                                controllingForce.PDFMembers -= defendCasualties;
-                                controllingForce.Population -= defendCasualties;
-                                if (controllingForce.PDFMembers <= 0)
-                                {
-                                    controllingForce.Population += controllingForce.PDFMembers;
-                                    controllingForce.PDFMembers = 0;
-                                    planet.ControllingFaction = planetFaction.Faction;
-                                }
+                            if (planetFaction.PDFMembers > 0)
+                            {
+                                // having PDF members means it's the first round of revolt, triple defensive casualties
+                                attackMultiplier *= 3;
+                                planetFaction.PDFMembers = 0;
+                            }
+                            int defendCasualties = defensePower == 0 ?
+                                (int)(attackPower * attackMultiplier * 1000) :
+                                (int)(attackPower * attackMultiplier / defensePower);
+                            int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
+                            planetFaction.Population -= attackCasualties;
+                            if (planetFaction.Population <= 100)
+                            {
+                                planet.IsUnderAssault = false;
+                                planetFaction.IsPublic = false;
+                            }
+                            controllingForce.PDFMembers -= defendCasualties;
+                            controllingForce.Population -= defendCasualties;
+                            if (controllingForce.PDFMembers <= 0)
+                            {
+                                controllingForce.Population += controllingForce.PDFMembers;
+                                controllingForce.PDFMembers = 0;
+                                planet.ControllingFaction = planetFaction.Faction;
                             }
                         }
                     }
                 }
-                i++;
             }
-            // if we've scanned through the whole galaxy, battles are done, start a new turn
-            Map.gameObject.SetActive(true);
-            OnTurnStart.Invoke();
         }
     }
 }
