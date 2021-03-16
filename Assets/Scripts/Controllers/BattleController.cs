@@ -66,24 +66,12 @@ namespace OnlyWar.Scripts.Controllers
                 GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
         }
 
-        public void GalaxyController_OnBattleStarted(Planet planet)
+        public void GalaxyController_OnBattleStarted(BattleConfiguration configuration)
         {
-            _planet = planet;
+            _planet = configuration.Planet;
             ResetBattleValues();
-
-            foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
-            {
-                if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
-                {
-                    PopulateMapsFromSquadList(_playerBattleSquads, kvp.Value, true);
-                }
-                else
-                {
-                    _opposingFaction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
-                    PopulateMapsFromSquadList(_opposingBattleSquads, kvp.Value, false);
-                }
-            }
-
+            PopulateMapsFromSquadList(_playerBattleSquads, configuration.PlayerSquads, true);
+            PopulateMapsFromSquadList(_opposingBattleSquads, configuration.OpposingSquads, false);
             PopulateBattleView();
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
@@ -426,10 +414,11 @@ namespace OnlyWar.Scripts.Controllers
             _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
         }
 
-        private void PopulateMapsFromSquadList(Dictionary<int, BattleSquad> map, List<Squad> squads, bool isPlayerSquad)
+        private void PopulateMapsFromSquadList(Dictionary<int, BattleSquad> map, 
+                                               IReadOnlyList<Squad> squads, 
+                                               bool isPlayerSquad)
         {
-            var activeSquads = squads.Where(s => !s.IsInReserve);
-            foreach (Squad squad in activeSquads)
+            foreach (Squad squad in squads)
             {
                 BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
 

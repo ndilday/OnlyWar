@@ -12,6 +12,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
         public IReadOnlyList<Squad> PlayerSquads;
         public IReadOnlyList<Squad> OpposingSquads;
         public bool IsAmbush;
+        public Planet Planet;
     }
 
     public static class BattleConfigurationBuilder
@@ -169,6 +170,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             config.IsAmbush = false;
             config.PlayerSquads = playerSquads;
             config.OpposingSquads = opposingSquads;
+            config.Planet = planet;
             return config;
         }
     }
