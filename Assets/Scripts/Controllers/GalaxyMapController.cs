@@ -471,26 +471,5 @@ namespace OnlyWar.Scripts.Controllers
             Map.gameObject.SetActive(true);
             OnTurnStart.Invoke();
         }
-
-        private bool FactionsCanBattle(Planet planet)
-        {
-            bool containsNonDefaultNonPlayer = false;
-            bool containsActivePlayerSquads = false;
-            foreach(KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
-            {
-                Faction faction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
-                if (!faction.IsDefaultFaction && !faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
-                {
-                    containsNonDefaultNonPlayer = true;
-                }
-                else if(faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
-                {
-                    containsActivePlayerSquads = 
-                        kvp.Value.Any(squad => !squad.IsInReserve);
-                }
-            }
-
-            return containsActivePlayerSquads && containsNonDefaultNonPlayer;
-        }
     }
 }
