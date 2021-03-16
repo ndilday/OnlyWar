@@ -393,6 +393,10 @@ namespace OnlyWar.Scripts.Controllers
             BattleView.SetMapSize(new Vector2(config.Grid.GridWidth, config.Grid.GridHeight));
             _turnNumber = 0;
 
+            _grid = config.Grid;
+            _planet = config.Planet;
+            _opposingFaction = config.OpposingSquads[0].Squad.ParentUnit.UnitTemplate.Faction;
+
             _playerBattleSquads.Clear();
             _soldierBattleSquadMap.Clear();
             _opposingBattleSquads.Clear();

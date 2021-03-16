@@ -46,7 +46,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
                         kvp.Value.Any(squad => !squad.IsInReserve);
                 }
             }
-            if(!containsActivePlayerSquad)
+            if(!containsPlayerSquad)
             { 
                 return false; 
             }
@@ -189,7 +189,6 @@ namespace OnlyWar.Scripts.Helpers.Battle
                 battleSquadList.Add(bs);
             }
             return battleSquadList;
-            }
         }
     }
 }

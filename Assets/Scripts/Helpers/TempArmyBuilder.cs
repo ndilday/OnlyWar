@@ -10,7 +10,6 @@ namespace OnlyWar.Scripts.Helpers
 {
     public sealed class TempArmyBuilder
     {
-        private static int id = 0;
         public static Unit GenerateArmy(int armyId, Faction faction)
         {
             UnitTemplate template = faction.UnitTemplates.Values
@@ -60,7 +59,7 @@ namespace OnlyWar.Scripts.Helpers
 
         public static Unit GenerateArmyFromPlanetFaction(PlanetFaction planetFaction)
         {
-            return null;
+            return GenerateArmy(0, planetFaction.Faction);
         }
     }
 }

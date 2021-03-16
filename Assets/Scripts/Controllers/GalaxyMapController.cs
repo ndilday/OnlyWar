@@ -20,7 +20,7 @@ namespace OnlyWar.Scripts.Controllers
         public UnityEvent OnEscapeKey;
         public UnityEvent<Planet> OnPlanetSelected;
         public UnityEvent<BattleConfiguration> OnBattleStart;
-        private UnityEvent OnAllBattlesComplete;
+        private readonly UnityEvent OnAllBattlesComplete;
         
         [SerializeField]
         private GameSettings GameSettings;
