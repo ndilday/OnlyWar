@@ -9,10 +9,10 @@ namespace OnlyWar.Scripts.Helpers.Battle
 {
     public class BattleConfiguration
     {
-        public IReadOnlyList<Squad> PlayerSquads;
-        public IReadOnlyList<Squad> OpposingSquads;
-        public bool IsAmbush;
+        public IReadOnlyList<BattleSquad> PlayerSquads;
+        public IReadOnlyList<BattleSquad> OpposingSquads;
         public Planet Planet;
+        public BattleGrid Grid;
     }
 
     public static class BattleConfigurationBuilder
@@ -166,12 +166,30 @@ namespace OnlyWar.Scripts.Helpers.Battle
                     }
                 }
             }
+
             BattleConfiguration config = new BattleConfiguration();
-            config.IsAmbush = false;
-            config.PlayerSquads = playerSquads;
-            config.OpposingSquads = opposingSquads;
+            config.PlayerSquads = CreateBattleSquadList(playerSquads, true);
+            config.OpposingSquads = CreateBattleSquadList(opposingSquads, false);
             config.Planet = planet;
+            config.Grid = new BattleGrid(100, 500);
+            BattleSquadPlacer placer = new BattleSquadPlacer(config.Grid);
+            placer.PlaceSquads(config.PlayerSquads);
+            placer.PlaceSquads(config.OpposingSquads);
             return config;
+        }
+
+        private static List<BattleSquad> CreateBattleSquadList(IReadOnlyList<Squad> squads,
+                                                               bool isPlayerSquad)
+        {
+            List<BattleSquad> battleSquadList = new List<BattleSquad>();
+            foreach (Squad squad in squads)
+            {
+                BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
+
+                battleSquadList.Add(bs);
+            }
+            return battleSquadList;
+            }
         }
     }
 }
