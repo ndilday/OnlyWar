@@ -31,6 +31,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             bool containsPlayerSquad = false;
             bool containsNonDefaultNonPlayerSquad = false;
             bool containsActivePlayerSquad = false;
+            int marineCount = 0;
             // determine if the player and an OpFor are both on planet
             foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
             {
@@ -39,11 +40,12 @@ namespace OnlyWar.Scripts.Helpers.Battle
                 {
                     containsNonDefaultNonPlayerSquad = true;
                 }
-                else if (faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
+                else if (faction.IsPlayerFaction)
                 {
                     containsPlayerSquad = true;
                     containsActivePlayerSquad =
                         kvp.Value.Any(squad => !squad.IsInReserve);
+                    marineCount = kvp.Value.Sum(s => s.Members.Count);
                 }
             }
             if(!containsPlayerSquad)
@@ -74,6 +76,19 @@ namespace OnlyWar.Scripts.Helpers.Battle
                         else
                         {
                             // TODO: chace that the player comes across the hidden enemy?
+                            // increases over time with an active presence
+                            // inverse to size of active presence
+                            // formula: 0.0002 * pop / #marines
+                            // should it be total marines or active marines?
+                            double chanceToAmbush = 0.0002 * 
+                                                    planetFaction.Population / 
+                                                    marineCount;
+                            if(RNG.GetLinearDouble() <= chanceToAmbush)
+                            {
+                                // set up an ambush force
+                                Unit newArmy = GenerateNewArmy(planetFaction, planet);
+                                return true;
+                            }
                         }
                     }
                     else
