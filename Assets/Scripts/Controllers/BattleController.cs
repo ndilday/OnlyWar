@@ -188,7 +188,7 @@ namespace OnlyWar.Scripts.Controllers
             Log(false, "Turn " + _turnNumber.ToString());
             // this is a three step process: plan, execute, and apply
 
-            ConcurrentBag<IAction> moveSegmentActions = new();
+            ConcurrentBag<IAction> moveSegmentActions = new ConcurrentBag<IAction>();
             ConcurrentBag<IAction> shootSegmentActions = new ConcurrentBag<IAction>();
             ConcurrentBag<IAction> meleeSegmentActions = new ConcurrentBag<IAction>();
             ConcurrentQueue<string> log = new ConcurrentQueue<string>();

@@ -1,4 +1,5 @@
-﻿using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Scripts.Helpers.Battle.Placers;
+using OnlyWar.Scripts.Models;
 using OnlyWar.Scripts.Models.Planets;
 using OnlyWar.Scripts.Models.Squads;
 using OnlyWar.Scripts.Models.Units;
@@ -18,15 +19,6 @@ namespace OnlyWar.Scripts.Helpers.Battle
     public static class BattleConfigurationBuilder
     {
         public static BattleConfiguration BuildBattleConfiguration(Planet planet)
-        {
-            if(!DoesBattleBreakOut(planet))
-            {
-                return null;
-            }
-            return ConstructBattleConfiguration(planet);
-        }
-
-        private static bool DoesBattleBreakOut(Planet planet)
         {
             bool containsPlayerSquad = false;
             bool containsNonDefaultNonPlayerSquad = false;
@@ -48,30 +40,30 @@ namespace OnlyWar.Scripts.Helpers.Battle
                     marineCount = kvp.Value.Sum(s => s.Members.Count);
                 }
             }
-            if(!containsPlayerSquad)
-            { 
-                return false; 
+            if (!containsPlayerSquad)
+            {
+                return null;
             }
             if (containsActivePlayerSquad && containsNonDefaultNonPlayerSquad)
             {
-                return true;
+                return ConstructAnnihilationConfiguration(planet);
             }
             // we have player squads, but no NPC squads;
             // need to determine if we should generate a force
             foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                if (!planetFaction.Faction.IsDefaultFaction && 
+                if (!planetFaction.Faction.IsDefaultFaction &&
                     !planetFaction.Faction.IsPlayerFaction)
                 {
-                    if(containsActivePlayerSquad)
+                    if (containsActivePlayerSquad)
                     {
                         // player is on the hunt
                         if (planetFaction.IsPublic)
                         {
                             // oppFor is in public, generate a force to face the player
                             Unit newArmy = GenerateNewArmy(planetFaction, planet);
-                            
-                            return true;
+
+                            return ConstructAnnihilationConfiguration(planet);
                         }
                         else
                         {
@@ -80,23 +72,23 @@ namespace OnlyWar.Scripts.Helpers.Battle
                             // inverse to size of active presence
                             // formula: 0.0002 * pop / #marines
                             // should it be total marines or active marines?
-                            double chanceToAmbush = 0.0002 * 
-                                                    planetFaction.Population / 
+                            double chanceToAmbush = 0.0002 *
+                                                    planetFaction.Population /
                                                     marineCount;
-                            if(RNG.GetLinearDouble() <= chanceToAmbush)
+                            if (RNG.GetLinearDouble() <= chanceToAmbush)
                             {
                                 // set up an ambush force
                                 Unit newArmy = GenerateNewArmy(planetFaction, planet);
-                                return true;
+                                return ConstructOpposingAmbushConfiguration(planet);
                             }
                         }
                     }
                     else
                     {
                         // TODO: change this logic later
-                        return false;
+                        return null;
                         // contains only reserve player squads
-                        if(planetFaction.IsPublic)
+                        if (planetFaction.IsPublic)
                         {
                             // TODO: chance that the enemy comes across the player?
                         }
@@ -107,7 +99,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
                     }
                 }
             }
-            return false;
+            return null;
         }
 
         private static Unit GenerateNewArmy(PlanetFaction planetFaction, Planet planet)
@@ -154,7 +146,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             return newArmy;
         }
     
-        private static BattleConfiguration ConstructBattleConfiguration(Planet planet)
+        private static BattleConfiguration ConstructAnnihilationConfiguration(Planet planet)
         {
             List<Squad> playerSquads = new List<Squad>();
             List<Squad> opposingSquads = new List<Squad>();
@@ -187,9 +179,46 @@ namespace OnlyWar.Scripts.Helpers.Battle
             config.OpposingSquads = CreateBattleSquadList(opposingSquads, false);
             config.Planet = planet;
             config.Grid = new BattleGrid(100, 500);
-            BattleSquadPlacer placer = new BattleSquadPlacer(config.Grid);
-            placer.PlaceSquads(config.PlayerSquads);
-            placer.PlaceSquads(config.OpposingSquads);
+            AnnihilationPlacer placer = new AnnihilationPlacer(config.Grid);
+            placer.PlaceSquads(config.PlayerSquads, config.OpposingSquads);
+            return config;
+        }
+
+        private static BattleConfiguration ConstructOpposingAmbushConfiguration(Planet planet)
+        {
+            List<Squad> playerSquads = new List<Squad>();
+            List<Squad> opposingSquads = new List<Squad>();
+            foreach (List<Squad> squadList in planet.FactionSquadListMap.Values)
+            {
+                if (squadList[0].ParentUnit.UnitTemplate.Faction.IsPlayerFaction)
+                {
+                    foreach (Squad squad in squadList)
+                    {
+                        if (!squad.IsInReserve)
+                        {
+                            playerSquads.Add(squad);
+                        }
+                    }
+                }
+                else if (!squadList[0].ParentUnit.UnitTemplate.Faction.IsDefaultFaction)
+                {
+                    foreach (Squad squad in squadList)
+                    {
+                        if (!squad.IsInReserve)
+                        {
+                            opposingSquads.Add(squad);
+                        }
+                    }
+                }
+            }
+
+            BattleConfiguration config = new BattleConfiguration();
+            config.PlayerSquads = CreateBattleSquadList(playerSquads, true);
+            config.OpposingSquads = CreateBattleSquadList(opposingSquads, false);
+            config.Planet = planet;
+            config.Grid = new BattleGrid(200, 200);
+            AnnihilationPlacer placer = new AnnihilationPlacer(config.Grid);
+            placer.PlaceSquads(config.PlayerSquads, config.OpposingSquads);
             return config;
         }
 

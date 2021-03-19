@@ -138,7 +138,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             return Mathf.Sqrt(Mathf.Pow(pos1.Item1 - pos2.Item1, 2) + Mathf.Pow(pos1.Item2 - pos2.Item2, 2));
         }
 
-        public void PlaceBattleSquad(BattleSquad squad, Tuple<int, int> bottomLeft)
+        public void PlaceBattleSquad(BattleSquad squad, Tuple<int, int> bottomLeft, bool longHorizontal)
         {
             // if any squad member is already on the map, we have a problem
             if (squad.Soldiers.Any(s => _soldierLocationMap.ContainsKey(s.Soldier.Id))) throw new InvalidOperationException(squad.Name + " has soldiers already on BattleGrid");
