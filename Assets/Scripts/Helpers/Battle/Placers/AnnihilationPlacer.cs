@@ -74,7 +74,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Placers
             }
 
 
-            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom), true);
             return new Vector2(placeLeft, placeBottom);
         }
 
@@ -113,7 +113,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Placers
                 if (top < bottom + squadSize.Item2) bottom = top - squadSize.Item2;
             }
 
-            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom), true);
             return new Vector2(placeLeft, placeBottom);
         }
     }

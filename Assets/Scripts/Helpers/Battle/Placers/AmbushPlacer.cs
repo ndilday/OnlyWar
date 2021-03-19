@@ -42,7 +42,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Placers
                 int right = xMid + squadSize.Item1 - squadSize.Item1 / 2;
                 bottomLimit = top - squadSize.Item2;
                 squadPositionMap[squad] = new Vector2(left, bottomLimit);
-                _grid.PlaceBattleSquad(squad, new Tuple<int, int>(left, bottomLimit));
+                _grid.PlaceBattleSquad(squad, new Tuple<int, int>(left, bottomLimit), true);
 
                 top -= squadSize.Item2 + 1;
 
@@ -88,6 +88,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Placers
                 else
                 {
                     // start at top left of killzone, fill right
+                    squadPositionMap[squad] = new Vector2(currentX, currentY);
                     _grid.PlaceBattleSquad(squad, new Tuple<int, int>(currentX, currentY), true);
                     currentX += squadSize.Item1;
                     if(currentX >= rightLimit)
