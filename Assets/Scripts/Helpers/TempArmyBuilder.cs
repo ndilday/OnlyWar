@@ -55,6 +55,18 @@ namespace OnlyWar.Scripts.Helpers
                     soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
                 }
             }
+            if (squad.SquadTemplate.WeaponOptions != null)
+            {
+                foreach (SquadWeaponOption weaponOption in squad.SquadTemplate.WeaponOptions)
+                {
+                    int taking = RNG.GetIntBelowMax(weaponOption.MinNumber, weaponOption.MaxNumber + 1);
+                    int maxIndex = weaponOption.Options.Count;
+                    for (int i = 0; i < taking; i++)
+                    {
+                        squad.Loadout.Add(weaponOption.Options[RNG.GetIntBelowMax(0, maxIndex)]);
+                    }
+                }
+            }
         }
 
         public static Unit GenerateArmyFromPlanetFaction(PlanetFaction planetFaction)
