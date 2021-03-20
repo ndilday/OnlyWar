@@ -413,16 +413,15 @@ namespace OnlyWar.Scripts.Controllers
                 _startingPlayerBattleSoldiers.AddRange(squad.Soldiers);
             }
 
-            foreach (BattleSquad squad in config.PlayerSquads)
+            foreach (BattleSquad squad in config.OpposingSquads)
             {
-                _playerBattleSquads[squad.Id] = squad;
+                _opposingBattleSquads[squad.Id] = squad;
                 foreach (BattleSoldier soldier in squad.Soldiers)
                 {
                     _soldierBattleSquadMap[soldier.Soldier.Id] = squad;
                 }
                 _startingEnemyCount += squad.Soldiers.Count;
             }
-
         }
 
         private void PopulateBattleViewSquads(IEnumerable<BattleSquad> squads)

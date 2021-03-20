@@ -33,11 +33,16 @@ namespace OnlyWar.Scripts.Controllers
         private int _planetBattleStartedId;
         private List<Ship> _selectedShips;
 
+        GalaxyMapController()
+        {
+            OnAllBattlesComplete = new UnityEvent();
+        }
         // Start is called before the first frame update
         void Start()
         {
             _selectedShips = new List<Ship>();
             OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
+            
             foreach(Planet planet in GameSettings.Galaxy.Planets)
             {
                 Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));

@@ -217,7 +217,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             config.OpposingSquads = CreateBattleSquadList(opposingSquads, false);
             config.Planet = planet;
             config.Grid = new BattleGrid(200, 200);
-            AnnihilationPlacer placer = new AnnihilationPlacer(config.Grid);
+            AmbushPlacer placer = new AmbushPlacer(config.Grid);
             placer.PlaceSquads(config.PlayerSquads, config.OpposingSquads);
             return config;
         }

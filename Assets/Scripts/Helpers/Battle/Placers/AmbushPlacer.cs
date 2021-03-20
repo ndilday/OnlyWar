@@ -65,7 +65,7 @@ namespace OnlyWar.Scripts.Helpers.Battle.Placers
             // ambushing forces start 40 yards from the target to the top and left
             int currentY = (int)killZone.Item1.y;
             int currentX = (int)killZone.Item1.x - 40;
-            int bottomLimit = (int)killZone.Item2.y;
+            int bottomLimit = (int)killZone.Item2.y - 50;
             int rightLimit = (int)killZone.Item2.x;
             bool onLeft = true;
             int iteration = 0;
