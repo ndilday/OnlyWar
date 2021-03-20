@@ -1,43 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Scripts.Helpers.Battle.Placers
 {
-    class BattleSquadPlacer
+    class AnnihilationPlacer
     {
         private readonly BattleGrid _grid;
 
-        public BattleSquadPlacer(BattleGrid grid)
+        public AnnihilationPlacer(BattleGrid grid)
         {
             _grid = grid;
         }
-        public Dictionary<BattleSquad, Vector2> PlaceSquads(IEnumerable<BattleSquad> squads)
+        public Dictionary<BattleSquad, Vector2> PlaceSquads(IEnumerable<BattleSquad> bottomSquads, 
+                                                            IEnumerable<BattleSquad> topSquads)
         {
             Dictionary<BattleSquad, Vector2> result = new Dictionary<BattleSquad, Vector2>();
-            if (squads.Any(s => s.IsPlayerSquad))
+
+            int currentBottom =  5;
+            int currentLeft = _grid.GridWidth / 2;
+            int currentTop = currentBottom;
+            int currentRight = currentLeft;
+            foreach (BattleSquad squad in bottomSquads)
             {
-                int currentBottom =  5;
-                int currentLeft = _grid.GridWidth / 2;
-                int currentTop = currentBottom;
-                int currentRight = currentLeft;
-                foreach (BattleSquad squad in squads)
-                {
-                    result[squad] = PlaceBottomSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-                }
+                result[squad] = PlaceBottomSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
             }
-            else
+
+            currentBottom = _grid.GridHeight - 5;
+            currentLeft = _grid.GridWidth / 2;
+            currentTop = currentBottom;
+            currentRight = currentLeft;
+            foreach (BattleSquad squad in topSquads)
             {
-                int currentBottom = _grid.GridHeight - 5;
-                int currentLeft = _grid.GridWidth / 2;
-                int currentTop = currentBottom;
-                int currentRight = currentLeft;
-                foreach (BattleSquad squad in squads)
-                {
-                    result[squad] = PlaceTopSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
-                }
+                result[squad] = PlaceTopSquad(squad, ref currentLeft, ref currentBottom, ref currentRight, ref currentTop);
             }
             return result;
         }
@@ -78,7 +74,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             }
 
 
-            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom), true);
             return new Vector2(placeLeft, placeBottom);
         }
 
@@ -117,7 +113,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
                 if (top < bottom + squadSize.Item2) bottom = top - squadSize.Item2;
             }
 
-            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom));
+            _grid.PlaceBattleSquad(squad, new Tuple<int, int>(placeLeft, placeBottom), true);
             return new Vector2(placeLeft, placeBottom);
         }
     }

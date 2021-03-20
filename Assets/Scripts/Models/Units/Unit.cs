@@ -79,10 +79,6 @@ namespace OnlyWar.Scripts.Models.Units
         {
             List<Squad> squads = new List<Squad>();
             squads.AddRange(Squads);
-            if (HQSquad != null)
-            {
-                squads.Add(HQSquad);
-            }
             if(ChildUnits != null)
             {
                 squads.AddRange(ChildUnits.SelectMany(cu => cu.GetAllSquads()));

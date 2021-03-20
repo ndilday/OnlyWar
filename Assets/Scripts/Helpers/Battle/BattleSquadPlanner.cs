@@ -474,12 +474,12 @@ namespace OnlyWar.Scripts.Helpers.Battle
             // +1 for all-out attack, - ROF after the first shot
             // z value of 0.43 is 
             baseTotal = baseTotal + 1 + weapon.Template.Accuracy;
-            baseTotal += BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
-            baseTotal += BattleHelpers.CalculateSizeModifier(targetSize);
+            baseTotal += BattleModifiersUtil.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
+            baseTotal += BattleModifiersUtil.CalculateSizeModifier(targetSize);
             // if the total doesn't get to 10.5, there will be no range where there's a good chance of hitting, so just keep getting closer
             if (baseTotal < 10.5) return 0;
 
-            return BattleHelpers.GetRangeForModifier(10.5f - baseTotal);
+            return BattleModifiersUtil.GetRangeForModifier(10.5f - baseTotal);
         }
 
         private float EstimateKillDistance(RangedWeapon weapon, float targetArmor, float targetCon)
@@ -556,12 +556,12 @@ namespace OnlyWar.Scripts.Helpers.Battle
 
         private Tuple<float, float> EstimateHitAndDamage(BattleSoldier soldier, BattleSoldier target, RangedWeapon weapon, float range, float moveAndAimMod)
         {
-            float sizeMod = BattleHelpers.CalculateSizeModifier(target.Soldier.Size);
+            float sizeMod = BattleModifiersUtil.CalculateSizeModifier(target.Soldier.Size);
             float armor = target.Armor.Template.ArmorProvided;
             float con = target.Soldier.Constitution;
             float expectedDamage = CalculateExpectedDamage(weapon, range, armor, con);
-            float rangeMod = BattleHelpers.CalculateRangeModifier(range, target.CurrentSpeed);
-            float rofMod = BattleHelpers.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
+            float rangeMod = BattleModifiersUtil.CalculateRangeModifier(range, target.CurrentSpeed);
+            float rofMod = BattleModifiersUtil.CalculateRateOfFireModifier(weapon.Template.RateOfFire);
             float weaponSkill = soldier.Soldier.GetTotalSkillValue(weapon.Template.RelatedSkill);
             float total = weaponSkill + rofMod + rangeMod + sizeMod + moveAndAimMod;
             return new Tuple<float, float>(total, expectedDamage);
@@ -708,7 +708,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
 
         private float CalculateExpectedDamage(RangedWeapon weapon, float range, float armor, float con)
         {
-            float effectiveStrength = BattleHelpers.CalculateDamageAtRange(weapon, range);
+            float effectiveStrength = BattleModifiersUtil.CalculateDamageAtRange(weapon, range);
             return ((effectiveStrength * 4.25f) - armor) / con;
         }
     }

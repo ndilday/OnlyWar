@@ -18,11 +18,11 @@ namespace OnlyWar.Scripts.Helpers
         Ranged = 0x8
     }
 
-    public class SoldierTrainingHelper
+    public class SoldierTrainingCalculator
     {
         private readonly IReadOnlyDictionary<string, BaseSkill> _skillsByName;
 
-        public SoldierTrainingHelper(IEnumerable<BaseSkill> baseSkills)
+        public SoldierTrainingCalculator(IEnumerable<BaseSkill> baseSkills)
         {
             _skillsByName = baseSkills.ToDictionary(bs => bs.Name);
         }

@@ -8,9 +8,8 @@ using OnlyWar.Scripts.Models.Units;
 
 namespace OnlyWar.Scripts.Helpers
 {
-    public sealed class TempArmyGenerator
+    public sealed class TempArmyBuilder
     {
-        private static int id = 0;
         public static Unit GenerateArmy(int armyId, Faction faction)
         {
             UnitTemplate template = faction.UnitTemplates.Values
@@ -56,11 +55,23 @@ namespace OnlyWar.Scripts.Helpers
                     soldier.Name = $"{soldier.Template.Name} {soldier.Id}";
                 }
             }
+            if (squad.SquadTemplate.WeaponOptions != null)
+            {
+                foreach (SquadWeaponOption weaponOption in squad.SquadTemplate.WeaponOptions)
+                {
+                    int taking = RNG.GetIntBelowMax(weaponOption.MinNumber, weaponOption.MaxNumber + 1);
+                    int maxIndex = weaponOption.Options.Count;
+                    for (int i = 0; i < taking; i++)
+                    {
+                        squad.Loadout.Add(weaponOption.Options[RNG.GetIntBelowMax(0, maxIndex)]);
+                    }
+                }
+            }
         }
 
         public static Unit GenerateArmyFromPlanetFaction(PlanetFaction planetFaction)
         {
-            return null;
+            return GenerateArmy(0, planetFaction.Faction);
         }
     }
 }

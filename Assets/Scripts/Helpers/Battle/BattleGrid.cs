@@ -138,31 +138,20 @@ namespace OnlyWar.Scripts.Helpers.Battle
             return Mathf.Sqrt(Mathf.Pow(pos1.Item1 - pos2.Item1, 2) + Mathf.Pow(pos1.Item2 - pos2.Item2, 2));
         }
 
-        public void PlaceBattleSquad(BattleSquad squad, Tuple<int, int> bottomLeft)
+        public void PlaceBattleSquad(BattleSquad squad, Tuple<int, int> bottomLeft, bool longHorizontal)
         {
             // if any squad member is already on the map, we have a problem
             if (squad.Soldiers.Any(s => _soldierLocationMap.ContainsKey(s.Soldier.Id))) throw new InvalidOperationException(squad.Name + " has soldiers already on BattleGrid");
             if (squad.Soldiers.Count == 0) throw new InvalidOperationException("No soldiers in " + squad.Name + " to place");
             Tuple<int, int> squadBoxSize = squad.GetSquadBoxSize();
-            Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + ((squadBoxSize.Item1 - 1) / 2), bottomLeft.Item2 + squadBoxSize.Item2 - 1);
-            for (int i = 0; i < squad.Soldiers.Count; i++)
+            Tuple<int, int> startingLocation;
+            if (longHorizontal)
             {
-                // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
-                int yMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
-                int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
-                if (squad.IsPlayerSquad)
-                {
-                    _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                    
-                }
-                else
-                {
-                    _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
-                }
-                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
-                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
-                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
-                squad.Soldiers[i].Location = location;
+                startingLocation = PlaceSquadHorizontally(squad, bottomLeft, squadBoxSize);
+            }
+            else
+            {
+                startingLocation = PlaceSquadVertically(squad, bottomLeft, squadBoxSize);
             }
             OnSquadPlaced.Invoke(squad, startingLocation);
         }
@@ -243,6 +232,59 @@ namespace OnlyWar.Scripts.Helpers.Battle
         {
             // for now, as a quick good-enough, just look at the difference in coordinates
             return Mathf.Pow(pos1.Item1 - pos2.Item1, 2) + Mathf.Pow(pos1.Item2 - pos2.Item2, 2);
+        }
+
+        private Tuple<int, int> PlaceSquadHorizontally(BattleSquad squad, Tuple<int, int> bottomLeft, Tuple<int, int> squadBoxSize)
+        {
+            Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + ((squadBoxSize.Item1 - 1) / 2), bottomLeft.Item2 + squadBoxSize.Item2 - 1);
+            for (int i = 0; i < squad.Soldiers.Count; i++)
+            {
+                // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
+                int yMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
+                int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
+                if (squad.IsPlayerSquad)
+                {
+                    _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
+
+                }
+                else
+                {
+                    _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
+                }
+                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
+                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                squad.Soldiers[i].Location = location;
+            }
+
+            return startingLocation;
+        }
+
+        private Tuple<int, int> PlaceSquadVertically(BattleSquad squad, Tuple<int, int> bottomLeft, Tuple<int, int> squadBoxSize)
+        {
+            Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + squadBoxSize.Item2 - 1, 
+                                                                   bottomLeft.Item2 + ((squadBoxSize.Item1 - 1) / 2));
+            for (int i = 0; i < squad.Soldiers.Count; i++)
+            {
+                // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
+                int xMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
+                int yMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
+                if (squad.IsPlayerSquad)
+                {
+                    _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
+
+                }
+                else
+                {
+                    _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
+                }
+                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
+                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
+                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                squad.Soldiers[i].Location = location;
+            }
+
+            return startingLocation;
         }
     }
 }

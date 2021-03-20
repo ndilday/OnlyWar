@@ -42,8 +42,6 @@ namespace OnlyWar.Scripts.Controllers
         private Faction _opposingFaction;
         private BaseSkill _baseMeleeSkill;
 
-        private const int MAP_WIDTH = 100;
-        private const int MAP_HEIGHT = 450;
         private const bool VERBOSE = false;
 
         public BattleController()
@@ -66,25 +64,12 @@ namespace OnlyWar.Scripts.Controllers
                 GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
         }
 
-        public void GalaxyController_OnBattleStarted(Planet planet)
+        public void GalaxyController_OnBattleStarted(BattleConfiguration configuration)
         {
-            _planet = planet;
-            ResetBattleValues();
-
-            foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
-            {
-                if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
-                {
-                    PopulateMapsFromSquadList(_playerBattleSquads, kvp.Value, true);
-                }
-                else
-                {
-                    _opposingFaction = GameSettings.Galaxy.Factions.First(f => f.Id == kvp.Key);
-                    PopulateMapsFromSquadList(_opposingBattleSquads, kvp.Value, false);
-                }
-            }
-
-            PopulateBattleView();
+            _planet = configuration.Planet;
+            ResetBattleValues(configuration);
+            PopulateBattleViewSquads(_playerBattleSquads.Values);
+            PopulateBattleViewSquads(_opposingBattleSquads.Values);
             BattleView.UpdateNextStepButton("Next Turn", true);
         }
 
@@ -272,15 +257,6 @@ namespace OnlyWar.Scripts.Controllers
             OnBattleComplete.Invoke();
         }
 
-        private void PopulateBattleView()
-        {
-            BattleSquadPlacer placer = new BattleSquadPlacer(_grid);
-            placer.PlaceSquads(_playerBattleSquads.Values);
-            PopulateBattleViewSquads(_playerBattleSquads.Values);
-            placer.PlaceSquads(_opposingBattleSquads.Values);
-            PopulateBattleViewSquads(_opposingBattleSquads.Values);
-        }
-
         private void Plan(ConcurrentBag<IAction> shootSegmentActions, 
                           ConcurrentBag<IAction> moveSegmentActions, 
                           ConcurrentBag<IAction> meleeSegmentActions,
@@ -410,12 +386,16 @@ namespace OnlyWar.Scripts.Controllers
             }
         }
 
-        private void ResetBattleValues()
+        private void ResetBattleValues(BattleConfiguration config)
         {
             BattleView.gameObject.SetActive(true);
             BattleView.Clear();
-            BattleView.SetMapSize(new Vector2(MAP_WIDTH, MAP_HEIGHT));
+            BattleView.SetMapSize(new Vector2(config.Grid.GridWidth, config.Grid.GridHeight));
             _turnNumber = 0;
+
+            _grid = config.Grid;
+            _planet = config.Planet;
+            _opposingFaction = config.OpposingSquads[0].Squad.ParentUnit.UnitTemplate.Faction;
 
             _playerBattleSquads.Clear();
             _soldierBattleSquadMap.Clear();
@@ -423,30 +403,24 @@ namespace OnlyWar.Scripts.Controllers
             _startingPlayerBattleSoldiers.Clear();
             _startingEnemyCount = 0;
 
-            _grid = new BattleGrid(MAP_WIDTH, MAP_HEIGHT);
-        }
-
-        private void PopulateMapsFromSquadList(Dictionary<int, BattleSquad> map, List<Squad> squads, bool isPlayerSquad)
-        {
-            var activeSquads = squads.Where(s => !s.IsInReserve);
-            foreach (Squad squad in activeSquads)
+            foreach(BattleSquad squad in config.PlayerSquads)
             {
-                BattleSquad bs = new BattleSquad(isPlayerSquad, squad);
+                _playerBattleSquads[squad.Id] = squad;
+                foreach(BattleSoldier soldier in squad.Soldiers)
+                {
+                    _soldierBattleSquadMap[soldier.Soldier.Id] = squad;
+                }
+                _startingPlayerBattleSoldiers.AddRange(squad.Soldiers);
+            }
 
-                map[bs.Id] = bs;
-                foreach(BattleSoldier soldier in bs.Soldiers)
+            foreach (BattleSquad squad in config.OpposingSquads)
+            {
+                _opposingBattleSquads[squad.Id] = squad;
+                foreach (BattleSoldier soldier in squad.Soldiers)
                 {
-                    _soldierBattleSquadMap[soldier.Soldier.Id] = bs;
+                    _soldierBattleSquadMap[soldier.Soldier.Id] = squad;
                 }
-                if(isPlayerSquad)
-                {
-                    // making a separate list 
-                    _startingPlayerBattleSoldiers.AddRange(bs.Soldiers);
-                }
-                else
-                {
-                    _startingEnemyCount += bs.Soldiers.Count;
-                }
+                _startingEnemyCount += squad.Soldiers.Count;
             }
         }
 
