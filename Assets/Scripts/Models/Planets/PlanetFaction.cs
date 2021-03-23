@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlyWar.Scripts.Models.Planets
+namespace OnlyWar.Models.Planets
 {
     public class PlanetFaction
     {

@@ -1,10 +1,10 @@
-﻿using OnlyWar.Scripts.Models.Squads;
+﻿using OnlyWar.Models.Squads;
 using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     public class Soldier : ISoldier
     {

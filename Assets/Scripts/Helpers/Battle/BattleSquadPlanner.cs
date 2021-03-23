@@ -5,12 +5,12 @@ using System.Linq;
 
 using UnityEngine;
 
-using OnlyWar.Scripts.Helpers.Battle.Actions;
-using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Helpers.Battle.Resolutions;
+using OnlyWar.Helpers.Battle.Actions;
+using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Helpers.Battle.Resolutions;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public class BattleSquadPlanner
     {

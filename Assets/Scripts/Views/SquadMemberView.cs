@@ -1,4 +1,4 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Models.Soldiers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     public class SquadMemberView : MonoBehaviour
     {

@@ -1,17 +1,17 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Helpers.Database.GameState;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Helpers.Database.GameState;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {

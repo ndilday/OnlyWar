@@ -1,4 +1,4 @@
-﻿using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Models;
 using System.Collections.Generic;
 using System.Data;
 

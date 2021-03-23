@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     public static class NewChapterBuilder
     {

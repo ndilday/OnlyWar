@@ -1,8 +1,8 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Models.Soldiers;
 using System.Collections.Generic;
 using System.Data;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameRules
+namespace OnlyWar.Helpers.Database.GameRules
 {
     public class BaseSkillDataAccess
     {

@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Helpers.Database.GameState;
+﻿using OnlyWar.Models.Planets;
+using OnlyWar.Helpers.Database.GameState;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class UIController : MonoBehaviour
     {

@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Helpers.Battle;
-using OnlyWar.Scripts.Helpers.Battle.Actions;
-using OnlyWar.Scripts.Helpers.Battle.Resolutions;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Helpers.Battle;
+using OnlyWar.Helpers.Battle.Actions;
+using OnlyWar.Helpers.Battle.Resolutions;
+using OnlyWar.Models;
+using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Views;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class BattleController : MonoBehaviour
     {

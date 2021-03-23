@@ -1,14 +1,14 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class ChapterController : ChapterUnitTreeController
     {

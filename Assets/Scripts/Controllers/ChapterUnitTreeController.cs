@@ -4,12 +4,12 @@ using System.Linq;
 
 using UnityEngine;
 
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Views;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class ChapterUnitTreeController : MonoBehaviour
     {

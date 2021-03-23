@@ -1,8 +1,8 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Helpers.Battle;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Helpers.Battle;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
     public class GalaxyMapController : MonoBehaviour

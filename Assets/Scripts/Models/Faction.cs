@@ -1,13 +1,13 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Models.Fleets;
+﻿using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Models.Fleets;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Models
+namespace OnlyWar.Models
 {
     public enum GrowthType
     {

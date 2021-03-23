@@ -1,10 +1,10 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models;
+using OnlyWar.Models.Planets;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class PlanetController : MonoBehaviour
     {

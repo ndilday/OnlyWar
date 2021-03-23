@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-namespace OnlyWar.Scripts.Models
+namespace OnlyWar.Models
 {
     [Serializable]
     public class Date : IComparable

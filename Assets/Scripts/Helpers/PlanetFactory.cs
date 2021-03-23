@@ -1,11 +1,11 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
+﻿using OnlyWar.Models;
+using OnlyWar.Models.Planets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     class PlanetFactory
     {

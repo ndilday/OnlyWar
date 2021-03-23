@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     public class SkillTemplate : NormalizedValueTemplate
     {

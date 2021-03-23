@@ -1,4 +1,4 @@
-﻿namespace OnlyWar.Scripts.Models
+﻿namespace OnlyWar.Models
 {
     public class NormalizedValueTemplate
     {

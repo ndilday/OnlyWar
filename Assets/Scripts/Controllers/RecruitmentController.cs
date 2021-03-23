@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Views;
+using OnlyWar.Helpers;
+using OnlyWar.Models.Units;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Views;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class RecruitmentController : MonoBehaviour
     {

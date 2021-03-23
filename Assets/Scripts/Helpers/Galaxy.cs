@@ -1,15 +1,15 @@
-﻿using OnlyWar.Scripts.Helpers.Database.GameRules;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Helpers.Database.GameRules;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Equippables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     public class Galaxy
     {

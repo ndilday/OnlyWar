@@ -1,13 +1,13 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
+﻿using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class FleetDataAccess
     {

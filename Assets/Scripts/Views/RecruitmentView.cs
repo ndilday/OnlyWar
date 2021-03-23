@@ -2,7 +2,7 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     public class RecruitmentView : MonoBehaviour
     {

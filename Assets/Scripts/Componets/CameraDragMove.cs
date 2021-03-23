@@ -2,7 +2,7 @@
 using System.Drawing;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Componets
+namespace OnlyWar.Componets
 {
     public class CameraDragMove : MonoBehaviour
     {

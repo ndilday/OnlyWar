@@ -1,7 +1,7 @@
-﻿using OnlyWar.Scripts.Models.Squads;
+﻿using OnlyWar.Models.Squads;
 using System.Collections.Generic;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     public interface ISoldier
     {

@@ -2,10 +2,10 @@
 
 using UnityEngine.Events;
 
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Equippables;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battle.Resolutions
 {
     public class WoundResolver : IResolver
     {

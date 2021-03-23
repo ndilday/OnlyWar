@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
+﻿using OnlyWar.Models;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     [Flags]
     public enum TrainingFocuses

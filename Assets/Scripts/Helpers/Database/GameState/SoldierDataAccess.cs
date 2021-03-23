@@ -1,9 +1,9 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
+﻿using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
 using System.Collections.Generic;
 using System.Data;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class SoldierDataAccess
     {

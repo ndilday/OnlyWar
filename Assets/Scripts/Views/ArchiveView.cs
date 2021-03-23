@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     class ArchiveView : MonoBehaviour
     {

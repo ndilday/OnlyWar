@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Placers
+namespace OnlyWar.Helpers.Battle.Placers
 {
     interface IBattleSquadPlacer
     {

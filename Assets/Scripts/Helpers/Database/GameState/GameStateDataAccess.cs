@@ -1,12 +1,12 @@
 ﻿using Mono.Data.Sqlite;
 using OnlyWar.Helpers.Database.GameState;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Models;
+using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Models.Soldiers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +14,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class GameStateDataBlob
     {

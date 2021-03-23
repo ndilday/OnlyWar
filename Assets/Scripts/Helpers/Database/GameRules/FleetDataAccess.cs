@@ -1,9 +1,9 @@
-﻿using OnlyWar.Scripts.Models.Fleets;
+﻿using OnlyWar.Models.Fleets;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameRules
+namespace OnlyWar.Helpers.Database.GameRules
 {
     public class FleetDataBlob
     {

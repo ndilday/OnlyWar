@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Helpers.Battle.Placers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+﻿using OnlyWar.Helpers.Battle.Placers;
+using OnlyWar.Models;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public class BattleConfiguration
     {
