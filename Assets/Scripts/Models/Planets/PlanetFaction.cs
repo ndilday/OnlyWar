@@ -13,6 +13,7 @@ namespace OnlyWar.Models.Planets
         public long Population { get; set; }
         public int PDFMembers { get; set; }
         public float PlayerReputation { get; set; }
+        public Character Leader { get; set; }
 
         public PlanetFaction(Faction faction)
         {

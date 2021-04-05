@@ -56,7 +56,7 @@ namespace OnlyWar.Controllers
                                                      hitLocations, GameSettings.Galaxy.BaseSkillMap,
                                                      soldierTypeMap);
 
-            GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
+            GameSettings.Galaxy.GenerateGalaxy(gameData.Characters, gameData.Planets, gameData.Fleets);
             GameSettings.Date = gameData.CurrentDate;
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
                                              .ToDictionary(g => g.Key, g => g.ToList());

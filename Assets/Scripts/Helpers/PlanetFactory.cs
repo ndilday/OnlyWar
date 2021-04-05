@@ -70,6 +70,12 @@ namespace OnlyWar.Helpers
             planetFaction.PDFMembers = popToDistribute / 33;
             planet.PlanetFactionMap[controllingFaction.Id] = planetFaction;
             planet.ControllingFaction = controllingFaction;
+
+            if(controllingFaction.IsDefaultFaction)
+            {
+                // add leader to faction
+                planetFaction.Leader = CharacterBuilder.GenerateCharacter();
+            }
             return planet;
         }
 

@@ -15,12 +15,14 @@ namespace OnlyWar.Helpers
     {
         private readonly List<Fleet> _fleets;
         private readonly List<Planet> _planets;
+        private readonly List<Character> _characters;
         private readonly IReadOnlyList<Faction> _factions;
         private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
         private readonly IReadOnlyList<SkillTemplate> _skillTemplateList;
         private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
+        public List<Character> Characters { get => _characters; }
         public IReadOnlyList<Planet> Planets { get => _planets; }
         public IReadOnlyList<Fleet> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
@@ -36,6 +38,7 @@ namespace OnlyWar.Helpers
         public Galaxy(int galaxySize)
         {
             var gameBlob = GameRulesDataAccess.Instance.GetData();
+            _characters = new List<Character>();
             _factions = gameBlob.Factions;
             _baseSkillMap = gameBlob.BaseSkills;
             _skillTemplateList = gameBlob.SkillTemplates;
@@ -70,8 +73,10 @@ namespace OnlyWar.Helpers
             return Fleets.Where(f => f.Position == worldPosition);
         }
 
-        public void GenerateGalaxy(List<Planet> planets, List<Fleet> fleets)
+        public void GenerateGalaxy(List<Character> characters, List<Planet> planets, List<Fleet> fleets)
         {
+            _characters.Clear();
+            _characters.AddRange(characters);
             _planets.Clear();
             _planets.AddRange(planets);
             _fleets.Clear();

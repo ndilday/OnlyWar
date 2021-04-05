@@ -87,6 +87,7 @@ namespace OnlyWar.Controllers
             var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
             GameStateDataAccess.Instance.SaveData("default.s3db",
                                                   GameSettings.Date,
+                                                  GameSettings.Galaxy.Characters,
                                                   GameSettings.Galaxy.Planets,
                                                   GameSettings.Galaxy.Fleets,
                                                   units,

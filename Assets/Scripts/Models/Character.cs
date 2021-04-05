@@ -5,14 +5,15 @@ namespace OnlyWar.Models
 {
     public class Character
     {
+        public int Id { get; set; }
         // how likely to discover hidden activity
         public float Investigation { get; set; }
 
         // how likely to see false hidden activity
-        public float Paranoid { get; set; }
+        public float Paranoia { get; set; }
         
         // how likely to request aid
-        public float Communicativeness { get; set; }
+        public float Neediness { get; set; }
 
         // how much ignored requests irk them
         public float Patience { get; set; }

@@ -1,7 +1,12 @@
-﻿
+﻿using OnlyWar.Models;
+
 namespace OnlyWar.Helpers
 {
-    public class CharacterBuilder
+    public static class CharacterBuilder
     {
+        public static Character GenerateCharacter()
+        {
+            return null;
+        }
     }
 }

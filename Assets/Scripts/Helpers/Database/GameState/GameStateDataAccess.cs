@@ -1,5 +1,4 @@
 ﻿using Mono.Data.Sqlite;
-using OnlyWar.Helpers.Database.GameState;
 using OnlyWar.Models;
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Fleets;
@@ -18,6 +17,7 @@ namespace OnlyWar.Helpers.Database.GameState
 {
     public class GameStateDataBlob
     {
+        public List<Character> Characters { get; set; }
         public List<Planet> Planets { get; set; }
         public List<Fleet> Fleets { get; set; }
         public List<Unit> Units { get; set; }
@@ -73,7 +73,9 @@ namespace OnlyWar.Helpers.Database.GameState
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
-            var planets = _planetDataAccess.GetPlanets(dbCon, factionMap, planetTemplateMap);
+            var characterMap = _planetDataAccess.GetCharacterMap(dbCon, factionMap);
+            var planets = _planetDataAccess.GetPlanets(dbCon, factionMap, characterMap, 
+                                                       planetTemplateMap);
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
@@ -90,6 +92,7 @@ namespace OnlyWar.Helpers.Database.GameState
             dbCon.Close();
             return new GameStateDataBlob
             {
+                Characters = characterMap.Values.ToList(),
                 Planets = planets,
                 Fleets = fleets,
                 Units = units,
@@ -100,6 +103,7 @@ namespace OnlyWar.Helpers.Database.GameState
 
         public void SaveData(string fileName, 
                              Date currentDate,
+                             IEnumerable<Character> characters,
                              IEnumerable<Planet> planets, 
                              IEnumerable<Fleet> fleets,
                              IEnumerable<Unit> units,
@@ -122,6 +126,10 @@ namespace OnlyWar.Helpers.Database.GameState
             {
                 try
                 {
+                    foreach(Character character in characters)
+                    {
+                        _planetDataAccess.SaveCharacter(transaction, character);
+                    }
                     foreach (Planet planet in planets)
                     {
                         _planetDataAccess.SavePlanet(transaction, planet);
