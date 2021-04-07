@@ -157,12 +157,10 @@ namespace OnlyWar.Helpers.Database.GameState
                     foreach(Squad squad in squads)
                     {
                         _unitDataAccess.SaveSquad(transaction, squad);
-                    }
-
-                    var soldiers = squads.SelectMany(s => s.Members);
-                    foreach(ISoldier soldier in soldiers)
-                    {
-                        _soldierDataAccess.SaveSoldier(transaction, soldier);
+                        foreach (ISoldier soldier in squad.Members)
+                        {
+                            _soldierDataAccess.SaveSoldier(transaction, soldier);
+                        }
                     }
 
                     foreach(PlayerSoldier playerSoldier in playerSoldiers)
