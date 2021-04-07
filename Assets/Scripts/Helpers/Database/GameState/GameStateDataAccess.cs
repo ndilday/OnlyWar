@@ -116,7 +116,7 @@ namespace OnlyWar.Helpers.Database.GameState
                 File.Delete(path);
             }
             GenerateTables(fileName);
-            var squads = units.SelectMany(u => u.GetAllSquads());
+            var squads = units.SelectMany(u => u.Squads);
             var ships = fleets.SelectMany(f => f.Ships);
             string connection = 
                 $"URI=file:{path}";

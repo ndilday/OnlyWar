@@ -26,11 +26,6 @@ namespace OnlyWar.Helpers
             {
                 unit.ChildUnits.Add(CreateUnit(childUnit));
             }
-
-            if (unit.HQSquad != null)
-            {
-                AddSquad(unit.HQSquad);
-            }
             
             foreach(Squad squad in unit.Squads)
             {

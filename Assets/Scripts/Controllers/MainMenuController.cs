@@ -68,7 +68,7 @@ namespace OnlyWar.Controllers
                     faction.Units.AddRange(units);
                     foreach(Unit unit in units)
                     {
-                        foreach(Squad squad in unit.GetAllSquads())
+                        foreach(Squad squad in unit.Squads)
                         {
                             if(squad.Location != null)
                             {
@@ -205,8 +205,8 @@ namespace OnlyWar.Controllers
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
-                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
-                    foreach(Squad squad in newArmy.GetAllSquads())
+                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.Squads.ToList();
+                    foreach(Squad squad in newArmy.Squads)
                     {
                         squad.Location = planet;
                     }
@@ -216,10 +216,6 @@ namespace OnlyWar.Controllers
 
         private void SetChapterSquadsLocation(Planet planet)
         {
-            if (GameSettings.Chapter.OrderOfBattle.HQSquad != null)
-            {
-                GameSettings.Chapter.OrderOfBattle.HQSquad.Location = planet;
-            }
             foreach (Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
                 if (squad.Members.Count > 0)
@@ -229,10 +225,6 @@ namespace OnlyWar.Controllers
             }
             foreach (Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
-                if (unit.HQSquad != null && unit.HQSquad.Members.Count > 0)
-                {
-                    unit.HQSquad.Location = planet;
-                }
                 foreach (Squad squad in unit.Squads)
                 {
                     if (squad.Members.Count > 0)

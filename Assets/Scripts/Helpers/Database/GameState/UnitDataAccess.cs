@@ -87,14 +87,7 @@ namespace OnlyWar.Helpers.Database.GameState
                     squadList = unitSquadMap[id];
                 }
 
-                if (reader[3].GetType() != typeof(DBNull))
-                {
-                    int hqSquadId = reader.GetInt32(3);
-                    hqSquad = squadList.First(s => s.Id == hqSquadId);
-                }
-
-                Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId],
-                                     hqSquad, squadList);
+                Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId], squadList);
                 if (hqSquad != null)
                 {
                     hqSquad.ParentUnit = unit;
@@ -156,10 +149,9 @@ namespace OnlyWar.Helpers.Database.GameState
 
         public void SaveUnit(IDbTransaction transaction, Unit unit)
         {
-            string hq = unit.HQSquad == null ? "null" : unit.HQSquad.Id.ToString();
             string parent = unit.ParentUnit == null ? "null" : unit.ParentUnit.Id.ToString();
             string insert = $@"INSERT INTO Unit VALUES ({unit.Id}, {unit.UnitTemplate.Faction.Id}, 
-                {unit.UnitTemplate.Id}, {hq}, {parent}, '{unit.Name}');";
+                {unit.UnitTemplate.Id}, {parent}, '{unit.Name}');";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

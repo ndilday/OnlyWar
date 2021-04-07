@@ -103,6 +103,12 @@ namespace OnlyWar.Helpers
                     {
                         Planet planet = GeneratePlanet(new Vector2(i, j));
                         _planets.Add(planet);
+                        if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
+                        {
+                            Character leader = 
+                                planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader;
+                            _characters.Add(leader);
+                        }
                     }
                 }
             }

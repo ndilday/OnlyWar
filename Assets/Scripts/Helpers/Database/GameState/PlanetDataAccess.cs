@@ -66,14 +66,17 @@ namespace OnlyWar.Helpers.Database.GameState
 
             while (reader.Read())
             {
+                int? leaderId = null;
                 int planetId = reader.GetInt32(0);
                 int factionId = reader.GetInt32(1);
                 bool isPublic = reader.GetBoolean(2);
                 int population = reader.GetInt32(3);
                 int pdfMembers = reader.GetInt32(4);
                 float playerReputation = (float)reader[5];
-                int leaderId = reader.GetInt32(6);
-
+                if (reader[6].GetType() != typeof(DBNull))
+                {
+                    leaderId = reader.GetInt32(6);
+                }
                 PlanetFaction planetFaction =
                     new PlanetFaction(factionMap[factionId])
                     {
@@ -81,7 +84,7 @@ namespace OnlyWar.Helpers.Database.GameState
                         Population = population,
                         PDFMembers = pdfMembers,
                         PlayerReputation = playerReputation,
-                        Leader = characterMap[leaderId]
+                        Leader = leaderId == null ? null : characterMap[(int)leaderId]
                     };
 
                 if (!planetPlanetFactionMap.ContainsKey(planetId))
@@ -165,12 +168,15 @@ namespace OnlyWar.Helpers.Database.GameState
         {
             foreach(KeyValuePair<int, PlanetFaction> planetFaction in planetFactions)
             {
+                object leaderId = planetFaction.Value.Leader != null ?
+                    (object)planetFaction.Value.Leader.Id : 
+                    "null";
                 string insert = $@"INSERT INTO PlanetFaction 
                     (PlanetId, FactionId, IsPublic, Population, 
                     PDFMembers, PlayerReputation, LeaderId) VALUES 
                     ({planetId}, {planetFaction.Key}, {planetFaction.Value.IsPublic}, {planetFaction.Value.Population}, 
                     {planetFaction.Value.PDFMembers}, {planetFaction.Value.PlayerReputation},
-                    {planetFaction.Value.Leader.Id});";
+                    {leaderId});";
                 IDbCommand command = transaction.Connection.CreateCommand();
                 command.CommandText = insert;
                 command.ExecuteNonQuery();

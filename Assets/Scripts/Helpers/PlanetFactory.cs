@@ -29,11 +29,12 @@ namespace OnlyWar.Helpers
         private static HashSet<int> _usedPlanetNameIndexes;
 
         private static int _nextId = 0;
-
+        private static int _leaderId = 0;
         public Planet GenerateNewPlanet(IReadOnlyDictionary<int, PlanetTemplate> planetTemplateMap, 
                                         Vector2 position, Faction controllingFaction, Faction infiltratingFaction)
         {
             PlanetTemplate template = DeterminePlanetTemplate(planetTemplateMap);
+            Faction leaderFaction = controllingFaction;
             int nameIndex = RNG.GetIntBelowMax(0, TempPlanetList.PlanetNames.Length);
             while(_usedPlanetNameIndexes.Contains(nameIndex))
             {
@@ -61,6 +62,10 @@ namespace OnlyWar.Helpers
                 infiltration.Population = (int)(popToDistribute * infiltrationRate);
                 infiltration.PDFMembers = (int)(infiltration.Population / 33);
                 planet.PlanetFactionMap[infiltratingFaction.Id] = infiltration;
+                if(RNG.GetLinearDouble() < infiltrationRate / 2)
+                {
+                    leaderFaction = infiltratingFaction;
+                }
             }
 
             PlanetFaction planetFaction = new PlanetFaction(controllingFaction);
@@ -73,8 +78,8 @@ namespace OnlyWar.Helpers
 
             if(controllingFaction.IsDefaultFaction)
             {
-                // add leader to faction
-                planetFaction.Leader = CharacterBuilder.GenerateCharacter();
+                planetFaction.Leader = CharacterBuilder.GenerateCharacter(_leaderId, leaderFaction);
+                _leaderId++;
             }
             return planet;
         }

@@ -118,7 +118,7 @@ namespace OnlyWar.Helpers.Battle
             planetFaction.Faction.Units.Add(newArmy);
             
             // add unit to planet
-            foreach(Squad squad in newArmy.GetAllSquads())
+            foreach(Squad squad in newArmy.Squads)
             {
                 squad.IsInReserve = false;
                 squad.Location = planet;

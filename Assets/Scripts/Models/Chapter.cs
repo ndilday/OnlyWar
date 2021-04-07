@@ -39,20 +39,13 @@ namespace OnlyWar.Models
         {
             if (SquadMap == null)
             {
-                SquadMap = new Dictionary<int, Squad>
-                {
-                    [OrderOfBattle.HQSquad.Id] = OrderOfBattle.HQSquad
-                };
+                SquadMap = new Dictionary<int, Squad>();
                 foreach (Squad squad in OrderOfBattle.Squads)
                 {
                     SquadMap[squad.Id] = squad;
                 }
                 foreach (Unit company in OrderOfBattle.ChildUnits)
                 {
-                    if (company.HQSquad != null)
-                    {
-                        SquadMap[company.HQSquad.Id] = company.HQSquad;
-                    }
                     foreach (Squad squad in company.Squads)
                     {
                         SquadMap[squad.Id] = squad;

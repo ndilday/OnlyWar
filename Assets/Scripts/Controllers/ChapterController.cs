@@ -156,14 +156,6 @@ namespace OnlyWar.Controllers
         private string GenerateUnitSummary(Unit unit)
         {
             string unitReport = unit.Name + " Order of Battle\n\n";
-            if (unit.HQSquad != null)
-            {
-                unitReport += GenerateSquadSummary(unit.HQSquad);
-            }
-            else
-            {
-                unitReport += "Entire HQ Missing\n";
-            }
             unitReport += "\nCurrent Company size: " + unit.GetAllMembers().Count().ToString() + "\n\n";
             List<Tuple<SquadTemplateElement, int, int>> toe = 
                 new List<Tuple<SquadTemplateElement, int, int>>();
@@ -245,20 +237,6 @@ namespace OnlyWar.Controllers
             List<Tuple<int, SoldierTemplate, string>> openSlots = 
                 new List<Tuple<int, SoldierTemplate, string>>();
             IEnumerable<SoldierTemplate> squadSlots;
-            if (unit.HQSquad != null)
-            {
-                squadSlots = GetOpeningsInSquad(unit.HQSquad, currentSquad, soldierTemplate);
-                if(squadSlots.Count() > 0)
-                {
-                    foreach(SoldierTemplate template in squadSlots)
-                    {
-                        openSlots.Add(new Tuple<int, SoldierTemplate, string>(
-                            unit.HQSquad.Id, 
-                            template,
-                            $"{template.Name}, {unit.HQSquad.Name}, {unit.Name}"));
-                    }
-                }
-            }
             foreach(Squad squad in unit.Squads)
             {
                 squadSlots = GetOpeningsInSquad(squad, currentSquad, soldierTemplate);
