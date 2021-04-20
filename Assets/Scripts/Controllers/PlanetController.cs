@@ -11,6 +11,7 @@ namespace OnlyWar.Controllers
         [SerializeField]
         private GameSettings GameSettings;
 
+        // TODO: should we switch this to respond to battles complete, instead?
         public void UIController_OnTurnEnd()
         {
             foreach (Planet planet in GameSettings.Galaxy.Planets)
@@ -32,43 +33,17 @@ namespace OnlyWar.Controllers
                         newPop = planetFaction.Population * 1.00015f;
                         break;
                     case GrowthType.Conversion:
-
-                        PlanetFaction defaultFaction = planet.PlanetFactionMap
-                                                             .Values
-                                                             .First(pf => pf.Faction.IsDefaultFaction);
-                        // converting factions always convert one new member per week
-                        if (defaultFaction?.Population > 0)
+                        newPop = ConvertPopulation(planet, planetFaction, newPop);
+                        if(planetFaction.Faction.Id != planet.ControllingFaction.Id &&
+                            planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
                         {
-                            defaultFaction.Population--;
-                            planetFaction.Population++;
-                            float pdfChance = (float)(defaultFaction.PDFMembers) / defaultFaction.Population;
-                            if (RNG.GetLinearDouble() < pdfChance)
-                            {
-                                defaultFaction.PDFMembers--;
-                                planetFaction.PDFMembers++;
-                            }
-                            if (planetFaction.Population > 100)
-                            {
-                                // at larger sizes, converting factions
-                                // also grow organically 
-                                // at a much faster rate than a normal population
-                                newPop = planetFaction.Population * 1.002f;
-                            }
-                            // if the converting population is larger than
-                            // the non-converted PDF force, they start their revolt
-                            if (newPop > (planet.PlanetaryDefenseForces - planetFaction.PDFMembers)
-                                && !planet.IsUnderAssault)
-                            {
-                                planetFaction.IsPublic = true;
-                                planet.IsUnderAssault = true;
-                            }
+                            // TODO: see if the governor notices the converted population
                         }
                         break;
                     default:
                         newPop = planetFaction.Population;
                         break;
                 }
-
                 planetFaction.Population = (int)newPop;
                 if (RNG.GetLinearDouble() < newPop % 1)
                 {
@@ -93,6 +68,42 @@ namespace OnlyWar.Controllers
             {
                 GenerateNewRegiment(planet);
             }
+        }
+
+        private static float ConvertPopulation(Planet planet, PlanetFaction planetFaction, float newPop)
+        {
+            PlanetFaction defaultFaction = planet.PlanetFactionMap
+                                                                         .Values
+                                                                         .First(pf => pf.Faction.IsDefaultFaction);
+            // converting factions always convert one new member per week
+            if (defaultFaction?.Population > 0)
+            {
+                defaultFaction.Population--;
+                planetFaction.Population++;
+                float pdfChance = (float)(defaultFaction.PDFMembers) / defaultFaction.Population;
+                if (RNG.GetLinearDouble() < pdfChance)
+                {
+                    defaultFaction.PDFMembers--;
+                    planetFaction.PDFMembers++;
+                }
+                if (planetFaction.Population > 100)
+                {
+                    // at larger sizes, converting factions
+                    // also grow organically 
+                    // at a much faster rate than a normal population
+                    newPop = planetFaction.Population * 1.002f;
+                }
+                // if the converting population is larger than
+                // the non-converted PDF force, they start their revolt
+                if (newPop > (planet.PlanetaryDefenseForces - planetFaction.PDFMembers)
+                    && !planet.IsUnderAssault)
+                {
+                    planetFaction.IsPublic = true;
+                    planet.IsUnderAssault = true;
+                }
+            }
+
+            return newPop;
         }
 
         private void GenerateNewRegiment(Planet planet)
