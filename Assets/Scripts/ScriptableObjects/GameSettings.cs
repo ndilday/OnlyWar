@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Helpers;
+using OnlyWar.Models;
+using OnlyWar.Helpers;
 
 [Serializable]
 [CreateAssetMenu(fileName = "GameSettings", menuName = "ScriptableObjects/GameSettings", order = 1)]

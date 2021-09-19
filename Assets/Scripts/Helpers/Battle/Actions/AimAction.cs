@@ -1,8 +1,8 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Models.Equippables;
 using System;
 using System.Collections.Concurrent;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Helpers.Battle.Actions
 {
     class AimAction : IAction
     {

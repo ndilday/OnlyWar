@@ -1,13 +1,14 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Models.Soldiers;
 using System;
 using System.Collections.Generic;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     class SoldierFactory
     {
         private SoldierFactory() { }
         private static SoldierFactory _instance;
+        private static int _nextId = 0;
         public static SoldierFactory Instance
         {
             get
@@ -20,7 +21,10 @@ namespace OnlyWar.Scripts.Helpers
             }
         }
 
-        private static int _nextId = 0;
+        public void SetCurrentHighestSoldierId(int highestId)
+        {
+            _nextId = highestId + 1;
+        }
 
         public Soldier GenerateNewSoldier(SoldierTemplate template)
         {

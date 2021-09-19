@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     public class GalaxyMapView : MonoBehaviour
     {

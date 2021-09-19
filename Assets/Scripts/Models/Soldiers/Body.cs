@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     public enum Stance
     {

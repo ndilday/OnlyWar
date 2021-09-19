@@ -1,16 +1,16 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     class PlanetDetailController : ChapterUnitTreeController
     {
@@ -79,19 +79,18 @@ namespace OnlyWar.Scripts.Controllers
             {
                 // see if the planetside unit can fit onto the currently selected ship
                 int runningTotal = 0;
-                if(_selectedUnit.HQSquad.Location == _selectedPlanet)
-                {
-                    runningTotal += _selectedUnit.HQSquad.Members.Count;
-                }
                 
                 if(runningTotal <= _selectedShip.AvailableCapacity)
                 {
                     foreach(Squad squad in _selectedUnit.Squads)
                     {
-                        runningTotal += squad.Members.Count;
-                        if(runningTotal > _selectedShip.AvailableCapacity)
+                        if (squad.Location == _selectedPlanet)
                         {
-                            break;
+                            runningTotal += squad.Members.Count;
+                            if (runningTotal > _selectedShip.AvailableCapacity)
+                            {
+                                break;
+                            }
                         }
                     }
                     if(runningTotal < _selectedShip.AvailableCapacity)
@@ -174,13 +173,12 @@ namespace OnlyWar.Scripts.Controllers
             }
             else if(_selectedUnit != null)
             {
-                if (_selectedUnit.HQSquad != null)
-                {
-                    MoveSquadToSelectedShip(_selectedUnit.HQSquad);
-                }
                 foreach(Squad squad in _selectedUnit.Squads)
                 {
-                    MoveSquadToSelectedShip(squad);
+                    if (squad.Location == _selectedPlanet)
+                    {
+                        MoveSquadToSelectedShip(squad);
+                    }
                 }
             }
             // rebuild both trees
@@ -393,11 +391,7 @@ namespace OnlyWar.Scripts.Controllers
             bool anySquadsLeft = false;
             UnitTreeView.ClearTree();
             // go through the Chapter OOB and see which squads are on this planet
-            if(GameSettings.Chapter.OrderOfBattle.HQSquad.Location == _selectedPlanet)
-            {
-                anySquadsLeft = true;
-                AddSquadToUnitTreeAtRoot(GameSettings.Chapter.OrderOfBattle.HQSquad);
-            }
+            // TODO: do we still want this one?
             foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
                 if(squad.Location == _selectedPlanet)

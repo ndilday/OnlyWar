@@ -1,10 +1,10 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
+﻿using OnlyWar.Models;
+using OnlyWar.Models.Planets;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameRules
+namespace OnlyWar.Helpers.Database.GameRules
 {
     public class PlanetTemplateDataAccess
     {

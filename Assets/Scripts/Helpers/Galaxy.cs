@@ -1,28 +1,30 @@
-﻿using OnlyWar.Scripts.Helpers.Database.GameRules;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Helpers.Database.GameRules;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Equippables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     public class Galaxy
     {
-        private readonly List<Fleet> _fleets;
-        private readonly List<Planet> _planets;
+        private readonly Dictionary<int, Fleet> _fleets;
+        private readonly Dictionary<int, Planet> _planets;
+        private readonly List<Character> _characters;
         private readonly IReadOnlyList<Faction> _factions;
         private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
         private readonly IReadOnlyList<SkillTemplate> _skillTemplateList;
         private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
         private readonly int _galaxySize;
-        public IReadOnlyList<Planet> Planets { get => _planets; }
-        public IReadOnlyList<Fleet> Fleets { get => _fleets; }
+        public List<Character> Characters { get => _characters; }
+        public IReadOnlyDictionary<int, Planet> Planets { get => _planets; }
+        public IReadOnlyDictionary<int, Fleet> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
@@ -36,6 +38,7 @@ namespace OnlyWar.Scripts.Helpers
         public Galaxy(int galaxySize)
         {
             var gameBlob = GameRulesDataAccess.Instance.GetData();
+            _characters = new List<Character>();
             _factions = gameBlob.Factions;
             _baseSkillMap = gameBlob.BaseSkills;
             _skillTemplateList = gameBlob.SkillTemplates;
@@ -46,8 +49,8 @@ namespace OnlyWar.Scripts.Helpers
             WeaponSets = gameBlob.WeaponSets;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
             _galaxySize = galaxySize;
-            _planets = new List<Planet>();
-            _fleets = new List<Fleet>();
+            _planets = new Dictionary<int, Planet>();
+            _fleets = new Dictionary<int, Fleet>();
         }
 
         public IReadOnlyList<Faction> GetNonPlayerFactions()
@@ -62,23 +65,30 @@ namespace OnlyWar.Scripts.Helpers
 
         public Planet GetPlanetByPosition(Vector2 worldPosition)
         {
-            return Planets.Where(p => p.Position != null && p.Position == worldPosition).SingleOrDefault();
+            return Planets.Values.Where(p => p.Position != null && p.Position == worldPosition).SingleOrDefault();
         }
 
         public IEnumerable<Fleet> GetFleetsByPosition(Vector2 worldPosition)
         {
-            return Fleets.Where(f => f.Position == worldPosition);
+            return Fleets.Values.Where(f => f.Position == worldPosition);
         }
 
-        public void GenerateGalaxy(List<Planet> planets, List<Fleet> fleets)
+        public void GenerateGalaxy(List<Character> characters, List<Planet> planets, List<Fleet> fleets)
         {
+            _characters.Clear();
+            _characters.AddRange(characters);
+            
             _planets.Clear();
-            _planets.AddRange(planets);
-            _fleets.Clear();
-            _fleets.AddRange(fleets);
-            foreach(Fleet fleet in fleets)
+            foreach(Planet planet in planets)
             {
-                if(fleet.Planet != null)
+                _planets[planet.Id] = planet;
+            }
+
+            _fleets.Clear();
+            foreach (Fleet fleet in fleets)
+            {
+                _fleets[fleet.Id] = fleet;
+                if (fleet.Planet != null)
                 {
                     fleet.Planet.Fleets.Add(fleet);
                 }
@@ -97,7 +107,13 @@ namespace OnlyWar.Scripts.Helpers
                     if (random <= 0.05)
                     {
                         Planet planet = GeneratePlanet(new Vector2(i, j));
-                        _planets.Add(planet);
+                        _planets[planet.Id] = planet;
+                        if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
+                        {
+                            Character leader = 
+                                planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader;
+                            _characters.Add(leader);
+                        }
                     }
                 }
             }
@@ -105,7 +121,7 @@ namespace OnlyWar.Scripts.Helpers
 
         public void AddNewFleet(Fleet newFleet)
         {
-            _fleets.Add(newFleet);
+            _fleets[newFleet.Id] = newFleet;
             if(newFleet.Planet != null)
             {
                 newFleet.Planet.Fleets.Add(newFleet);
@@ -127,7 +143,7 @@ namespace OnlyWar.Scripts.Helpers
             }
             mergingFleet.Ships.Clear();
             remainingFleet.Ships.Sort((x, y) => x.Template.Id.CompareTo(y.Template.Id));
-            _fleets.Remove(mergingFleet);
+            _fleets.Remove(mergingFleet.Id);
             mergingFleet.Planet.Fleets.Remove(mergingFleet);
         }
 
@@ -150,7 +166,7 @@ namespace OnlyWar.Scripts.Helpers
             {
                 newFleet.Planet.Fleets.Add(newFleet);
             }
-            _fleets.Add(newFleet);
+            _fleets[newFleet.Id] = newFleet;
             return newFleet;
         }
 

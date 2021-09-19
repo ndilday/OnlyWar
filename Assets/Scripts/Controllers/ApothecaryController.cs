@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
-using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Models;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Views;
+using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class ApothecaryController : ChapterUnitTreeController
     {

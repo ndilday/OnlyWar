@@ -1,14 +1,14 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+﻿using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class UnitDataAccess
     {
@@ -76,7 +76,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
             {
                 int id = reader.GetInt32(0);
                 int unitTemplateId = reader.GetInt32(2);
-                string name = reader[5].ToString();
+                string name = reader[4].ToString();
 
                 Squad hqSquad = null;
                 int parentUnitId;
@@ -87,14 +87,7 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                     squadList = unitSquadMap[id];
                 }
 
-                if (reader[3].GetType() != typeof(DBNull))
-                {
-                    int hqSquadId = reader.GetInt32(3);
-                    hqSquad = squadList.First(s => s.Id == hqSquadId);
-                }
-
-                Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId],
-                                     hqSquad, squadList);
+                Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId], squadList);
                 if (hqSquad != null)
                 {
                     hqSquad.ParentUnit = unit;
@@ -107,9 +100,9 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
                 unitMap[id] = unit;
                 unitList.Add(unit);
 
-                if (reader[4].GetType() != typeof(DBNull))
+                if (reader[3].GetType() != typeof(DBNull))
                 {
-                    parentUnitId = reader.GetInt32(4);
+                    parentUnitId = reader.GetInt32(3);
                     if (!parentUnitMap.ContainsKey(parentUnitId))
                     {
                         parentUnitMap[parentUnitId] = new List<Unit>();
@@ -156,10 +149,9 @@ namespace OnlyWar.Scripts.Helpers.Database.GameState
 
         public void SaveUnit(IDbTransaction transaction, Unit unit)
         {
-            string hq = unit.HQSquad == null ? "null" : unit.HQSquad.Id.ToString();
             string parent = unit.ParentUnit == null ? "null" : unit.ParentUnit.Id.ToString();
             string insert = $@"INSERT INTO Unit VALUES ({unit.Id}, {unit.UnitTemplate.Faction.Id}, 
-                {unit.UnitTemplate.Id}, {hq}, {parent}, '{unit.Name}');";
+                {unit.UnitTemplate.Id}, {parent}, '{unit.Name}');";
             IDbCommand command = transaction.Connection.CreateCommand();
             command.CommandText = insert;
             command.ExecuteNonQuery();

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     public enum Attribute
     {

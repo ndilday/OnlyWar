@@ -1,7 +1,7 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battle.Resolutions
 {
     public class WoundResolution
     {

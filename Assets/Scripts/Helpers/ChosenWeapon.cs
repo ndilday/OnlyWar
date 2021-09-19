@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     public class ChosenRangedWeapon
     {

@@ -1,17 +1,17 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Helpers.Database.GameState;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Helpers.Database.GameState;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {
@@ -56,7 +56,7 @@ namespace OnlyWar.Scripts.Controllers
                                                      hitLocations, GameSettings.Galaxy.BaseSkillMap,
                                                      soldierTypeMap);
 
-            GameSettings.Galaxy.GenerateGalaxy(gameData.Planets, gameData.Fleets);
+            GameSettings.Galaxy.GenerateGalaxy(gameData.Characters, gameData.Planets, gameData.Fleets);
             GameSettings.Date = gameData.CurrentDate;
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
                                              .ToDictionary(g => g.Key, g => g.ToList());
@@ -169,7 +169,7 @@ namespace OnlyWar.Scripts.Controllers
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
             // on the Marine starting planet
-            var emptyPlanets = GameSettings.Galaxy.Planets.Where(p => p.ControllingFaction.IsDefaultFaction);
+            var emptyPlanets = GameSettings.Galaxy.Planets.Values.Where(p => p.ControllingFaction.IsDefaultFaction);
             int max = emptyPlanets.Count();
             int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
             Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
@@ -179,7 +179,7 @@ namespace OnlyWar.Scripts.Controllers
         private void PlaceStartingForces()
         {
             // For now, put the chapter on their home planet
-            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
@@ -205,8 +205,8 @@ namespace OnlyWar.Scripts.Controllers
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
-                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.GetAllSquads().ToList();
-                    foreach(Squad squad in newArmy.GetAllSquads())
+                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.Squads.ToList();
+                    foreach(Squad squad in newArmy.Squads)
                     {
                         squad.Location = planet;
                     }
@@ -216,10 +216,6 @@ namespace OnlyWar.Scripts.Controllers
 
         private void SetChapterSquadsLocation(Planet planet)
         {
-            if (GameSettings.Chapter.OrderOfBattle.HQSquad != null)
-            {
-                GameSettings.Chapter.OrderOfBattle.HQSquad.Location = planet;
-            }
             foreach (Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
             {
                 if (squad.Members.Count > 0)
@@ -229,10 +225,6 @@ namespace OnlyWar.Scripts.Controllers
             }
             foreach (Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
             {
-                if (unit.HQSquad != null && unit.HQSquad.Members.Count > 0)
-                {
-                    unit.HQSquad.Location = planet;
-                }
                 foreach (Squad squad in unit.Squads)
                 {
                     if (squad.Members.Count > 0)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlyWar.Scripts.Models.Missions
+namespace OnlyWar.Models.Missions
 {
     public class MissionTemplate
     {

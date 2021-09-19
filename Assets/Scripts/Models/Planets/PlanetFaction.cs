@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlyWar.Scripts.Models.Planets
+namespace OnlyWar.Models.Planets
 {
     public class PlanetFaction
     {
@@ -13,6 +13,7 @@ namespace OnlyWar.Scripts.Models.Planets
         public long Population { get; set; }
         public int PDFMembers { get; set; }
         public float PlayerReputation { get; set; }
+        public Character Leader { get; set; }
 
         public PlanetFaction(Faction faction)
         {

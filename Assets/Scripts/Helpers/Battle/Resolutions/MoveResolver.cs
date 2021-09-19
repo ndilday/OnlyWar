@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battle.Resolutions
 {
     public class MoveResolver : IResolver
     {

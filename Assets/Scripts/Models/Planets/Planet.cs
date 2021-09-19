@@ -2,10 +2,10 @@
 using System.Linq;
 using UnityEngine;
 
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Squads;
 
-namespace OnlyWar.Scripts.Models.Planets
+namespace OnlyWar.Models.Planets
 {
     public class Planet
     {

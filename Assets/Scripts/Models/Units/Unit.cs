@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
 
-namespace OnlyWar.Scripts.Models.Units
+namespace OnlyWar.Models.Units
 {
     public class Unit
     {
@@ -14,15 +14,20 @@ namespace OnlyWar.Scripts.Models.Units
         public int Id { get; private set; }
         public string Name { get; set; }
         public UnitTemplate UnitTemplate { get; private set; }
-        public Squad HQSquad { get; private set; }
+        public Squad HQSquad
+        {
+            get
+            {
+                return _squads.FirstOrDefault(s => (s.SquadTemplate.SquadType & SquadTypes.HQ) > 0);
+            }
+        }
         public IReadOnlyCollection<Squad> Squads { get => _squads; }
         // if Loadout count < Member count, assume the rest are using the default loadout in the template
         public List<int> AssignedVehicles;
         public List<Unit> ChildUnits;
         public Unit ParentUnit;
 
-        public Unit(int id, string name, UnitTemplate template, 
-                    Squad hq, List<Squad> squads)
+        public Unit(int id, string name, UnitTemplate template, List<Squad> squads)
         {
             Id = id;
             if(id > _nextId)
@@ -31,7 +36,6 @@ namespace OnlyWar.Scripts.Models.Units
             }
             Name = name;
             UnitTemplate = template;
-            HQSquad = hq;
             _squads = squads;
         }
         public Unit(string name, UnitTemplate template)
@@ -43,15 +47,14 @@ namespace OnlyWar.Scripts.Models.Units
             ChildUnits = new List<Unit>();
             
             int i = 1;
-
-            if (template.HQSquad != null)
-            {
-                HQSquad = new Squad(name + " HQ Squad", this, template.HQSquad);
-                i++;
-            }
             
             _squads = new List<Squad>();
-            foreach(SquadTemplate squadTemplate in template.GetChildSquads())
+            if (template.HQSquad != null)
+            {
+                _squads.Add(new Squad(name + " HQ Squad", this, template.HQSquad));
+                i++;
+            }
+            foreach (SquadTemplate squadTemplate in template.GetChildSquads())
             {
                 _squads.Add(new Squad(squadTemplate.Name, this, squadTemplate));
                 i++;
@@ -64,31 +67,25 @@ namespace OnlyWar.Scripts.Models.Units
             {
                 soldiers = Squads.SelectMany(s => s.Members);
             }
-            if(HQSquad != null)
-            {
-                soldiers = HQSquad.Members.Union(soldiers);
-            }
             if(ChildUnits != null)
             {
                 soldiers = soldiers.Union(ChildUnits.SelectMany(u => u.GetAllMembers()));
             }
             return soldiers;
         }
-        
+
         public IEnumerable<Squad> GetAllSquads()
         {
-            List<Squad> squads = new List<Squad>();
-            squads.AddRange(Squads);
-            if(ChildUnits != null)
+            IEnumerable<Squad> squads = null;
+            if (Squads != null)
             {
-                squads.AddRange(ChildUnits.SelectMany(cu => cu.GetAllSquads()));
+                squads = Squads;
+            }
+            if (ChildUnits != null)
+            {
+                squads = squads.Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
             }
             return squads;
-        }
-
-        public void AddHQSquad(Squad hq)
-        {
-            HQSquad = hq;
         }
 
         public void AddSquad(Squad squad)

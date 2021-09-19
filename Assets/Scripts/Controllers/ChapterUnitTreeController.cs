@@ -4,12 +4,12 @@ using System.Linq;
 
 using UnityEngine;
 
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
-using OnlyWar.Scripts.Views;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
+using OnlyWar.Views;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class ChapterUnitTreeController : MonoBehaviour
     {
@@ -30,12 +30,18 @@ namespace OnlyWar.Scripts.Controllers
 
             foreach (Squad squad in chapterRoot.Squads)
             {
-                squadMap[squad.Id] = squad;
-                unitTreeView.AddLeafSquad(squad.Id, squad.Name, DetermineDisplayColor(squad, soldierMap));
+                if (chapterRoot.HQSquad == null || squad.Id != chapterRoot.HQSquad.Id)
+                {
+                    squadMap[squad.Id] = squad;
+                    unitTreeView.AddLeafSquad(squad.Id, squad.Name, DetermineDisplayColor(squad, soldierMap));
+                }
             }
             foreach (Unit company in chapterRoot.ChildUnits)
             {
-                squadMap[company.HQSquad.Id] = company.HQSquad;
+                if (company.HQSquad != null)
+                {
+                    squadMap[company.HQSquad.Id] = company.HQSquad;
+                }
                 if (company.Squads?.Count == 0)
                 {
                     // this is unexpected, currently
@@ -47,15 +53,15 @@ namespace OnlyWar.Scripts.Controllers
                 {
                     List<Tuple<int, string, Color, int>> squadList = 
                         new List<Tuple<int, string, Color, int>>();
-                    //squadList.Add(new Tuple<int, string>(company.Id + 1000, company.Name + " HQ Squad"));
-                    //_squadMap[company.Id + 1000] = company;
                     foreach (Squad squad in company.Squads)
                     {
-
-                        squadList.Add(new Tuple<int, string, Color, int>(squad.Id, squad.Name,
-                                                                         DetermineDisplayColor(squad, soldierMap),
-                                                                         -1));
-                        squadMap[squad.Id] = squad;
+                        if (company.HQSquad == null || squad != company.HQSquad)
+                        {
+                            squadList.Add(new Tuple<int, string, Color, int>(squad.Id, squad.Name,
+                                                                             DetermineDisplayColor(squad, soldierMap),
+                                                                             -1));
+                            squadMap[squad.Id] = squad;
+                        }
                     }
                     unitTreeView.AddTreeUnit(company.Id, company.Name,
                                              DetermineDisplayColor(company.HQSquad, soldierMap), 

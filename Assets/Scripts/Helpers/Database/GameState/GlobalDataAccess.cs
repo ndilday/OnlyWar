@@ -1,7 +1,7 @@
-﻿using OnlyWar.Scripts.Models;
+﻿using OnlyWar.Models;
 using System.Data;
 
-namespace OnlyWar.Scripts.Helpers.Database.GameState
+namespace OnlyWar.Helpers.Database.GameState
 {
     public class GlobalDataAccess
     {

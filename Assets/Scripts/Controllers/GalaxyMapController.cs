@@ -1,8 +1,8 @@
-﻿using OnlyWar.Scripts.Helpers;
-using OnlyWar.Scripts.Helpers.Battle;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Helpers.Battle;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
     public class GalaxyMapController : MonoBehaviour
@@ -43,7 +43,7 @@ namespace OnlyWar.Scripts.Controllers
             _selectedShips = new List<Ship>();
             OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
             
-            foreach(Planet planet in GameSettings.Galaxy.Planets)
+            foreach(Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
                 if(planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
@@ -51,7 +51,7 @@ namespace OnlyWar.Scripts.Controllers
                     Map.CenterCameraOnPlanet(planet.Id);
                 }
             }
-            foreach (Fleet fleet in GameSettings.Galaxy.Fleets)
+            foreach (Fleet fleet in GameSettings.Galaxy.Fleets.Values)
             {
                 Map.CreateFleet(fleet.Id, fleet.Position, false);
             }
@@ -59,7 +59,7 @@ namespace OnlyWar.Scripts.Controllers
 
         public void GalaxyMapController_OnTurnStart()
         {
-            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 Map.UpdatePlanetColor(planet.Id, GetPlanetColor(planet));
             }
@@ -80,7 +80,7 @@ namespace OnlyWar.Scripts.Controllers
         {
             // move fleets
             // doing a copy of the list here so I can delete elements from the underlying collection
-            foreach(Fleet fleet in GameSettings.Galaxy.Fleets.ToList())
+            foreach(Fleet fleet in GameSettings.Galaxy.Fleets.Values)
             {
                 UpdateFleetPosition(fleet);
             }
@@ -270,7 +270,7 @@ namespace OnlyWar.Scripts.Controllers
             if (destinationPlanetId != null)
             {
                 Planet destination = GameSettings.Galaxy.Planets[(int)destinationPlanetId];
-                if (fleet.Ships.Count != _selectedShips.Count)
+                if (fleet.Ships.Count != 0 && fleet.Ships.Count != _selectedShips.Count)
                 {
                     // this set of ships is a subset of the original fleet, 
                     // we'll need to break them out on their own
@@ -367,6 +367,7 @@ namespace OnlyWar.Scripts.Controllers
             {
                 Map.SelectFleet((int)_selectedFleetId, false);
             }
+            _selectedShips.Clear();
             // select new fleet
             _selectedFleetId = Map.GetFleetIdFromLocation(hitInfo.collider.transform.position);
             if (_selectedFleetId != null)
@@ -428,7 +429,7 @@ namespace OnlyWar.Scripts.Controllers
 
         private void HandlePlanetaryAssaults()
         {
-            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 if (planet.IsUnderAssault)
                 {

@@ -1,6 +1,6 @@
-﻿using OnlyWar.Scripts.Models.Soldiers;
+﻿using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Scripts.Models.Squads
+namespace OnlyWar.Models.Squads
 {
     public class SquadTemplateElement
     {
