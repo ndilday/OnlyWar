@@ -106,42 +106,44 @@ namespace OnlyWar.Helpers.Database.GameRules
                                          Dictionary<int, List<FleetTemplate>> factionFleetMap)
         {
             List<Faction> factionList = new List<Faction>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Faction";
-            var reader = command.ExecuteReader();
-            while(reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                string name = reader[1].ToString();
-                Color color = ConvertDatabaseObjectToColor(reader[2]);
-                bool isPlayer = (bool)reader[3];
-                bool isDefault = (bool)reader[4];
-                bool canInfiltrate = (bool)reader[5];
-                GrowthType growthType = (GrowthType)reader.GetInt32(6);
-
-                var speciesMap = factionSpeciesMap.ContainsKey(id) ? 
-                    factionSpeciesMap[id].ToDictionary(st => st.Id) : null;
-                var soldierMap = factionSoldierTemplateMap.ContainsKey(id) ?
-                    factionSoldierTemplateMap[id].ToDictionary(st => st.Id) : null;
-                var squadMap = factionSquadMap.ContainsKey(id) ? 
-                    factionSquadMap[id].ToDictionary(st => st.Id) : null;
-                var unitMap = factionUnitMap.ContainsKey(id) ? 
-                    factionUnitMap[id].ToDictionary(ut => ut.Id) : null;
-                Dictionary<int, BoatTemplate> boatMap = null;
-                Dictionary<int, ShipTemplate> shipMap = null;
-                Dictionary<int, FleetTemplate> fleetMap = null;
-                if(factionShipMap.ContainsKey(id))
+                command.CommandText = "SELECT * FROM Faction";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    boatMap = factionBoatMap[id].ToDictionary(bt => bt.Id);
-                    shipMap = factionShipMap[id].ToDictionary(st => st.Id);
-                    fleetMap = factionFleetMap[id].ToDictionary(ft => ft.Id);
-                }
+                    int id = reader.GetInt32(0);
+                    string name = reader[1].ToString();
+                    Color color = ConvertDatabaseObjectToColor(reader[2]);
+                    bool isPlayer = (bool)reader[3];
+                    bool isDefault = (bool)reader[4];
+                    bool canInfiltrate = (bool)reader[5];
+                    GrowthType growthType = (GrowthType)reader.GetInt32(6);
 
-                Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault, 
-                                                      canInfiltrate, growthType, speciesMap, 
-                                                      soldierMap, squadMap, unitMap, boatMap, 
-                                                      shipMap, fleetMap);
-                factionList.Add(factionTemplate);
+                    var speciesMap = factionSpeciesMap.ContainsKey(id) ?
+                        factionSpeciesMap[id].ToDictionary(st => st.Id) : null;
+                    var soldierMap = factionSoldierTemplateMap.ContainsKey(id) ?
+                        factionSoldierTemplateMap[id].ToDictionary(st => st.Id) : null;
+                    var squadMap = factionSquadMap.ContainsKey(id) ?
+                        factionSquadMap[id].ToDictionary(st => st.Id) : null;
+                    var unitMap = factionUnitMap.ContainsKey(id) ?
+                        factionUnitMap[id].ToDictionary(ut => ut.Id) : null;
+                    Dictionary<int, BoatTemplate> boatMap = null;
+                    Dictionary<int, ShipTemplate> shipMap = null;
+                    Dictionary<int, FleetTemplate> fleetMap = null;
+                    if (factionShipMap.ContainsKey(id))
+                    {
+                        boatMap = factionBoatMap[id].ToDictionary(bt => bt.Id);
+                        shipMap = factionShipMap[id].ToDictionary(st => st.Id);
+                        fleetMap = factionFleetMap[id].ToDictionary(ft => ft.Id);
+                    }
+
+                    Faction factionTemplate = new Faction(id, name, color, isPlayer, isDefault,
+                                                          canInfiltrate, growthType, speciesMap,
+                                                          soldierMap, squadMap, unitMap, boatMap,
+                                                          shipMap, fleetMap);
+                    factionList.Add(factionTemplate);
+                }
             }
             return factionList;
         }
@@ -150,23 +152,25 @@ namespace OnlyWar.Helpers.Database.GameRules
                                                       Dictionary<int, BaseSkill> baseSkillMap)
         {
             List<SkillTemplate> skillTemplateList = new List<SkillTemplate>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SkillTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int baseSkillId = reader.GetInt32(1);
-                float baseValue = (float)reader[2];
-                float stdDev = (float)reader[3];
-                SkillTemplate skillTemplate = new SkillTemplate
+                command.CommandText = "SELECT * FROM SkillTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    BaseSkill = baseSkillMap[baseSkillId],
-                    BaseValue = baseValue,
-                    StandardDeviation = stdDev
-                };
+                    int id = reader.GetInt32(0);
+                    int baseSkillId = reader.GetInt32(1);
+                    float baseValue = (float)reader[2];
+                    float stdDev = (float)reader[3];
+                    SkillTemplate skillTemplate = new SkillTemplate
+                    {
+                        BaseSkill = baseSkillMap[baseSkillId],
+                        BaseValue = baseValue,
+                        StandardDeviation = stdDev
+                    };
 
-                skillTemplateList.Add(skillTemplate);
+                    skillTemplateList.Add(skillTemplate);
+                }
             }
             return skillTemplateList;
         }
@@ -174,19 +178,21 @@ namespace OnlyWar.Helpers.Database.GameRules
         private Dictionary<int, List<int>> GetUnitTemplateHierarchy(IDbConnection connection)
         {
             Dictionary<int, List<int>> unitTemplateTree = new Dictionary<int, List<int>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM UnitTemplateTree";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int parentUnitId = reader.GetInt32(1);
-                int childUnitId = reader.GetInt32(2);
-
-                if (!unitTemplateTree.ContainsKey(parentUnitId))
+                command.CommandText = "SELECT * FROM UnitTemplateTree";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    unitTemplateTree[parentUnitId] = new List<int>();
+                    int parentUnitId = reader.GetInt32(1);
+                    int childUnitId = reader.GetInt32(2);
+
+                    if (!unitTemplateTree.ContainsKey(parentUnitId))
+                    {
+                        unitTemplateTree[parentUnitId] = new List<int>();
+                    }
+                    unitTemplateTree[parentUnitId].Add(childUnitId);
                 }
-                unitTemplateTree[parentUnitId].Add(childUnitId);
             }
             return unitTemplateTree;
         }
@@ -198,40 +204,41 @@ namespace OnlyWar.Helpers.Database.GameRules
         {
             Dictionary<int, List<UnitTemplate>> factionUnitTemplateMap = new Dictionary<int, List<UnitTemplate>>();
             Dictionary<int, UnitTemplate> unitTemplateMap = new Dictionary<int, UnitTemplate>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM UnitTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                bool isTop = (bool)reader[3];
-                SquadTemplate hqSquad;
-                if (reader[4].GetType() != typeof(DBNull))
+                command.CommandText = "SELECT * FROM UnitTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    hqSquad = squadTemplateMap[reader.GetInt32(4)];
-                }
-                else
-                {
-                    hqSquad = null;
+                    int id = reader.GetInt32(0);
+                    int factionId = reader.GetInt32(1);
+                    string name = reader[2].ToString();
+                    bool isTop = (bool)reader[3];
+                    SquadTemplate hqSquad;
+                    if (reader[4].GetType() != typeof(DBNull))
+                    {
+                        hqSquad = squadTemplateMap[reader.GetInt32(4)];
+                    }
+                    else
+                    {
+                        hqSquad = null;
+                    }
+
+                    if (!factionUnitTemplateMap.ContainsKey(factionId))
+                    {
+                        factionUnitTemplateMap[factionId] = new List<UnitTemplate>();
+                    }
+                    UnitTemplate unitTemplate = new UnitTemplate(id, name, isTop, hqSquad, unitSquadMap[id]);
+                    factionUnitTemplateMap[factionId].Add(unitTemplate);
+                    unitTemplateMap[id] = unitTemplate;
                 }
 
-                if (!factionUnitTemplateMap.ContainsKey(factionId))
+                // hydrate unit children
+                foreach (KeyValuePair<int, List<int>> kvp in unitTemplateTree)
                 {
-                    factionUnitTemplateMap[factionId] = new List<UnitTemplate>();
+                    unitTemplateMap[kvp.Key].SetChildUnits(kvp.Value.Select(i => unitTemplateMap[i]).ToList());
                 }
-                UnitTemplate unitTemplate = new UnitTemplate(id, name, isTop, hqSquad, unitSquadMap[id]);
-                factionUnitTemplateMap[factionId].Add(unitTemplate);
-                unitTemplateMap[id] = unitTemplate;
             }
-
-            // hydrate unit children
-            foreach(KeyValuePair<int, List<int>> kvp in unitTemplateTree)
-            {
-                unitTemplateMap[kvp.Key].SetChildUnits(kvp.Value.Select(i => unitTemplateMap[i]).ToList());
-            }
-
             return factionUnitTemplateMap;
         }
 
@@ -239,19 +246,21 @@ namespace OnlyWar.Helpers.Database.GameRules
                                                                                        Dictionary<int, SquadTemplate> squadTemplateMap)
         {
             Dictionary<int, List<SquadTemplate>> unitSquadTemplateMap = new Dictionary<int, List<SquadTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM UnitTemplateSquadTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int unitTemplateId = reader.GetInt32(1);
-                int squadTemplateId = reader.GetInt32(2);
-
-                if (!unitSquadTemplateMap.ContainsKey(unitTemplateId))
+                command.CommandText = "SELECT * FROM UnitTemplateSquadTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    unitSquadTemplateMap[unitTemplateId] = new List<SquadTemplate>();
+                    int unitTemplateId = reader.GetInt32(1);
+                    int squadTemplateId = reader.GetInt32(2);
+
+                    if (!unitSquadTemplateMap.ContainsKey(unitTemplateId))
+                    {
+                        unitSquadTemplateMap[unitTemplateId] = new List<SquadTemplate>();
+                    }
+                    unitSquadTemplateMap[unitTemplateId].Add(squadTemplateMap[squadTemplateId]);
                 }
-                unitSquadTemplateMap[unitTemplateId].Add(squadTemplateMap[squadTemplateId]);
             }
             return unitSquadTemplateMap;
         }

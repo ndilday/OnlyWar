@@ -8,16 +8,18 @@ namespace OnlyWar.Helpers.Database.GameState
         public Date GetGlobalData(IDbConnection connection)
         {
             Date date = null;
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM GlobalData";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int millenium = reader.GetInt32(0);
-                int year = reader.GetInt32(1);
-                int week = reader.GetInt32(2);
+                command.CommandText = "SELECT * FROM GlobalData";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int millenium = reader.GetInt32(0);
+                    int year = reader.GetInt32(1);
+                    int week = reader.GetInt32(2);
 
-                date = new Date(millenium, year, week);
+                    date = new Date(millenium, year, week);
+                }
             }
             return date;
         }
@@ -26,9 +28,11 @@ namespace OnlyWar.Helpers.Database.GameState
         {
             string insert = $@"INSERT INTO GlobalData VALUES ({currentDate.Millenium}, 
                 {currentDate.Year}, {currentDate.Week}, 1);";
-            IDbCommand command = transaction.Connection.CreateCommand();
-            command.CommandText = insert;
-            command.ExecuteNonQuery();
+            using (var command = transaction.Connection.CreateCommand())
+            {
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

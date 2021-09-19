@@ -19,45 +19,47 @@ namespace OnlyWar.Helpers.Database.GameState
                                                                List<Planet> planetList)
         {
             Dictionary<int, List<Squad>> squadMap = new Dictionary<int, List<Squad>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Squad";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int squadTemplateId = reader.GetInt32(1);
-                int parentUnitId = reader.GetInt32(2);
-                string name = reader[3].ToString();
-                bool isInReserve = reader.GetBoolean(6);
-
-                SquadTemplate template = squadTemplateMap[squadTemplateId];
-
-                Squad squad = new Squad(id, name, null, template, isInReserve);
-
-
-                if (reader[4].GetType() != typeof(DBNull))
+                command.CommandText = "SELECT * FROM Squad";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    Ship ship = shipMap[reader.GetInt32(4)];
-                    squad.BoardedLocation = ship;
-                }
+                    int id = reader.GetInt32(0);
+                    int squadTemplateId = reader.GetInt32(1);
+                    int parentUnitId = reader.GetInt32(2);
+                    string name = reader[3].ToString();
+                    bool isInReserve = reader.GetBoolean(6);
 
-                if (reader[5].GetType() != typeof(DBNull))
-                {
-                    Planet planet = planetList.First(p => p.Id == reader.GetInt32(5));
-                    squad.Location = planet;
-                }
+                    SquadTemplate template = squadTemplateMap[squadTemplateId];
 
-                if (!squadMap.ContainsKey(parentUnitId))
-                {
-                    squadMap[parentUnitId] = new List<Squad>();
-                }
+                    Squad squad = new Squad(id, name, null, template, isInReserve);
 
-                if(squadWeaponSetMap.ContainsKey(id))
-                {
-                    squad.Loadout = squadWeaponSetMap[id];
-                }
 
-                squadMap[parentUnitId].Add(squad);
+                    if (reader[4].GetType() != typeof(DBNull))
+                    {
+                        Ship ship = shipMap[reader.GetInt32(4)];
+                        squad.BoardedLocation = ship;
+                    }
+
+                    if (reader[5].GetType() != typeof(DBNull))
+                    {
+                        Planet planet = planetList.First(p => p.Id == reader.GetInt32(5));
+                        squad.Location = planet;
+                    }
+
+                    if (!squadMap.ContainsKey(parentUnitId))
+                    {
+                        squadMap[parentUnitId] = new List<Squad>();
+                    }
+
+                    if (squadWeaponSetMap.ContainsKey(id))
+                    {
+                        squad.Loadout = squadWeaponSetMap[id];
+                    }
+
+                    squadMap[parentUnitId].Add(squad);
+                }
             }
             return squadMap;
         }
@@ -69,45 +71,47 @@ namespace OnlyWar.Helpers.Database.GameState
             List<Unit> unitList = new List<Unit>();
             Dictionary<int, Unit> unitMap = new Dictionary<int, Unit>();
             Dictionary<int, List<Unit>> parentUnitMap = new Dictionary<int, List<Unit>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Unit";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int unitTemplateId = reader.GetInt32(2);
-                string name = reader[4].ToString();
-
-                Squad hqSquad = null;
-                int parentUnitId;
-
-                List<Squad> squadList = null;
-                if (unitSquadMap.ContainsKey(id))
+                command.CommandText = "SELECT * FROM Unit";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    squadList = unitSquadMap[id];
-                }
+                    int id = reader.GetInt32(0);
+                    int unitTemplateId = reader.GetInt32(2);
+                    string name = reader[4].ToString();
 
-                Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId], squadList);
-                if (hqSquad != null)
-                {
-                    hqSquad.ParentUnit = unit;
-                }
-                foreach (Squad squad in squadList)
-                {
-                    squad.ParentUnit = unit;
-                }
+                    Squad hqSquad = null;
+                    int parentUnitId;
 
-                unitMap[id] = unit;
-                unitList.Add(unit);
-
-                if (reader[3].GetType() != typeof(DBNull))
-                {
-                    parentUnitId = reader.GetInt32(3);
-                    if (!parentUnitMap.ContainsKey(parentUnitId))
+                    List<Squad> squadList = null;
+                    if (unitSquadMap.ContainsKey(id))
                     {
-                        parentUnitMap[parentUnitId] = new List<Unit>();
+                        squadList = unitSquadMap[id];
                     }
-                    parentUnitMap[parentUnitId].Add(unit);
+
+                    Unit unit = new Unit(id, name, unitTemplateMap[unitTemplateId], squadList);
+                    if (hqSquad != null)
+                    {
+                        hqSquad.ParentUnit = unit;
+                    }
+                    foreach (Squad squad in squadList)
+                    {
+                        squad.ParentUnit = unit;
+                    }
+
+                    unitMap[id] = unit;
+                    unitList.Add(unit);
+
+                    if (reader[3].GetType() != typeof(DBNull))
+                    {
+                        parentUnitId = reader.GetInt32(3);
+                        if (!parentUnitMap.ContainsKey(parentUnitId))
+                        {
+                            parentUnitMap[parentUnitId] = new List<Unit>();
+                        }
+                        parentUnitMap[parentUnitId].Add(unit);
+                    }
                 }
             }
 
@@ -128,21 +132,23 @@ namespace OnlyWar.Helpers.Database.GameState
         {
             Dictionary<int, List<WeaponSet>> squadWeaponSetMap = 
                 new Dictionary<int, List<WeaponSet>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM SquadWeaponSet";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int squadId = reader.GetInt32(0);
-                int weaponSetId = reader.GetInt32(1);
-
-                WeaponSet weaponSet = weaponSets[weaponSetId];
-
-                if(!squadWeaponSetMap.ContainsKey(squadId))
+                command.CommandText = "SELECT * FROM SquadWeaponSet";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    squadWeaponSetMap[squadId] = new List<WeaponSet>();
+                    int squadId = reader.GetInt32(0);
+                    int weaponSetId = reader.GetInt32(1);
+
+                    WeaponSet weaponSet = weaponSets[weaponSetId];
+
+                    if (!squadWeaponSetMap.ContainsKey(squadId))
+                    {
+                        squadWeaponSetMap[squadId] = new List<WeaponSet>();
+                    }
+                    squadWeaponSetMap[squadId].Add(weaponSet);
                 }
-                squadWeaponSetMap[squadId].Add(weaponSet);
             }
             return squadWeaponSetMap;
         }
@@ -152,9 +158,11 @@ namespace OnlyWar.Helpers.Database.GameState
             string parent = unit.ParentUnit == null ? "null" : unit.ParentUnit.Id.ToString();
             string insert = $@"INSERT INTO Unit VALUES ({unit.Id}, {unit.UnitTemplate.Faction.Id}, 
                 {unit.UnitTemplate.Id}, {parent}, '{unit.Name}');";
-            IDbCommand command = transaction.Connection.CreateCommand();
-            command.CommandText = insert;
-            command.ExecuteNonQuery();
+            using (var command = transaction.Connection.CreateCommand())
+            {
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
         }
 
         public void SaveSquad(IDbTransaction transaction, Squad squad)
@@ -164,9 +172,11 @@ namespace OnlyWar.Helpers.Database.GameState
             string planet = squad.Location == null ? "null" : squad.Location.Id.ToString();
             string insert = $@"INSERT INTO Squad VALUES ({squad.Id}, {squad.SquadTemplate.Id}, 
                 {squad.ParentUnit.Id}, '{safeName}', {ship}, {planet}, {squad.IsInReserve});";
-            IDbCommand command = transaction.Connection.CreateCommand();
-            command.CommandText = insert;
-            command.ExecuteNonQuery();
+            using (var command = transaction.Connection.CreateCommand())
+            {
+                command.CommandText = insert;
+                command.ExecuteNonQuery();
+            }
 
             if(squad.Loadout != null && squad.Loadout.Count > 0)
             {
@@ -180,9 +190,11 @@ namespace OnlyWar.Helpers.Database.GameState
             {
                 string insert = $@"INSERT INTO SquadWeaponSet VALUES 
                     ({squad.Id}, {weaponSet.Id});";
-                IDbCommand command = transaction.Connection.CreateCommand();
-                command.CommandText = insert;
-                command.ExecuteNonQuery();
+                using (var command = transaction.Connection.CreateCommand())
+                {
+                    command.CommandText = insert;
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }

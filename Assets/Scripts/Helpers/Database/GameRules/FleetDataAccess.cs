@@ -30,21 +30,23 @@ namespace OnlyWar.Helpers.Database.GameRules
         {
             Dictionary<int, List<BoatTemplate>> factionTemplateMap =
                 new Dictionary<int, List<BoatTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM BoatTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                ushort soldierCap = (ushort)reader.GetInt16(3);
-                BoatTemplate boatTemplate = new BoatTemplate(id, name, soldierCap);
-                if (!factionTemplateMap.ContainsKey(factionId))
+                command.CommandText = "SELECT * FROM BoatTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    factionTemplateMap[factionId] = new List<BoatTemplate>();
+                    int id = reader.GetInt32(0);
+                    int factionId = reader.GetInt32(1);
+                    string name = reader[2].ToString();
+                    ushort soldierCap = (ushort)reader.GetInt16(3);
+                    BoatTemplate boatTemplate = new BoatTemplate(id, name, soldierCap);
+                    if (!factionTemplateMap.ContainsKey(factionId))
+                    {
+                        factionTemplateMap[factionId] = new List<BoatTemplate>();
+                    }
+                    factionTemplateMap[factionId].Add(boatTemplate);
                 }
-                factionTemplateMap[factionId].Add(boatTemplate);
             }
             return factionTemplateMap;
         }
@@ -53,23 +55,25 @@ namespace OnlyWar.Helpers.Database.GameRules
         {
             Dictionary<int, List<ShipTemplate>> factionTemplateMap =
                 new Dictionary<int, List<ShipTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM ShipTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-                ushort soldierCap = (ushort)reader.GetInt16(3);
-                ushort boatCap = (ushort)reader.GetInt16(4);
-                ushort landerCap = (ushort)reader.GetInt16(5);
-                ShipTemplate boatTemplate = new ShipTemplate(id, name, soldierCap, boatCap, landerCap);
-                if (!factionTemplateMap.ContainsKey(factionId))
+                command.CommandText = "SELECT * FROM ShipTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    factionTemplateMap[factionId] = new List<ShipTemplate>();
+                    int id = reader.GetInt32(0);
+                    int factionId = reader.GetInt32(1);
+                    string name = reader[2].ToString();
+                    ushort soldierCap = (ushort)reader.GetInt16(3);
+                    ushort boatCap = (ushort)reader.GetInt16(4);
+                    ushort landerCap = (ushort)reader.GetInt16(5);
+                    ShipTemplate boatTemplate = new ShipTemplate(id, name, soldierCap, boatCap, landerCap);
+                    if (!factionTemplateMap.ContainsKey(factionId))
+                    {
+                        factionTemplateMap[factionId] = new List<ShipTemplate>();
+                    }
+                    factionTemplateMap[factionId].Add(boatTemplate);
                 }
-                factionTemplateMap[factionId].Add(boatTemplate);
             }
             return factionTemplateMap;
         }
@@ -77,18 +81,20 @@ namespace OnlyWar.Helpers.Database.GameRules
         private Dictionary<int, List<int>> GetFleetShipTemplateLists(IDbConnection connection)
         {
             Dictionary<int, List<int>> fleetToShipMap = new Dictionary<int, List<int>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM FleetTemplateShipTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int fleetId = reader.GetInt32(1);
-                int shipId = reader.GetInt32(2);
-                if (!fleetToShipMap.ContainsKey(fleetId))
+                command.CommandText = "SELECT * FROM FleetTemplateShipTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    fleetToShipMap[fleetId] = new List<int>();
+                    int fleetId = reader.GetInt32(1);
+                    int shipId = reader.GetInt32(2);
+                    if (!fleetToShipMap.ContainsKey(fleetId))
+                    {
+                        fleetToShipMap[fleetId] = new List<int>();
+                    }
+                    fleetToShipMap[fleetId].Add(shipId);
                 }
-                fleetToShipMap[fleetId].Add(shipId);
             }
             return fleetToShipMap;
         }
@@ -99,28 +105,30 @@ namespace OnlyWar.Helpers.Database.GameRules
         {
             Dictionary<int, List<FleetTemplate>> factionTemplateMap =
                 new Dictionary<int, List<FleetTemplate>>();
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM FleetTemplate";
-            var reader = command.ExecuteReader();
-            while (reader.Read())
+            using (var command = connection.CreateCommand())
             {
-                int id = reader.GetInt32(0);
-                int factionId = reader.GetInt32(1);
-                string name = reader[2].ToString();
-
-                List<ShipTemplate> baseList = factionShipMap[factionId];
-                List<ShipTemplate> fleetShipTemplateList = new List<ShipTemplate>();
-                foreach (int shipTemplateId in fleetShipMap[id])
+                command.CommandText = "SELECT * FROM FleetTemplate";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    fleetShipTemplateList.Add(baseList.First(st => st.Id == shipTemplateId));
-                }
+                    int id = reader.GetInt32(0);
+                    int factionId = reader.GetInt32(1);
+                    string name = reader[2].ToString();
 
-                FleetTemplate fleetTemplate = new FleetTemplate(id, name, fleetShipTemplateList);
-                if (!factionTemplateMap.ContainsKey(factionId))
-                {
-                    factionTemplateMap[factionId] = new List<FleetTemplate>();
+                    List<ShipTemplate> baseList = factionShipMap[factionId];
+                    List<ShipTemplate> fleetShipTemplateList = new List<ShipTemplate>();
+                    foreach (int shipTemplateId in fleetShipMap[id])
+                    {
+                        fleetShipTemplateList.Add(baseList.First(st => st.Id == shipTemplateId));
+                    }
+
+                    FleetTemplate fleetTemplate = new FleetTemplate(id, name, fleetShipTemplateList);
+                    if (!factionTemplateMap.ContainsKey(factionId))
+                    {
+                        factionTemplateMap[factionId] = new List<FleetTemplate>();
+                    }
+                    factionTemplateMap[factionId].Add(fleetTemplate);
                 }
-                factionTemplateMap[factionId].Add(fleetTemplate);
             }
             return factionTemplateMap;
         }

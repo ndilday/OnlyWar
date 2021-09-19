@@ -187,10 +187,12 @@ namespace OnlyWar.Helpers.Database.GameState
             string connection = $"URI=file:{Application.streamingAssetsPath}/Saves/{fileName}";
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
-            IDbCommand command = dbCon.CreateCommand();
-            command.CommandText = cmdText;
-            command.ExecuteNonQuery();
-            dbCon.Close();
+            using (var command = dbCon.CreateCommand())
+            {
+                command.CommandText = cmdText;
+                command.ExecuteNonQuery();
+                dbCon.Close();
+            }
         }
     }
 }
