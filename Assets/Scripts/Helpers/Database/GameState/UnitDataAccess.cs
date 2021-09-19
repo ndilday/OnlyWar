@@ -76,7 +76,7 @@ namespace OnlyWar.Helpers.Database.GameState
             {
                 int id = reader.GetInt32(0);
                 int unitTemplateId = reader.GetInt32(2);
-                string name = reader[5].ToString();
+                string name = reader[4].ToString();
 
                 Squad hqSquad = null;
                 int parentUnitId;
@@ -100,9 +100,9 @@ namespace OnlyWar.Helpers.Database.GameState
                 unitMap[id] = unit;
                 unitList.Add(unit);
 
-                if (reader[4].GetType() != typeof(DBNull))
+                if (reader[3].GetType() != typeof(DBNull))
                 {
-                    parentUnitId = reader.GetInt32(4);
+                    parentUnitId = reader.GetInt32(3);
                     if (!parentUnitMap.ContainsKey(parentUnitId))
                     {
                         parentUnitMap[parentUnitId] = new List<Unit>();

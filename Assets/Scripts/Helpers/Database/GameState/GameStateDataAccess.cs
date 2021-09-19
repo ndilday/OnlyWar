@@ -86,6 +86,7 @@ namespace OnlyWar.Helpers.Database.GameState
             var squadMap = squads.Values.SelectMany(s => s).ToDictionary(s => s.Id);
             var soldiers = _soldierDataAccess.GetData(dbCon, hitLocationTemplates, baseSkillMap,
                                                       soldierTemplateMap, squadMap);
+            SoldierFactory.Instance.SetCurrentHighestSoldierId(soldiers.Keys.Max());
             var playerSoldiers = _playerSoldierDataAccess.GetData(dbCon, soldiers);
             var date = _globalDataAccess.GetGlobalData(dbCon);
             var history = _playerFactionEventDataAccess.GetHistory(dbCon);
@@ -116,7 +117,7 @@ namespace OnlyWar.Helpers.Database.GameState
                 File.Delete(path);
             }
             GenerateTables(fileName);
-            var squads = units.SelectMany(u => u.Squads);
+            var squads = units.SelectMany(u => u.GetAllSquads());
             var ships = fleets.SelectMany(f => f.Ships);
             string connection = 
                 $"URI=file:{path}";
@@ -148,7 +149,7 @@ namespace OnlyWar.Helpers.Database.GameState
                     foreach(Unit unit in units)
                     {
                         _unitDataAccess.SaveUnit(transaction, unit);
-                        foreach(Unit childUnit in unit.ChildUnits)
+                        foreach(Unit childUnit in unit?.ChildUnits)
                         {
                             _unitDataAccess.SaveUnit(transaction, childUnit);
                         }

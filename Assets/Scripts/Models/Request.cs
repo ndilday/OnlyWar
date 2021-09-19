@@ -14,6 +14,13 @@ namespace OnlyWar.Models
 
     public class PresenceRequest : ARequest
     {
-
+        public override bool IsRequestStarted()
+        {
+            return false;
+        }
+        public override bool IsRequestCompleted()
+        {
+            return false;
+        }
     }
 }

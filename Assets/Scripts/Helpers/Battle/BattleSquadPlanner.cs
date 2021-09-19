@@ -411,7 +411,7 @@ namespace OnlyWar.Helpers.Battle
                 _grid.ReserveSpace(newPos);
                 _moveActionBag.Add(new MoveAction(soldier, _grid, newPos, _moveResolutionBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
-                _meleeActionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? null : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundResolutionBag, _log));
+                _meleeActionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? _defaultMeleeWeapon : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundResolutionBag, _log));
             }
         }
 

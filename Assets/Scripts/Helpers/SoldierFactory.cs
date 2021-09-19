@@ -8,6 +8,7 @@ namespace OnlyWar.Helpers
     {
         private SoldierFactory() { }
         private static SoldierFactory _instance;
+        private static int _nextId = 0;
         public static SoldierFactory Instance
         {
             get
@@ -20,7 +21,10 @@ namespace OnlyWar.Helpers
             }
         }
 
-        private static int _nextId = 0;
+        public void SetCurrentHighestSoldierId(int highestId)
+        {
+            _nextId = highestId + 1;
+        }
 
         public Soldier GenerateNewSoldier(SoldierTemplate template)
         {

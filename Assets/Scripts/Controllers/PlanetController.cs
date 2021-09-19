@@ -14,7 +14,7 @@ namespace OnlyWar.Controllers
         // TODO: should we switch this to respond to battles complete, instead?
         public void UIController_OnTurnEnd()
         {
-            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 EndOfTurnPlanetUpdate(planet);
             }

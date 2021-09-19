@@ -74,6 +74,20 @@ namespace OnlyWar.Models.Units
             return soldiers;
         }
 
+        public IEnumerable<Squad> GetAllSquads()
+        {
+            IEnumerable<Squad> squads = null;
+            if (Squads != null)
+            {
+                squads = Squads;
+            }
+            if (ChildUnits != null)
+            {
+                squads = squads.Union(ChildUnits.SelectMany(u => u.GetAllSquads()));
+            }
+            return squads;
+        }
+
         public void AddSquad(Squad squad)
         {
             _squads.Add(squad);

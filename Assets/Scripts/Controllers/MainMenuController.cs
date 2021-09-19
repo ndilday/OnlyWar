@@ -68,7 +68,7 @@ namespace OnlyWar.Controllers
                     faction.Units.AddRange(units);
                     foreach(Unit unit in units)
                     {
-                        foreach(Squad squad in unit.Squads)
+                        foreach(Squad squad in unit.GetAllSquads())
                         {
                             if(squad.Location != null)
                             {
@@ -169,7 +169,7 @@ namespace OnlyWar.Controllers
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
             // on the Marine starting planet
-            var emptyPlanets = GameSettings.Galaxy.Planets.Where(p => p.ControllingFaction.IsDefaultFaction);
+            var emptyPlanets = GameSettings.Galaxy.Planets.Values.Where(p => p.ControllingFaction.IsDefaultFaction);
             int max = emptyPlanets.Count();
             int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
             Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
@@ -179,7 +179,7 @@ namespace OnlyWar.Controllers
         private void PlaceStartingForces()
         {
             // For now, put the chapter on their home planet
-            foreach (Planet planet in GameSettings.Galaxy.Planets)
+            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
                 if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
