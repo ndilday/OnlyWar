@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Controllers
+namespace OnlyWar.Scripts.Controllers
 {
-    class ArchiveController : MonoBehaviour
+    class DiplomacyController : MonoBehaviour
     {
         [SerializeField]
         private DateTreeView DateTreeView;
@@ -15,7 +15,7 @@ namespace OnlyWar.Controllers
         [SerializeField]
         private GameSettings GameSettings;
 
-        public void ArchiveButton_OnClick()
+        public void DiplomacyButton_OnClick()
         {
             DetailView.gameObject.SetActive(true);
             DateTreeView.ClearTree();
@@ -33,7 +33,7 @@ namespace OnlyWar.Controllers
             List<EventHistory> dateEvents = GameSettings.Chapter.BattleHistory[id];
             EventHistory selectedHistory = dateEvents[eventId];
             string displayText = "";
-            foreach(string eventLine in selectedHistory.SubEvents)
+            foreach (string eventLine in selectedHistory.SubEvents)
             {
                 displayText += eventLine + "\n";
             }
@@ -43,7 +43,7 @@ namespace OnlyWar.Controllers
         private void PopulateEventTree()
         {
             var sortedEvents = GameSettings.Chapter.BattleHistory.OrderBy(kvp => kvp.Key);
-            foreach(KeyValuePair<Date, List<EventHistory>> kvp in sortedEvents)
+            foreach (KeyValuePair<Date, List<EventHistory>> kvp in sortedEvents)
             {
                 DateTreeView.AddDateAndEvents(kvp.Key, kvp.Value.Select(eh => eh.EventTitle).ToList());
             }
