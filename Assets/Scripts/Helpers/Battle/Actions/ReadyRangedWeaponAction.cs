@@ -1,7 +1,7 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
+﻿using OnlyWar.Models.Equippables;
 using System;
 
-namespace OnlyWar.Scripts.Helpers.Battle.Actions
+namespace OnlyWar.Helpers.Battle.Actions
 {
     class ReadyRangedWeaponAction : IAction
     {

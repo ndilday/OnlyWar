@@ -1,11 +1,11 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
+﻿using OnlyWar.Models;
+using OnlyWar.Models.Planets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     class PlanetFactory
     {
@@ -29,11 +29,12 @@ namespace OnlyWar.Scripts.Helpers
         private static HashSet<int> _usedPlanetNameIndexes;
 
         private static int _nextId = 0;
-
+        private static int _leaderId = 0;
         public Planet GenerateNewPlanet(IReadOnlyDictionary<int, PlanetTemplate> planetTemplateMap, 
                                         Vector2 position, Faction controllingFaction, Faction infiltratingFaction)
         {
             PlanetTemplate template = DeterminePlanetTemplate(planetTemplateMap);
+            Faction leaderFaction = controllingFaction;
             int nameIndex = RNG.GetIntBelowMax(0, TempPlanetList.PlanetNames.Length);
             while(_usedPlanetNameIndexes.Contains(nameIndex))
             {
@@ -61,6 +62,10 @@ namespace OnlyWar.Scripts.Helpers
                 infiltration.Population = (int)(popToDistribute * infiltrationRate);
                 infiltration.PDFMembers = (int)(infiltration.Population / 33);
                 planet.PlanetFactionMap[infiltratingFaction.Id] = infiltration;
+                if(RNG.GetLinearDouble() < infiltrationRate / 2)
+                {
+                    leaderFaction = infiltratingFaction;
+                }
             }
 
             PlanetFaction planetFaction = new PlanetFaction(controllingFaction);
@@ -70,6 +75,12 @@ namespace OnlyWar.Scripts.Helpers
             planetFaction.PDFMembers = popToDistribute / 33;
             planet.PlanetFactionMap[controllingFaction.Id] = planetFaction;
             planet.ControllingFaction = controllingFaction;
+
+            if(controllingFaction.IsDefaultFaction)
+            {
+                planetFaction.Leader = CharacterBuilder.GenerateCharacter(_leaderId, leaderFaction);
+                _leaderId++;
+            }
             return planet;
         }
 

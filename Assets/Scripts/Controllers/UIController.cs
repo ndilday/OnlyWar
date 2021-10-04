@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Helpers.Database.GameState;
+﻿using OnlyWar.Models.Planets;
+using OnlyWar.Helpers.Database.GameState;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     public class UIController : MonoBehaviour
     {
@@ -83,12 +83,13 @@ namespace OnlyWar.Scripts.Controllers
 
         public void TempSaveButton_OnClick()
         {
-            var ships = GameSettings.Galaxy.Fleets.SelectMany(fleet => fleet.Ships);
+            var ships = GameSettings.Galaxy.Fleets.Values.SelectMany(fleet => fleet.Ships);
             var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
             GameStateDataAccess.Instance.SaveData("default.s3db",
                                                   GameSettings.Date,
-                                                  GameSettings.Galaxy.Planets,
-                                                  GameSettings.Galaxy.Fleets,
+                                                  GameSettings.Galaxy.Characters,
+                                                  GameSettings.Galaxy.Planets.Values,
+                                                  GameSettings.Galaxy.Fleets.Values,
                                                   units,
                                                   GameSettings.Chapter.PlayerSoldierMap.Values,
                                                   GameSettings.Chapter.BattleHistory);

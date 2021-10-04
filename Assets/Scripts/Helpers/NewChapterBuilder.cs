@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Models;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
     public static class NewChapterBuilder
     {
@@ -332,21 +332,23 @@ namespace OnlyWar.Scripts.Helpers
             }
             while (scoutList.Count > 0 || leaderList.Count > 0)
             {
-                int id = lastSquad.Id + 1;
-                // add a new Scout Squad to the company
-                Squad squad = new Squad("Scout Squad", lastCompany,
-                    faction.SquadTemplates.Values.First(st => st.Name == "Scout Squad"));
-                lastCompany.AddSquad(squad);
-                id++;
-                lastSquad = squad;
-                // assign sgt to squad
-                squad.Name = leaderList[0].Name.Split(' ')[1] + " Squad";
-                AssignSoldier(unassignedSoldierMap, leaderList, squad, scoutSgt, year);
-
-                //int squadSize = CalculateSquadSize(scoutList, leaderList);
-                while (squad.Members.Count < 10 && scoutList.Count > 0)
+                if (leaderList.Count > 0)
                 {
-                    AssignSoldier(unassignedSoldierMap, scoutList, squad, scout, year);
+                    int id = lastSquad.Id + 1;
+                    // add a new Scout Squad to the company
+                    Squad squad = new Squad("Scout Squad", lastCompany,
+                        faction.SquadTemplates.Values.First(st => st.Name == "Scout Squad"));
+                    lastCompany.AddSquad(squad);
+                    id++;
+                    lastSquad = squad;
+                    // assign sgt to squad
+                    squad.Name = leaderList[0].Name.Split(' ')[1] + " Squad";
+                    AssignSoldier(unassignedSoldierMap, leaderList, squad, scoutSgt, year);
+                }
+                while (scoutList.Count > 0 && 
+                      (lastSquad.Members.Count < 10 || leaderList.Count > 0))
+                {
+                    AssignSoldier(unassignedSoldierMap, scoutList, lastSquad, scout, year);
                 }
             }
             if (unassignedSoldierMap.Count > 0) Debug.WriteLine("Still did it wrong");

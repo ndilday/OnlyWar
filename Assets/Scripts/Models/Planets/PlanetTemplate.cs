@@ -1,4 +1,4 @@
-﻿namespace OnlyWar.Scripts.Models.Planets
+﻿namespace OnlyWar.Models.Planets
 {
     public class PlanetTemplate
     {

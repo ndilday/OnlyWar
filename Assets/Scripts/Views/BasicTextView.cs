@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     class BasicTextView : MonoBehaviour
     {

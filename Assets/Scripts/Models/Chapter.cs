@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 
-namespace OnlyWar.Scripts.Models
+namespace OnlyWar.Models
 {
     public class EventHistory
     {
@@ -39,20 +39,13 @@ namespace OnlyWar.Scripts.Models
         {
             if (SquadMap == null)
             {
-                SquadMap = new Dictionary<int, Squad>
-                {
-                    [OrderOfBattle.HQSquad.Id] = OrderOfBattle.HQSquad
-                };
+                SquadMap = new Dictionary<int, Squad>();
                 foreach (Squad squad in OrderOfBattle.Squads)
                 {
                     SquadMap[squad.Id] = squad;
                 }
                 foreach (Unit company in OrderOfBattle.ChildUnits)
                 {
-                    if (company.HQSquad != null)
-                    {
-                        SquadMap[company.HQSquad.Id] = company.HQSquad;
-                    }
                     foreach (Squad squad in company.Squads)
                     {
                         SquadMap[squad.Id] = squad;

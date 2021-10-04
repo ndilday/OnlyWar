@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Models.Equippables;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public static class BattleModifiersUtil
     {

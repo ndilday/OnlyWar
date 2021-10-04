@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public class BattleSoldier
     {

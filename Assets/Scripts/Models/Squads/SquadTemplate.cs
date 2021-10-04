@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using OnlyWar.Scripts.Models.Equippables;
+using OnlyWar.Models.Equippables;
 
-namespace OnlyWar.Scripts.Models.Squads
+namespace OnlyWar.Models.Squads
 {
     [Flags]
     public enum SquadTypes

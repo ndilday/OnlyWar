@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Views
+namespace OnlyWar.Views
 {
     public class FleetLinesView : MonoBehaviour
     {

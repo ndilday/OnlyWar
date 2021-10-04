@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+using OnlyWar.Models;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 
-namespace OnlyWar.Scripts.Helpers
+namespace OnlyWar.Helpers
 {
-    public sealed class TempArmyBuilder
+    public static class TempArmyBuilder
     {
         public static Unit GenerateArmy(int armyId, Faction faction)
         {
@@ -25,11 +25,6 @@ namespace OnlyWar.Scripts.Helpers
             foreach (UnitTemplate childUnit in template.GetChildUnits())
             {
                 unit.ChildUnits.Add(CreateUnit(childUnit));
-            }
-
-            if (unit.HQSquad != null)
-            {
-                AddSquad(unit.HQSquad);
             }
             
             foreach(Squad squad in unit.Squads)

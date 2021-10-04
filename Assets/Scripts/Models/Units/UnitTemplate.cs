@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Models.Squads;
 
-namespace OnlyWar.Scripts.Models.Units
+namespace OnlyWar.Models.Units
 {
     public class UnitTemplate
     {

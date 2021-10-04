@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace OnlyWar.Scripts
+namespace OnlyWar
 {
     public static class TempNameGenerator
     {

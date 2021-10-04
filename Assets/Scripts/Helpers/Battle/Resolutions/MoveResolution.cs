@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace OnlyWar.Scripts.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battle.Resolutions
 {
     public class MoveResolution
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OnlyWar.Scripts.Models.Squads;
+using OnlyWar.Models.Squads;
 
-namespace OnlyWar.Scripts.Models.Soldiers
+namespace OnlyWar.Models.Soldiers
 {
     // PlayerSoldier uses the decorator pattern to extend the Soldier class
     // with features we're only interested in for the player's troops

@@ -1,10 +1,10 @@
-﻿using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Views;
+﻿using OnlyWar.Models;
+using OnlyWar.Views;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Scripts.Controllers
+namespace OnlyWar.Controllers
 {
     class ArchiveController : MonoBehaviour
     {

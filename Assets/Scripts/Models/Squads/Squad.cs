@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Models.Equippables;
-using OnlyWar.Scripts.Models.Fleets;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Soldiers;
-using OnlyWar.Scripts.Models.Units;
+﻿using OnlyWar.Models.Equippables;
+using OnlyWar.Models.Fleets;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Soldiers;
+using OnlyWar.Models.Units;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Models.Squads
+namespace OnlyWar.Models.Squads
 {
     public class Squad
     {

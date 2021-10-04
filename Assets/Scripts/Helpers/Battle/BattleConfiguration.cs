@@ -1,12 +1,12 @@
-﻿using OnlyWar.Scripts.Helpers.Battle.Placers;
-using OnlyWar.Scripts.Models;
-using OnlyWar.Scripts.Models.Planets;
-using OnlyWar.Scripts.Models.Squads;
-using OnlyWar.Scripts.Models.Units;
+﻿using OnlyWar.Helpers.Battle.Placers;
+using OnlyWar.Models;
+using OnlyWar.Models.Planets;
+using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public class BattleConfiguration
     {
@@ -118,7 +118,7 @@ namespace OnlyWar.Scripts.Helpers.Battle
             planetFaction.Faction.Units.Add(newArmy);
             
             // add unit to planet
-            foreach(Squad squad in newArmy.GetAllSquads())
+            foreach(Squad squad in newArmy.Squads)
             {
                 squad.IsInReserve = false;
                 squad.Location = planet;

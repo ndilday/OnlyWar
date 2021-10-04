@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OnlyWar.Scripts.Models.Soldiers;
+using OnlyWar.Models.Soldiers;
 
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace OnlyWar.Scripts.Helpers.Battle
+namespace OnlyWar.Helpers.Battle
 {
     public class BattleGrid
     {
