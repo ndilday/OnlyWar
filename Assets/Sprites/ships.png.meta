@@ -99,6 +99,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -107,9 +108,9 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: -1
-    aniso: -1
-    mipBias: -100
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -130,6 +131,8 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
@@ -710,6 +713,32 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      ships_2_m2: -2304959186403469882
+      ships_1_l1: -797168720777067150
+      ships_1_m1: -8084874238274840218
+      ships_2_palette: -8825041670847906069
+      ships_2_s2: 2171436348842804110
+      ships_1_l2: -4522987028584636881
+      ships_1_s2: 2884177739413884887
+      ships_3_xl2: -3781714281351162041
+      ships_1_xs1: -1986511610909899991
+      ships_2_l2: 8714212296651016187
+      ships_1_xl2: 8383162673023287823
+      ships_1_s1: 8119249936409394056
+      ships_2_l1: -7653039100333099308
+      ships_3_xl1: 552870395930637983
+      ships_2_s1: -1369133203827550807
+      ships_3_l1: 4107702307641232175
+      ships_1_palette: -6877657737085974523
+      ships_2_xl1: 3118750061902332518
+      ships_1_xl_1: 5913295629867518172
+      ships_2_xl2: -6718432988787895233
+      ships_1_xs2: 7513193811518922645
+      ships_3_l2: 2588697908561978627
+      ships_3_palette: 4402405062159405059
+      ships_1_m2: 2794418158759056727
+      ships_2_m1: -4648857032059535507
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
