@@ -19,7 +19,8 @@ namespace OnlyWar.Helpers
                 Paranoia = (float)RNG.GetLinearDouble(),
                 Patience = (float)RNG.GetLinearDouble(),
                 OpinionOfPlayerForce = 0,
-                OpinionOfSoldier = new Dictionary<ISoldier, float>()
+                OpinionOfSoldier = new Dictionary<ISoldier, float>(),
+                Request = null
             };
         }
     }

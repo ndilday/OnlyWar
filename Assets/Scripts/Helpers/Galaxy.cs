@@ -119,6 +119,32 @@ namespace OnlyWar.Helpers
             }
         }
 
+        private Planet GeneratePlanet(Vector2 position)
+        {
+            // TODO: There should be game start config settings for planet ownership by specific factions
+            // TODO: Once genericized, move into planet factory
+            double random = RNG.GetLinearDouble();
+            Faction controllingFaction, infiltratingFaction;
+            if (random <= 0.05)
+            {
+                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                infiltratingFaction = null;
+            }
+            else if (random <= 0.25f)
+            {
+                controllingFaction = _factions.First(f => f.Name == "Tyranids");
+                infiltratingFaction = null;
+            }
+            else
+            {
+                controllingFaction = Factions.First(f => f.IsDefaultFaction);
+                random = RNG.GetLinearDouble();
+                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
+            }
+
+            return PlanetFactory.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
+        }
+
         public void AddNewFleet(Fleet newFleet)
         {
             _fleets[newFleet.Id] = newFleet;
@@ -134,7 +160,7 @@ namespace OnlyWar.Helpers
                 || mergingFleet.Position != remainingFleet.Position
                 || mergingFleet.Faction.Id != remainingFleet.Faction.Id)
             {
-                throw new InvalidOperationException("The two fleets are not in the same place");
+                throw new InvalidOperationException("The two fleets cannot be merged");
             }
             foreach(Ship ship in mergingFleet.Ships)
             {
@@ -173,32 +199,6 @@ namespace OnlyWar.Helpers
         public void TakeControlOfPlanet(Planet planet, Faction faction)
         {
             planet.ControllingFaction = faction;
-        }
-
-        private Planet GeneratePlanet(Vector2 position)
-        {
-            // TODO: There should be game start config settings for planet ownership by specific factions
-            // TODO: Once genericized, move into planet factory
-            double random = RNG.GetLinearDouble();
-            Faction controllingFaction, infiltratingFaction;
-            if (random <= 0.05)
-            {
-                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
-                infiltratingFaction = null;
-            }
-            else if (random <= 0.25f)
-            {
-                controllingFaction = _factions.First(f => f.Name == "Tyranids");
-                infiltratingFaction = null;
-            }
-            else
-            {
-                controllingFaction = Factions.First(f => f.IsDefaultFaction);
-                random = RNG.GetLinearDouble();
-                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
-            }
-
-            return PlanetFactory.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
         }
     }
 }

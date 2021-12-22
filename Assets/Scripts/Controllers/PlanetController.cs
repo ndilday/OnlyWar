@@ -24,6 +24,19 @@ namespace OnlyWar.Controllers
         {
             // increase the population of the planet
             float pdfRatio = ((float)planet.PlanetaryDefenseForces) / planet.Population;
+            
+            EndOfTurnPlanetFactionsUpdate(planet, pdfRatio);
+
+            // see if the planet is called to tithe a regiment
+            //tax level / 50
+            if (RNG.GetLinearDouble() < planet.TaxLevel / 50f)
+            {
+                GenerateNewRegiment(planet);
+            }
+        }
+
+        private static void EndOfTurnPlanetFactionsUpdate(Planet planet, float pdfRatio)
+        {
             foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
                 float newPop = 0;
@@ -34,7 +47,7 @@ namespace OnlyWar.Controllers
                         break;
                     case GrowthType.Conversion:
                         newPop = ConvertPopulation(planet, planetFaction, newPop);
-                        if(planetFaction.Faction.Id != planet.ControllingFaction.Id &&
+                        if (planetFaction.Faction.Id != planet.ControllingFaction.Id &&
                             planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
                         {
                             // TODO: see if the governor notices the converted population
@@ -60,13 +73,82 @@ namespace OnlyWar.Controllers
                 {
                     planetFaction.PDFMembers += (int)(newPop * 0.03f);
                 }
+
+                // see if this faction leader is the sort who'd request aid from the player
+                if (planetFaction.Leader != null)
+                {
+                    EndOfTurnLeaderUpdate(planet, planetFaction);
+                }
+            }
+        }
+
+        private static void EndOfTurnLeaderUpdate(Planet planet, PlanetFaction planetFaction)
+        {
+            if(planetFaction.Leader.Request != null)
+            {
+                // decrement the leader's opinion based on the unfulfilled request
+            }
+            else if(planetFaction.Leader.OpinionOfPlayerForce > 0)
+            {
+                GenerateRequests(planet, planetFaction);
+            }
+        }
+
+        private static void GenerateRequests(Planet planet, PlanetFaction planetFaction)
+        {
+            bool found = false;
+            bool evidenceFound = false;
+            if (planet.PlanetFactionMap.Count > 1)
+            {
+                // there are other factions on planet
+                foreach (PlanetFaction planetOtherFaction in planet.PlanetFactionMap.Values)
+                {
+
+                    // make sure this is a different faction and that there isn't already a request about it
+                    if (planetOtherFaction.Faction.Id != planetFaction.Faction.Id)
+                    {
+                        if (!planetOtherFaction.IsPublic)
+                        {
+                            // see if the leader detects this faction
+                            float popRatio = ((float)planetOtherFaction.Population) / ((float)planet.Population);
+                            float chance = popRatio * planetFaction.Leader.Investigation;
+                            double roll = RNG.GetLinearDouble();
+                            if (roll < chance)
+                            {
+                                found = true;
+                                evidenceFound = roll < (chance / 10.0);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            found = true;
+                            evidenceFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!found)
+            {
+                // no real threats, see if the leader is paranoid enough to see a threat anyway
+                double roll = RNG.GetLinearDouble();
+                if (roll < planetFaction.Leader.Paranoia)
+                {
+                    found = true;
+                    evidenceFound = roll < (planetFaction.Leader.Paranoia / 10.0);
+                }
             }
 
-            // see if the planet is called to tithe a regiment
-            //tax level / 50
-            if (RNG.GetLinearDouble() < planet.TaxLevel / 50f)
+            if (found)
             {
-                GenerateNewRegiment(planet);
+                // determine if the leader wants to turn this finding into a request
+                float chance = planetFaction.Leader.Neediness * planetFaction.Leader.OpinionOfPlayerForce;
+                double roll = RNG.GetLinearDouble();
+                if (roll < chance)
+                {
+                    // generate a new request
+                }
             }
         }
 

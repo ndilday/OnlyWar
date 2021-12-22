@@ -32,5 +32,8 @@ namespace OnlyWar.Models
 
         // how the character feels about individual soliders of the player
         public Dictionary<ISoldier, float> OpinionOfSoldier { get; set; }
+
+        // requests this character has made of the player
+        public ARequest Request { get; set; }
     }
 }
