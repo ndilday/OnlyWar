@@ -88,6 +88,7 @@ namespace OnlyWar.Controllers
             GameStateDataAccess.Instance.SaveData("default.s3db",
                                                   GameSettings.Date,
                                                   GameSettings.Galaxy.Characters,
+                                                  GameSettings.Chapter.Requests,
                                                   GameSettings.Galaxy.Planets.Values,
                                                   GameSettings.Galaxy.Fleets.Values,
                                                   units,

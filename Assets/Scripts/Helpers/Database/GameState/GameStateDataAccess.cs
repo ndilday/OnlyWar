@@ -19,6 +19,7 @@ namespace OnlyWar.Helpers.Database.GameState
     {
         public List<Character> Characters { get; set; }
         public List<Planet> Planets { get; set; }
+        public List<IRequest> Requests { get; set; }
         public List<Fleet> Fleets { get; set; }
         public List<Unit> Units { get; set; }
         public Date CurrentDate { get; set; }
@@ -28,6 +29,7 @@ namespace OnlyWar.Helpers.Database.GameState
     public class GameStateDataAccess
     {
         private readonly PlanetDataAccess _planetDataAccess;
+        private readonly RequestDataAccess _requestDataAccess;
         private readonly FleetDataAccess _fleetDataAccess;
         private readonly UnitDataAccess _unitDataAccess;
         private readonly SoldierDataAccess _soldierDataAccess;
@@ -52,6 +54,7 @@ namespace OnlyWar.Helpers.Database.GameState
         private GameStateDataAccess()
         {
             _planetDataAccess = new PlanetDataAccess();
+            _requestDataAccess = new RequestDataAccess();
             _fleetDataAccess = new FleetDataAccess();
             _unitDataAccess = new UnitDataAccess();
             _soldierDataAccess = new SoldierDataAccess();
@@ -76,6 +79,7 @@ namespace OnlyWar.Helpers.Database.GameState
             var characterMap = _planetDataAccess.GetCharacterMap(dbCon, factionMap);
             var planets = _planetDataAccess.GetPlanets(dbCon, factionMap, characterMap, 
                                                        planetTemplateMap);
+            var requests = _requestDataAccess.GetRequests(dbCon, characterMap, planets);
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
@@ -95,6 +99,7 @@ namespace OnlyWar.Helpers.Database.GameState
             {
                 Characters = characterMap.Values.ToList(),
                 Planets = planets,
+                Requests = requests,
                 Fleets = fleets,
                 Units = units,
                 CurrentDate = date,
@@ -105,6 +110,7 @@ namespace OnlyWar.Helpers.Database.GameState
         public void SaveData(string fileName, 
                              Date currentDate,
                              IEnumerable<Character> characters,
+                             IEnumerable<IRequest> requests,
                              IEnumerable<Planet> planets, 
                              IEnumerable<Fleet> fleets,
                              IEnumerable<Unit> units,
@@ -131,9 +137,15 @@ namespace OnlyWar.Helpers.Database.GameState
                     {
                         _planetDataAccess.SaveCharacter(transaction, character);
                     }
+                    
                     foreach (Planet planet in planets)
                     {
                         _planetDataAccess.SavePlanet(transaction, planet);
+                    }
+
+                    foreach(IRequest request in requests)
+                    {
+                        _requestDataAccess.SaveRequest(transaction, request);
                     }
 
                     foreach(Fleet fleet in fleets)

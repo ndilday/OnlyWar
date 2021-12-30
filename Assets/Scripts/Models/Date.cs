@@ -15,6 +15,15 @@ namespace OnlyWar.Models
             Week = week;
         }
 
+        public Date(int weeks)
+        {
+            // Jan 1, 1 AD is the start of Week 1
+            int years = weeks / 52;
+            Week = (weeks % 52) + 1;
+            Millenium = (years / 1000) + 1;
+            Year = (years % 1000) + 1;
+        }
+
         public void IncrementWeek()
         {
             if(Week == 52)
@@ -96,6 +105,11 @@ namespace OnlyWar.Models
             return ((Millenium - otherDate.Millenium) * 52000)
                 + ((Year - otherDate.Year) * 52)
                 + (Week - otherDate.Week);
+        }
+
+        public int GetTotalWeeks()
+        {
+            return ((Millenium - 1) * 52000) + ((Year - 1) * 52) + Week;
         }
     }
 }

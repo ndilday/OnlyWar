@@ -34,6 +34,6 @@ namespace OnlyWar.Models
         public Dictionary<ISoldier, float> OpinionOfSoldier { get; set; }
 
         // requests this character has made of the player
-        public ARequest Request { get; set; }
+        public IRequest ActiveRequest { get; set; }
     }
 }

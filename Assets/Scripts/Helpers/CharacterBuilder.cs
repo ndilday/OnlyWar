@@ -20,7 +20,7 @@ namespace OnlyWar.Helpers
                 Patience = (float)RNG.GetLinearDouble(),
                 OpinionOfPlayerForce = 0,
                 OpinionOfSoldier = new Dictionary<ISoldier, float>(),
-                Request = null
+                ActiveRequest = null
             };
         }
     }

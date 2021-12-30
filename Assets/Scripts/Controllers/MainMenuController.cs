@@ -32,9 +32,35 @@ namespace OnlyWar.Controllers
             // TODO: open file screen
             // load that file
             GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
+            GameStateDataBlob gameData = LoadGameData();
+
+            GameSettings.Galaxy.GenerateGalaxy(gameData.Characters, gameData.Planets, gameData.Fleets);
+            GameSettings.Date = gameData.CurrentDate;
+            Dictionary<Faction, List<Unit>> factionUnits = InitalizeUnits(gameData);
+            var chapterUnit = factionUnits[GameSettings.Galaxy.PlayerFaction].First(u => u.ParentUnit == null);
+            var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
+            GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
+            GameSettings.Chapter.PopulateSquadMap();
+            InitalizeRequests(gameData);
+
+            foreach (KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
+            {
+                foreach (EventHistory history in kvp.Value)
+                {
+                    GameSettings.Chapter.AddToBattleHistory(kvp.Key,
+                                                            history.EventTitle,
+                                                            history.SubEvents);
+                }
+            }
+
+            SceneManager.LoadScene("GalaxyView");
+        }
+
+        private GameStateDataBlob LoadGameData()
+        {
             var shipTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.ShipTemplates != null)
-                                                              .SelectMany(f => f.ShipTemplates.Values)
-                                                              .ToDictionary(s => s.Id);
+                                                                          .SelectMany(f => f.ShipTemplates.Values)
+                                                                          .ToDictionary(s => s.Id);
             var unitTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.UnitTemplates != null)
                                                               .SelectMany(f => f.UnitTemplates.Values)
                                                               .ToDictionary(u => u.Id);
@@ -47,39 +73,41 @@ namespace OnlyWar.Controllers
             var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTemplates != null)
                                                              .SelectMany(f => f.SoldierTemplates.Values)
                                                              .ToDictionary(st => st.Id);
-            var gameData = 
-                GameStateDataAccess.Instance.GetData("default.s3db", 
-                                                     GameSettings.Galaxy.Factions.ToDictionary(f => f.Id), 
+            var gameData =
+                GameStateDataAccess.Instance.GetData("default.s3db",
+                                                     GameSettings.Galaxy.Factions.ToDictionary(f => f.Id),
                                                      GameSettings.Galaxy.PlanetTemplateMap,
                                                      shipTemplateMap, unitTemplateMap, squadTemplateMap,
                                                      GameSettings.Galaxy.WeaponSets,
                                                      hitLocations, GameSettings.Galaxy.BaseSkillMap,
                                                      soldierTypeMap);
+            return gameData;
+        }
 
-            GameSettings.Galaxy.GenerateGalaxy(gameData.Characters, gameData.Planets, gameData.Fleets);
-            GameSettings.Date = gameData.CurrentDate;
+        private Dictionary<Faction, List<Unit>> InitalizeUnits(GameStateDataBlob gameData)
+        {
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
-                                             .ToDictionary(g => g.Key, g => g.ToList());
-            foreach(Faction faction in GameSettings.Galaxy.Factions)
+                                                         .ToDictionary(g => g.Key, g => g.ToList());
+            foreach (Faction faction in GameSettings.Galaxy.Factions)
             {
-                if(factionUnits.ContainsKey(faction))
+                if (factionUnits.ContainsKey(faction))
                 {
                     List<Unit> units = factionUnits[faction];
                     faction.Units.AddRange(units);
-                    foreach(Unit unit in units)
+                    foreach (Unit unit in units)
                     {
-                        foreach(Squad squad in unit.GetAllSquads())
+                        foreach (Squad squad in unit.GetAllSquads())
                         {
-                            if(squad.Location != null)
+                            if (squad.Location != null)
                             {
-                                if(!squad.Location.FactionSquadListMap.ContainsKey(faction.Id))
+                                if (!squad.Location.FactionSquadListMap.ContainsKey(faction.Id))
                                 {
-                                    squad.Location.FactionSquadListMap[faction.Id] = 
+                                    squad.Location.FactionSquadListMap[faction.Id] =
                                         new List<Squad>();
                                 }
                                 squad.Location.FactionSquadListMap[faction.Id].Add(squad);
                             }
-                            else if(squad.BoardedLocation != null)
+                            else if (squad.BoardedLocation != null)
                             {
                                 squad.BoardedLocation.LoadSquad(squad);
                             }
@@ -87,21 +115,24 @@ namespace OnlyWar.Controllers
                     }
                 }
             }
-            var chapterUnit = factionUnits[GameSettings.Galaxy.PlayerFaction].First(u => u.ParentUnit == null);
-            var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
-            GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
-            GameSettings.Chapter.PopulateSquadMap();
-            foreach (KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
-            {
-                foreach (EventHistory history in kvp.Value)
-                {
-                    GameSettings.Chapter.AddToBattleHistory(kvp.Key,
-                                                            history.EventTitle,
-                                                            history.SubEvents);
-                }
-            }
 
-            SceneManager.LoadScene("GalaxyView");
+            return factionUnits;
+        }
+
+        private void InitalizeRequests(GameStateDataBlob gameData)
+        {
+            int currentHighestRequestId = 0;
+            foreach (IRequest request in gameData.Requests)
+            {
+                if (request.Id > currentHighestRequestId)
+                {
+                    currentHighestRequestId = request.Id;
+                }
+                // character requests were already hydrated on load,
+                // so we only need to hydrate the chapter
+                GameSettings.Chapter.Requests.Add(request);
+            }
+            RequestFactory.Instance.SetCurrentHighestRequestId(currentHighestRequestId);
         }
 
         public void QuitGameButton_OnClick()

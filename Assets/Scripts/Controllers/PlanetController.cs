@@ -35,7 +35,7 @@ namespace OnlyWar.Controllers
             }
         }
 
-        private static void EndOfTurnPlanetFactionsUpdate(Planet planet, float pdfRatio)
+        private void EndOfTurnPlanetFactionsUpdate(Planet planet, float pdfRatio)
         {
             foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
@@ -82,11 +82,15 @@ namespace OnlyWar.Controllers
             }
         }
 
-        private static void EndOfTurnLeaderUpdate(Planet planet, PlanetFaction planetFaction)
+        private void EndOfTurnLeaderUpdate(Planet planet, PlanetFaction planetFaction)
         {
-            if(planetFaction.Leader.Request != null)
+            // TODO: see if this leader dies
+            if(planetFaction.Leader.ActiveRequest != null)
             {
                 // decrement the leader's opinion based on the unfulfilled request
+                // the average governor will drop 0.01 opinion per week.
+                planetFaction.Leader.OpinionOfPlayerForce -= (0.005f / planetFaction.Leader.Patience);
+                // TODO: some notion of canceling a request?
             }
             else if(planetFaction.Leader.OpinionOfPlayerForce > 0)
             {
@@ -94,7 +98,7 @@ namespace OnlyWar.Controllers
             }
         }
 
-        private static void GenerateRequests(Planet planet, PlanetFaction planetFaction)
+        private void GenerateRequests(Planet planet, PlanetFaction planetFaction)
         {
             bool found = false;
             bool evidenceFound = false;
@@ -148,11 +152,14 @@ namespace OnlyWar.Controllers
                 if (roll < chance)
                 {
                     // generate a new request
+                    IRequest request = RequestFactory.Instance.GenerateNewRequest(planet, planetFaction.Leader, GameSettings.Date);
+                    planetFaction.Leader.ActiveRequest = request;
+                    GameSettings.Chapter.Requests.Add(request);
                 }
             }
         }
 
-        private static float ConvertPopulation(Planet planet, PlanetFaction planetFaction, float newPop)
+        private float ConvertPopulation(Planet planet, PlanetFaction planetFaction, float newPop)
         {
             PlanetFaction defaultFaction = planet.PlanetFactionMap
                                                                          .Values

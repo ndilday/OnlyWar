@@ -24,6 +24,7 @@ namespace OnlyWar.Models
         public IReadOnlyDictionary<Date, List<EventHistory>> BattleHistory => _battleHistory;
         public Unit OrderOfBattle { get; }
         public List<Fleet> Fleets { get; }
+        public List<IRequest> Requests { get; }
         public Dictionary<int, PlayerSoldier> PlayerSoldierMap { get; }
         public Dictionary<int, Squad> SquadMap { get; private set; }
         public Chapter(Unit unit, IEnumerable<PlayerSoldier> soldiers)
@@ -33,6 +34,7 @@ namespace OnlyWar.Models
             _battleHistory = new Dictionary<Date, List<EventHistory>>();
             PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
             Fleets = new List<Fleet>();
+            Requests = new List<IRequest>();
         }
 
         public void PopulateSquadMap()

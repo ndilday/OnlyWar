@@ -42,6 +42,9 @@ CREATE TABLE PlayerSoldierHistory (PlayerSoldierId INTEGER NOT NULL REFERENCES P
 -- Table: PlayerSoldierWeaponCasualtyCount
 CREATE TABLE PlayerSoldierWeaponCasualtyCount (PlayerSoldierId REFERENCES PlayerSoldier (SoldierId) NOT NULL, RangedWeaponTemplateId INTEGER, MeleeWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
 
+-- Table: Request
+CREATE TABLE Request (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, CharacterId INTEGER REFERENCES Character (Id) NOT NULL, PlanetId INTEGER REFERENCES Planet (Id) NOT NULL, RequestDate     INTEGER NOT NULL, FulfillmentDate INTEGER);
+
 -- Table: Ship
 CREATE TABLE Ship (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, ShipTemplateId INTEGER NOT NULL, FleetId INTEGER REFERENCES Fleet (Id) NOT NULL, Name STRING NOT NULL);
 
