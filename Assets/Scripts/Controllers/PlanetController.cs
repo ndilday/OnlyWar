@@ -87,10 +87,22 @@ namespace OnlyWar.Controllers
             // TODO: see if this leader dies
             if(planetFaction.Leader.ActiveRequest != null)
             {
-                // decrement the leader's opinion based on the unfulfilled request
-                // the average governor will drop 0.01 opinion per week.
-                planetFaction.Leader.OpinionOfPlayerForce -= (0.005f / planetFaction.Leader.Patience);
-                // TODO: some notion of canceling a request?
+                // see if the request has been fulfilled
+                if (planetFaction.Leader.ActiveRequest.IsRequestCompleted())
+                {
+                    // remove the active request
+                    planetFaction.Leader.ActiveRequest = null;
+                    // improve leader opinion of player
+                    planetFaction.Leader.OpinionOfPlayerForce += 
+                        planetFaction.Leader.Appreciation * (1 - planetFaction.Leader.OpinionOfPlayerForce);
+                }
+                else
+                {
+                    // decrement the leader's opinion based on the unfulfilled request
+                    // the average governor will drop 0.01 opinion per week.
+                    planetFaction.Leader.OpinionOfPlayerForce -= (0.005f / planetFaction.Leader.Patience);
+                    // TODO: some notion of canceling a request?
+                }
             }
             else if(planetFaction.Leader.OpinionOfPlayerForce > 0)
             {
