@@ -15,6 +15,7 @@ namespace OnlyWar.Models
 
     public class PresenceRequest : IRequest
     {
+        private bool _completed;
         public int Id { get; private set; }
         public Planet TargetPlanet { get; private set; }
 
@@ -23,15 +24,18 @@ namespace OnlyWar.Models
         public Date DateRequestMade { get; private set; }
 
         public Date DateRequestFulfilled { get; private set; }
+        public int PlayerFactionId{ get; private set; }
 
-        public PresenceRequest(int id, Planet planet, Character requester, 
+        public PresenceRequest(int id, Planet planet, Character requester, int playerFactionId,
                                Date dateRequestMade,  Date fulfilledDate = null)
         {
             Id = id;
             TargetPlanet = planet;
+            PlayerFactionId = playerFactionId;
             Requester = requester;
             DateRequestMade = dateRequestMade;
             DateRequestFulfilled = fulfilledDate;
+            _completed = false;
         }
         public bool IsRequestStarted()
         {
@@ -39,6 +43,12 @@ namespace OnlyWar.Models
         }
         public bool IsRequestCompleted()
         {
+            if (_completed) return true;
+            if(TargetPlanet.FactionSquadListMap[PlayerFactionId].Count > 0)
+            {
+                _completed = true;
+                return true;
+            }
             return false;
         }
     }

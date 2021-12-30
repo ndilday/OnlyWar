@@ -164,7 +164,11 @@ namespace OnlyWar.Controllers
                 if (roll < chance)
                 {
                     // generate a new request
-                    IRequest request = RequestFactory.Instance.GenerateNewRequest(planet, planetFaction.Leader, GameSettings.Date);
+                    IRequest request = 
+                        RequestFactory.Instance.GenerateNewRequest(planet, 
+                                                                   planetFaction.Leader, 
+                                                                   GameSettings.Galaxy.PlayerFaction.Id,
+                                                                   GameSettings.Date);
                     planetFaction.Leader.ActiveRequest = request;
                     GameSettings.Chapter.Requests.Add(request);
                 }

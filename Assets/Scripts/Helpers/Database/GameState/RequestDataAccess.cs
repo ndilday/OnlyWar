@@ -10,7 +10,8 @@ namespace OnlyWar.Helpers.Database.GameState
     {
         public List<IRequest> GetRequests(IDbConnection connection,
                                           IReadOnlyDictionary<int, Character> characterMap,
-                                          List<Planet> planetList)
+                                          List<Planet> planetList,
+                                          int playerFactionId)
         {
             List<IRequest> requests = new List<IRequest>();
             using (var command = connection.CreateCommand())
@@ -34,7 +35,7 @@ namespace OnlyWar.Helpers.Database.GameState
                     }
                     PresenceRequest request =
                         new PresenceRequest(id, planetList[planetId], characterMap[characterId], 
-                                            new Date(requestDate), fulfillDate);
+                                            playerFactionId, new Date(requestDate), fulfillDate);
                     requests.Add(request);
                     if(request.DateRequestFulfilled == null)
                     {
