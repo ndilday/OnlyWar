@@ -75,6 +75,7 @@ namespace OnlyWar.Controllers
                                                              .ToDictionary(st => st.Id);
             var gameData =
                 GameStateDataAccess.Instance.GetData("default.s3db",
+                                                     GameSettings,
                                                      GameSettings.Galaxy.Factions.ToDictionary(f => f.Id),
                                                      GameSettings.Galaxy.PlanetTemplateMap,
                                                      shipTemplateMap, unitTemplateMap, squadTemplateMap,

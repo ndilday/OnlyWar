@@ -165,10 +165,8 @@ namespace OnlyWar.Controllers
                 {
                     // generate a new request
                     IRequest request = 
-                        RequestFactory.Instance.GenerateNewRequest(planet, 
-                                                                   planetFaction.Leader, 
-                                                                   GameSettings.Galaxy.PlayerFaction.Id,
-                                                                   GameSettings.Date);
+                        RequestFactory.Instance.GenerateNewRequest(planet, planetFaction.Leader, 
+                                                                   GameSettings, GameSettings.Date);
                     planetFaction.Leader.ActiveRequest = request;
                     GameSettings.Chapter.Requests.Add(request);
                 }

@@ -25,10 +25,10 @@ namespace OnlyWar.Helpers
             _nextId = highestId + 1;
         }
 
-        public IRequest GenerateNewRequest(Planet planet, Character requester, int playerFactionId, 
+        public IRequest GenerateNewRequest(Planet planet, Character requester, GameSettings gameSettings, 
                                            Date dateRequestMade, Date fulfilledDate = null)
         {
-            return new PresenceRequest(_nextId++, planet, requester, playerFactionId, 
+            return new PresenceRequest(_nextId++, planet, requester, gameSettings, 
                                        dateRequestMade, fulfilledDate);
         }
     }

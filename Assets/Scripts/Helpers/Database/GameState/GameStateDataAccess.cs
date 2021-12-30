@@ -63,7 +63,8 @@ namespace OnlyWar.Helpers.Database.GameState
             _playerFactionEventDataAccess = new PlayerFactionEventDataAccess();
         }
 
-        public GameStateDataBlob GetData(string fileName, Dictionary<int, Faction> factionMap,
+        public GameStateDataBlob GetData(string fileName, GameSettings gameSettings,
+                            Dictionary<int, Faction> factionMap,
                             IReadOnlyDictionary<int, PlanetTemplate> planetTemplateMap,
                             IReadOnlyDictionary<int, ShipTemplate> shipTemplateMap,
                             IReadOnlyDictionary<int, UnitTemplate> unitTemplateMap,
@@ -79,8 +80,7 @@ namespace OnlyWar.Helpers.Database.GameState
             var characterMap = _planetDataAccess.GetCharacterMap(dbCon, factionMap);
             var planets = _planetDataAccess.GetPlanets(dbCon, factionMap, characterMap, 
                                                        planetTemplateMap);
-            int playerFactionId = factionMap.Values.First(f => f.IsPlayerFaction).Id;
-            var requests = _requestDataAccess.GetRequests(dbCon, characterMap, planets, playerFactionId);
+            var requests = _requestDataAccess.GetRequests(dbCon, characterMap, planets, gameSettings);
             var ships = _fleetDataAccess.GetShipsByFleetId(dbCon, shipTemplateMap);
             var shipMap = ships.Values.SelectMany(s => s).ToDictionary(ship => ship.Id);
             var fleets = _fleetDataAccess.GetFleetsByFactionId(dbCon, ships, factionMap, planets);
