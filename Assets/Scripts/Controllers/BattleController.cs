@@ -60,8 +60,12 @@ namespace OnlyWar.Controllers
 
         public void Start()
         {
-            _baseMeleeSkill =
-                GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
+            // this if block exists to get around Unity's annoying editor start logic
+            if (GameSettings.Galaxy != null)
+            {
+                _baseMeleeSkill =
+                    GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
+            }
         }
 
         public void GalaxyController_OnBattleStarted(BattleConfiguration configuration)

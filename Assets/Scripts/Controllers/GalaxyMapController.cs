@@ -40,20 +40,23 @@ namespace OnlyWar.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            _selectedShips = new List<Ship>();
-            OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
-            
-            foreach(Planet planet in GameSettings.Galaxy.Planets.Values)
+            // this if block exists to get around Unity's annoying editor start logic
+            if (GameSettings.Galaxy != null)
             {
-                Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
-                if(planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                _selectedShips = new List<Ship>();
+                OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
+                foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
                 {
-                    Map.CenterCameraOnPlanet(planet.Id);
+                    Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
+                    if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                    {
+                        Map.CenterCameraOnPlanet(planet.Id);
+                    }
                 }
-            }
-            foreach (Fleet fleet in GameSettings.Galaxy.Fleets.Values)
-            {
-                Map.CreateFleet(fleet.Id, fleet.Position, false);
+                foreach (Fleet fleet in GameSettings.Galaxy.Fleets.Values)
+                {
+                    Map.CreateFleet(fleet.Id, fleet.Position, false);
+                }
             }
         }
 
@@ -63,6 +66,11 @@ namespace OnlyWar.Controllers
             {
                 Map.UpdatePlanetColor(planet.Id, GetPlanetColor(planet));
             }
+        }
+
+        public void DiplomacyController_OnPlanetSelected(int planetId)
+        {
+            Map.CenterCameraOnPlanet(planetId);
         }
 
         // Update is called once per frame

@@ -41,9 +41,13 @@ I await any further instructions you have on our recruiting and training efforts
 
         private void Start()
         {
-            _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
-            PopulateScoutSquadMap();
-            EvaluateScouts();
+            // this if block exists to get around Unity's annoying editor start logic
+            if (GameSettings.Galaxy != null)
+            {
+                _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
+                PopulateScoutSquadMap();
+                EvaluateScouts();
+            }
         }
 
         public void UIController_OnTurnEnd()

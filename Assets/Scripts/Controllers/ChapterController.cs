@@ -24,7 +24,11 @@ namespace OnlyWar.Controllers
         // Start is called before the first frame update
         void Start()
         {
-            _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);            
+            // this if block exists to get around Unity's annoying editor start logic
+            if (GameSettings.Galaxy != null)
+            {
+                _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
+            }
         }
 
         public void ChapterButton_OnClick()

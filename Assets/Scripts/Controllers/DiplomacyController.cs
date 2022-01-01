@@ -1,15 +1,15 @@
 ﻿using OnlyWar.Models;
 using OnlyWar.Views;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace OnlyWar.Scripts.Controllers
 {
     class DiplomacyController : MonoBehaviour
     {
+        public UnityEvent<int> PlanetSelected;
         [SerializeField]
-        private DateTreeView DateTreeView;
+        private UnitTreeView RequestTreeView;
         [SerializeField]
         private BasicTextView DetailView;
         [SerializeField]
@@ -18,8 +18,8 @@ namespace OnlyWar.Scripts.Controllers
         public void DiplomacyButton_OnClick()
         {
             DetailView.gameObject.SetActive(true);
-            DateTreeView.ClearTree();
-            PopulateEventTree();
+            RequestTreeView.ClearTree();
+            PopulateRequestTree();
         }
 
         public void UIController_OnTurnEnd()
@@ -28,24 +28,26 @@ namespace OnlyWar.Scripts.Controllers
             DetailView.gameObject.SetActive(false);
         }
 
-        public void DateTreeView_OnEventSelected(Date id, int eventId)
+        public void RequestTreeView_OnRequestSelected(int requestId)
         {
-            List<EventHistory> dateEvents = GameSettings.Chapter.BattleHistory[id];
-            EventHistory selectedHistory = dateEvents[eventId];
-            string displayText = "";
-            foreach (string eventLine in selectedHistory.SubEvents)
-            {
-                displayText += eventLine + "\n";
-            }
-            DetailView.UpdateEventReport(displayText);
+            IRequest request = GameSettings.Chapter.Requests[requestId];
+            string text = 
+                $@"{request.DateRequestMade.ToString()}
+                From: Governor, {request.TargetPlanet.Name}
+                To: Any Adeptes Astartes in the sector
+                ----------
+                We need help!";
+            DetailView.UpdateEventReport(text);
+            PlanetSelected.Invoke(request.TargetPlanet.Id);
         }
 
-        private void PopulateEventTree()
+        private void PopulateRequestTree()
         {
-            var sortedEvents = GameSettings.Chapter.BattleHistory.OrderBy(kvp => kvp.Key);
-            foreach (KeyValuePair<Date, List<EventHistory>> kvp in sortedEvents)
+            foreach (IRequest request in GameSettings.Chapter.Requests)
             {
-                DateTreeView.AddDateAndEvents(kvp.Key, kvp.Value.Select(eh => eh.EventTitle).ToList());
+                string text = $"{request.DateRequestMade.ToString()} - {request.TargetPlanet.Name}";
+                Color color = request.DateRequestFulfilled == null ? Color.white : Color.green;
+                RequestTreeView.AddLeafSquad(request.Id, text, color);
             }
         }
     }

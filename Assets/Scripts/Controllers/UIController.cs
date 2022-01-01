@@ -66,6 +66,11 @@ namespace OnlyWar.Controllers
             ScreenTitle.text = "Conquistorum Report";
         }
 
+        public void DiplomacyButton_OnClick()
+        {
+            ScreenTitle.text = "Communiques";
+        }
+
         public void GalaxyController_OnBattleStart(Planet planet)
         {
             ScreenTitle.text = "Battle on " + planet.Name;
@@ -95,11 +100,6 @@ namespace OnlyWar.Controllers
                                                   GameSettings.Chapter.PlayerSoldierMap.Values,
                                                   GameSettings.Chapter.BattleHistory);
             StartCoroutine(TemporarySaveButtonUpdateCoroutine());
-        }
-
-        public void TempLoadButton_OnClick()
-        {
-
         }
 
         private void DisableUI()
