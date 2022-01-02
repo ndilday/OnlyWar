@@ -275,7 +275,7 @@ namespace OnlyWar.Controllers
                 string importance = ConvertImportanceToString(planet.Importance);
                 string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
                 planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n";
-                if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader.ActiveRequest != null)
+                if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader?.ActiveRequest != null)
                 {
                     planetDescription += "The planetary governor has requested our assistance\n";
                 }

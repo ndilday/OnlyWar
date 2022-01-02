@@ -155,7 +155,7 @@ namespace OnlyWar.Controllers
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
             var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
-            var soldiers = 
+            var soldiers =
                 SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Galaxy.SkillTemplateList)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToList();
@@ -188,16 +188,21 @@ namespace OnlyWar.Controllers
             {
                 $"{GameSettings.Chapter.OrderOfBattle.Name} officially forms with its first 1,000 battle brothers."
             };
-            GameSettings.Chapter.AddToBattleHistory(GameSettings.Date, 
-                                                    "Chapter Founding", 
+            GameSettings.Chapter.AddToBattleHistory(GameSettings.Date,
+                                                    "Chapter Founding",
                                                     foundingHistoryEntries);
             // post-MOS evaluations
-            foreach(PlayerSoldier soldier in soldiers)
+            foreach (PlayerSoldier soldier in soldiers)
             {
                 trainingHelper.EvaluateSoldier(soldier, GameSettings.Date);
             }
             GameSettings.Galaxy.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
+            FoundChapterPlanet();
 
+        }
+
+        private void FoundChapterPlanet()
+        {
             // TODO: replace this with a random assignment of starting planet
             // and then have the galaxy map screen default to zooming in
             // on the Marine starting planet
@@ -205,14 +210,29 @@ namespace OnlyWar.Controllers
             int max = emptyPlanets.Count();
             int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
             Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
+            ReplaceChapterPlanetFaction(chapterPlanet);
+        }
+
+        private void ReplaceChapterPlanetFaction(Planet chapterPlanet)
+        {
             chapterPlanet.ControllingFaction = GameSettings.Galaxy.PlayerFaction;
+            Faction defaultFaction = GameSettings.Galaxy.Factions.First(f => f.IsDefaultFaction);
+            PlanetFaction existingPlanetFaction = chapterPlanet.PlanetFactionMap[defaultFaction.Id];
+            PlanetFaction homePlanetFaction = new PlanetFaction(GameSettings.Galaxy.PlayerFaction);
+            homePlanetFaction.IsPublic = true;
+            homePlanetFaction.Leader = null;
+            homePlanetFaction.PDFMembers = existingPlanetFaction.PDFMembers;
+            homePlanetFaction.PlayerReputation = 1;
+            homePlanetFaction.Population = existingPlanetFaction.Population;
+            chapterPlanet.PlanetFactionMap.Remove(existingPlanetFaction.Faction.Id);
+            chapterPlanet.PlanetFactionMap[homePlanetFaction.Faction.Id] = homePlanetFaction;
         }
 
         private void PlaceStartingForces()
         {
-            // For now, put the chapter on their home planet
             foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
             {
+                // For now, put the chapter on their home planet
                 if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
                 {
                     planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id] =

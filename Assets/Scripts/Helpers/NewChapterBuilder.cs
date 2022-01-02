@@ -21,7 +21,8 @@ namespace OnlyWar.Helpers
             Chapter chapter = BuildChapterFromUnitTemplate(faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
                                                            soldiers);
             PopulateOrderOfBattle(year, unassignedSoldierMap, chapter.OrderOfBattle, faction);
-            foreach(PlayerSoldier soldier in soldiers)
+            chapter.PopulateSquadMap();
+            foreach (PlayerSoldier soldier in soldiers)
             {
                 ApplySoldierTypeTraining(soldier);
 
@@ -77,7 +78,6 @@ namespace OnlyWar.Helpers
         {
             Chapter chapter = new Chapter(rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor"), soldiers);
             BuildUnitTreeHelper(chapter.OrderOfBattle, rootTemplate);
-            chapter.PopulateSquadMap();
             return chapter;
         }
 
@@ -346,7 +346,7 @@ namespace OnlyWar.Helpers
                     AssignSoldier(unassignedSoldierMap, leaderList, squad, scoutSgt, year);
                 }
                 while (scoutList.Count > 0 && 
-                      (lastSquad.Members.Count < 10 || leaderList.Count > 0))
+                      (lastSquad.Members.Count < 10 || leaderList.Count <= 0))
                 {
                     AssignSoldier(unassignedSoldierMap, scoutList, lastSquad, scout, year);
                 }
