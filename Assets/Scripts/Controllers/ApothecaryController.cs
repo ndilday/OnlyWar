@@ -36,18 +36,23 @@ It will require approximately {4} weeks before all marines in the squad (other t
             ApothecaryView.UpdateGeneSeedText(GenerateGeneseedReport());
         }
 
-        public void UnitTreeView_OnUnitSelected(int squadId)
+        public void UnitTreeView_OnUnitSelected(int unitId)
         {
+            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             // populate view with members of selected squad
-            if (!GameSettings.Chapter.SquadMap.ContainsKey(squadId))
+            if (selectedUnit.HQSquad != null)
             {
-                Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == squadId);
                 SquadSelected(selectedUnit.HQSquad);
             }
             else
             {
-                SquadSelected(GameSettings.Chapter.SquadMap[squadId]);
+                SquadSelected(GameSettings.Chapter.SquadMap[unitId]);
             }
+        }
+
+        public void UnitTreeView_OnSquadSelected(int squadId)
+        {
+            SquadSelected(GameSettings.Chapter.SquadMap[squadId]);
         }
 
         public void ApothecaryView_OnSquadMemberSelected(int soldierId)
