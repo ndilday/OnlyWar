@@ -121,14 +121,11 @@ It will require approximately {4} weeks before all marines in the squad (other t
 
         private void InitializeUnitTree()
         {
-            if (!UnitTreeView.Initialized)
-            {
-                BuildUnitTree(UnitTreeView,
-                              GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.Chapter.PlayerSoldierMap,
-                              GameSettings.Chapter.SquadMap);
-                UnitTreeView.Initialized = true;
-            }
+            BuildUnitTree(UnitTreeView,
+                            GameSettings.Chapter.OrderOfBattle,
+                            GameSettings.Chapter.PlayerSoldierMap,
+                            GameSettings.Chapter.SquadMap);
+            UnitTreeView.Initialized = true;
         }
 
         private string GenerateGeneseedReport()

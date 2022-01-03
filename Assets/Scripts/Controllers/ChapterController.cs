@@ -35,14 +35,11 @@ namespace OnlyWar.Controllers
         {
             UnitTreeView.gameObject.SetActive(true);
             SquadMemberView.gameObject.SetActive(true);
-            if (!UnitTreeView.Initialized)
-            {
-                BuildUnitTree(UnitTreeView, 
-                              GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.Chapter.PlayerSoldierMap,
-                              GameSettings.Chapter.SquadMap);
-                UnitTreeView.Initialized = true;
-            }
+            BuildUnitTree(UnitTreeView, 
+                          GameSettings.Chapter.OrderOfBattle,
+                          GameSettings.Chapter.PlayerSoldierMap,
+                          GameSettings.Chapter.SquadMap);
+            UnitTreeView.Initialized = true;
         }
 
         public void UnitTreeView_OnUnitSelected(int unitId)

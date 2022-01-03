@@ -140,6 +140,11 @@ I await any further instructions you have on our recruiting and training efforts
             _scoutSquads.Remove(squadId);
             GameSettings.Chapter.SquadMap.Remove(squadId);
             PopulateScoutSquadMap();
+            ScoutSquadView.ClearTree();
+            foreach (Squad squad in _scoutSquads.Values)
+            {
+                ScoutSquadView.AddLeafSquad(squad.Id, squad.Name, Color.white); ;
+            }
         }
 
         private string GetRecruiterDescription(PlayerSoldier soldier)
