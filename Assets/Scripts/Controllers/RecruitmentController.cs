@@ -54,9 +54,11 @@ I await any further instructions you have on our recruiting and training efforts
         {
             // make sure the dialog is closed
             RecruitmentView.gameObject.SetActive(false);
-
+            // rebuild the squad list to be safe
+            _scoutSquads.Clear();
+            PopulateScoutSquadMap();
             // at the end of each week, scouts who are on ship or on home planet get trained and re-evaluated
-            foreach(Squad scoutSquad in _scoutSquads.Values)
+            foreach (Squad scoutSquad in _scoutSquads.Values)
             {
                 if (scoutSquad.IsInReserve)
                 {
