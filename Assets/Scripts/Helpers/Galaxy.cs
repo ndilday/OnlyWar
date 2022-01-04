@@ -142,7 +142,7 @@ namespace OnlyWar.Helpers
                 infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
             }
 
-            return PlanetFactory.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
+            return PlanetBuilder.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
         }
 
         public void AddNewFleet(Fleet newFleet)

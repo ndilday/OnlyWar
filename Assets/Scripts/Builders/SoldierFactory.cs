@@ -1,8 +1,9 @@
-﻿using OnlyWar.Models.Soldiers;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models.Soldiers;
 using System;
 using System.Collections.Generic;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
     class SoldierFactory
     {

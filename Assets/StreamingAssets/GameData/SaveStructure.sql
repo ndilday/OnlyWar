@@ -22,7 +22,7 @@ CREATE TABLE HitLocation (SoldierId INTEGER NOT NULL REFERENCES Soldier (Id), Hi
 CREATE TABLE Planet (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, PlanetTemplateId INTEGER NOT NULL, Name STRING NOT NULL UNIQUE, x INTEGER NOT NULL, y INTEGER NOT NULL, FactionId INTEGER NOT NULL, Importance INTEGER NOT NULL, TaxLevel INTEGER NOT NULL, IsUnderAssault BOOLEAN NOT NULL);
 
 -- Table: PlanetFaction
-CREATE TABLE PlanetFaction (PlanetId INTEGER REFERENCES Planet (Id) NOT NULL, FactionId INTEGER NOT NULL, IsPublic BOOLEAN NOT NULL, Population BIGINT NOT NULL, PDFMembers INTEGER NOT NULL, PlayerReputation REAL NOT NULL, LeaderId INTEGER REFERENCES Character (Id));
+CREATE TABLE PlanetFaction (PlanetId INTEGER REFERENCES Planet (Id) NOT NULL, FactionId INTEGER NOT NULL, IsPublic BOOLEAN NOT NULL, Population BIGINT NOT NULL, PDFMembers INTEGER NOT NULL, PlanetaryControl INTEGER NOT NULL, PlayerReputation REAL NOT NULL, LeaderId INTEGER REFERENCES Character (Id));
 
 -- Table: PlayeFactionSubEvent
 CREATE TABLE PlayerFactionSubEvent (PlayerFactionEventId INTEGER REFERENCES PlayerFactionEvent (Id) NOT NULL, Entry TEXT NOT NULL);
@@ -37,10 +37,10 @@ CREATE TABLE PlayerSoldier (SoldierId INTEGER PRIMARY KEY REFERENCES Soldier (Id
 CREATE TABLE PlayerSoldierFactionCasualtyCount (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier (SoldierId), FactionId INTEGER NOT NULL, Count INTEGER NOT NULL);
 
 -- Table: PlayerSoldierHistory
-CREATE TABLE PlayerSoldierHistory (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier, Entry STRING NOT NULL);
+CREATE TABLE PlayerSoldierHistory (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier (SoldierId), Entry STRING NOT NULL);
 
 -- Table: PlayerSoldierWeaponCasualtyCount
-CREATE TABLE PlayerSoldierWeaponCasualtyCount (PlayerSoldierId REFERENCES PlayerSoldier (SoldierId) NOT NULL, RangedWeaponTemplateId INTEGER, MeleeWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
+CREATE TABLE PlayerSoldierWeaponCasualtyCount (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier (SoldierId), RangedWeaponTemplateId INTEGER, MeleeWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
 
 -- Table: Request
 CREATE TABLE Request (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, CharacterId INTEGER REFERENCES Character (Id) NOT NULL, PlanetId INTEGER REFERENCES Planet (Id) NOT NULL, RequestDate     INTEGER NOT NULL, FulfillmentDate INTEGER);

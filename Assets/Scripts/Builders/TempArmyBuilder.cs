@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-
+using OnlyWar.Helpers;
 using OnlyWar.Models;
 using OnlyWar.Models.Planets;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
     public static class TempArmyBuilder
     {

@@ -278,6 +278,7 @@ namespace OnlyWar.Helpers
         {
             foreach (Squad squad in scoutSquads)
             {
+                if (squad.Members.Count == 0) continue;
                 // scout squads on active duty don't have time to train, they'll get battle experience
                 if (squad.IsInReserve)
                 {

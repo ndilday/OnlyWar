@@ -15,6 +15,7 @@ namespace OnlyWar.Models.Planets
         public readonly PlanetTemplate Template;
         public readonly int Importance;
         public readonly int TaxLevel;
+        public readonly int Size;
         public bool IsUnderAssault { get; set; }
 
         public List<Fleet> Fleets;
@@ -41,12 +42,13 @@ namespace OnlyWar.Models.Planets
             }
         }
 
-        public Planet(int id, string name, Vector2 position, PlanetTemplate template,
-            int importance, int taxLevel)
+        public Planet(int id, string name, Vector2 position, int size, 
+            PlanetTemplate template, int importance, int taxLevel)
         {
             Id = id;
             Name = name;
             Position = position;
+            Size = size;
             Template = template;
             Importance = importance;
             TaxLevel = taxLevel;

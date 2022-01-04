@@ -10,7 +10,7 @@ using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
     public static class NewChapterBuilder
     {

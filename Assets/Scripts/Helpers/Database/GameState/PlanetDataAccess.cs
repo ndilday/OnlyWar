@@ -41,8 +41,9 @@ namespace OnlyWar.Helpers.Database.GameState
                     {
                         controllingFaction = null;
                     }
+                    // for now, we're hard coding all planets to be size 10
                     Planet planet =
-                        new Planet(id, name, new Vector2(x, y), template, importance, taxLevel)
+                        new Planet(id, name, new Vector2(x, y), 10, template, importance, taxLevel)
                         {
                             ControllingFaction = controllingFaction,
                             IsUnderAssault = isUnderAssault
@@ -75,10 +76,11 @@ namespace OnlyWar.Helpers.Database.GameState
                     bool isPublic = reader.GetBoolean(2);
                     int population = reader.GetInt32(3);
                     int pdfMembers = reader.GetInt32(4);
-                    float playerReputation = (float)reader[5];
-                    if (reader[6].GetType() != typeof(DBNull))
+                    int planetaryControl = reader.GetInt32(5);
+                    float playerReputation = (float)reader[6];
+                    if (reader[7].GetType() != typeof(DBNull))
                     {
-                        leaderId = reader.GetInt32(6);
+                        leaderId = reader.GetInt32(7);
                     }
                     PlanetFaction planetFaction =
                         new PlanetFaction(factionMap[factionId])
@@ -86,6 +88,7 @@ namespace OnlyWar.Helpers.Database.GameState
                             IsPublic = isPublic,
                             Population = population,
                             PDFMembers = pdfMembers,
+                            PlanetaryControl = planetaryControl,
                             PlayerReputation = playerReputation,
                             Leader = leaderId == null ? null : characterMap[(int)leaderId]
                         };
@@ -183,10 +186,11 @@ namespace OnlyWar.Helpers.Database.GameState
                     "null";
                 string insert = $@"INSERT INTO PlanetFaction 
                     (PlanetId, FactionId, IsPublic, Population, 
-                    PDFMembers, PlayerReputation, LeaderId) VALUES 
-                    ({planetId}, {planetFaction.Key}, {planetFaction.Value.IsPublic}, {planetFaction.Value.Population}, 
-                    {planetFaction.Value.PDFMembers}, {planetFaction.Value.PlayerReputation},
-                    {leaderId});";
+                    PDFMembers, PlanetaryControl, PlayerReputation, LeaderId) VALUES 
+                    ({planetId}, {planetFaction.Key}, {planetFaction.Value.IsPublic}, 
+                    {planetFaction.Value.Population}, {planetFaction.Value.PDFMembers}, 
+                    {planetFaction.Value.PlanetaryControl}, 
+                    {planetFaction.Value.PlayerReputation}, {leaderId});";
                 using (var command = transaction.Connection.CreateCommand())
                 {
                     command.CommandText = insert;

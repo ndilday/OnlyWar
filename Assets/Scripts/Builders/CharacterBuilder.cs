@@ -1,8 +1,9 @@
-﻿using OnlyWar.Models;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models;
 using OnlyWar.Models.Soldiers;
 using System.Collections.Generic;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
     public static class CharacterBuilder
     {

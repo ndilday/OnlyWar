@@ -1,7 +1,7 @@
 ﻿using OnlyWar.Models;
 using OnlyWar.Models.Planets;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
     class RequestFactory
     {

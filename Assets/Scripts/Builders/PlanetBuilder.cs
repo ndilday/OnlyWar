@@ -1,26 +1,27 @@
-﻿using OnlyWar.Models;
+﻿using OnlyWar.Helpers;
+using OnlyWar.Models;
 using OnlyWar.Models.Planets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OnlyWar.Helpers
+namespace OnlyWar.Builders
 {
-    class PlanetFactory
+    class PlanetBuilder
     {
-        private PlanetFactory() 
+        private PlanetBuilder() 
         {
             _usedPlanetNameIndexes = new HashSet<int>();
         }
-        private static PlanetFactory _instance;
-        public static PlanetFactory Instance
+        private static PlanetBuilder _instance;
+        public static PlanetBuilder Instance
         {
             get
             {
                 if(_instance == null)
                 {
-                    _instance = new PlanetFactory();
+                    _instance = new PlanetBuilder();
                 }
                 return _instance;
             }
@@ -45,8 +46,9 @@ namespace OnlyWar.Helpers
                 + (int)(RNG.NextGaussianDouble() * template.ImportanceRange.StandardDeviation);
             int taxLevel = 
                 RNG.GetIntBelowMax(template.TaxRange.MinValue, template.TaxRange.MaxValue + 1);
+            // for now, we're hardcoding all planets to be size 10
             Planet planet = new Planet(_nextId, TempPlanetList.PlanetNames[nameIndex], 
-                                       position, template, importance, taxLevel);
+                                       position, 10, template, importance, taxLevel);
             _nextId++;
 
             int popToDistribute = (int)(template.PopulationRange.BaseValue)
@@ -73,12 +75,20 @@ namespace OnlyWar.Helpers
             planetFaction.IsPublic = true;
             planetFaction.Population = popToDistribute;
             planetFaction.PDFMembers = popToDistribute / 33;
+            // for now, all planets start completely in the control of a single faction
+            planetFaction.PlanetaryControl = 10;
             planet.PlanetFactionMap[controllingFaction.Id] = planetFaction;
             planet.ControllingFaction = controllingFaction;
 
             if(controllingFaction.IsDefaultFaction)
             {
                 planetFaction.Leader = CharacterBuilder.GenerateCharacter(_leaderId, leaderFaction);
+                if(!leaderFaction.IsDefaultFaction)
+                {
+                    // if the planetary leader is a member of a GC,
+                    // they'll never reuest player aid 
+                    planetFaction.Leader.OpinionOfPlayerForce = -1;
+                }
                 _leaderId++;
             }
             return planet;
