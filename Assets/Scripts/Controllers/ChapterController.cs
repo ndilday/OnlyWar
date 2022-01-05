@@ -136,7 +136,7 @@ namespace OnlyWar.Controllers
             if (newSquad.ParentUnit.HQSquad != null
                 && newSquad.Id == newSquad.ParentUnit.HQSquad.Id)
             {
-                UnitTreeView.UnitButton_OnClick(newSquad.Id);
+                UnitTreeView.UnitButton_OnClick(newSquad.ParentUnit.Id);
             }
             else
             {
