@@ -1,5 +1,6 @@
 ﻿using OnlyWar.Models.Planets;
 using OnlyWar.Helpers.Database.GameState;
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -90,16 +91,23 @@ namespace OnlyWar.Controllers
         {
             var ships = GameSettings.Galaxy.Fleets.Values.SelectMany(fleet => fleet.Ships);
             var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
-            GameStateDataAccess.Instance.SaveData("default.s3db",
-                                                  GameSettings.Date,
-                                                  GameSettings.Galaxy.Characters,
-                                                  GameSettings.Chapter.Requests,
-                                                  GameSettings.Galaxy.Planets.Values,
-                                                  GameSettings.Galaxy.Fleets.Values,
-                                                  units,
-                                                  GameSettings.Chapter.PlayerSoldierMap.Values,
-                                                  GameSettings.Chapter.BattleHistory);
-            StartCoroutine(TemporarySaveButtonUpdateCoroutine());
+            try
+            {
+                GameStateDataAccess.Instance.SaveData("default.s3db",
+                                                      GameSettings.Date,
+                                                      GameSettings.Galaxy.Characters,
+                                                      GameSettings.Chapter.Requests,
+                                                      GameSettings.Galaxy.Planets.Values,
+                                                      GameSettings.Galaxy.Fleets.Values,
+                                                      units,
+                                                      GameSettings.Chapter.PlayerSoldierMap.Values,
+                                                      GameSettings.Chapter.BattleHistory);
+                StartCoroutine(TemporarySaveButtonUpdateCoroutine("<b>SAVED!</b>"));
+            }
+            catch(Exception e)
+            {
+                StartCoroutine(TemporarySaveButtonUpdateCoroutine("<b>SAVE FAILED!</b>"));
+            }
         }
 
         private void DisableUI()
@@ -112,9 +120,9 @@ namespace OnlyWar.Controllers
             BottomUI.SetActive(true);
         }
 
-        private IEnumerator TemporarySaveButtonUpdateCoroutine()
+        private IEnumerator TemporarySaveButtonUpdateCoroutine(string text)
         {
-            SaveButtonText.text = "<b>SAVED!</b>";
+            SaveButtonText.text = text;
             yield return new WaitForSeconds(2);
             SaveButtonText.text = "Save";
         }
