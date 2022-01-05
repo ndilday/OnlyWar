@@ -27,7 +27,7 @@ namespace OnlyWar.Controllers
 
         private const string RECRUITER_FORMAT = @"Greetings, sir. My report on the current status of our Neophytes and Aspriants is as follows.
 
-We currently have {0} Neophytes divided amongh {1} squads in our Tenth Company. Of those, I would consider {2} ready to take the sacrament of the Black Carapace and join us as full Battle Brothers.
+We currently have {0} Neophytes divided among {1} squads in our Tenth Company. Of those, I would consider {2} ready to take the sacrament of the Black Carapace and join us as full Battle Brothers.
 
 We have {3} Aspriants in training who have not yet joined the ranks of our Neophytes.
 

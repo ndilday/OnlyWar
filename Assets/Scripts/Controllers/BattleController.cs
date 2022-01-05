@@ -675,14 +675,10 @@ namespace OnlyWar.Controllers
                 GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
                     .AddMeleeKill(_opposingFaction.Id, weapon.Id);
             }
-            else if(weapon.RelatedSkill.Category == SkillCategory.Ranged)
+            else
             {
                 GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
                     .AddRangedKill(_opposingFaction.Id, weapon.Id);
-            }
-            else
-            {
-                throw new Exception($"Unexpected weapon skill {weapon.RelatedSkill.Name} involved in kill");
             }
         }
     }
