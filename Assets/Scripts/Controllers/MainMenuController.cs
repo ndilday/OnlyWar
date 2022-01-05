@@ -217,8 +217,8 @@ namespace OnlyWar.Controllers
         private void ReplaceChapterPlanetFaction(Planet chapterPlanet)
         {
             chapterPlanet.ControllingFaction = GameSettings.Sector.PlayerFaction;
-            Faction defaultFaction = GameSettings.Sector.Factions.First(f => f.IsDefaultFaction);
-            PlanetFaction existingPlanetFaction = chapterPlanet.PlanetFactionMap[defaultFaction.Id];
+            PlanetFaction existingPlanetFaction = 
+                chapterPlanet.PlanetFactionMap[GameSettings.Sector.DefaultFaction.Id];
             PlanetFaction homePlanetFaction = new PlanetFaction(GameSettings.Sector.PlayerFaction);
             homePlanetFaction.IsPublic = true;
             homePlanetFaction.Leader = null;

@@ -176,9 +176,8 @@ namespace OnlyWar.Controllers
 
         private float ConvertPopulation(Planet planet, PlanetFaction planetFaction, float newPop)
         {
-            PlanetFaction defaultFaction = planet.PlanetFactionMap
-                                                                         .Values
-                                                                         .First(pf => pf.Faction.IsDefaultFaction);
+            PlanetFaction defaultFaction = 
+                planet.PlanetFactionMap[GameSettings.Sector.DefaultFaction.Id];
             // converting factions always convert one new member per week
             if (defaultFaction?.Population > 0)
             {

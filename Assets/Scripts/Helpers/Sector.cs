@@ -140,7 +140,7 @@ namespace OnlyWar.Helpers
             }
             else
             {
-                controllingFaction = Factions.First(f => f.IsDefaultFaction);
+                controllingFaction = DefaultFaction;
                 random = RNG.GetLinearDouble();
                 infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
             }
