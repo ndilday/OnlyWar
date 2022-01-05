@@ -71,7 +71,7 @@ namespace OnlyWar.Controllers
         public void GameController_OnBattleStarted(BattleConfiguration configuration)
         {
             _planet = configuration.Planet;
-            ResetBattleValues(configuration);
+            InitializeBattleState(configuration);
             PopulateBattleViewSquads(_playerBattleSquads.Values);
             PopulateBattleViewSquads(_opposingBattleSquads.Values);
             BattleView.UpdateNextStepButton("Next Turn", true);
@@ -390,7 +390,7 @@ namespace OnlyWar.Controllers
             }
         }
 
-        private void ResetBattleValues(BattleConfiguration config)
+        private void InitializeBattleState(BattleConfiguration config)
         {
             BattleView.gameObject.SetActive(true);
             BattleView.Clear();

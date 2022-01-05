@@ -28,6 +28,7 @@ namespace OnlyWar.Helpers
         public IReadOnlyDictionary<int, Fleet> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
+        public Faction DefaultFaction { get; }
         public IReadOnlyDictionary<int, BaseSkill> BaseSkillMap { get => _baseSkillMap; }
         public IReadOnlyList<SkillTemplate> SkillTemplateList { get => _skillTemplateList; }
         public IReadOnlyDictionary<int, List<HitLocationTemplate>> BodyHitLocationTemplateMap { get => _bodyHitLocationTemplateMap; }
@@ -49,6 +50,7 @@ namespace OnlyWar.Helpers
             MeleeWeaponTemplates = gameBlob.MeleeWeaponTemplates;
             WeaponSets = gameBlob.WeaponSets;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
+            DefaultFaction = _factions.First(f => f.IsDefaultFaction);
             _sectorSize = sectorSize;
             _planets = new Dictionary<int, Planet>();
             _fleets = new Dictionary<int, Fleet>();

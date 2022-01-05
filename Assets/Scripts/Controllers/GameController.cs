@@ -3,6 +3,7 @@ using OnlyWar.Helpers.Battle;
 using OnlyWar.Models.Planets;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Controllers
 {
@@ -11,16 +12,19 @@ namespace Assets.Scripts.Controllers
         public UnityEvent OnTurnStart;
         public UnityEvent<BattleConfiguration> OnBattleStart;
         private readonly UnityEvent OnAllBattlesComplete;
+        private readonly Queue<BattleConfiguration> _battleConfigurationQueue;
 
         [SerializeField]
         private GameSettings GameSettings;
 
-        private int _planetBattleStartedId;
+        private int _currentBattlePlanet;
 
         GameController()
         {
             OnAllBattlesComplete = new UnityEvent();
+            _battleConfigurationQueue = new Queue<BattleConfiguration>();
         }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -29,14 +33,14 @@ namespace Assets.Scripts.Controllers
 
         public void UIController_OnTurnEnd()
         {
-            _planetBattleStartedId = -1;
-            HandleBattles();
-
+            _currentBattlePlanet = -1;
+            PrepareBattleList();
+            HandleNextBattle();
         }
 
         public void BattleController_OnBattleComplete()
         {
-            HandleBattles();
+            HandleNextBattle();
         }
 
         public void GameController_OnAllBattlesComplete()
@@ -46,24 +50,44 @@ namespace Assets.Scripts.Controllers
             OnTurnStart.Invoke();
         }
 
-        private void HandleBattles()
+        private void PrepareBattleList()
         {
-            int i = _planetBattleStartedId + 1;
-            while (i < GameSettings.Sector.Planets.Count)
+            int playerFactionId = GameSettings.Sector.PlayerFaction.Id;
+            int defaultFactionId = GameSettings.Sector.DefaultFaction.Id;
+            foreach(Planet planet in GameSettings.Sector.Planets.Values)
             {
-                Planet planet = GameSettings.Sector.GetPlanet(i);
-                BattleConfiguration battleConfig =
-                    BattleConfigurationBuilder.BuildBattleConfiguration(planet);
-                if (battleConfig != null)
+                IReadOnlyList<BattleConfiguration> battleConfigList =
+                    BattleConfigurationBuilder.BuildBattleConfigurations(planet,
+                                                                         playerFactionId,
+                                                                         defaultFactionId);
+                if(battleConfigList != null)
                 {
-                    Debug.Log("Battle breaks out on " + planet.Name);
-                    _planetBattleStartedId = i;
-                    OnBattleStart.Invoke(battleConfig);
-                    return;
+                    foreach(BattleConfiguration battleConfig in battleConfigList)
+                    {
+                        _battleConfigurationQueue.Enqueue(battleConfig);
+                    }
                 }
-                i++;
             }
-            OnAllBattlesComplete.Invoke();
+        }
+
+        private void HandleNextBattle()
+        {
+            if(_battleConfigurationQueue.Count == 0)
+            {
+                OnAllBattlesComplete.Invoke();
+            }
+            else
+            {
+                BattleConfiguration nextBattleConfiguration = 
+                    _battleConfigurationQueue.Dequeue();
+                // TODO: add some UX to give the player context around this battle
+                if (nextBattleConfiguration.Planet.Id != _currentBattlePlanet)
+                {
+                    // this is a new planet, update accordingly
+                    Debug.Log($"Battle breaks out on {nextBattleConfiguration.Planet.Name}!");
+                }
+                OnBattleStart.Invoke(nextBattleConfiguration);
+            }
         }
 
         private void HandlePlanetaryAssaults()

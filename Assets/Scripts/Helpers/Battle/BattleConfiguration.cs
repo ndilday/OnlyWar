@@ -19,87 +19,16 @@ namespace OnlyWar.Helpers.Battle
 
     public static class BattleConfigurationBuilder
     {
-        public static BattleConfiguration BuildBattleConfiguration(Planet planet)
+        public static IReadOnlyList<BattleConfiguration> BuildBattleConfigurations(Planet planet, int playerFactionId, int alliedFactionId)
         {
-            bool containsPlayerSquad = false;
-            bool containsNonDefaultNonPlayerSquad = false;
-            bool containsActivePlayerSquad = false;
-            int marineCount = 0;
-            // determine if the player and an OpFor are both on planet
-            foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
-            {
-                Faction faction = kvp.Value[0].ParentUnit.UnitTemplate.Faction;
-                if (!faction.IsDefaultFaction && !faction.IsPlayerFaction && kvp.Value.Any(s => !s.IsInReserve))
-                {
-                    containsNonDefaultNonPlayerSquad = true;
-                }
-                else if (faction.IsPlayerFaction)
-                {
-                    containsPlayerSquad = true;
-                    containsActivePlayerSquad =
-                        kvp.Value.Any(squad => !squad.IsInReserve);
-                    marineCount = kvp.Value.Sum(s => s.Members.Count);
-                }
-            }
-            if (!containsPlayerSquad)
-            {
-                return null;
-            }
-            if (containsActivePlayerSquad && containsNonDefaultNonPlayerSquad)
-            {
-                return ConstructAnnihilationConfiguration(planet);
-            }
-            // we have player squads, but no NPC squads;
-            // need to determine if we should generate a force
-            foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
-            {
-                if (!planetFaction.Faction.IsDefaultFaction &&
-                    !planetFaction.Faction.IsPlayerFaction)
-                {
-                    if (containsActivePlayerSquad)
-                    {
-                        // player is on the hunt
-                        if (planetFaction.IsPublic)
-                        {
-                            // oppFor is in public, generate a force to face the player
-                            Unit newArmy = GenerateNewArmy(planetFaction, planet);
-
-                            return ConstructAnnihilationConfiguration(planet);
-                        }
-                        else
-                        {
-                            // TODO: chace that the player comes across the hidden enemy?
-                            // increases over time with an active presence
-                            // inverse to size of active presence
-                            // formula: 0.0002 * pop / #marines
-                            // should it be total marines or active marines?
-                            double chanceToAmbush = 0.0002 *
-                                                    planetFaction.Population /
-                                                    marineCount;
-                            if (RNG.GetLinearDouble() <= chanceToAmbush)
-                            {
-                                // set up an ambush force
-                                Unit newArmy = GenerateNewArmy(planetFaction, planet);
-                                return ConstructOpposingAmbushConfiguration(planet);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // TODO: change this logic later
-                        return null;
-                        // contains only reserve player squads
-                        if (planetFaction.IsPublic)
-                        {
-                            // TODO: chance that the enemy comes across the player?
-                        }
-                        else
-                        {
-                            // TODO: chance that the two sides meet?
-                        }
-                    }
-                }
-            }
+            
+            bool playerForcePresent = planet.FactionSquadListMap.ContainsKey(playerFactionId) &&
+                planet.FactionSquadListMap[playerFactionId].Count > 0;
+            bool opForPresent = planet.PlanetFactionMap.Values
+                .Any(f => !f.Faction.IsDefaultFaction && !f.Faction.IsPlayerFaction);
+            if (!playerForcePresent || !opForPresent) return null;
+            // does it really make sense for faction squads on planet to be
+            // independent from the faction map?
             return null;
         }
 
