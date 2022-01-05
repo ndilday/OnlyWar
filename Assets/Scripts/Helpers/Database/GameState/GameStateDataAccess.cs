@@ -36,6 +36,7 @@ namespace OnlyWar.Helpers.Database.GameState
         private readonly PlayerSoldierDataAccess _playerSoldierDataAccess;
         private readonly GlobalDataAccess _globalDataAccess;
         private readonly PlayerFactionEventDataAccess _playerFactionEventDataAccess;
+        private readonly bool VERBOSE = true;
         private readonly string CREATE_TABLE_FILE =
             $"{Application.streamingAssetsPath}/GameData/SaveStructure.sql";
         private static GameStateDataAccess _instance;
@@ -121,45 +122,54 @@ namespace OnlyWar.Helpers.Database.GameState
             string path = $"{Application.streamingAssetsPath}/Saves/{fileName}";
             if(File.Exists(path))
             {
+                Log("Deleting existing save file");
                 File.Delete(path);
             }
+            Log("Generating tables");
             GenerateTables(fileName);
+            Log("selecting squads");
             var squads = units.SelectMany(u => u.GetAllSquads());
+            Log("selecting ships");
             var ships = fleets.SelectMany(f => f.Ships);
             string connection = 
                 $"URI=file:{path}";
+            Log("opening connection");
             IDbConnection dbCon = new SqliteConnection(connection);
             dbCon.Open();
             using (var transaction = dbCon.BeginTransaction())
             {
                 try
                 {
-                    foreach(Character character in characters)
+                    Log("saving characters");
+                    foreach (Character character in characters)
                     {
                         _planetDataAccess.SaveCharacter(transaction, character);
                     }
-                    
+                    Log("saving planets");
                     foreach (Planet planet in planets)
                     {
                         _planetDataAccess.SavePlanet(transaction, planet);
                     }
-
-                    foreach(IRequest request in requests)
+                    Log("saving requests");
+                    foreach (IRequest request in requests)
                     {
                         _requestDataAccess.SaveRequest(transaction, request);
                     }
 
-                    foreach(Fleet fleet in fleets)
+                    Log("saving fleets");
+                    foreach (Fleet fleet in fleets)
                     {
                         _fleetDataAccess.SaveFleet(transaction, fleet);
                     }
 
-                    foreach(Ship ship in ships)
+                    Log("saving ships");
+                    foreach (Ship ship in ships)
                     {
                         _fleetDataAccess.SaveShip(transaction, ship);
                     }
 
-                    foreach(Unit unit in units)
+                    Log("saving units");
+                    foreach (Unit unit in units)
                     {
                         _unitDataAccess.SaveUnit(transaction, unit);
                         foreach(Unit childUnit in unit?.ChildUnits)
@@ -168,7 +178,8 @@ namespace OnlyWar.Helpers.Database.GameState
                         }
                     }
 
-                    foreach(Squad squad in squads)
+                    Log("saving squads");
+                    foreach (Squad squad in squads)
                     {
                         _unitDataAccess.SaveSquad(transaction, squad);
                         foreach (ISoldier soldier in squad.Members)
@@ -177,7 +188,8 @@ namespace OnlyWar.Helpers.Database.GameState
                         }
                     }
 
-                    foreach(PlayerSoldier playerSoldier in playerSoldiers)
+                    Log("saving soldiers");
+                    foreach (PlayerSoldier playerSoldier in playerSoldiers)
                     {
                         _playerSoldierDataAccess.SavePlayerSoldier(transaction, playerSoldier);
                     }
@@ -206,6 +218,11 @@ namespace OnlyWar.Helpers.Database.GameState
                 command.ExecuteNonQuery();
                 dbCon.Close();
             }
+        }
+
+        private void Log(string message)
+        {
+            if (VERBOSE) Debug.Log(message);
         }
     }
 }
