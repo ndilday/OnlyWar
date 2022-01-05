@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace OnlyWar.Views
 {
-    public class GalaxyMapView : MonoBehaviour
+    public class SectorMapView : MonoBehaviour
     {
         public UnityEvent<int, Vector2, Vector2> OnFleetPathDraw;
         public UnityEvent<int> OnFleetPathRemove;
@@ -30,7 +30,7 @@ namespace OnlyWar.Views
         private readonly HashSet<Vector2> _planetPositions;
         private readonly Dictionary<Vector2, List<int>> _movingFleetsAtLocationMap;
 
-        public GalaxyMapView()
+        public SectorMapView()
         {
             _planetViewMap = new Dictionary<int, Tuple<Transform, SpriteRenderer, TextMesh>>();
             _fleetViewMap = new Dictionary<int, Transform>();
@@ -235,8 +235,8 @@ namespace OnlyWar.Views
             float screenHeightInUnits = Camera.main.orthographicSize * 2.0f;
             float unitsPerPixel = screenHeightInUnits / Screen.height;
             float screenWidthInUnits = screenHeightInUnits * Screen.width / Screen.height;
-            float mapTop = GameSettings.GalaxySize * GameSettings.MapScale.y;
-            float mapRight = GameSettings.GalaxySize * GameSettings.MapScale.x;
+            float mapTop = GameSettings.SectorSize * GameSettings.MapScale.y;
+            float mapRight = GameSettings.SectorSize * GameSettings.MapScale.x;
             // assume for now that the world is 450x450
             float minX = (screenWidthInUnits / 2.0f) - (40.0f * unitsPerPixel);
             float maxX = mapRight + (40.0f * unitsPerPixel) - (screenWidthInUnits / 2.0f);

@@ -1,4 +1,5 @@
-﻿using OnlyWar.Helpers.Database.GameRules;
+﻿using OnlyWar.Builders;
+using OnlyWar.Helpers.Database.GameRules;
 using OnlyWar.Models;
 using OnlyWar.Models.Fleets;
 using OnlyWar.Models.Planets;
@@ -11,7 +12,7 @@ using UnityEngine;
 
 namespace OnlyWar.Helpers
 {
-    public class Galaxy
+    public class Sector
     {
         private readonly Dictionary<int, Fleet> _fleets;
         private readonly Dictionary<int, Planet> _planets;
@@ -21,7 +22,7 @@ namespace OnlyWar.Helpers
         private readonly IReadOnlyList<SkillTemplate> _skillTemplateList;
         private readonly IReadOnlyDictionary<int, List<HitLocationTemplate>> _bodyHitLocationTemplateMap;
         private readonly IReadOnlyDictionary<int, PlanetTemplate> _planetTemplateMap;
-        private readonly int _galaxySize;
+        private readonly int _sectorSize;
         public List<Character> Characters { get => _characters; }
         public IReadOnlyDictionary<int, Planet> Planets { get => _planets; }
         public IReadOnlyDictionary<int, Fleet> Fleets { get => _fleets; }
@@ -35,7 +36,7 @@ namespace OnlyWar.Helpers
         public IReadOnlyDictionary<int, MeleeWeaponTemplate> MeleeWeaponTemplates { get; }
         public IReadOnlyDictionary<int, WeaponSet> WeaponSets { get; }
 
-        public Galaxy(int galaxySize)
+        public Sector(int sectorSize)
         {
             var gameBlob = GameRulesDataAccess.Instance.GetData();
             _characters = new List<Character>();
@@ -48,7 +49,7 @@ namespace OnlyWar.Helpers
             MeleeWeaponTemplates = gameBlob.MeleeWeaponTemplates;
             WeaponSets = gameBlob.WeaponSets;
             PlayerFaction = _factions.First(f => f.IsPlayerFaction);
-            _galaxySize = galaxySize;
+            _sectorSize = sectorSize;
             _planets = new Dictionary<int, Planet>();
             _fleets = new Dictionary<int, Fleet>();
         }
@@ -73,7 +74,7 @@ namespace OnlyWar.Helpers
             return Fleets.Values.Where(f => f.Position == worldPosition);
         }
 
-        public void GenerateGalaxy(List<Character> characters, List<Planet> planets, List<Fleet> fleets)
+        public void GenerateSector(List<Character> characters, List<Planet> planets, List<Fleet> fleets)
         {
             _characters.Clear();
             _characters.AddRange(characters);
@@ -95,13 +96,13 @@ namespace OnlyWar.Helpers
             }
         }
 
-        public void GenerateGalaxy(int seed)
+        public void GenerateSector(int seed)
         {
             _planets.Clear();
             RNG.Reset(seed);
-            for(int i = 0; i < _galaxySize; i++)
+            for(int i = 0; i < _sectorSize; i++)
             {
-                for (int j = 0; j < _galaxySize; j++)
+                for (int j = 0; j < _sectorSize; j++)
                 {
                     double random = RNG.GetLinearDouble();
                     if (random <= 0.05)

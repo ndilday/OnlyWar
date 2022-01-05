@@ -70,8 +70,8 @@ namespace OnlyWar.Componets
             float unitsPerPixel = screenHeightInUnits / Screen.height;
             Vector3 newPosition = origin - difference;
             float screenWidthInUnits = screenHeightInUnits * Screen.width / Screen.height;
-            float mapTop = GameSettings.GalaxySize * GameSettings.MapScale.y;
-            float mapRight = GameSettings.GalaxySize * GameSettings.MapScale.x;
+            float mapTop = GameSettings.SectorSize * GameSettings.MapScale.y;
+            float mapRight = GameSettings.SectorSize * GameSettings.MapScale.x;
             // assume for now that the world is 450x450
             float minX = (screenWidthInUnits / 2.0f) - (200.0f*unitsPerPixel);
             float maxX = mapRight + (200.0f * unitsPerPixel) - (screenWidthInUnits / 2.0f);

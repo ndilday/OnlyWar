@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -14,7 +13,7 @@ public class GameSettings : ScriptableObject
     public bool debugMode;
 
     [Header("Galaxy Map")]
-    public int GalaxySize;
+    public int SectorSize;
     public Vector2 MapScale;
 
     [Header("Battle Map")]
@@ -22,7 +21,7 @@ public class GameSettings : ScriptableObject
 
     [Header("Chapter Definitions")]
     [HideInInspector]
-    public Galaxy Galaxy;
+    public Sector Sector;
     [HideInInspector]
     public Chapter Chapter;
 

@@ -1,4 +1,5 @@
-﻿using OnlyWar.Helpers;
+﻿using OnlyWar.Builders;
+using OnlyWar.Helpers;
 using OnlyWar.Models;
 using OnlyWar.Models.Fleets;
 using OnlyWar.Models.Planets;
@@ -15,7 +16,7 @@ namespace OnlyWar.Controllers
 {
     public class MainMenuController : MonoBehaviour
     {
-        //private const int GENERATE_GALAXY_SEED = 0;
+        //private const int GENERATION_SEED = 0;
 
         [SerializeField]
         private GameSettings GameSettings;
@@ -31,13 +32,13 @@ namespace OnlyWar.Controllers
         {
             // TODO: open file screen
             // load that file
-            GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
+            GameSettings.Sector = new Sector(GameSettings.SectorSize);
             GameStateDataBlob gameData = LoadGameData();
 
-            GameSettings.Galaxy.GenerateGalaxy(gameData.Characters, gameData.Planets, gameData.Fleets);
+            GameSettings.Sector.GenerateSector(gameData.Characters, gameData.Planets, gameData.Fleets);
             GameSettings.Date = gameData.CurrentDate;
             Dictionary<Faction, List<Unit>> factionUnits = InitalizeUnits(gameData);
-            var chapterUnit = factionUnits[GameSettings.Galaxy.PlayerFaction].First(u => u.ParentUnit == null);
+            var chapterUnit = factionUnits[GameSettings.Sector.PlayerFaction].First(u => u.ParentUnit == null);
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
             GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
             GameSettings.Chapter.PopulateSquadMap();
@@ -58,29 +59,29 @@ namespace OnlyWar.Controllers
 
         private GameStateDataBlob LoadGameData()
         {
-            var shipTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.ShipTemplates != null)
+            var shipTemplateMap = GameSettings.Sector.Factions.Where(f => f.ShipTemplates != null)
                                                                           .SelectMany(f => f.ShipTemplates.Values)
                                                                           .ToDictionary(s => s.Id);
-            var unitTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.UnitTemplates != null)
+            var unitTemplateMap = GameSettings.Sector.Factions.Where(f => f.UnitTemplates != null)
                                                               .SelectMany(f => f.UnitTemplates.Values)
                                                               .ToDictionary(u => u.Id);
-            var squadTemplateMap = GameSettings.Galaxy.Factions.Where(f => f.SquadTemplates != null)
+            var squadTemplateMap = GameSettings.Sector.Factions.Where(f => f.SquadTemplates != null)
                                                                .SelectMany(f => f.SquadTemplates.Values)
                                                                .ToDictionary(s => s.Id);
-            var hitLocations = GameSettings.Galaxy.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
+            var hitLocations = GameSettings.Sector.BodyHitLocationTemplateMap.Values.SelectMany(hl => hl)
                                                                                     .Distinct()
                                                                                     .ToDictionary(hl => hl.Id);
-            var soldierTypeMap = GameSettings.Galaxy.Factions.Where(f => f.SoldierTemplates != null)
+            var soldierTypeMap = GameSettings.Sector.Factions.Where(f => f.SoldierTemplates != null)
                                                              .SelectMany(f => f.SoldierTemplates.Values)
                                                              .ToDictionary(st => st.Id);
             var gameData =
                 GameStateDataAccess.Instance.GetData("default.s3db",
                                                      GameSettings,
-                                                     GameSettings.Galaxy.Factions.ToDictionary(f => f.Id),
-                                                     GameSettings.Galaxy.PlanetTemplateMap,
+                                                     GameSettings.Sector.Factions.ToDictionary(f => f.Id),
+                                                     GameSettings.Sector.PlanetTemplateMap,
                                                      shipTemplateMap, unitTemplateMap, squadTemplateMap,
-                                                     GameSettings.Galaxy.WeaponSets,
-                                                     hitLocations, GameSettings.Galaxy.BaseSkillMap,
+                                                     GameSettings.Sector.WeaponSets,
+                                                     hitLocations, GameSettings.Sector.BaseSkillMap,
                                                      soldierTypeMap);
             return gameData;
         }
@@ -89,7 +90,7 @@ namespace OnlyWar.Controllers
         {
             var factionUnits = gameData.Units.GroupBy(u => u.UnitTemplate.Faction)
                                                          .ToDictionary(g => g.Key, g => g.ToList());
-            foreach (Faction faction in GameSettings.Galaxy.Factions)
+            foreach (Faction faction in GameSettings.Sector.Factions)
             {
                 if (factionUnits.ContainsKey(faction))
                 {
@@ -143,8 +144,8 @@ namespace OnlyWar.Controllers
 
         private void GenerateNewGame()
         {
-            GameSettings.Galaxy = new Galaxy(GameSettings.GalaxySize);
-            GameSettings.Galaxy.GenerateGalaxy(RNG.GetIntBelowMax(0, int.MaxValue));
+            GameSettings.Sector = new Sector(GameSettings.SectorSize);
+            GameSettings.Sector.GenerateSector(RNG.GetIntBelowMax(0, int.MaxValue));
             // generate chapter
             CreateChapter();
             PlaceStartingForces();
@@ -154,15 +155,15 @@ namespace OnlyWar.Controllers
         {
             Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
             Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            var soldierTemplate = GameSettings.Galaxy.PlayerFaction.SoldierTemplates[0];
+            var soldierTemplate = GameSettings.Sector.PlayerFaction.SoldierTemplates[0];
             var soldiers =
-                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Galaxy.SkillTemplateList)
+                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Sector.SkillTemplateList)
                 .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
                 .ToList();
 
             string foo = "";
             SoldierTrainingCalculator trainingHelper =
-                new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
+                new SoldierTrainingCalculator(GameSettings.Sector.BaseSkillMap.Values);
             foreach (PlayerSoldier soldier in soldiers)
             {
                 soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
@@ -182,7 +183,7 @@ namespace OnlyWar.Controllers
 
             GameSettings.Chapter =
                 NewChapterBuilder.CreateChapter(soldiers,
-                                                GameSettings.Galaxy.PlayerFaction,
+                                                GameSettings.Sector.PlayerFaction,
                                                 GameSettings.Date.ToString());
             List<string> foundingHistoryEntries = new List<string>
             {
@@ -196,7 +197,7 @@ namespace OnlyWar.Controllers
             {
                 trainingHelper.EvaluateSoldier(soldier, GameSettings.Date);
             }
-            GameSettings.Galaxy.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
+            GameSettings.Sector.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
             FoundChapterPlanet();
 
         }
@@ -204,9 +205,9 @@ namespace OnlyWar.Controllers
         private void FoundChapterPlanet()
         {
             // TODO: replace this with a random assignment of starting planet
-            // and then have the galaxy map screen default to zooming in
+            // and then have the sector map screen default to zooming in
             // on the Marine starting planet
-            var emptyPlanets = GameSettings.Galaxy.Planets.Values.Where(p => p.ControllingFaction.IsDefaultFaction);
+            var emptyPlanets = GameSettings.Sector.Planets.Values.Where(p => p.ControllingFaction.IsDefaultFaction);
             int max = emptyPlanets.Count();
             int chapterPlanetIndex = RNG.GetIntBelowMax(0, max);
             Planet chapterPlanet = emptyPlanets.ElementAt(chapterPlanetIndex);
@@ -215,10 +216,10 @@ namespace OnlyWar.Controllers
 
         private void ReplaceChapterPlanetFaction(Planet chapterPlanet)
         {
-            chapterPlanet.ControllingFaction = GameSettings.Galaxy.PlayerFaction;
-            Faction defaultFaction = GameSettings.Galaxy.Factions.First(f => f.IsDefaultFaction);
+            chapterPlanet.ControllingFaction = GameSettings.Sector.PlayerFaction;
+            Faction defaultFaction = GameSettings.Sector.Factions.First(f => f.IsDefaultFaction);
             PlanetFaction existingPlanetFaction = chapterPlanet.PlanetFactionMap[defaultFaction.Id];
-            PlanetFaction homePlanetFaction = new PlanetFaction(GameSettings.Galaxy.PlayerFaction);
+            PlanetFaction homePlanetFaction = new PlanetFaction(GameSettings.Sector.PlayerFaction);
             homePlanetFaction.IsPublic = true;
             homePlanetFaction.Leader = null;
             homePlanetFaction.PDFMembers = existingPlanetFaction.PDFMembers;
@@ -230,19 +231,19 @@ namespace OnlyWar.Controllers
 
         private void PlaceStartingForces()
         {
-            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
+            foreach (Planet planet in GameSettings.Sector.Planets.Values)
             {
                 // For now, put the chapter on their home planet
-                if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                if (planet.ControllingFaction == GameSettings.Sector.PlayerFaction)
                 {
-                    planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id] =
+                    planet.FactionSquadListMap[GameSettings.Sector.PlayerFaction.Id] =
                             GameSettings.Chapter.SquadMap.Values.ToList();
                     SetChapterSquadsLocation(planet);
                     foreach(Fleet fleet in GameSettings.Chapter.Fleets)
                     {
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;
-                        GameSettings.Galaxy.AddNewFleet(fleet);
+                        GameSettings.Sector.AddNewFleet(fleet);
                     }
                 }
                 else if (planet.ControllingFaction.UnitTemplates != null)

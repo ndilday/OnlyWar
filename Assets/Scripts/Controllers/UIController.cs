@@ -1,5 +1,6 @@
-﻿using OnlyWar.Models.Planets;
+﻿using OnlyWar.Helpers.Battle;
 using OnlyWar.Helpers.Database.GameState;
+using OnlyWar.Models.Planets;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -36,7 +37,7 @@ namespace OnlyWar.Controllers
             OnTurnEnd.Invoke();
         }
 
-        public void GalaxyController_OnTurnStart()
+        public void GameController_OnTurnStart()
         {
             EnableUI();
         }
@@ -71,9 +72,9 @@ namespace OnlyWar.Controllers
             ScreenTitle.text = "Communiques";
         }
 
-        public void GalaxyController_OnBattleStart(Planet planet)
+        public void GameController_OnBattleStart(BattleConfiguration battleConfiguration)
         {
-            ScreenTitle.text = "Battle on " + planet.Name;
+            ScreenTitle.text = "Battle on " + battleConfiguration.Planet.Name;
         }
 
         public void Dialog_OnClose()
@@ -81,21 +82,21 @@ namespace OnlyWar.Controllers
             ScreenTitle.text = "Sector Map";
         }
 
-        public void GalaxyController_OnPlanetSelected(Planet planet)
+        public void SectorMapController_OnPlanetSelected(Planet planet)
         {
             ScreenTitle.text = planet.Name;
         }
 
         public void TempSaveButton_OnClick()
         {
-            var ships = GameSettings.Galaxy.Fleets.Values.SelectMany(fleet => fleet.Ships);
-            var units = GameSettings.Galaxy.Factions.SelectMany(f => f.Units);
+            var ships = GameSettings.Sector.Fleets.Values.SelectMany(fleet => fleet.Ships);
+            var units = GameSettings.Sector.Factions.SelectMany(f => f.Units);
             GameStateDataAccess.Instance.SaveData("default.s3db",
                                                   GameSettings.Date,
-                                                  GameSettings.Galaxy.Characters,
+                                                  GameSettings.Sector.Characters,
                                                   GameSettings.Chapter.Requests,
-                                                  GameSettings.Galaxy.Planets.Values,
-                                                  GameSettings.Galaxy.Fleets.Values,
+                                                  GameSettings.Sector.Planets.Values,
+                                                  GameSettings.Sector.Fleets.Values,
                                                   units,
                                                   GameSettings.Chapter.PlayerSoldierMap.Values,
                                                   GameSettings.Chapter.BattleHistory);

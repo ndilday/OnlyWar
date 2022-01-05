@@ -31,16 +31,16 @@ namespace OnlyWar.Controllers
         private Squad _selectedShipSquad;
         private Planet _selectedPlanet;
 
-        public void GalaxyController_OnPlanetSelected(Planet planet)
+        public void SectorMapController_OnPlanetSelected(Planet planet)
         {
             _selectedPlanet = planet;
             bool playerSquadsPresent = false;
             // assume player is Space Marine
             if (planet.FactionSquadListMap != null 
-                && planet.FactionSquadListMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
+                && planet.FactionSquadListMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
             {
                 playerSquadsPresent = 
-                    planet.FactionSquadListMap[GameSettings.Galaxy.PlayerFaction.Id].Count > 0;
+                    planet.FactionSquadListMap[GameSettings.Sector.PlayerFaction.Id].Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
             PopulateScoutingReport(planet);
@@ -188,7 +188,7 @@ namespace OnlyWar.Controllers
             // on the planet so it doesn't think there should be a battle
             if(!anySquadsLeft)
             {
-                _selectedPlanet.FactionSquadListMap.Remove(GameSettings.Galaxy.PlayerFaction.Id);
+                _selectedPlanet.FactionSquadListMap.Remove(GameSettings.Sector.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -205,11 +205,11 @@ namespace OnlyWar.Controllers
             PlanetView.EnableRemoveFromShipButton(false);
 
             var factionSquadMap = _selectedShipSquad.Location.FactionSquadListMap;
-            if (!factionSquadMap.ContainsKey(GameSettings.Galaxy.PlayerFaction.Id))
+            if (!factionSquadMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
             {
-                factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id] = new List<Squad>();
+                factionSquadMap[GameSettings.Sector.PlayerFaction.Id] = new List<Squad>();
             }
-            factionSquadMap[GameSettings.Galaxy.PlayerFaction.Id].Add(_selectedShipSquad);
+            factionSquadMap[GameSettings.Sector.PlayerFaction.Id].Add(_selectedShipSquad);
             //ClearSelections();
         }
 
@@ -232,7 +232,7 @@ namespace OnlyWar.Controllers
                 foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
                 {
                     int factionSoldierCount = 0;
-                    if (kvp.Key == GameSettings.Galaxy.PlayerFaction.Id)
+                    if (kvp.Key == GameSettings.Sector.PlayerFaction.Id)
                     {
                         hasMarineForces = true;
                     }

@@ -61,14 +61,14 @@ namespace OnlyWar.Controllers
         public void Start()
         {
             // this if block exists to get around Unity's annoying editor start logic
-            if (GameSettings.Galaxy != null)
+            if (GameSettings.Sector != null)
             {
                 _baseMeleeSkill =
-                    GameSettings.Galaxy.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
+                    GameSettings.Sector.BaseSkillMap.Values.First(bs => bs.Name == "Fist");
             }
         }
 
-        public void GalaxyController_OnBattleStarted(BattleConfiguration configuration)
+        public void GameController_OnBattleStarted(BattleConfiguration configuration)
         {
             _planet = configuration.Planet;
             ResetBattleValues(configuration);
@@ -271,7 +271,7 @@ namespace OnlyWar.Controllers
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
             MeleeWeapon defaultWeapon = new MeleeWeapon(
-                GameSettings.Galaxy.MeleeWeaponTemplates.Values
+                GameSettings.Sector.MeleeWeaponTemplates.Values
                     .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)

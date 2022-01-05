@@ -42,9 +42,9 @@ I await any further instructions you have on our recruiting and training efforts
         private void Start()
         {
             // this if block exists to get around Unity's annoying editor start logic
-            if (GameSettings.Galaxy != null)
+            if (GameSettings.Sector != null)
             {
-                _trainingHelper = new SoldierTrainingCalculator(GameSettings.Galaxy.BaseSkillMap.Values);
+                _trainingHelper = new SoldierTrainingCalculator(GameSettings.Sector.BaseSkillMap.Values);
                 PopulateScoutSquadMap();
                 EvaluateScouts();
             }

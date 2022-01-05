@@ -1,6 +1,4 @@
-﻿using OnlyWar.Helpers;
-using OnlyWar.Helpers.Battle;
-using OnlyWar.Models.Fleets;
+﻿using OnlyWar.Models.Fleets;
 using OnlyWar.Models.Planets;
 using OnlyWar.Views;
 using System;
@@ -13,56 +11,51 @@ using UnityEngine.EventSystems;
 
 namespace OnlyWar.Controllers
 {
-    // responsible for holding main Galaxy data object, triggering file save/loads, and generating new galaxy
-    public class GalaxyMapController : MonoBehaviour
+    // responsible for holding main Sector data object, triggering file save/loads, and generating new galaxy
+    public class SectorMapController : MonoBehaviour
     {
-        public UnityEvent OnTurnStart;
         public UnityEvent OnEscapeKey;
         public UnityEvent<Planet> OnPlanetSelected;
-        public UnityEvent<BattleConfiguration> OnBattleStart;
-        private readonly UnityEvent OnAllBattlesComplete;
         
         [SerializeField]
         private GameSettings GameSettings;
         [SerializeField]
-        private GalaxyMapView Map;
+        private SectorMapView Map;
         [SerializeField]
         private UnitTreeView FleetView;
 
         private int? _selectedFleetId;
-        private int _planetBattleStartedId;
         private List<Ship> _selectedShips;
 
-        GalaxyMapController()
+        SectorMapController()
         {
-            OnAllBattlesComplete = new UnityEvent();
         }
         // Start is called before the first frame update
         void Start()
         {
             // this if block exists to get around Unity's annoying editor start logic
-            if (GameSettings.Galaxy != null)
+            if (GameSettings.Sector != null)
             {
                 _selectedShips = new List<Ship>();
-                OnAllBattlesComplete.AddListener(GalaxyMapController_OnAllBattlesComplete);
-                foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
+                foreach (Planet planet in GameSettings.Sector.Planets.Values)
                 {
                     Map.CreatePlanet(planet.Id, planet.Position, planet.Name, GetPlanetColor(planet));
-                    if (planet.ControllingFaction == GameSettings.Galaxy.PlayerFaction)
+                    if (planet.ControllingFaction == GameSettings.Sector.PlayerFaction)
                     {
                         Map.CenterCameraOnPlanet(planet.Id);
                     }
                 }
-                foreach (Fleet fleet in GameSettings.Galaxy.Fleets.Values)
+                foreach (Fleet fleet in GameSettings.Sector.Fleets.Values)
                 {
                     Map.CreateFleet(fleet.Id, fleet.Position, false);
                 }
             }
         }
 
-        public void GalaxyMapController_OnTurnStart()
+        public void GameController_OnTurnStart()
         {
-            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
+            Map.gameObject.SetActive(true);
+            foreach (Planet planet in GameSettings.Sector.Planets.Values)
             {
                 Map.UpdatePlanetColor(planet.Id, GetPlanetColor(planet));
             }
@@ -88,14 +81,12 @@ namespace OnlyWar.Controllers
         {
             // move fleets
             // doing a copy of the list here so I can delete elements from the underlying collection
-            foreach(Fleet fleet in GameSettings.Galaxy.Fleets.Values)
+            foreach(Fleet fleet in GameSettings.Sector.Fleets.Values)
             {
                 UpdateFleetPosition(fleet);
             }
             // TODO: Update resources
-            _planetBattleStartedId = -1;
             Map.gameObject.SetActive(false);
-            HandleBattles();
 
         }
 
@@ -118,7 +109,7 @@ namespace OnlyWar.Controllers
                     var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
                     if (mergeFleet != null)
                     {
-                        GameSettings.Galaxy.CombineFleets(mergeFleet, fleet);
+                        GameSettings.Sector.CombineFleets(mergeFleet, fleet);
                         Map.RemoveFleet(fleet.Id);
                     }
                     else
@@ -140,22 +131,9 @@ namespace OnlyWar.Controllers
             }
         }
 
-        public void BattleController_OnBattleComplete()
-        {
-            HandleBattles();
-        }
-
-        public void GalaxyMapController_OnAllBattlesComplete()
-        {
-            HandlePlanetaryAssaults();
-            // if we've scanned through the whole galaxy, battles are done, start a new turn
-            Map.gameObject.SetActive(true);
-            OnTurnStart.Invoke();
-        }
-
         public void FleetView_OnShipSelected(int shipId)
         {
-            Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
+            Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
             Ship ship = fleet.Ships.First(s => s.Id == shipId);
             if (!_selectedShips.Contains(ship))
             {
@@ -182,7 +160,7 @@ namespace OnlyWar.Controllers
             // check to see if there's a selected fleet
             if (_selectedShips?.Count > 0)
             {
-                Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
+                Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
 
                 // if the fleet has no planet, it's en route, and can't change that route
                 if (fleet.Planet != null)
@@ -194,7 +172,7 @@ namespace OnlyWar.Controllers
                         int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
                         if (planetId != null)
                         {
-                            Planet planet = GameSettings.Galaxy.Planets[(int)planetId];
+                            Planet planet = GameSettings.Sector.Planets[(int)planetId];
                             if (fleet.Planet == planet)
                             {
                                 Map.RemoveFleetPath((int)_selectedFleetId);
@@ -255,7 +233,7 @@ namespace OnlyWar.Controllers
                 else if (hitInfo.collider.name == "StarSprite")
                 {
                     // if we have a selected fleet that is not en route, the click becomes their new target system
-                    if (_selectedFleetId != null && GameSettings.Galaxy.Fleets[(int)_selectedFleetId].Planet != null)
+                    if (_selectedFleetId != null && GameSettings.Sector.Fleets[(int)_selectedFleetId].Planet != null)
                     {
                         HandleFleetDestinationClick(hitInfo);
                     }
@@ -264,7 +242,7 @@ namespace OnlyWar.Controllers
                         int? planetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
                         if (planetId == null) throw new NullReferenceException("Clicked planet does not exist");
                         //if no fleet is selected, this is a planet selection action
-                        OnPlanetSelected.Invoke(GameSettings.Galaxy.Planets[(int)planetId]);
+                        OnPlanetSelected.Invoke(GameSettings.Sector.Planets[(int)planetId]);
                     }
                 }
             }
@@ -272,17 +250,17 @@ namespace OnlyWar.Controllers
 
         private void HandleFleetDestinationClick(RaycastHit2D hitInfo)
         {
-            Fleet fleet = GameSettings.Galaxy.Fleets[(int)_selectedFleetId];
+            Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
             // this is the selected fleet's new target system
             int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
             if (destinationPlanetId != null)
             {
-                Planet destination = GameSettings.Galaxy.Planets[(int)destinationPlanetId];
+                Planet destination = GameSettings.Sector.Planets[(int)destinationPlanetId];
                 if (fleet.Ships.Count != 0 && fleet.Ships.Count != _selectedShips.Count)
                 {
                     // this set of ships is a subset of the original fleet, 
                     // we'll need to break them out on their own
-                    fleet = GameSettings.Galaxy.SplitOffNewFleet(fleet, _selectedShips);
+                    fleet = GameSettings.Sector.SplitOffNewFleet(fleet, _selectedShips);
                 }
 
                 // doing a copy so I can remove things from the underlying collection
@@ -295,7 +273,7 @@ namespace OnlyWar.Controllers
                         if(adjacentFleet.Destination == null
                         && fleet.Planet == destination)
                         {
-                            GameSettings.Galaxy.CombineFleets(adjacentFleet, fleet);
+                            GameSettings.Sector.CombineFleets(adjacentFleet, fleet);
                             DeselectFleet();
                             Map.RemoveFleet(fleet.Id);
                             return;
@@ -303,7 +281,7 @@ namespace OnlyWar.Controllers
                         if(adjacentFleet.Destination != null
                             && adjacentFleet.Destination == destination)
                         {
-                            GameSettings.Galaxy.CombineFleets(adjacentFleet, fleet);
+                            GameSettings.Sector.CombineFleets(adjacentFleet, fleet);
                             DeselectFleet();
                             Map.RemoveFleet(fleet.Id);
                             return;
@@ -351,7 +329,7 @@ namespace OnlyWar.Controllers
                     Map.DrawFleetDestination(fleet.Id, destination.Position);
                     
                     // update fleet model
-                    fleet.Destination = GameSettings.Galaxy.Planets[(int)destinationPlanetId];
+                    fleet.Destination = GameSettings.Sector.Planets[(int)destinationPlanetId];
                     DeselectFleet();
                 }
             }
@@ -402,7 +380,7 @@ namespace OnlyWar.Controllers
 
         private void PopulateFleetView(int fleetId)
         {
-            Fleet fleet = GameSettings.Galaxy.Fleets[fleetId];
+            Fleet fleet = GameSettings.Sector.Fleets[fleetId];
             FleetView.ClearTree();
             foreach (Ship ship in fleet.Ships)
             {
@@ -413,75 +391,6 @@ namespace OnlyWar.Controllers
         private string GetShipText(Ship ship)
         {
             return $"{ship.Name}\n{ship.LoadedSquads.Count} Squads, {ship.LoadedSoldierCount}/{ship.Template.SoldierCapacity} Capacity";
-        }
-
-        private void HandleBattles()
-        {
-            int i = _planetBattleStartedId + 1;
-            while (i < GameSettings.Galaxy.Planets.Count)
-            {
-                Planet planet = GameSettings.Galaxy.GetPlanet(i);
-                BattleConfiguration battleConfig = 
-                    BattleConfigurationBuilder.BuildBattleConfiguration(planet);
-                if (battleConfig != null)
-                {
-                    Debug.Log("Battle breaks out on " + planet.Name);
-                    _planetBattleStartedId = i;
-                    OnBattleStart.Invoke(battleConfig);
-                    return;
-                }
-                i++;
-            }
-            OnAllBattlesComplete.Invoke();
-        }
-
-        private void HandlePlanetaryAssaults()
-        {
-            foreach (Planet planet in GameSettings.Galaxy.Planets.Values)
-            {
-                if (planet.IsUnderAssault)
-                {
-                    PlanetFaction controllingForce = planet.PlanetFactionMap[planet.ControllingFaction.Id];
-                    foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
-                    {
-                        if (planetFaction != controllingForce && planetFaction.IsPublic)
-                        {
-                            // this is a revolting force
-                            long attackPower = planetFaction.Population * 3 / 4;
-                            long defensePower = controllingForce.PDFMembers;
-                            // revolting PDF members count triple for their ability to wreck defensive forces
-                            attackPower += planetFaction.PDFMembers * 2;
-                            double attackMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
-                            double defenseMultiplier = (RNG.GetLinearDouble() / 25.0) + 0.01;
-
-                            if (planetFaction.PDFMembers > 0)
-                            {
-                                // having PDF members means it's the first round of revolt, triple defensive casualties
-                                attackMultiplier *= 3;
-                                planetFaction.PDFMembers = 0;
-                            }
-                            int defendCasualties = defensePower == 0 ?
-                                (int)(attackPower * attackMultiplier * 1000) :
-                                (int)(attackPower * attackMultiplier / defensePower);
-                            int attackCasualties = (int)(defensePower * defenseMultiplier / attackPower);
-                            planetFaction.Population -= attackCasualties;
-                            if (planetFaction.Population <= 100)
-                            {
-                                planet.IsUnderAssault = false;
-                                planetFaction.IsPublic = false;
-                            }
-                            controllingForce.PDFMembers -= defendCasualties;
-                            controllingForce.Population -= defendCasualties;
-                            if (controllingForce.PDFMembers <= 0)
-                            {
-                                controllingForce.Population += controllingForce.PDFMembers;
-                                controllingForce.PDFMembers = 0;
-                                planet.ControllingFaction = planetFaction.Faction;
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
