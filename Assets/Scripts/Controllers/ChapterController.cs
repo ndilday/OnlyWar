@@ -119,16 +119,24 @@ namespace OnlyWar.Controllers
                 string entry = $"{GameSettings.Date} transferred to {newSquad.Name}, {newSquad.ParentUnit.Name}";
                 _selectedSoldier.AddEntryToHistory(entry);
             }
+            if(currentSquad.Members.Count == 0 && 
+               (currentSquad.SquadTemplate.SquadType & SquadTypes.Scout) == SquadTypes.Scout)
+            {
+                // delete scout squads when they're emptied out
+                Unit parentUnit = currentSquad.ParentUnit;
+                parentUnit.RemoveSquad(currentSquad);
+                GameSettings.Chapter.SquadMap.Remove(currentSquad.Id);
+            }
             
             // refresh the unit layout
             BuildUnitTree(UnitTreeView,
-                              GameSettings.Chapter.OrderOfBattle,
-                              GameSettings.Chapter.PlayerSoldierMap,
-                              GameSettings.Chapter.SquadMap);
+                          GameSettings.Chapter.OrderOfBattle,
+                          GameSettings.Chapter.PlayerSoldierMap,
+                          GameSettings.Chapter.SquadMap);
             if (newSquad.ParentUnit.HQSquad != null
                 && newSquad.Id == newSquad.ParentUnit.HQSquad.Id)
             {
-                UnitTreeView.UnitButton_OnClick(newSquad.Id);
+                UnitTreeView.UnitButton_OnClick(newSquad.ParentUnit.Id);
             }
             else
             {

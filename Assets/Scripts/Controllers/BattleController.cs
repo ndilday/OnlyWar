@@ -669,9 +669,21 @@ namespace OnlyWar.Controllers
     
         private void CreditSoldierForKill(BattleSoldier inflicter, WeaponTemplate weapon)
         {
-            GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
-                .AddKill(_opposingFaction.Id, weapon.Id);
             inflicter.EnemiesTakenDown++;
+            if (weapon.RelatedSkill.Category == SkillCategory.Melee)
+            {
+                GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
+                    .AddMeleeKill(_opposingFaction.Id, weapon.Id);
+            }
+            else if(weapon.RelatedSkill.Category == SkillCategory.Ranged)
+            {
+                GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
+                    .AddRangedKill(_opposingFaction.Id, weapon.Id);
+            }
+            else
+            {
+                throw new Exception($"Unexpected weapon skill {weapon.RelatedSkill.Name} involved in kill");
+            }
         }
     }
 }

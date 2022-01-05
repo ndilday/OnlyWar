@@ -11,7 +11,8 @@ namespace OnlyWar.Models.Soldiers
     {
         private readonly Soldier _soldier;
         private readonly List<string> _soldierHistory;
-        private readonly Dictionary<int, ushort> _weaponCasualtyCountMap;
+        private readonly Dictionary<int, ushort> _rangedWeaponCasualtyCountMap;
+        private readonly Dictionary<int, ushort> _meleeWeaponCasualtyCountMap;
         private readonly Dictionary<int, ushort> _factionCasualtyCountMap;
         private Squad _assignedSquad;
 
@@ -24,7 +25,8 @@ namespace OnlyWar.Models.Soldiers
         public float TechRating { get; set; }
         public float PietyRating { get; set; }
         public float AncientRating { get; set; }
-        public IReadOnlyDictionary<int, ushort> WeaponCasualtyCountMap { get => _weaponCasualtyCountMap; }
+        public IReadOnlyDictionary<int, ushort> RangedWeaponCasualtyCountMap { get => _rangedWeaponCasualtyCountMap; }
+        public IReadOnlyDictionary<int, ushort> MeleeWeaponCasualtyCountMap { get => _meleeWeaponCasualtyCountMap; }
         public IReadOnlyDictionary<int, ushort> FactionCasualtyCountMap { get => _factionCasualtyCountMap; }
         #region ISoldier passthrough
         public int Id => _soldier.Id;
@@ -111,7 +113,8 @@ namespace OnlyWar.Models.Soldiers
             _soldier = soldier;
             _soldier.Name = name;
             _soldierHistory = new List<string>();
-            _weaponCasualtyCountMap = new Dictionary<int, ushort>();
+            _rangedWeaponCasualtyCountMap = new Dictionary<int, ushort>();
+            _meleeWeaponCasualtyCountMap = new Dictionary<int, ushort>();
             _factionCasualtyCountMap = new Dictionary<int, ushort>();
             if (soldier.AssignedSquad != null)
             {
@@ -126,7 +129,8 @@ namespace OnlyWar.Models.Soldiers
                              float leadership, float medical, float tech,
                              float piety, float ancient, Date implantDate,
                              List<string> history,
-                             Dictionary<int, ushort> weaponCasualties,
+                             Dictionary<int, ushort> rangedWeaponCasualties,
+                             Dictionary<int, ushort> meleeWeaponCasualties,
                              Dictionary<int, ushort> factionCasualties)
         {
             _soldier = soldier;
@@ -139,7 +143,8 @@ namespace OnlyWar.Models.Soldiers
             PietyRating = piety;
             AncientRating = ancient;
             ProgenoidImplantDate = implantDate;
-            _weaponCasualtyCountMap = weaponCasualties;
+            _rangedWeaponCasualtyCountMap = rangedWeaponCasualties;
+            _meleeWeaponCasualtyCountMap = meleeWeaponCasualties;
             _factionCasualtyCountMap = factionCasualties;
             if(soldier.AssignedSquad != null)
             {
@@ -155,15 +160,36 @@ namespace OnlyWar.Models.Soldiers
             _soldierHistory.Add(entry);
         }
 
-        public void AddKill(int factionId, int weaponTemplateId)
+        public void AddRangedKill(int factionId, int weaponTemplateId)
         {
-            if (_weaponCasualtyCountMap.ContainsKey(weaponTemplateId))
+            if (_rangedWeaponCasualtyCountMap.ContainsKey(weaponTemplateId))
             {
-                _weaponCasualtyCountMap[weaponTemplateId]++;
+                _rangedWeaponCasualtyCountMap[weaponTemplateId]++;
             }
             else
             {
-                _weaponCasualtyCountMap[weaponTemplateId] = 1;
+                _rangedWeaponCasualtyCountMap[weaponTemplateId] = 1;
+            }
+
+            if (_factionCasualtyCountMap.ContainsKey(factionId))
+            {
+                _factionCasualtyCountMap[factionId]++;
+            }
+            else
+            {
+                _factionCasualtyCountMap[factionId] = 1;
+            }
+        }
+
+        public void AddMeleeKill(int factionId, int weaponTemplateId)
+        {
+            if (_meleeWeaponCasualtyCountMap.ContainsKey(weaponTemplateId))
+            {
+                _meleeWeaponCasualtyCountMap[weaponTemplateId]++;
+            }
+            else
+            {
+                _meleeWeaponCasualtyCountMap[weaponTemplateId] = 1;
             }
 
             if (_factionCasualtyCountMap.ContainsKey(factionId))

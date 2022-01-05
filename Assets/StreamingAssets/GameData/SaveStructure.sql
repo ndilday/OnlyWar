@@ -39,8 +39,11 @@ CREATE TABLE PlayerSoldierFactionCasualtyCount (PlayerSoldierId INTEGER NOT NULL
 -- Table: PlayerSoldierHistory
 CREATE TABLE PlayerSoldierHistory (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier (SoldierId), Entry STRING NOT NULL);
 
--- Table: PlayerSoldierWeaponCasualtyCount
-CREATE TABLE PlayerSoldierWeaponCasualtyCount (PlayerSoldierId INTEGER NOT NULL REFERENCES PlayerSoldier (SoldierId), RangedWeaponTemplateId INTEGER, MeleeWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
+-- Table: PlayerSoldierMeleeWeaponCasualtyCount
+CREATE TABLE PlayerSoldierMeleeWeaponCasualtyCount (PlayerSoldierId REFERENCES PlayerSoldier (SoldierId) NOT NULL, MeleeWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
+
+-- Table: PlayerSoldierRangedWeaponCasualtyCount
+CREATE TABLE PlayerSoldierRangedWeaponCasualtyCount (PlayerSoldierId REFERENCES PlayerSoldier (SoldierId) NOT NULL, RangedWeaponTemplateId INTEGER, Count INTEGER NOT NULL);
 
 -- Table: Request
 CREATE TABLE Request (Id INTEGER PRIMARY KEY UNIQUE NOT NULL, CharacterId INTEGER REFERENCES Character (Id) NOT NULL, PlanetId INTEGER REFERENCES Planet (Id) NOT NULL, RequestDate     INTEGER NOT NULL, FulfillmentDate INTEGER);

@@ -1,6 +1,5 @@
 ﻿using OnlyWar.Models;
 using OnlyWar.Models.Soldiers;
-using OnlyWar.Models.Squads;
 using System.Collections.Generic;
 using System.Data;
 
@@ -12,10 +11,11 @@ namespace OnlyWar.Helpers.Database.GameState
                                                       Dictionary<int, Soldier> soldierMap)
         {
             var factionCasualtyMap = GetFactionCasualtiesBySoldierId(dbCon);
-            var weaponCasualtyMap = GetWeaponCasualtiesBySoldierId(dbCon);
+            var rangedWeaponCasualtyMap = GetRangedWeaponCasualtiesBySoldierId(dbCon);
+            var meleeWeaponCasualtyMap = GetMeleeWeaponCasualtiesBySoldierId(dbCon);
             var historyMap = GetHistoryBySoldierId(dbCon);
             var playerSoldiers = GetPlayerSoldiers(dbCon, soldierMap, factionCasualtyMap, 
-                                                   weaponCasualtyMap, historyMap);
+                                                   rangedWeaponCasualtyMap, meleeWeaponCasualtyMap, historyMap);
             return playerSoldiers;
         }
 
@@ -32,9 +32,20 @@ namespace OnlyWar.Helpers.Database.GameState
                 command.ExecuteNonQuery();
             }
 
-            foreach (KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.WeaponCasualtyCountMap)
+            foreach (KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.RangedWeaponCasualtyCountMap)
             {
-                insert = $@"INSERT INTO PlayerSoldierWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
+                insert = $@"INSERT INTO PlayerSoldierRamgedWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
+                    {weaponCasualtyCount.Key}, {weaponCasualtyCount.Value});";
+                using (var command = transaction.Connection.CreateCommand())
+                {
+                    command.CommandText = insert;
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            foreach (KeyValuePair<int, ushort> weaponCasualtyCount in playerSoldier.MeleeWeaponCasualtyCountMap)
+            {
+                insert = $@"INSERT INTO PlayerSoldierMeleeWeaponCasualtyCount VALUES ({playerSoldier.Id}, 
                     {weaponCasualtyCount.Key}, {weaponCasualtyCount.Value});";
                 using (var command = transaction.Connection.CreateCommand())
                 {
@@ -91,13 +102,13 @@ namespace OnlyWar.Helpers.Database.GameState
             return soldierFactionCasualtyMap;
         }
 
-        private Dictionary<int, Dictionary<int, ushort>> GetWeaponCasualtiesBySoldierId(IDbConnection connection)
+        private Dictionary<int, Dictionary<int, ushort>> GetRangedWeaponCasualtiesBySoldierId(IDbConnection connection)
         {
             Dictionary<int, Dictionary<int, ushort>> soldierWeaponCasualtyMap =
                 new Dictionary<int, Dictionary<int, ushort>>();
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "SELECT * FROM PlayerSoldierWeaponCasualtyCount";
+                command.CommandText = "SELECT * FROM PlayerSoldierRangedWeaponCasualtyCount";
                 var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -115,7 +126,32 @@ namespace OnlyWar.Helpers.Database.GameState
             }
             return soldierWeaponCasualtyMap;
         }
-    
+
+        private Dictionary<int, Dictionary<int, ushort>> GetMeleeWeaponCasualtiesBySoldierId(IDbConnection connection)
+        {
+            Dictionary<int, Dictionary<int, ushort>> soldierWeaponCasualtyMap =
+                new Dictionary<int, Dictionary<int, ushort>>();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT * FROM PlayerSoldierMeleeWeaponCasualtyCount";
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int soldierId = reader.GetInt32(0);
+                    int weaponTemplateId = reader.GetInt32(1);
+                    ushort count = (ushort)reader.GetInt32(2);
+
+                    if (!soldierWeaponCasualtyMap.ContainsKey(soldierId))
+                    {
+                        soldierWeaponCasualtyMap[soldierId] = new Dictionary<int, ushort>();
+                    }
+                    soldierWeaponCasualtyMap[soldierId][weaponTemplateId] = count;
+
+                }
+            }
+            return soldierWeaponCasualtyMap;
+        }
+
         private Dictionary<int, List<string>> GetHistoryBySoldierId(IDbConnection connection)
         {
             Dictionary<int, List<string>> soldierEntryListMap = new Dictionary<int, List<string>>();
@@ -138,11 +174,12 @@ namespace OnlyWar.Helpers.Database.GameState
             }
             return soldierEntryListMap;
         }
-    
+
         private Dictionary<int, PlayerSoldier> GetPlayerSoldiers(IDbConnection connection,
                                                                  IReadOnlyDictionary<int, Soldier> baseSoldierMap,
                                                                  IReadOnlyDictionary<int, Dictionary<int, ushort>> factionCasualtyMap,
-                                                                 IReadOnlyDictionary<int, Dictionary<int, ushort>> weaponCasualtyMap,
+                                                                 IReadOnlyDictionary<int, Dictionary<int, ushort>> rangedWeaponCasualtyMap,
+                                                                 IReadOnlyDictionary<int, Dictionary<int, ushort>> meleeWeaponCasualtyMap,
                                                                  IReadOnlyDictionary<int, List<string>> historyMap)
         {
             Dictionary<int, PlayerSoldier> playerSoldierMap = new Dictionary<int, PlayerSoldier>();
@@ -176,14 +213,24 @@ namespace OnlyWar.Helpers.Database.GameState
                         history = new List<string>();
                     }
 
-                    Dictionary<int, ushort> weaponCasualties;
-                    if (weaponCasualtyMap.ContainsKey(soldierId))
+                    Dictionary<int, ushort> rangedWeaponCasualties;
+                    if (rangedWeaponCasualtyMap.ContainsKey(soldierId))
                     {
-                        weaponCasualties = weaponCasualtyMap[soldierId];
+                        rangedWeaponCasualties = rangedWeaponCasualtyMap[soldierId];
                     }
                     else
                     {
-                        weaponCasualties = new Dictionary<int, ushort>();
+                        rangedWeaponCasualties = new Dictionary<int, ushort>();
+                    }
+
+                    Dictionary<int, ushort> meleeWeaponCasualties;
+                    if (meleeWeaponCasualtyMap.ContainsKey(soldierId))
+                    {
+                        meleeWeaponCasualties = meleeWeaponCasualtyMap[soldierId];
+                    }
+                    else
+                    {
+                        meleeWeaponCasualties = new Dictionary<int, ushort>();
                     }
 
                     Dictionary<int, ushort> factionCasualties;
@@ -198,8 +245,8 @@ namespace OnlyWar.Helpers.Database.GameState
 
                     PlayerSoldier playerSoldier = new PlayerSoldier(baseSoldierMap[soldierId], melee, ranged,
                                                                     leadership, medical, tech, piety, ancient,
-                                                                    implantDate, history, weaponCasualties,
-                                                                    factionCasualties);
+                                                                    implantDate, history, rangedWeaponCasualties,
+                                                                    meleeWeaponCasualties, factionCasualties);
 
                     playerSoldierMap[soldierId] = playerSoldier;
 
