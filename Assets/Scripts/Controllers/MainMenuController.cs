@@ -52,7 +52,7 @@ namespace OnlyWar.Controllers
                                                             history.SubEvents);
                 }
             }
-
+            Debug.Log($"Successfully loaded game save to {gameData.CurrentDate.ToString()}");
             SceneManager.LoadScene("GalaxyView");
         }
 
