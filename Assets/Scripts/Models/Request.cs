@@ -44,8 +44,8 @@ namespace OnlyWar.Models
         public bool IsRequestCompleted()
         {
             if (_completed) return true;
-            if(TargetPlanet.FactionSquadListMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id) &&
-                TargetPlanet.FactionSquadListMap[GameSettings.Sector.PlayerFaction.Id].Count > 0)
+            if(TargetPlanet.PlanetFactionMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id) &&
+                TargetPlanet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads.Count > 0)
             {
                 // TODO: it should really require more than just dropping a soldier
                 _completed = true;

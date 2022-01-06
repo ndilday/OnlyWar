@@ -245,7 +245,7 @@ namespace OnlyWar.Controllers
             if(_opposingBattleSquads == null || _opposingBattleSquads.Count == 0)
             {
                 // The marines finish off any xenos still moving
-                _planet.FactionSquadListMap.Remove(_opposingFaction.Id);
+                _planet.PlanetFactionMap[_opposingFaction.Id].LandedSquads.Clear();
             }
             else
             {

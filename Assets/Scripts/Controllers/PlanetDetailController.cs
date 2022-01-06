@@ -35,12 +35,10 @@ namespace OnlyWar.Controllers
         {
             _selectedPlanet = planet;
             bool playerSquadsPresent = false;
-            // assume player is Space Marine
-            if (planet.FactionSquadListMap != null 
-                && planet.FactionSquadListMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
+            if (planet.PlanetFactionMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
             {
                 playerSquadsPresent = 
-                    planet.FactionSquadListMap[GameSettings.Sector.PlayerFaction.Id].Count > 0;
+                    planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads.Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
             PopulateScoutingReport(planet);
@@ -186,9 +184,10 @@ namespace OnlyWar.Controllers
 
             // if there are no squads left on the planet, remove the ground unit entry
             // on the planet so it doesn't think there should be a battle
-            if(!anySquadsLeft)
+            if(!anySquadsLeft && 
+               _selectedPlanet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].Population == 0)
             {
-                _selectedPlanet.FactionSquadListMap.Remove(GameSettings.Sector.PlayerFaction.Id);
+                _selectedPlanet.PlanetFactionMap.Remove(GameSettings.Sector.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableLoadInShipButton(false);
@@ -204,13 +203,20 @@ namespace OnlyWar.Controllers
             PopulateFleetTree(_selectedPlanet.Fleets);
             PlanetView.EnableRemoveFromShipButton(false);
 
-            var factionSquadMap = _selectedShipSquad.Location.FactionSquadListMap;
-            if (!factionSquadMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
+            PlanetFaction playerPlanetFaction;
+            if (!_selectedShipSquad.Location.PlanetFactionMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
             {
-                factionSquadMap[GameSettings.Sector.PlayerFaction.Id] = new List<Squad>();
+                playerPlanetFaction = new PlanetFaction(GameSettings.Sector.PlayerFaction);
+                _selectedShipSquad.Location.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id] =
+                    playerPlanetFaction;
             }
-            factionSquadMap[GameSettings.Sector.PlayerFaction.Id].Add(_selectedShipSquad);
-            //ClearSelections();
+            else
+            {
+                playerPlanetFaction = 
+                    _selectedShipSquad.Location.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id];
+            }
+            _selectedShipSquad.Location.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id]
+                .LandedSquads.Add(_selectedShipSquad);
         }
 
         private void ClearGroundSelections()
@@ -227,28 +233,23 @@ namespace OnlyWar.Controllers
             string newReport = CreateBasicPlanetReadout(planet);
             string factionForces = "";
             bool hasMarineForces = false;
-            if (planet.FactionSquadListMap != null)
+            foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                foreach (KeyValuePair<int, List<Squad>> kvp in planet.FactionSquadListMap)
+                int factionSoldierCount = 0;
+                if (planetFaction.Faction.IsPlayerFaction && planetFaction.LandedSquads.Count > 0)
                 {
-                    int factionSoldierCount = 0;
-                    if (kvp.Key == GameSettings.Sector.PlayerFaction.Id)
-                    {
-                        hasMarineForces = true;
-                    }
-                    else
-                    {
-                        string factionName = planet.ControllingFaction.Name;
-                        foreach (Squad squad in kvp.Value)
-                        {
-                            factionSoldierCount += squad.Members.Count;
-                        }
-                        factionForces += factionName + " forces on the planet number in the ";
-                        if (factionSoldierCount >= 2000) factionForces += "thousands.";
-                        else if (factionSoldierCount >= 200) factionForces += "hundreds.";
-                        else if (factionSoldierCount >= 24) factionForces += "dozens.";
-                        else factionForces = factionName + " forces on the planet are minimal, and should be easy to deal with.";
-                    }
+                    hasMarineForces = true;
+                }
+                else if(!planetFaction.Faction.IsDefaultFaction && planetFaction.IsPublic)
+                {
+                    string factionName = planetFaction.Faction.Name;
+                    factionForces += factionName + " forces on the planet number in the ";
+                    if (planetFaction.Population >= 2000000000) factionForces += "billions.";
+                    else if (planetFaction.Population >= 2000000) factionForces += "millions.";
+                    else if (planetFaction.Population>= 2000) factionForces += "thousands.";
+                    else if (factionSoldierCount >= 200) factionForces += "hundreds.";
+                    else if (factionSoldierCount >= 24) factionForces += "dozens.";
+                    else factionForces = factionName + " forces on the planet are minimal, and should be easy to deal with.";
                 }
             }
             if (!hasMarineForces && planet.Fleets.Count == 0)

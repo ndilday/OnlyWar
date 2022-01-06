@@ -22,11 +22,11 @@ namespace OnlyWar.Helpers.Battle
         public static IReadOnlyList<BattleConfiguration> BuildBattleConfigurations(Planet planet, int playerFactionId, int alliedFactionId)
         {
             
-            bool playerForcePresent = planet.FactionSquadListMap.ContainsKey(playerFactionId) &&
-                planet.FactionSquadListMap[playerFactionId].Count > 0;
-            bool opForPresent = planet.PlanetFactionMap.Values
-                .Any(f => !f.Faction.IsDefaultFaction && !f.Faction.IsPlayerFaction);
-            if (!playerForcePresent || !opForPresent) return null;
+            bool playerForcePresent = planet.PlanetFactionMap.ContainsKey(playerFactionId) &&
+                planet.PlanetFactionMap[playerFactionId].LandedSquads.Count > 0;
+            var opFactions = planet.PlanetFactionMap.Values
+                .Where(f => !f.Faction.IsDefaultFaction && !f.Faction.IsPlayerFaction);
+            if (!playerForcePresent || opFactions == null || opFactions.Count() == 0) return null;
             // does it really make sense for faction squads on planet to be
             // independent from the faction map?
             return null;
@@ -39,21 +39,11 @@ namespace OnlyWar.Helpers.Battle
             // generate an army (and decrement it from the population
             Unit newArmy = TempArmyBuilder.GenerateArmyFromPlanetFaction(planetFaction);
 
-            if (!planet.FactionSquadListMap.ContainsKey(factionId))
-            {
-                planet.FactionSquadListMap[factionId] = new List<Squad>();
-            }
-
             // add unit to faction
             planetFaction.Faction.Units.Add(newArmy);
-            
+
             // add unit to planet
-            foreach(Squad squad in newArmy.Squads)
-            {
-                squad.IsInReserve = false;
-                squad.Location = planet;
-                planet.FactionSquadListMap[factionId].Add(squad);
-            }
+            planetFaction.LandedSquads.AddRange(newArmy.Squads);
 
             // modify planetFaction based on new unit
             int headcount = newArmy.GetAllMembers().Count();
@@ -80,11 +70,11 @@ namespace OnlyWar.Helpers.Battle
         {
             List<Squad> playerSquads = new List<Squad>();
             List<Squad> opposingSquads = new List<Squad>();
-            foreach(List<Squad> squadList in planet.FactionSquadListMap.Values)
+            foreach(PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                if(squadList[0].ParentUnit.UnitTemplate.Faction.IsPlayerFaction)
+                if(planetFaction.Faction.IsPlayerFaction)
                 {
-                    foreach(Squad squad in squadList)
+                    foreach(Squad squad in planetFaction.LandedSquads)
                     {
                         if(!squad.IsInReserve)
                         {
@@ -92,9 +82,9 @@ namespace OnlyWar.Helpers.Battle
                         }
                     }
                 }
-                else if(!squadList[0].ParentUnit.UnitTemplate.Faction.IsDefaultFaction)
+                else if(!planetFaction.Faction.IsDefaultFaction)
                 {
-                    foreach(Squad squad in squadList)
+                    foreach(Squad squad in planetFaction.LandedSquads)
                     {
                         if(!squad.IsInReserve)
                         {
@@ -118,11 +108,11 @@ namespace OnlyWar.Helpers.Battle
         {
             List<Squad> playerSquads = new List<Squad>();
             List<Squad> opposingSquads = new List<Squad>();
-            foreach (List<Squad> squadList in planet.FactionSquadListMap.Values)
+            foreach (PlanetFaction planetFaction in planet.PlanetFactionMap.Values)
             {
-                if (squadList[0].ParentUnit.UnitTemplate.Faction.IsPlayerFaction)
+                if (planetFaction.Faction.IsPlayerFaction)
                 {
-                    foreach (Squad squad in squadList)
+                    foreach (Squad squad in planetFaction.LandedSquads)
                     {
                         if (!squad.IsInReserve)
                         {
@@ -130,9 +120,9 @@ namespace OnlyWar.Helpers.Battle
                         }
                     }
                 }
-                else if (!squadList[0].ParentUnit.UnitTemplate.Faction.IsDefaultFaction)
+                else if (!planetFaction.Faction.IsDefaultFaction)
                 {
-                    foreach (Squad squad in squadList)
+                    foreach (Squad squad in planetFaction.LandedSquads)
                     {
                         if (!squad.IsInReserve)
                         {

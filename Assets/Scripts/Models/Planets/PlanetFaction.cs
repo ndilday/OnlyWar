@@ -1,8 +1,5 @@
-﻿using System;
+﻿using OnlyWar.Models.Squads;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnlyWar.Models.Planets
 {
@@ -14,11 +11,18 @@ namespace OnlyWar.Models.Planets
         public int PDFMembers { get; set; }
         public float PlayerReputation { get; set; }
         public int PlanetaryControl { get; set; }
+        public List<Squad> LandedSquads { get; set; }
         public Character Leader { get; set; }
 
         public PlanetFaction(Faction faction)
         {
             Faction = faction;
+            LandedSquads = new List<Squad>();
+            IsPublic = true;
+            Population = 0;
+            PDFMembers = 0;
+            PlayerReputation = 0;
+            PlanetaryControl = 0;
         }
     }
 }

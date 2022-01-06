@@ -102,12 +102,20 @@ namespace OnlyWar.Controllers
                         {
                             if (squad.Location != null)
                             {
-                                if (!squad.Location.FactionSquadListMap.ContainsKey(faction.Id))
+                                PlanetFaction playerPlanetFaction;
+                                if (!squad.Location.PlanetFactionMap
+                                    .ContainsKey(GameSettings.Sector.PlayerFaction.Id))
                                 {
-                                    squad.Location.FactionSquadListMap[faction.Id] =
-                                        new List<Squad>();
+                                    playerPlanetFaction = new PlanetFaction(GameSettings.Sector.PlayerFaction);
+                                    squad.Location.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id] =
+                                        playerPlanetFaction;
                                 }
-                                squad.Location.FactionSquadListMap[faction.Id].Add(squad);
+                                else
+                                {
+                                    playerPlanetFaction =
+                                        squad.Location.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id];
+                                }
+                                playerPlanetFaction.LandedSquads.Add(squad);
                             }
                             else if (squad.BoardedLocation != null)
                             {
@@ -236,8 +244,8 @@ namespace OnlyWar.Controllers
                 // For now, put the chapter on their home planet
                 if (planet.ControllingFaction == GameSettings.Sector.PlayerFaction)
                 {
-                    planet.FactionSquadListMap[GameSettings.Sector.PlayerFaction.Id] =
-                            GameSettings.Chapter.SquadMap.Values.ToList();
+                    planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads
+                        .AddRange(GameSettings.Chapter.SquadMap.Values);
                     SetChapterSquadsLocation(planet);
                     foreach(Fleet fleet in GameSettings.Chapter.Fleets)
                     {
@@ -258,7 +266,7 @@ namespace OnlyWar.Controllers
                         RNG.GetIntBelowMax(0, potentialArmies),
                         planet.ControllingFaction);
                     planet.ControllingFaction.Units.Add(newArmy);
-                    planet.FactionSquadListMap[planet.ControllingFaction.Id] = newArmy.Squads.ToList();
+                    planet.PlanetFactionMap[planet.ControllingFaction.Id].LandedSquads.AddRange(newArmy.Squads);
                     foreach(Squad squad in newArmy.Squads)
                     {
                         squad.Location = planet;
