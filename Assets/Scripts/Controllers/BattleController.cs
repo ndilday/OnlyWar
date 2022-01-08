@@ -2,6 +2,7 @@
 using OnlyWar.Helpers.Battle.Actions;
 using OnlyWar.Helpers.Battle.Resolutions;
 using OnlyWar.Models;
+using OnlyWar.Models.Battles;
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Planets;
 using OnlyWar.Models.Soldiers;

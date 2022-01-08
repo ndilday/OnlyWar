@@ -1,6 +1,6 @@
 ﻿using OnlyWar.Builders;
 using OnlyWar.Helpers.Battle.Placers;
-using OnlyWar.Models;
+using OnlyWar.Models.Battles;
 using OnlyWar.Models.Planets;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
@@ -9,14 +9,6 @@ using System.Linq;
 
 namespace OnlyWar.Helpers.Battle
 {
-    public class BattleConfiguration
-    {
-        public IReadOnlyList<BattleSquad> PlayerSquads;
-        public IReadOnlyList<BattleSquad> OpposingSquads;
-        public Planet Planet;
-        public BattleGrid Grid;
-    }
-
     public static class BattleConfigurationBuilder
     {
         public static IReadOnlyList<BattleConfiguration> BuildBattleConfigurations(Planet planet, int playerFactionId, int alliedFactionId)

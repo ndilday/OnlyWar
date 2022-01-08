@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 
 using OnlyWar.Models.Equippables;
-using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 
 namespace OnlyWar.Helpers.Battle

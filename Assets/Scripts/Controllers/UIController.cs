@@ -1,5 +1,5 @@
-﻿using OnlyWar.Helpers.Battle;
-using OnlyWar.Helpers.Database.GameState;
+﻿using OnlyWar.Helpers.Database.GameState;
+using OnlyWar.Models.Battles;
 using OnlyWar.Models.Planets;
 using System.Collections;
 using System.Linq;

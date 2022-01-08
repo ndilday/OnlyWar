@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OnlyWar.Models.Soldiers;
 
 using UnityEngine;
 using UnityEngine.Events;
