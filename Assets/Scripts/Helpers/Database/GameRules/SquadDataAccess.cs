@@ -105,7 +105,9 @@ namespace OnlyWar.Helpers.Database.GameRules
                     string name = reader[2].ToString();
                     //int location = reader.GetInt32(3);
                     int armorProvided = reader.GetInt32(4);
-                    ArmorTemplate armorTemplate = new ArmorTemplate(id, name, (byte)armorProvided);
+                    int stealthMod = reader.GetInt32(5);
+                    ArmorTemplate armorTemplate = new ArmorTemplate(id, name, (byte)armorProvided, 
+                                                                    (short)stealthMod);
                     armorTemplateMap[id] = armorTemplate;
                 }
             }

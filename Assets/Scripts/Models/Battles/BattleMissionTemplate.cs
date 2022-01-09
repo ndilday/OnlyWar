@@ -35,6 +35,7 @@ namespace OnlyWar.Models.Battles
         IBattleMissionStepChallenge Challenge;
         BattleMissionStep NextStepIfSuccess;
         BattleMissionStep NextStepIfFail;
+        object Effects;
     }
 
     public interface IBattleMissionStepChallenge

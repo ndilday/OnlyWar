@@ -26,9 +26,11 @@ namespace OnlyWar.Models.Equippables
     public class ArmorTemplate : EquippableTemplate
     {
         public byte ArmorProvided { get; }
-        public ArmorTemplate(int id, string name, byte armorProvided) : base(id, name, EquipLocation.Body)
+        public short StealthModifier { get; }
+        public ArmorTemplate(int id, string name, byte armorProvided, short stealthModifier) : base(id, name, EquipLocation.Body)
         {
             ArmorProvided = armorProvided;
+            StealthModifier = stealthModifier;
         }
     }
 
