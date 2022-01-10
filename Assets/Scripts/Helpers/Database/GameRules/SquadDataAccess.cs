@@ -474,7 +474,9 @@ namespace OnlyWar.Helpers.Database.GameRules
                     int speciesId = reader.GetInt32(2);
                     string name = reader[3].ToString();
                     int rank = reader.GetInt32(4);
-                    bool isSquadLeader = (bool)reader[5];
+                    int subrank = reader.GetInt32(5);
+                    bool isSquadLeader = (bool)reader[6];
+                    int specialistType = reader.GetInt32(7);
                     List<Tuple<BaseSkill, float>> trainingList = null;
                     if (soldierTemplateTrainingMap.ContainsKey(id))
                     {
@@ -482,7 +484,8 @@ namespace OnlyWar.Helpers.Database.GameRules
                     }
                     var species = speciesMap[factionId].First(s => s.Id == speciesId);
                     SoldierTemplate soldierTemplate =
-                        new SoldierTemplate(id, species, name, isSquadLeader, (byte)rank, trainingList);
+                        new SoldierTemplate(id, species, name, (byte)rank, (byte)subrank,
+                                            isSquadLeader, (byte)specialistType, trainingList);
 
                     if (!soldierTemplatesByFactionId.ContainsKey(factionId))
                     {
