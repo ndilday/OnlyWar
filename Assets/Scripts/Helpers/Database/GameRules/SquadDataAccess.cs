@@ -363,13 +363,19 @@ namespace OnlyWar.Helpers.Database.GameRules
                     int defaultArmorId = reader.GetInt32(3);
                     int defaultWeaponSetId = reader.GetInt32(4);
                     int squadType = reader.GetInt32(5);
+                    int battleValue = reader.GetInt32(6);
 
                     ArmorTemplate defaultArmor = armorTemplateMap[defaultArmorId];
                     List<SquadWeaponOption> options = squadWeaponOptionMap.ContainsKey(id) ?
                         squadWeaponOptionMap[id] : null;
-                    SquadTemplate squadTemplate = new SquadTemplate(id, name, weaponSetMap[defaultWeaponSetId],
-                                                                    options, defaultArmor,
-                                                                    elementMap[id], (SquadTypes)squadType);
+                    SquadTemplate squadTemplate = new SquadTemplate(id, 
+                                                                    name, 
+                                                                    weaponSetMap[defaultWeaponSetId],
+                                                                    options, 
+                                                                    defaultArmor,
+                                                                    elementMap[id], 
+                                                                    (SquadTypes)squadType,
+                                                                    battleValue);
                     squadTemplateMap[id] = squadTemplate;
                     if (!squadTemplatesByFactionId.ContainsKey(factionId))
                     {

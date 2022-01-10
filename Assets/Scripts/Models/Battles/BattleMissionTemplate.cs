@@ -2,6 +2,7 @@
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OnlyWar.Models.Battles
 {
@@ -118,7 +119,12 @@ namespace OnlyWar.Models.Battles
 
         private float GetTacticsSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads)
         {
-            int 
+            var leader = attackingSquads.Select(squad => squad.SquadLeader)
+                                        .OrderByDescending(soldier => soldier.Template.Rank)
+                                        .ThenByDescending(soldier => soldier.Template.Subrank)
+                                        .First();
+            var skill = leader.Skills.FirstOrDefault(skill => skill.BaseSkill.Name == "Tactics");
+            return leader.Intelligence + (skill == null ? 0 : skill.SkillBonus);
         }
     }
 }

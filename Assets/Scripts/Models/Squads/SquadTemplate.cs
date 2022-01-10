@@ -41,13 +41,15 @@ namespace OnlyWar.Models.Squads
         public ArmorTemplate Armor { get; }
         public WeaponSet DefaultWeapons { get; }
         public SquadTypes SquadType { get; }
+        public int BattleValue { get; }
 
         public SquadTemplate(int id, string name, 
                              WeaponSet defaultWeapons, 
                              List<SquadWeaponOption> weaponOptions, 
                              ArmorTemplate armor,
                              List<SquadTemplateElement> elements,
-                             SquadTypes squadType)
+                             SquadTypes squadType,
+                             int battleValue)
         {
             Id = id;
             Name = name;
@@ -56,6 +58,7 @@ namespace OnlyWar.Models.Squads
             WeaponOptions = weaponOptions?.AsReadOnly();
             Armor = armor;
             SquadType = squadType;
+            BattleValue = battleValue;
         }
     }
 }
