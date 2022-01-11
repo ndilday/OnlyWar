@@ -6,6 +6,7 @@ using System.Linq;
 
 using OnlyWar.Models;
 using OnlyWar.Models.Fleets;
+using OnlyWar.Helpers;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
@@ -15,18 +16,45 @@ namespace OnlyWar.Builders
     public static class NewChapterBuilder
     {
         private delegate void TrainingFunction(PlayerSoldier playerSoldier);
-        public static Chapter CreateChapter(IEnumerable<PlayerSoldier> soldiers, Faction faction, string year)
+        public static Chapter CreateChapter(Faction faction, 
+                                            Date trainingStartDate,
+                                            GameSettings gameSettings)
         {
+            Date trainingEndDate = new Date(trainingStartDate.GetTotalWeeks() + 104);
+            var soldierTemplate = faction.SoldierTemplates[0];
+            var soldiers =
+                SoldierFactory.Instance.GenerateNewSoldiers(1000, 
+                                                            soldierTemplate.Species, 
+                                                            gameSettings.Sector.SkillTemplateList)
+                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
+                .ToList();
+
+            SoldierTrainingCalculator trainingHelper =
+                new SoldierTrainingCalculator(gameSettings.Sector.BaseSkillMap.Values);
+            foreach (PlayerSoldier soldier in soldiers)
+            {
+                soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
+                if (soldier.PsychicPower > 0)
+                {
+                    soldier.AddEntryToHistory(trainingStartDate + ": psychic ability detected, acolyte training initiated");
+                    // add psychic specific training here
+                }
+                trainingHelper.EvaluateSoldier(soldier, trainingEndDate);
+                soldier.ProgenoidImplantDate = new Date(gameSettings.Date.Millenium, gameSettings.Date.Year - 2, RNG.GetIntBelowMax(1, 53));
+            }
+
             Dictionary<int, PlayerSoldier> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
             Chapter chapter = BuildChapterFromUnitTemplate(faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
                                                            soldiers);
-            PopulateOrderOfBattle(year, unassignedSoldierMap, chapter.OrderOfBattle, faction);
+            PopulateOrderOfBattle(trainingEndDate.ToString(), unassignedSoldierMap, chapter.OrderOfBattle, faction);
             chapter.PopulateSquadMap();
             foreach (PlayerSoldier soldier in soldiers)
             {
                 ApplySoldierTypeTraining(soldier);
+                trainingHelper.EvaluateSoldier(soldier, gameSettings.Date);
 
             }
+
             chapter.Fleets.Add(new Fleet(faction, faction.FleetTemplates.First().Value));
             return chapter;
         }

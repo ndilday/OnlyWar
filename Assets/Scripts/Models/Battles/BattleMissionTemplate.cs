@@ -1,6 +1,8 @@
-﻿using OnlyWar.Models.Planets;
+﻿using OnlyWar.Builders;
+using OnlyWar.Models.Planets;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
+using OnlyWar.Models.Units;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -114,14 +116,26 @@ namespace OnlyWar.Models.Battles
             long forcePointsPerZone = targetFaction.Population * 10 / zonesHeld;
             // divide the force per zone by the INT + Tactics of the Mission Leader
             // to determine the size of force the landing troops will face
-
+            int opposingForcePoints = (int)(forcePointsPerZone / GetTacticsSkillOfLeader(attackingSquads));
+            List<Unit> armyList = new List<Unit>();
+            while(opposingForcePoints > 0)
+            {
+                Unit army = TempArmyBuilder.GenerateArmy(targetFaction.Faction);
+                opposingForcePoints -= army.Squads.Sum(s => s.SquadTemplate.BattleValue);
+                armyList.Add(army);
+            }
+            // now that we have the oppFor, figure out a reasonable size of battlefield
+            // 10x10 per squad?
         }
 
         private float GetTacticsSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads)
         {
-            var leader = attackingSquads.Select(squad => squad.SquadLeader)
+            // not just selecting the squad leaders to future-proof for when we're attaching
+            // specialists to forces
+            var leader = attackingSquads.SelectMany(squad => squad.Members)
                                         .OrderByDescending(soldier => soldier.Template.Rank)
                                         .ThenByDescending(soldier => soldier.Template.Subrank)
+                                        .ThenBy(soldier => soldier.Id)
                                         .First();
             var skill = leader.Skills.FirstOrDefault(skill => skill.BaseSkill.Name == "Tactics");
             return leader.Intelligence + (skill == null ? 0 : skill.SkillBonus);

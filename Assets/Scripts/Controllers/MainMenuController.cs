@@ -161,38 +161,13 @@ namespace OnlyWar.Controllers
 
         private void CreateChapter()
         {
-            Date basicTrainingEndDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 3, 52);
-            Date trainingStartDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 4, 1);
-            var soldierTemplate = GameSettings.Sector.PlayerFaction.SoldierTemplates[0];
-            var soldiers =
-                SoldierFactory.Instance.GenerateNewSoldiers(1000, soldierTemplate.Species, GameSettings.Sector.SkillTemplateList)
-                .Select(s => new PlayerSoldier(s, $"{TempNameGenerator.GetName()} {TempNameGenerator.GetName()}"))
-                .ToList();
-
-            string foo = "";
-            SoldierTrainingCalculator trainingHelper =
-                new SoldierTrainingCalculator(GameSettings.Sector.BaseSkillMap.Values);
-            foreach (PlayerSoldier soldier in soldiers)
-            {
-                soldier.AddEntryToHistory(trainingStartDate + ": accepted into training");
-                if (soldier.PsychicPower > 0)
-                {
-                    soldier.AddEntryToHistory(trainingStartDate + ": psychic ability detected, acolyte training initiated");
-                    // add psychic specific training here
-                }
-                trainingHelper.EvaluateSoldier(soldier, basicTrainingEndDate);
-                soldier.ProgenoidImplantDate = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 2, RNG.GetIntBelowMax(1, 53));
-
-                foo += $"{(int)soldier.MeleeRating}, {(int)soldier.RangedRating}, {(int)soldier.LeadershipRating}, {(int)soldier.AncientRating}, {(int)soldier.MedicalRating}, {(int)soldier.TechRating}, {(int)soldier.PietyRating}\n";
-            }
-
-
-            System.IO.File.WriteAllText($"{Application.streamingAssetsPath}/ratings.csv", foo);
-
+            Date trainingStartDate = new Date(GameSettings.Date.Millenium, 
+                                              GameSettings.Date.Year - 4, 
+                                              1);
             GameSettings.Chapter =
-                NewChapterBuilder.CreateChapter(soldiers,
-                                                GameSettings.Sector.PlayerFaction,
-                                                GameSettings.Date.ToString());
+                NewChapterBuilder.CreateChapter(GameSettings.Sector.PlayerFaction,
+                                                trainingStartDate,
+                                                GameSettings);
             List<string> foundingHistoryEntries = new List<string>
             {
                 $"{GameSettings.Chapter.OrderOfBattle.Name} officially forms with its first 1,000 battle brothers."
@@ -200,11 +175,7 @@ namespace OnlyWar.Controllers
             GameSettings.Chapter.AddToBattleHistory(GameSettings.Date,
                                                     "Chapter Founding",
                                                     foundingHistoryEntries);
-            // post-MOS evaluations
-            foreach (PlayerSoldier soldier in soldiers)
-            {
-                trainingHelper.EvaluateSoldier(soldier, GameSettings.Date);
-            }
+            
             GameSettings.Sector.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
             FoundChapterPlanet();
 
@@ -252,24 +223,6 @@ namespace OnlyWar.Controllers
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;
                         GameSettings.Sector.AddNewFleet(fleet);
-                    }
-                }
-                else if (planet.ControllingFaction.UnitTemplates != null)
-                {
-                    int potentialArmies = planet.ControllingFaction
-                                                .UnitTemplates
-                                                .Values
-                                                .Where(ut => ut.IsTopLevelUnit)
-                                                .Count();
-                    // TODO: generalize this
-                    Unit newArmy = TempArmyBuilder.GenerateArmy(
-                        RNG.GetIntBelowMax(0, potentialArmies),
-                        planet.ControllingFaction);
-                    planet.ControllingFaction.Units.Add(newArmy);
-                    planet.PlanetFactionMap[planet.ControllingFaction.Id].LandedSquads.AddRange(newArmy.Squads);
-                    foreach(Squad squad in newArmy.Squads)
-                    {
-                        squad.Location = planet;
                     }
                 }
             }

@@ -19,6 +19,15 @@ namespace OnlyWar.Builders
             return root;
         }
 
+        public static Unit GenerateArmy(Faction faction)
+        {
+            int potentialArmies = faction.UnitTemplates.Values
+                                                       .Where(ut => ut.IsTopLevelUnit)
+                                                       .Count();
+            // TODO: generalize this
+            return GenerateArmy(RNG.GetIntBelowMax(0, potentialArmies), faction);
+        }
+
         private static Unit CreateUnit(UnitTemplate template)
         {
             Unit unit = template.GenerateUnitFromTemplateWithoutChildren(template.Name);
