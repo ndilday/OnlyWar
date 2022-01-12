@@ -63,12 +63,14 @@ namespace OnlyWar.Models.Equippables
         public ushort Recoil { get; }
         public ushort Bulk { get; }
         public bool DoesDamageDegradeWithRange { get; }
+
+        public ushort ReloadTime { get; }
         public RangedWeaponTemplate(int id, string name, EquipLocation location,
                               BaseSkill skill, float accuracy,
                               float armorMultiplier, float penetrationMultiplier,
                               float requiredStrength, float baseDamage,
                               float maxDistance, byte rof, ushort ammo,
-                              ushort recoil, ushort bulk, bool doesDamageDegradeWithRange)
+                              ushort recoil, ushort bulk, bool doesDamageDegradeWithRange, ushort reloadTime)
                               : base(id, name, location, skill, accuracy, armorMultiplier, 
                                      penetrationMultiplier, requiredStrength)
         {
@@ -79,6 +81,7 @@ namespace OnlyWar.Models.Equippables
             Recoil = recoil;
             Bulk = bulk;
             DoesDamageDegradeWithRange = doesDamageDegradeWithRange;
+            ReloadTime = reloadTime;
         }
     }
 
@@ -119,7 +122,12 @@ namespace OnlyWar.Models.Equippables
     public class RangedWeapon
     {
         public RangedWeaponTemplate Template { get; private set; }
-        public RangedWeapon(RangedWeaponTemplate template) { Template = template; }
+        public ushort LoadedAmmo { get; set; }
+        public RangedWeapon(RangedWeaponTemplate template) 
+        { 
+            Template = template;
+            LoadedAmmo = template.AmmoCapacity;
+        }
 
         public override string ToString()
         {

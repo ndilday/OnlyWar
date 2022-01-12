@@ -21,6 +21,7 @@ namespace OnlyWar.Helpers.Battle
         public List<RangedWeapon> RangedWeapons { get; private set; }
         public Armor Armor { get; set; }
         public bool IsInMelee { get; set; }
+        public ushort ReloadingPhase { get; set; }
         public Stance Stance { get; set; }
         public float CurrentSpeed { get; set; }
 
@@ -64,6 +65,7 @@ namespace OnlyWar.Helpers.Battle
             Stance = Stance.Standing;
             CurrentSpeed = 0;
             EnemiesTakenDown = 0;
+            ReloadingPhase = 0;
         }
         
         public void AddWeapons(IReadOnlyCollection<RangedWeapon> rangedWeapons, IReadOnlyCollection<MeleeWeapon> meleeWeapons)

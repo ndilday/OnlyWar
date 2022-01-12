@@ -193,6 +193,11 @@ namespace OnlyWar.Helpers.Battle
             {
                 AddEquipRangedWeaponActionToBag(soldier);
             }
+            else if(soldier.ReloadingPhase > 0 ||
+                    (soldier.EquippedRangedWeapons.Count > 0 && soldier.RangedWeapons[0].LoadedAmmo == 0))
+            {
+                AddReloadRangedWeaponActionToBag(soldier);
+            }
             // determine if soldier was already aiming and the target is still around and not in a melee
             else if (soldier.Aim != null && _opposingSoldierIdSquadMap.ContainsKey(soldier.Aim.Item1.Soldier.Id) && !soldier.Aim.Item1.IsInMelee)
             {
@@ -256,6 +261,11 @@ namespace OnlyWar.Helpers.Battle
                 _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First()));
 
             }
+        }
+
+        private void AddReloadRangedWeaponActionToBag(BattleSoldier soldier)
+        {
+            _shootActionBag.Add(new ReloadRangedWeaponAction(soldier, soldier.EquippedRangedWeapons[0]));
         }
 
         private void AddAdvanceActionsToBag(BattleSoldier soldier)
@@ -418,21 +428,35 @@ namespace OnlyWar.Helpers.Battle
         private void ShootIfReasonable(BattleSoldier soldier, bool isMoving)
         {
             if (soldier.RangedWeapons.Count == 0) return;
-            float range = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
-            BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
-            BattleSoldier target = oppSquad.GetRandomSquadMember();
-            range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
-            // decide whether to shoot or aim
-            Tuple<float, float, RangedWeapon> weaponProfile = ShouldShootAtRange(soldier, target, range, isMoving);
-            if (weaponProfile.Item3 != null)
+            if (soldier.EquippedRangedWeapons.Count == 0)
             {
-                int shotsToFire = CalculateShotsToFire(weaponProfile.Item3, weaponProfile.Item1, weaponProfile.Item2);
-                _shootActionBag.Add(new ShootAction(soldier, weaponProfile.Item3, target, range, shotsToFire, isMoving, _woundResolutionBag, _log));
+                AddEquipRangedWeaponActionToBag(soldier);
             }
-            else if (!isMoving)
+            else if (soldier.EquippedRangedWeapons[0].LoadedAmmo == 0)
             {
-                // aim with longest ranged weapon
-                _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First(), _log));
+                AddReloadRangedWeaponActionToBag(soldier);
+            }
+            else
+            {
+                float range = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
+                BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
+                BattleSoldier target = oppSquad.GetRandomSquadMember();
+                range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, target.Soldier.Id);
+                // decide whether to shoot or aim
+                Tuple<float, float, RangedWeapon> weaponProfile = 
+                    ShouldShootAtRange(soldier, target, range, isMoving);
+                if (weaponProfile.Item3 != null)
+                {
+                    int shotsToFire = 
+                        CalculateShotsToFire(weaponProfile.Item3, weaponProfile.Item1, weaponProfile.Item2);
+                    _shootActionBag.Add(new ShootAction(soldier, weaponProfile.Item3, target, range, 
+                                                        shotsToFire, isMoving, _woundResolutionBag, _log));
+                }
+                else if (!isMoving)
+                {
+                    // aim with longest ranged weapon
+                    _shootActionBag.Add(new AimAction(soldier, target, soldier.EquippedRangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First(), _log));
+                }
             }
         }
 
@@ -546,6 +570,10 @@ namespace OnlyWar.Helpers.Battle
             {
                 // don't waste ammo on impossible shots
                 return minRoF;
+            }
+            if(weapon.LoadedAmmo < maxRof)
+            {
+                maxRof = weapon.LoadedAmmo;
             }
 
             int killRof = Mathf.RoundToInt(1 / damagePerShot) + 1;

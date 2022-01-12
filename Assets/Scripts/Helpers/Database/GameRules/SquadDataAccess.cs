@@ -179,6 +179,7 @@ namespace OnlyWar.Helpers.Database.GameRules
                     ushort recoil = (ushort)reader.GetInt16(12);
                     ushort bulk = (ushort)reader.GetInt16(13);
                     bool doesDamageDegrade = (bool)reader[14];
+                    ushort reloadTime = (ushort)reader.GetInt16(15);
 
                     BaseSkill baseSkill = baseSkillMap[baseSkillId];
 
@@ -186,7 +187,7 @@ namespace OnlyWar.Helpers.Database.GameRules
                         new RangedWeaponTemplate(id, name, (EquipLocation)location, baseSkill,
                                                 accuracy, armorMultiplier, woundMultiplier,
                                                 requiredStrength, damageMultiplier, maxRange,
-                                                rof, ammo, recoil, bulk, doesDamageDegrade);
+                                                rof, ammo, recoil, bulk, doesDamageDegrade, reloadTime);
                     factionWeaponTemplateMap[id] = weaponTemplate;
                 }
             }
