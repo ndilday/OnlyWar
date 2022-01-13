@@ -44,7 +44,8 @@ namespace OnlyWar.Helpers.Battle
             }
             // membersPerRow is how many soldiers are in each row (back row may be smaller)
             int membersPerRow = Mathf.CeilToInt((float)(Soldiers.Count) / (float)(numberOfRows));
-            return new Tuple<int, int>(membersPerRow, numberOfRows);
+            return new Tuple<int, int>(membersPerRow * Soldiers[0].Soldier.Template.Species.Width, 
+                                       numberOfRows * Soldiers[0].Soldier.Template.Species.Depth);
         }
 
         public BattleSoldier GetRandomSquadMember()

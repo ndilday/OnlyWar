@@ -238,9 +238,11 @@ namespace OnlyWar.Helpers.Battle
             Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + ((squadBoxSize.Item1 - 1) / 2), bottomLeft.Item2 + squadBoxSize.Item2 - 1);
             for (int i = 0; i < squad.Soldiers.Count; i++)
             {
+                ushort width = squad.Soldiers[i].Soldier.Template.Species.Width;
+                ushort depth = squad.Soldiers[i].Soldier.Template.Species.Depth;
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
-                int yMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
-                int xMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
+                int yMod = i * depth / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
+                int xMod = (((i * width) % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
                 if (squad.IsPlayerSquad)
                 {
                     _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
@@ -263,11 +265,13 @@ namespace OnlyWar.Helpers.Battle
         {
             Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + squadBoxSize.Item2 - 1, 
                                                                    bottomLeft.Item2 + ((squadBoxSize.Item1 - 1) / 2));
+            ushort width = squad.Soldiers[i].Soldier.Template.Species.Width;
+            ushort depth = squad.Soldiers[i].Soldier.Template.Species.Depth;
             for (int i = 0; i < squad.Soldiers.Count; i++)
             {
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary
-                int xMod = i / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
-                int yMod = ((i % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
+                int xMod = i * depth / squadBoxSize.Item1 * (squad.IsPlayerSquad ? -1 : 1);
+                int yMod = (((i * width) % squadBoxSize.Item1) + 1) / 2 * (i % 2 == 0 ? -1 : 1);
                 if (squad.IsPlayerSquad)
                 {
                     _playerSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
