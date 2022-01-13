@@ -25,6 +25,8 @@ namespace OnlyWar.Models.Soldiers
         public NormalizedValueTemplate AttackSpeed { get; }
         public NormalizedValueTemplate MoveSpeed { get; }
         public NormalizedValueTemplate Size { get; }
+        public ushort Width { get; }
+        public ushort Depth { get; }
         public BodyTemplate BodyTemplate { get; }
 
         public Species(int id, string name, NormalizedValueTemplate strength,
@@ -33,7 +35,7 @@ namespace OnlyWar.Models.Soldiers
                        NormalizedValueTemplate ego, NormalizedValueTemplate cha,
                        NormalizedValueTemplate psy, NormalizedValueTemplate atk, 
                        NormalizedValueTemplate mov, NormalizedValueTemplate siz,
-                       BodyTemplate bodyTemplate)
+                       ushort width, ushort depth, BodyTemplate bodyTemplate)
         {
             Id = id;
             Name = name;
@@ -48,6 +50,8 @@ namespace OnlyWar.Models.Soldiers
             AttackSpeed = atk;
             MoveSpeed = mov;
             Size = siz;
+            Width = width;
+            Depth = depth;
             BodyTemplate = bodyTemplate;
         }
     }

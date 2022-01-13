@@ -439,6 +439,8 @@ namespace OnlyWar.Helpers.Database.GameRules
                     int attackSpeedTemplateId = reader.GetInt32(12);
                     int moveSpeedTemplateId = reader.GetInt32(13);
                     int sizeTemplateId = reader.GetInt32(14);
+                    ushort width = (ushort)reader.GetInt16(15);
+                    ushort depth = (ushort)reader.GetInt16(16);
                     Species species = new Species(id, name,
                                                   attributeMap[strengthTemplateId],
                                                   attributeMap[dexterityTemplateId],
@@ -451,6 +453,8 @@ namespace OnlyWar.Helpers.Database.GameRules
                                                   attributeMap[attackSpeedTemplateId],
                                                   attributeMap[moveSpeedTemplateId],
                                                   attributeMap[sizeTemplateId],
+                                                  width,
+                                                  depth,
                                                   new BodyTemplate(hitLocationTemplateMap[bodyId]));
 
                     if (!speciesMap.ContainsKey(factionId))
