@@ -126,6 +126,8 @@ namespace OnlyWar.Models.Battles
             }
             // now that we have the oppFor, figure out a reasonable size of battlefield
             // 10x10 per squad?
+            int opSquadsCount = armyList.Sum(al => al.Squads.Count);
+            int spaceNeeded = (opSquadsCount + attackingSquads.Count) * 100;
         }
 
         private float GetTacticsSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads)

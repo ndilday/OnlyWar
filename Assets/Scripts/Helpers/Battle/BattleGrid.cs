@@ -13,8 +13,6 @@ namespace OnlyWar.Helpers.Battle
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadPlaced;
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadMoved;
         // TODO: allow multiple friendlies in single grid location?
-        public int GridWidth { get; private set; }
-        public int GridHeight { get; private set; }
 
         private readonly Dictionary<int, Tuple<int, int>> _soldierLocationMap;
         private readonly Dictionary<Tuple<int, int>, int> _locationSoldierMap;
@@ -22,10 +20,8 @@ namespace OnlyWar.Helpers.Battle
         private readonly HashSet<int> _opposingSoldierIds;
         private readonly HashSet<Tuple<int, int>> _reservedSpaces;
 
-        public BattleGrid(int gridWidth, int gridHeight)
+        public BattleGrid()
         {
-            GridWidth = gridWidth;
-            GridHeight = gridHeight;
             _soldierLocationMap = new Dictionary<int, Tuple<int, int>>();
             _locationSoldierMap = new Dictionary<Tuple<int, int>, int>();
             OnSquadPlaced = new UnityEvent<BattleSquad, Tuple<int, int>>();
@@ -82,6 +78,24 @@ namespace OnlyWar.Helpers.Battle
                 }
             }
             return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, top), new Tuple<int, int>(right, bottom));
+        }
+
+        public Vector2 GetCurrentGridSize()
+        {
+            int minX = int.MaxValue;
+            int maxX = int.MinValue;
+            int minY = int.MaxValue;
+            int maxY = int.MinValue;
+
+            foreach(Tuple<int, int> location in _soldierLocationMap.Values)
+            {
+                if (location.Item1 < minX) minX = location.Item1;
+                if (location.Item1 > maxX) maxX = location.Item1;
+                if (location.Item2 < minY) minY = location.Item2;
+                if (location.Item2 > maxY) maxY = location.Item2;
+            }
+
+            return new Vector2(maxX - minX, maxY - minY);
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBottomLeftAndSize(IEnumerable<BattleSoldier> soldiers)
@@ -265,8 +279,8 @@ namespace OnlyWar.Helpers.Battle
         {
             Tuple<int, int> startingLocation = new Tuple<int, int>(bottomLeft.Item1 + squadBoxSize.Item2 - 1, 
                                                                    bottomLeft.Item2 + ((squadBoxSize.Item1 - 1) / 2));
-            ushort width = squad.Soldiers[i].Soldier.Template.Species.Width;
-            ushort depth = squad.Soldiers[i].Soldier.Template.Species.Depth;
+            ushort width = squad.Soldiers[0].Soldier.Template.Species.Width;
+            ushort depth = squad.Soldiers[0].Soldier.Template.Species.Depth;
             for (int i = 0; i < squad.Soldiers.Count; i++)
             {
                 // 0th soldier goes in the coordinate given, then alternate to each side up to membersPerRow, then repeat in additional rows as necessary

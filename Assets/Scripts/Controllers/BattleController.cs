@@ -395,7 +395,7 @@ namespace OnlyWar.Controllers
         {
             BattleView.gameObject.SetActive(true);
             BattleView.Clear();
-            BattleView.SetMapSize(new Vector2(config.Grid.GridWidth, config.Grid.GridHeight));
+            BattleView.SetMapSize(config.Grid.GetCurrentGridSize());
             _turnNumber = 0;
 
             _grid = config.Grid;

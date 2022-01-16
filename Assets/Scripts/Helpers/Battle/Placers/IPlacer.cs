@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OnlyWar.Helpers.Battle.Placers
 {
-    interface IBattleSquadPlacer
+    interface IArmyPlacer
     {
         Dictionary<BattleSquad, Vector2> PlaceSquads(IEnumerable<BattleSquad> squads);
     }
