@@ -1,6 +1,6 @@
-﻿using OnlyWar.Helpers.Battle;
-using OnlyWar.Helpers.Battle.Actions;
-using OnlyWar.Helpers.Battle.Resolutions;
+﻿using OnlyWar.Helpers.Battles;
+using OnlyWar.Helpers.Battles.Actions;
+using OnlyWar.Helpers.Battles.Resolutions;
 using OnlyWar.Models;
 using OnlyWar.Models.Battles;
 using OnlyWar.Models.Equippables;

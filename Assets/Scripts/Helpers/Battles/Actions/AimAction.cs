@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace OnlyWar.Helpers.Battle.Actions
+namespace OnlyWar.Helpers.Battles.Actions
 {
     class AimAction : IAction
     {

@@ -1,5 +1,5 @@
 ﻿using OnlyWar.Builders;
-using OnlyWar.Helpers.Battle.Placers;
+using OnlyWar.Helpers.Battles.Placers;
 using OnlyWar.Models.Battles;
 using OnlyWar.Models.Planets;
 using OnlyWar.Models.Squads;
@@ -7,7 +7,7 @@ using OnlyWar.Models.Units;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public static class BattleConfigurationBuilder
     {

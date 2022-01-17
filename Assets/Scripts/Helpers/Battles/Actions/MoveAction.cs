@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using OnlyWar.Helpers.Battle.Resolutions;
+using OnlyWar.Helpers.Battles.Resolutions;
 
-namespace OnlyWar.Helpers.Battle.Actions
+namespace OnlyWar.Helpers.Battles.Actions
 {
     public class MoveAction : IAction
     {

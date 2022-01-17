@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-using OnlyWar.Helpers.Battle.Resolutions;
+using OnlyWar.Helpers.Battles.Resolutions;
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Soldiers;
 using UnityEngine;
 
-namespace OnlyWar.Helpers.Battle.Actions
+namespace OnlyWar.Helpers.Battles.Actions
 {
     class ReloadRangedWeaponAction : IAction
     {

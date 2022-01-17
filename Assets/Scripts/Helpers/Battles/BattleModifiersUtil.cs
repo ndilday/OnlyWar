@@ -2,7 +2,7 @@
 
 using OnlyWar.Models.Equippables;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public static class BattleModifiersUtil
     {

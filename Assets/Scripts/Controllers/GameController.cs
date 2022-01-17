@@ -1,5 +1,5 @@
 ﻿using OnlyWar.Helpers;
-using OnlyWar.Helpers.Battle;
+using OnlyWar.Helpers.Battles;
 using OnlyWar.Models.Battles;
 using OnlyWar.Models.Planets;
 using UnityEngine;

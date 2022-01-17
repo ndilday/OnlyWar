@@ -1,6 +1,6 @@
 ﻿using OnlyWar.Models.Battles;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public sealed class TempBattleMissionImpl
     {

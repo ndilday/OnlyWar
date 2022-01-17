@@ -6,7 +6,7 @@ using UnityEngine;
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Squads;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public class BattleSquad
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Soldiers;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public class BattleSoldier
     {

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlyWar.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battles.Actions
 {
-    public interface IResolver
+    public interface IAction
     {
-        void Resolve();
+        void Execute();
     }
 }

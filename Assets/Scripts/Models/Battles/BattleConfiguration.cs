@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using OnlyWar.Helpers.Battle;
+using OnlyWar.Helpers.Battles;
 using OnlyWar.Models.Planets;
 
 namespace OnlyWar.Models.Battles

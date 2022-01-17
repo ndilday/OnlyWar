@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OnlyWar.Helpers.Battle.Placers
+namespace OnlyWar.Helpers.Battles.Placers
 {
     interface IArmyPlacer
     {

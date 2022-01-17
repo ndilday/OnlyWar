@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OnlyWar.Helpers;
 
-namespace OnlyWar.Helpers.Battle
+namespace OnlyWar.Helpers.Battles
 {
     public class BattleSquadLayout
     {

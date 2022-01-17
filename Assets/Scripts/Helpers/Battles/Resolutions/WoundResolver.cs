@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Equippables;
 
-namespace OnlyWar.Helpers.Battle.Resolutions
+namespace OnlyWar.Helpers.Battles.Resolutions
 {
     public class WoundResolver : IResolver
     {
