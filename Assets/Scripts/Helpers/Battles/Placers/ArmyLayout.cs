@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnlyWar.Helpers.Battles.Placers
 {
@@ -38,19 +36,17 @@ namespace OnlyWar.Helpers.Battles.Placers
         public ArmyLayout LayoutArmyLine(IEnumerable<BattleSquad> squads, bool isLoose)
         {
             int lineLeft = 0;
-            int lineRight = -3;
+            int lineRight = 0;
             int y = 0;
-            int i = 0;
-            int row = 0;
             int maxX = 0;
             int maxY = 0;
 
-            ArmyLayout layout = new ArmyLayout();
+            ArmyLayout layout = new();
 
-            List<BattleSquad> fastSquads = new List<BattleSquad>();
-            List<BattleSquad> heavySquads = new List<BattleSquad>();
-            List<BattleSquad> hqSquads = new List<BattleSquad>();
-            List<BattleSquad> defaultSquads = new List<BattleSquad>();
+            List<BattleSquad> fastSquads = new();
+            List<BattleSquad> heavySquads = new();
+            List<BattleSquad> hqSquads = new();
+            List<BattleSquad> defaultSquads = new();
 
             foreach(BattleSquad squad in squads)
             {
@@ -83,7 +79,7 @@ namespace OnlyWar.Helpers.Battles.Placers
                 {
                     // move the slowest default squad to the heavy list,
                     // effectively putting it in the reserve line
-                    heavySquads.Add(defaultSquads[defaultSquads.Count - 1]);
+                    heavySquads.Add(defaultSquads[^1]);
                     defaultSquads.RemoveAt(defaultSquads.Count - 1);
                 }
 
@@ -101,7 +97,7 @@ namespace OnlyWar.Helpers.Battles.Placers
                 // place HQ
                 // evenly space the HQs across the maximum width of the force
                 y = maxY + 3;
-                i = 0;
+                int i = 0;
                 int spacing = (lineRight - lineLeft) / (hqSquads.Count + 1);
                 if (i < hqSquads.Count)
                 {

@@ -75,7 +75,7 @@ namespace OnlyWar.Views
 
             EventTrigger trigger = soldier.GetComponent<EventTrigger>();
 
-            EventTrigger.Entry entry = new EventTrigger.Entry
+            EventTrigger.Entry entry = new()
             {
                 eventID = EventTriggerType.PointerEnter
             };
@@ -139,7 +139,7 @@ namespace OnlyWar.Views
 
         public void UpdateNextStepButton(string text, bool enabled)
         {
-            NextStepButton.gameObject.SetActive(enabled);
+            NextStepButton.SetActive(enabled);
             if(_nextStepButtonText == null)
             {
                 _nextStepButtonText = NextStepButton.GetComponentInChildren<Text>();
