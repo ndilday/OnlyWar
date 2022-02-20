@@ -117,17 +117,15 @@ namespace OnlyWar.Models.Battles
             // divide the force per zone by the INT + Tactics of the Mission Leader
             // to determine the size of force the landing troops will face
             int opposingForcePoints = (int)(forcePointsPerZone / GetTacticsSkillOfLeader(attackingSquads));
-            List<Unit> armyList = new List<Unit>();
+            List<Unit> armyList = new();
             while(opposingForcePoints > 0)
             {
                 Unit army = TempArmyBuilder.GenerateArmy(targetFaction.Faction);
                 opposingForcePoints -= army.Squads.Sum(s => s.SquadTemplate.BattleValue);
                 armyList.Add(army);
             }
-            // now that we have the oppFor, figure out a reasonable size of battlefield
-            // 10x10 per squad?
-            int opSquadsCount = armyList.Sum(al => al.Squads.Count);
-            int spaceNeeded = (opSquadsCount + attackingSquads.Count) * 100;
+            // now that we have the oppFor, figure out the range of engagement
+            // place the two forces on opposite sides of that range
         }
 
         private float GetTacticsSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads)

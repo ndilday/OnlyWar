@@ -193,10 +193,10 @@ namespace OnlyWar.Controllers
             Log(false, "Turn " + _turnNumber.ToString());
             // this is a three step process: plan, execute, and apply
 
-            ConcurrentBag<IAction> moveSegmentActions = new ConcurrentBag<IAction>();
-            ConcurrentBag<IAction> shootSegmentActions = new ConcurrentBag<IAction>();
-            ConcurrentBag<IAction> meleeSegmentActions = new ConcurrentBag<IAction>();
-            ConcurrentQueue<string> log = new ConcurrentQueue<string>();
+            ConcurrentBag<IAction> moveSegmentActions = new();
+            ConcurrentBag<IAction> shootSegmentActions = new();
+            ConcurrentBag<IAction> meleeSegmentActions = new();
+            ConcurrentQueue<string> log = new();
             Plan(shootSegmentActions, moveSegmentActions, meleeSegmentActions, log);
             while (!log.IsEmpty)
             {
@@ -271,29 +271,24 @@ namespace OnlyWar.Controllers
             // use the thread pool to handle the BattleSquadPlanner classes;
             // these look at the current game state to figure out the actions each soldier should take
             // the planners populate the actionBag with what they want to do
-            MeleeWeapon defaultWeapon = new MeleeWeapon(
-                GameSettings.Sector.MeleeWeaponTemplates.Values
-                    .First(mwt => mwt.Name == "Fist"));
+            MeleeWeapon defaultWeapon = new(GameSettings.Sector.MeleeWeaponTemplates.Values
+                                                        .First(mwt => mwt.Name == "Fist"));
             //Parallel.ForEach(_playerSquads.Values, (squad) =>
             foreach(BattleSquad squad in _playerBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
-                                                                    shootSegmentActions, moveSegmentActions, 
-                                                                    meleeSegmentActions, 
-                                                                    _woundResolver.WoundQueue, 
-                                                                    _moveResolver.MoveQueue, 
-                                                                    log, defaultWeapon);
+                BattleSquadPlanner planner = new(_grid, _soldierBattleSquadMap, 
+                                                 shootSegmentActions, moveSegmentActions, 
+                                                 meleeSegmentActions, _woundResolver.WoundQueue, 
+                                                 _moveResolver.MoveQueue, log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
             //Parallel.ForEach(_opposingSquads.Values, (squad) =>
             foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
-                BattleSquadPlanner planner = new BattleSquadPlanner(_grid, _soldierBattleSquadMap, 
-                                                                    shootSegmentActions, moveSegmentActions, 
-                                                                    meleeSegmentActions, 
-                                                                    _woundResolver.WoundQueue, 
-                                                                    _moveResolver.MoveQueue, 
-                                                                    log, defaultWeapon);
+                BattleSquadPlanner planner = new(_grid, _soldierBattleSquadMap, 
+                                                 shootSegmentActions, moveSegmentActions, 
+                                                 meleeSegmentActions, _woundResolver.WoundQueue, 
+                                                 _moveResolver.MoveQueue, log, defaultWeapon);
                 planner.PrepareActions(squad);
             };
         }
@@ -603,7 +598,7 @@ namespace OnlyWar.Controllers
 
         private List<PlayerSoldier> RemoveSoldiersKilledInBattle()
         {
-            List<PlayerSoldier> dead = new List<PlayerSoldier>();
+            List<PlayerSoldier> dead = new();
             foreach(BattleSoldier soldier in _startingPlayerBattleSoldiers)
             {
                 foreach(HitLocation hl in soldier.Soldier.Body.HitLocations)
@@ -635,7 +630,7 @@ namespace OnlyWar.Controllers
 
         private List<string> GetBattleLog(List<PlayerSoldier> killedInBattle)
         {
-            List<string> battleEvents = new List<string>();
+            List<string> battleEvents = new();
             int marineCount = _startingPlayerBattleSoldiers.Count;
             battleEvents.Add(marineCount.ToString() + " stood against " + _startingEnemyCount.ToString() + " enemies");
             foreach(PlayerSoldier soldier in killedInBattle)
