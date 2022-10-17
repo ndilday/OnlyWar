@@ -48,7 +48,7 @@ namespace OnlyWar.Controllers
         public BattleController()
         {
             _playerBattleSquads = new Dictionary<int, BattleSquad>();
-            _opposingBattleSquads = new Dictionary<int, BattleSquad>();;
+            _opposingBattleSquads = new Dictionary<int, BattleSquad>();
             _soldierBattleSquadMap = new Dictionary<int, BattleSquad>();
             _moveResolver = new MoveResolver();
             _moveResolver.OnRetreat.AddListener(MoveResolver_OnRetreat);
