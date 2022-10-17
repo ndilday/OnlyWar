@@ -1,9 +1,11 @@
 ﻿using OnlyWar.Builders;
+using OnlyWar.Helpers;
 using OnlyWar.Models.Planets;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 
 namespace OnlyWar.Models.Battles
@@ -116,7 +118,7 @@ namespace OnlyWar.Models.Battles
             long forcePointsPerZone = targetFaction.Population * 10 / zonesHeld;
             // divide the force per zone by the INT + Tactics of the Mission Leader
             // to determine the size of force the landing troops will face
-            int opposingForcePoints = (int)(forcePointsPerZone / GetTacticsSkillOfLeader(attackingSquads));
+            int opposingForcePoints = (int)(forcePointsPerZone / GetSkillOfLeader(attackingSquads, "Tactics"));
             List<Unit> armyList = new();
             while(opposingForcePoints > 0)
             {
@@ -125,10 +127,11 @@ namespace OnlyWar.Models.Battles
                 armyList.Add(army);
             }
             // now that we have the oppFor, figure out the range of engagement
+            ushort engagementRange = DetermineEngagementRange(attackingSquads);
             // place the two forces on opposite sides of that range
         }
 
-        private float GetTacticsSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads)
+        private float GetSkillOfLeader(IReadOnlyCollection<Squad> attackingSquads, string skillName)
         {
             // not just selecting the squad leaders to future-proof for when we're attaching
             // specialists to forces
@@ -137,8 +140,23 @@ namespace OnlyWar.Models.Battles
                                         .ThenByDescending(soldier => soldier.Template.Subrank)
                                         .ThenBy(soldier => soldier.Id)
                                         .First();
-            var skill = leader.Skills.FirstOrDefault(skill => skill.BaseSkill.Name == "Tactics");
+            var skill = leader.Skills.FirstOrDefault(skill => skill.BaseSkill.Name == skillName);
             return leader.Intelligence + (skill == null ? 0 : skill.SkillBonus);
+        }
+
+        private ushort DetermineEngagementRange(IReadOnlyCollection<Squad> attackingSquads)
+        {
+            // TODO: make this more sophisticated
+            // for now, assume marines want to engage at 25% to-hit,
+            // and take the median squad distance returned
+            // compare that to a roll to see where the troops are detected
+            ushort forceSize = (ushort)(attackingSquads.Sum(squad => squad.SquadTemplate.BattleValue));
+            ushort forceStealth = (ushort)(GetSkillOfLeader(attackingSquads, "Stealth"))
+                ;
+            ushort detectRange = (ushort)(-Math.Log(RNG.GetLinearDouble()) * forceStealth / (20 * forceSize));
+            // use the greater of the two values
+            // if the Marine value is used, they have surprise
+            return 0;
         }
     }
 }

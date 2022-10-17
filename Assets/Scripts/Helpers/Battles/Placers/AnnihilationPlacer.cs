@@ -21,7 +21,18 @@ namespace OnlyWar.Helpers.Battles.Placers
             ArmyLayout bottomLayout = ArmyLayoutHelper.Instance.LayoutArmyLine(bottomSquads, true);
             ArmyLayout topLayout = ArmyLayoutHelper.Instance.LayoutArmyLine(topSquads, true);
 
-            // determine distance between forces
+            // TODO: determine distance between forces
+            // we should probably base this on weapon ranges of the respective armies
+            // for now, we'll just go with 500 yards
+            foreach (KeyValuePair<int, BattleSquadLayout> squadLayoutMapItem in topLayout.SquadLayoutMap)
+            {
+            }
+
+            foreach (KeyValuePair<int, BattleSquadLayout> squadLayoutMapItem in bottomLayout.SquadLayoutMap)
+            {
+            }
+            // TODO: place armies based on distance calculation
+            //
             return result;
         }
     }
