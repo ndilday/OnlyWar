@@ -26,13 +26,13 @@ namespace OnlyWar.Helpers.Battles.Resolutions
                 {
                     resolution.Grid.MoveSoldier(resolution.Soldier.Soldier.Id, resolution.NewLocation);
                     resolution.Soldier.Location = resolution.NewLocation;
-                    if(resolution.NewLocation.Item1 < 0 || 
+                    /*if(resolution.NewLocation.Item1 < 0 || 
                        resolution.NewLocation.Item1 > resolution.Grid.GridWidth || 
                        resolution.NewLocation.Item2 < 0 || 
                        resolution.NewLocation.Item2 > resolution.Grid.GridHeight)
                     {
                         OnRetreat.Invoke(resolution.Soldier);
-                    }
+                    }*/
                 }
                 else
                 {
