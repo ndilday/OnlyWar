@@ -55,16 +55,17 @@ namespace OnlyWar.Views
             Map.GetComponent<RectTransform>().sizeDelta = size;
         }
 
-        public void AddSoldier(int id, Vector2 position, Color color)
+        public void AddSoldier(int id, Vector2 topLeft, Vector2 size, Color color)
         {
             GameObject soldier = Instantiate(SoldierPrefab,
-                                position,
+                                topLeft,
                                 Quaternion.identity,
                                 Map.transform);
+            soldier.transform.localScale = new Vector3(size.x, size.y, 1);
 
             RectTransform rt = soldier.GetComponent<RectTransform>();
-            position.Scale(GameSettings.BattleMapScale);
-            rt.anchoredPosition = position;
+            topLeft.Scale(GameSettings.BattleMapScale);
+            rt.anchoredPosition = topLeft;
 
             Image soldierImage = soldier.transform.Find("SoldierCircle").GetComponent<Image>();
             soldierImage.gameObject.name = id.ToString();

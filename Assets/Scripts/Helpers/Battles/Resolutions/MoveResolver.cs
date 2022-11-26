@@ -25,7 +25,7 @@ namespace OnlyWar.Helpers.Battles.Resolutions
                 if(resolution.Grid.IsEmpty(resolution.NewLocation))
                 {
                     resolution.Grid.MoveSoldier(resolution.Soldier.Soldier.Id, resolution.NewLocation);
-                    resolution.Soldier.Location = resolution.NewLocation;
+                    resolution.Soldier.Locations = resolution.NewLocation;
                     /*if(resolution.NewLocation.Item1 < 0 || 
                        resolution.NewLocation.Item1 > resolution.Grid.GridWidth || 
                        resolution.NewLocation.Item2 < 0 || 

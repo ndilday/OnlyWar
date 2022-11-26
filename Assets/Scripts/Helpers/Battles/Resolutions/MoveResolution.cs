@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace OnlyWar.Helpers.Battles.Resolutions
@@ -7,9 +8,9 @@ namespace OnlyWar.Helpers.Battles.Resolutions
     {
         public BattleSoldier Soldier { get; private set; }
         public BattleGrid Grid { get; private set; }
-        public Tuple<int, int> NewLocation { get; private set; }
+        public List<Tuple<int, int>> NewLocation { get; private set; }
 
-        public MoveResolution(BattleSoldier soldier, BattleGrid grid, Tuple<int, int> newLocation)
+        public MoveResolution(BattleSoldier soldier, BattleGrid grid, List<Tuple<int, int>> newLocation)
         {
             Soldier = soldier;
             Grid = grid;

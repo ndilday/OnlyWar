@@ -370,20 +370,30 @@ namespace OnlyWar.Controllers
             {
                 foreach(BattleSoldier soldier in squad.Soldiers)
                 {
-                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
-                    BattleView.MoveSoldier(soldier.Soldier.Id,
-                                           new Vector2(position.Item1, position.Item2));
+                    List<Tuple<int, int>> position = _grid.GetSoldierPositions(soldier.Soldier.Id);
+                    BattleView.MoveSoldier(soldier.Soldier.Id, ConvertPosition(position));
                 }
             }
             foreach(BattleSquad squad in _opposingBattleSquads.Values)
             {
                 foreach (BattleSoldier soldier in squad.Soldiers)
                 {
-                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
-                    BattleView.MoveSoldier(soldier.Soldier.Id,
-                                           new Vector2(position.Item1, position.Item2));
+                    List<Tuple<int, int>> position = _grid.GetSoldierPositions(soldier.Soldier.Id);
+                    BattleView.MoveSoldier(soldier.Soldier.Id, ConvertPosition(position));
                 }
             }
+        }
+
+        private Vector2 ConvertPosition(List<Tuple<int, int>> positionList)
+        {
+            int top = int.MinValue;
+            int left = int.MaxValue;
+            foreach(Tuple<int, int> tuple in positionList)
+            {
+                if (tuple.Item1 < left) left = tuple.Item1;
+                if (tuple.Item2 > top) top = tuple.Item2;
+            }
+            return new Vector2(left, top);
         }
 
         private void InitializeBattleState(BattleConfiguration config)
@@ -431,9 +441,10 @@ namespace OnlyWar.Controllers
                 Color color = squad.IsPlayerSquad ? Color.blue : Color.black;
                 foreach (BattleSoldier soldier in squad.Soldiers)
                 {
-                    Tuple<int, int> position = _grid.GetSoldierPosition(soldier.Soldier.Id);
-                    BattleView.AddSoldier(soldier.Soldier.Id, 
-                                          new Vector2(position.Item1, position.Item2), color);
+                    List<Tuple<int, int>> position = _grid.GetSoldierPositions(soldier.Soldier.Id);
+                    Vector2 size = new Vector2(soldier.Soldier.Template.Species.Width,
+                                               soldier.Soldier.Template.Species.Depth);
+                    BattleView.AddSoldier(soldier.Soldier.Id, ConvertPosition(position), size, color);
                 }
             }
         }

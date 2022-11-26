@@ -14,7 +14,7 @@ namespace OnlyWar.Helpers.Battles
         public UnityEvent<BattleSquad, Tuple<int, int>> OnSquadMoved;
         // TODO: allow multiple friendlies in single grid location?
 
-        private readonly Dictionary<int, Tuple<int, int>> _soldierLocationMap;
+        private readonly Dictionary<int, List<Tuple<int, int>>> _soldierLocationsMap;
         private readonly Dictionary<Tuple<int, int>, int> _locationSoldierMap;
         private readonly HashSet<int> _playerSoldierIds;
         private readonly HashSet<int> _opposingSoldierIds;
@@ -22,7 +22,7 @@ namespace OnlyWar.Helpers.Battles
 
         public BattleGrid()
         {
-            _soldierLocationMap = new Dictionary<int, Tuple<int, int>>();
+            _soldierLocationsMap = new Dictionary<int, List<Tuple<int, int>>>();
             _locationSoldierMap = new Dictionary<Tuple<int, int>, int>();
             OnSquadPlaced = new UnityEvent<BattleSquad, Tuple<int, int>>();
             OnSquadMoved = new UnityEvent<BattleSquad, Tuple<int, int>>();
@@ -41,22 +41,35 @@ namespace OnlyWar.Helpers.Battles
             {
                 _opposingSoldierIds.Remove(soldierId);
             }
-            Tuple<int, int> tuple = _soldierLocationMap[soldierId];
-            _soldierLocationMap.Remove(soldierId);
-            _locationSoldierMap.Remove(tuple);
+            List<Tuple<int, int>> locations = _soldierLocationsMap[soldierId];
+            _soldierLocationsMap.Remove(soldierId);
+            foreach (Tuple<int, int> tuple in locations)
+            {
+                _locationSoldierMap.Remove(tuple);
+            }
         }
 
-        public Tuple<int, int> GetSoldierPosition(int soldierId)
+        public List<Tuple<int, int>> GetSoldierPositions(int soldierId)
         {
-            return _soldierLocationMap[soldierId];
+            return _soldierLocationsMap[soldierId];
         }
 
-        public void MoveSoldier(int soldierId, Tuple<int, int> newLocation)
+        public void MoveSoldier(int soldierId, List<Tuple<int, int>> newLocation)
         {
-            Tuple<int, int> currentLocation = _soldierLocationMap[soldierId];
-            _soldierLocationMap[soldierId] = newLocation;
-            _locationSoldierMap[newLocation] = soldierId;
-            _locationSoldierMap.Remove(currentLocation);
+            List<Tuple<int, int>> currentLocation = _soldierLocationsMap[soldierId];
+            _soldierLocationsMap[soldierId] = newLocation;
+            foreach(Tuple<int, int> tuple in newLocation)
+            {
+                if(_locationSoldierMap.ContainsKey(tuple) && _locationSoldierMap[tuple] != soldierId)
+                {
+
+                }
+                _locationSoldierMap[tuple] = soldierId;
+            }
+            foreach (Tuple<int, int> tuple in currentLocation)
+            {
+                _locationSoldierMap.Remove(tuple);
+            }
         }
 
         public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBoxCorners(IEnumerable<BattleSoldier> soldiers)
@@ -68,13 +81,17 @@ namespace OnlyWar.Helpers.Battles
 
             foreach(BattleSoldier soldier in soldiers)
             {
-                if(_soldierLocationMap.ContainsKey(soldier.Soldier.Id))
+                if(_soldierLocationsMap.ContainsKey(soldier.Soldier.Id))
                 {
-                    var location = _soldierLocationMap[soldier.Soldier.Id];
-                    if (location.Item1 < left) left = location.Item1;
-                    if (location.Item1 > right) right = location.Item1;
-                    if (location.Item2 > top) top = location.Item2;
-                    if (location.Item2 < bottom) bottom = location.Item2;
+                    var location = _soldierLocationsMap[soldier.Soldier.Id];
+                    foreach (Tuple<int, int> tuple in location)
+                    {
+                        
+                        if (tuple.Item1 < left) left = tuple.Item1;
+                        if (tuple.Item1 > right) right = tuple.Item1;
+                        if (tuple.Item2 > top) top = tuple.Item2;
+                        if (tuple.Item2 < bottom) bottom = tuple.Item2;
+                    }
                 }
             }
             return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, top), new Tuple<int, int>(right, bottom));
@@ -87,12 +104,15 @@ namespace OnlyWar.Helpers.Battles
             int minY = int.MaxValue;
             int maxY = int.MinValue;
 
-            foreach(Tuple<int, int> location in _soldierLocationMap.Values)
+            foreach(List<Tuple<int, int>> location in _soldierLocationsMap.Values)
             {
-                if (location.Item1 < minX) minX = location.Item1;
-                if (location.Item1 > maxX) maxX = location.Item1;
-                if (location.Item2 < minY) minY = location.Item2;
-                if (location.Item2 > maxY) maxY = location.Item2;
+                foreach (Tuple<int, int> tuple in location)
+                {
+                    if (tuple.Item1 < minX) minX = tuple.Item1;
+                    if (tuple.Item1 > maxX) maxX = tuple.Item1;
+                    if (tuple.Item2 < minY) minY = tuple.Item2;
+                    if (tuple.Item2 > maxY) maxY = tuple.Item2;
+                }
             }
 
             return new Vector2(maxX - minX, maxY - minY);
@@ -107,13 +127,17 @@ namespace OnlyWar.Helpers.Battles
 
             foreach (BattleSoldier soldier in soldiers)
             {
-                if (_soldierLocationMap.ContainsKey(soldier.Soldier.Id))
+                if (_soldierLocationsMap.ContainsKey(soldier.Soldier.Id))
                 {
-                    var location = _soldierLocationMap[soldier.Soldier.Id];
-                    if (location.Item1 < left) left = location.Item1;
-                    if (location.Item1 > right) right = location.Item1;
-                    if (location.Item2 > top) top = location.Item2;
-                    if (location.Item2 < bottom) bottom = location.Item2;
+                    var location = _soldierLocationsMap[soldier.Soldier.Id];
+                    foreach (Tuple<int, int> tuple in location)
+                    {
+
+                        if (tuple.Item1 < left) left = tuple.Item1;
+                        if (tuple.Item1 > right) right = tuple.Item1;
+                        if (tuple.Item2 > top) top = tuple.Item2;
+                        if (tuple.Item2 < bottom) bottom = tuple.Item2;
+                    }
                 }
             }
             return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, bottom), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
@@ -121,21 +145,27 @@ namespace OnlyWar.Helpers.Battles
 
         public float GetNearestEnemy(int id, out int closestEnemy)
         {
-            if (_soldierLocationMap.ContainsKey(id))
+            if (_soldierLocationsMap.ContainsKey(id))
             {
                 var targetSet = _playerSoldierIds.Contains(id) ? _opposingSoldierIds : _playerSoldierIds;
-                var location = _soldierLocationMap[id];
+                var location = _soldierLocationsMap[id];
                 closestEnemy = -1;
                 float distanceSq = int.MaxValue;
-                foreach (KeyValuePair<int, Tuple<int, int>> kvp in _soldierLocationMap)
+                foreach (KeyValuePair<int, List<Tuple<int, int>>> kvp in _soldierLocationsMap)
                 {
                     if (targetSet.Contains(kvp.Key))
                     {
-                        float tempDistance = CalculateDistanceSq(location, kvp.Value);
-                        if (tempDistance < distanceSq)
+                        foreach (Tuple<int, int> tuple in kvp.Value)
                         {
-                            distanceSq = tempDistance;
-                            closestEnemy = kvp.Key;
+                            foreach (Tuple<int, int> soldierTuple in location)
+                            {
+                                float tempDistance = CalculateDistanceSq(soldierTuple, tuple);
+                                if (tempDistance < distanceSq)
+                                {
+                                    distanceSq = tempDistance;
+                                    closestEnemy = kvp.Key;
+                                }
+                            }
                         }
                     }
                 }
@@ -146,15 +176,27 @@ namespace OnlyWar.Helpers.Battles
 
         public float GetDistanceBetweenSoldiers(int soldierId1, int soldierId2)
         {
-            Tuple<int, int> pos1 = _soldierLocationMap[soldierId1];
-            Tuple<int, int> pos2 = _soldierLocationMap[soldierId2];
-            return Mathf.Sqrt(Mathf.Pow(pos1.Item1 - pos2.Item1, 2) + Mathf.Pow(pos1.Item2 - pos2.Item2, 2));
+            List<Tuple<int, int>> pos1 = _soldierLocationsMap[soldierId1];
+            List<Tuple<int, int>> pos2 = _soldierLocationsMap[soldierId2];
+            float distanceSq = int.MaxValue;
+            foreach (Tuple<int, int> tuple1 in pos1)
+            {
+                foreach (Tuple<int, int> tuple2 in pos2)
+                {
+                    float tempDistance = CalculateDistanceSq(tuple1, tuple2);
+                    if (tempDistance < distanceSq)
+                    {
+                        distanceSq = tempDistance;
+                    }
+                }
+            }
+            return distanceSq;
         }
 
         public void PlaceBattleSquad(BattleSquad squad, Tuple<int, int> bottomLeft, bool longHorizontal)
         {
             // if any squad member is already on the map, we have a problem
-            if (squad.Soldiers.Any(s => _soldierLocationMap.ContainsKey(s.Soldier.Id))) throw new InvalidOperationException(squad.Name + " has soldiers already on BattleGrid");
+            if (squad.Soldiers.Any(s => _soldierLocationsMap.ContainsKey(s.Soldier.Id))) throw new InvalidOperationException(squad.Name + " has soldiers already on BattleGrid");
             if (squad.Soldiers.Count == 0) throw new InvalidOperationException("No soldiers in " + squad.Name + " to place");
             Tuple<int, int> squadBoxSize = squad.GetSquadBoxSize();
             Tuple<int, int> startingLocation;
@@ -172,6 +214,18 @@ namespace OnlyWar.Helpers.Battles
         public bool IsEmpty(Tuple<int, int> location)
         {
             return !_locationSoldierMap.ContainsKey(location);
+        }
+
+        public bool IsEmpty(List<Tuple<int, int>> location)
+        {
+            foreach(Tuple<int, int> tuple in location)
+            {
+                if(!IsEmpty(tuple))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public Tuple<int, int> GetClosestOpenAdjacency(Tuple<int, int> startingPoint, Tuple<int, int> target)
@@ -203,23 +257,26 @@ namespace OnlyWar.Helpers.Battles
 
         public bool IsAdjacentToEnemy(int soldierId)
         {
-            Tuple<int, int> location = _soldierLocationMap[soldierId];
-            Tuple<int, int>[] testPositions = new Tuple<int, int>[4]
-                {
+            List<Tuple<int, int>> locations = _soldierLocationsMap[soldierId];
+            foreach (Tuple<int, int> location in locations)
+            {
+                Tuple<int, int>[] testPositions = new Tuple<int, int>[4]
+                    {
                     new Tuple<int, int>(location.Item1, location.Item2 - 1),
                     new Tuple<int, int>(location.Item1, location.Item2 + 1),
                     new Tuple<int, int>(location.Item1 - 1, location.Item2),
                     new Tuple<int, int>(location.Item1 + 1, location.Item2)
-                };
-            foreach(Tuple<int, int> testPosition in testPositions)
-            {
-                if (_locationSoldierMap.ContainsKey(testPosition))
+                    };
+                foreach (Tuple<int, int> testPosition in testPositions)
                 {
-                    int adjacentSoldierId = _locationSoldierMap[testPosition];
-                    if((_playerSoldierIds.Contains(soldierId) && _opposingSoldierIds.Contains(adjacentSoldierId)) 
-                        || _opposingSoldierIds.Contains(soldierId) && _playerSoldierIds.Contains(adjacentSoldierId))
+                    if (_locationSoldierMap.ContainsKey(testPosition))
                     {
-                        return true;
+                        int adjacentSoldierId = _locationSoldierMap[testPosition];
+                        if ((_playerSoldierIds.Contains(soldierId) && _opposingSoldierIds.Contains(adjacentSoldierId))
+                            || _opposingSoldierIds.Contains(soldierId) && _playerSoldierIds.Contains(adjacentSoldierId))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -266,10 +323,19 @@ namespace OnlyWar.Helpers.Battles
                 {
                     _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
                 }
-                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
-                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
-                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
-                squad.Soldiers[i].Location = location;
+                List<Tuple<int, int>> soldierLocations = new List<Tuple<int, int>>();
+                for(int w = 0; w < width; w++)
+                {
+                    for(int d = 0; d < depth; d++)
+                    {
+                        Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod + w, startingLocation.Item2 + yMod + d);
+                        _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                        soldierLocations.Add(location);
+                    }
+                }
+                _soldierLocationsMap[squad.Soldiers[i].Soldier.Id] = soldierLocations;
+                
+                squad.Soldiers[i].Locations = soldierLocations;
             }
 
             return startingLocation;
@@ -295,10 +361,19 @@ namespace OnlyWar.Helpers.Battles
                 {
                     _opposingSoldierIds.Add(squad.Soldiers[i].Soldier.Id);
                 }
-                Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod, startingLocation.Item2 + yMod);
-                _soldierLocationMap[squad.Soldiers[i].Soldier.Id] = location;
-                _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
-                squad.Soldiers[i].Location = location;
+                List<Tuple<int, int>> soldierLocations = new List<Tuple<int, int>>();
+                for (int w = 0; w < width; w++)
+                {
+                    for (int d = 0; d < depth; d++)
+                    {
+                        Tuple<int, int> location = new Tuple<int, int>(startingLocation.Item1 + xMod + w, startingLocation.Item2 + yMod + d);
+                        _locationSoldierMap[location] = squad.Soldiers[i].Soldier.Id;
+                        soldierLocations.Add(location);
+                    }
+                }
+                _soldierLocationsMap[squad.Soldiers[i].Soldier.Id] = soldierLocations;
+
+                squad.Soldiers[i].Locations = soldierLocations;
             }
 
             return startingLocation;
