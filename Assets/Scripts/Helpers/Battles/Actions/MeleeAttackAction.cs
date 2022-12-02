@@ -58,8 +58,20 @@ namespace OnlyWar.Helpers.Battles.Actions
 
         private bool IsAdjacentToTarget()
         {
-            int quickDistance = _attacker.Location.Item1 - _target.Location.Item1 + _attacker.Location.Item2 - _target.Location.Item2;
-            return quickDistance == 1 || quickDistance == -1;
+            int topLimit, bottomLimit, leftLimit, rightLimit;
+            topLimit = _attacker.TopLeft.Item2 + 1;
+            leftLimit = _attacker.TopLeft.Item1 - 1;
+            bottomLimit = _attacker.BottomRight.Item2 - 1;
+            rightLimit = _attacker.BottomRight.Item1 + 1;
+
+            // the target is adjacent if it's not any of
+            // above, below, left, or right of the limit grid
+            bool targetIsAbove = _target.BottomRight.Item2 > topLimit;
+            bool targetIsBelow = _target.TopLeft.Item2 < bottomLimit;
+            bool targetIsLeft = _target.BottomRight.Item1 < leftLimit;
+            bool targetIsRight = _target.TopLeft.Item1 > rightLimit;
+
+            return !targetIsAbove && !targetIsBelow && !targetIsLeft && !targetIsRight;
         }
 
         private void HandleHit()

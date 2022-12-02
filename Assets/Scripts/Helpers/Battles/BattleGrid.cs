@@ -54,17 +54,38 @@ namespace OnlyWar.Helpers.Battles
             return _soldierLocationsMap[soldierId];
         }
 
-        public void MoveSoldier(int soldierId, List<Tuple<int, int>> newLocation)
+        public void MoveSoldier(BattleSoldier soldier, Tuple<int, int> newTopLeft, ushort newOrienation)
         {
-            List<Tuple<int, int>> currentLocation = _soldierLocationsMap[soldierId];
-            _soldierLocationsMap[soldierId] = newLocation;
+            List<Tuple<int, int>> currentLocation = _soldierLocationsMap[soldier.Soldier.Id];
+            List<Tuple<int, int>> newLocation = new List<Tuple<int, int>>();
+            int width, depth;
+            if(newOrienation % 2 == 0)
+            {
+                width = soldier.Soldier.Template.Species.Width;
+                depth = soldier.Soldier.Template.Species.Depth;
+            }
+            else
+            {
+                width = soldier.Soldier.Template.Species.Depth;
+                depth = soldier.Soldier.Template.Species.Width;
+            }
+
+            for (int w = 0; w < width; w++)
+            {
+                for (int d = 0; d < depth; d++)
+                {
+                    Tuple<int, int> location = new Tuple<int, int>(newTopLeft.Item1 + w, newTopLeft.Item2 - d);
+                    newLocation.Add(location);
+                }
+            }
+            _soldierLocationsMap[soldier.Soldier.Id] = newLocation;
             foreach(Tuple<int, int> tuple in newLocation)
             {
-                if(_locationSoldierMap.ContainsKey(tuple) && _locationSoldierMap[tuple] != soldierId)
+                if(_locationSoldierMap.ContainsKey(tuple) && _locationSoldierMap[tuple] != soldier.Soldier.Id)
                 {
-
+                    throw new InvalidOperationException($"{soldier.Soldier.Id} cannot move to {tuple.Item1},{tuple.Item2}; already occupied by {_locationSoldierMap[tuple]}");
                 }
-                _locationSoldierMap[tuple] = soldierId;
+                _locationSoldierMap[tuple] = soldier.Soldier.Id;
             }
             foreach (Tuple<int, int> tuple in currentLocation)
             {
@@ -116,31 +137,6 @@ namespace OnlyWar.Helpers.Battles
             }
 
             return new Vector2(maxX - minX, maxY - minY);
-        }
-
-        public Tuple<Tuple<int, int>, Tuple<int, int>> GetSoldierBottomLeftAndSize(IEnumerable<BattleSoldier> soldiers)
-        {
-            int top = int.MinValue;
-            int bottom = int.MaxValue;
-            int left = int.MaxValue;
-            int right = int.MinValue;
-
-            foreach (BattleSoldier soldier in soldiers)
-            {
-                if (_soldierLocationsMap.ContainsKey(soldier.Soldier.Id))
-                {
-                    var location = _soldierLocationsMap[soldier.Soldier.Id];
-                    foreach (Tuple<int, int> tuple in location)
-                    {
-
-                        if (tuple.Item1 < left) left = tuple.Item1;
-                        if (tuple.Item1 > right) right = tuple.Item1;
-                        if (tuple.Item2 > top) top = tuple.Item2;
-                        if (tuple.Item2 < bottom) bottom = tuple.Item2;
-                    }
-                }
-            }
-            return new Tuple<Tuple<int, int>, Tuple<int, int>>(new Tuple<int, int>(left, bottom), new Tuple<int, int>(right  + 1 - left, top + 1 - bottom));
         }
 
         public float GetNearestEnemy(int id, out int closestEnemy)
@@ -335,11 +331,13 @@ namespace OnlyWar.Helpers.Battles
                 }
                 _soldierLocationsMap[squad.Soldiers[i].Soldier.Id] = soldierLocations;
                 
-                squad.Soldiers[i].Locations = soldierLocations;
+                squad.Soldiers[i].TopLeft = GetTopLeft(soldierLocations);
+                squad.Soldiers[i].Orientation = 0;
             }
 
             return startingLocation;
         }
+
 
         private Tuple<int, int> PlaceSquadVertically(BattleSquad squad, Tuple<int, int> bottomLeft, Tuple<int, int> squadBoxSize)
         {
@@ -373,10 +371,25 @@ namespace OnlyWar.Helpers.Battles
                 }
                 _soldierLocationsMap[squad.Soldiers[i].Soldier.Id] = soldierLocations;
 
-                squad.Soldiers[i].Locations = soldierLocations;
+                squad.Soldiers[i].TopLeft = GetTopLeft(soldierLocations);
+                squad.Soldiers[i].Orientation = 1;
             }
 
             return startingLocation;
+        }
+
+        private Tuple<int, int> GetTopLeft(List<Tuple<int, int>> tupleList)
+        {
+            Tuple<int, int> topLeft = null;
+            foreach(Tuple<int, int> tuple in tupleList)
+            {
+                if(topLeft == null || (tuple.Item1 <= topLeft.Item1 && tuple.Item2 >= topLeft.Item2))
+                {
+                    topLeft = tuple;
+                }
+            }
+
+            return topLeft;
         }
     }
 }

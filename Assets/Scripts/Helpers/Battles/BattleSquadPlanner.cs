@@ -258,7 +258,7 @@ namespace OnlyWar.Helpers.Battles
                 // ugh, this is a decision with a lot of factors that will only come up rarely
                 // for now, let's go with the longer ranged weapon
                 soldier.CurrentSpeed = 0;
-                _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First()));
+            _shootActionBag.Add(new ReadyRangedWeaponAction(soldier, soldier.RangedWeapons.OrderByDescending(w => w.Template.MaximumRange).First()));
 
             }
         }
@@ -273,7 +273,6 @@ namespace OnlyWar.Helpers.Battles
             // for now advance toward closest enemy;
             // down the road, we may want to advance toward a rearward enemy, ignoring the closest enemy
 
-            Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
             float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
             float moveSpeed = soldier.GetMoveSpeed();
             if(distance < moveSpeed)
@@ -282,8 +281,8 @@ namespace OnlyWar.Helpers.Battles
             }
             else
             {
-                Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
-                Tuple<int, int> line = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
+                Tuple<int, int> enemyPosition = _grid.GetSoldierPositions(closestEnemyId)[0];
+                Tuple<int, int> line = new Tuple<int, int>(enemyPosition.Item1 - soldier.TopLeft.Item1, enemyPosition.Item2 - soldier.TopLeft.Item2);
                 // soldier can't get there in one move, advance as far as possible
                 AddMoveAction(soldier, moveSpeed, line);
 
@@ -337,13 +336,12 @@ namespace OnlyWar.Helpers.Battles
                 // move adjacent to nearest enemy
                 // TODO: handle when someone else in the same squad wants to use the same spot
                 // TODO: probably by letting the one with the lower id have it, and the higher id has to 
-                Tuple<int, int> currentPosition = _grid.GetSoldierPosition(soldier.Soldier.Id);
                 float distance = _grid.GetNearestEnemy(soldier.Soldier.Id, out int closestEnemyId);
                 float moveSpeed = soldier.GetMoveSpeed();
-                Tuple<int, int> enemyPosition = _grid.GetSoldierPosition(closestEnemyId);
+                Tuple<int, int> enemyPosition = _grid.GetSoldierPositions(closestEnemyId)[0];
                 if (distance > moveSpeed + 1)
                 {
-                    Tuple<int, int> moveVector = new Tuple<int, int>(enemyPosition.Item1 - currentPosition.Item1, enemyPosition.Item2 - currentPosition.Item2);
+                    Tuple<int, int> moveVector = new Tuple<int, int>(enemyPosition.Item1 - soldier.TopLeft.Item1, enemyPosition.Item2 - soldier.TopLeft.Item2);
                     // we can't make it to an enemy in one move
                     // soldier can't get there in one move, advance as far as possible
                     AddMoveAction(soldier, moveSpeed, moveVector);
@@ -353,7 +351,7 @@ namespace OnlyWar.Helpers.Battles
                 }
                 else
                 {
-                    Tuple<int, int> newPos = _grid.GetClosestOpenAdjacency(currentPosition, enemyPosition);
+                    Tuple<int, int> newPos = _grid.GetClosestOpenAdjacency(soldier.TopLeft, enemyPosition);
                     BattleSquad oppSquad = _opposingSoldierIdSquadMap[closestEnemyId];
                     if (newPos == null)
                     {
@@ -365,16 +363,16 @@ namespace OnlyWar.Helpers.Battles
                         // PROTIP: SQRT is a relatively expensive operation, so sort by distance squares when it's about comparative, not absolute, distance
                         var map = oppSquad.Soldiers
                             .Where(s => s.Soldier.Id != closestEnemyId)
-                            .Select(s => new Tuple<int, Tuple<int, int>>(s.Soldier.Id, _grid.GetSoldierPosition(s.Soldier.Id)))
-                            .Select(t => new Tuple<int, Tuple<int, int>, Tuple<int, int>>(t.Item1, t.Item2, new Tuple<int, int>(t.Item2.Item1 - currentPosition.Item1, t.Item2.Item2 - currentPosition.Item2)))
+                            .Select(s => new Tuple<int, Tuple<int, int>>(s.Soldier.Id, _grid.GetSoldierPositions(s.Soldier.Id)[0]))
+                            .Select(t => new Tuple<int, Tuple<int, int>, Tuple<int, int>>(t.Item1, t.Item2, new Tuple<int, int>(t.Item2.Item1 - soldier.TopLeft.Item1, t.Item2.Item2 - soldier.TopLeft.Item2)))
                             .Select(u => new Tuple<int, Tuple<int, int>, int>(u.Item1, u.Item2, (u.Item3.Item1 * u.Item3.Item1 + u.Item3.Item2 * u.Item3.Item2)))
                             .OrderBy(u => u.Item3);
                         foreach (Tuple<int, Tuple<int, int>, int> soldierData in map)
                         {
-                            newPos = _grid.GetClosestOpenAdjacency(currentPosition, soldierData.Item2);
+                            newPos = _grid.GetClosestOpenAdjacency(soldier.TopLeft, soldierData.Item2);
                             if (newPos != null)
                             {
-                                AddChargeActionsHelper(soldier, soldierData.Item1, currentPosition, Mathf.Sqrt(soldierData.Item3), oppSquad, newPos);
+                                AddChargeActionsHelper(soldier, soldierData.Item1, soldier.TopLeft, Mathf.Sqrt(soldierData.Item3), oppSquad, newPos);
                                 break;
                             }
                         }
@@ -387,7 +385,7 @@ namespace OnlyWar.Helpers.Battles
                     }
                     else
                     {
-                        AddChargeActionsHelper(soldier, closestEnemyId, currentPosition, distance, oppSquad, newPos);
+                        AddChargeActionsHelper(soldier, closestEnemyId, soldier.TopLeft, distance, oppSquad, newPos);
                     }
                 }
             }
@@ -419,7 +417,8 @@ namespace OnlyWar.Helpers.Battles
                 Debug.Log(soldier.Soldier.Name + " charging " + moveSpeed.ToString("F0"));
                 soldier.CurrentSpeed = moveSpeed;
                 _grid.ReserveSpace(newPos);
-                _moveActionBag.Add(new MoveAction(soldier, _grid, newPos, _moveResolutionBag));
+                ushort orientation = CalculateOrientationFromVector(move);
+                _moveActionBag.Add(new MoveAction(soldier, _grid, newPos, orientation, _moveResolutionBag));
                 BattleSoldier target = oppSquad.Soldiers.Single(s => s.Soldier.Id == closestEnemyId);
                 _meleeActionBag.Add(new MeleeAttackAction(soldier, target, soldier.MeleeWeapons.Count == 0 ? _defaultMeleeWeapon : soldier.EquippedMeleeWeapons[0], distance >= 2, _woundResolutionBag, _log));
             }
@@ -598,14 +597,15 @@ namespace OnlyWar.Helpers.Battles
         private void AddMoveAction(BattleSoldier soldier, float moveSpeed, Tuple<int, int> line)
         {
             Tuple<int, int> desiredMove = CalculateMovementAlongLine(line, moveSpeed);
-            Tuple<int, int> newLocation = new Tuple<int, int>(soldier.Location.Item1 + desiredMove.Item1, soldier.Location.Item2 + desiredMove.Item2);
+            Tuple<int, int> newLocation = new Tuple<int, int>(soldier.TopLeft.Item1 + desiredMove.Item1, soldier.TopLeft.Item2 + desiredMove.Item2);
             if (_grid.IsSpaceReserved(newLocation) || !_grid.IsEmpty(newLocation))
             {
-                newLocation = FindBestLocation(soldier.Location, newLocation, moveSpeed);
+                newLocation = FindBestLocation(soldier.TopLeft, newLocation, moveSpeed);
             }
             soldier.CurrentSpeed = moveSpeed;
             _grid.ReserveSpace(newLocation);
-            _moveActionBag.Add(new MoveAction(soldier, _grid, newLocation, _moveResolutionBag));
+            ushort orientation = CalculateOrientationFromVector(line);
+            _moveActionBag.Add(new MoveAction(soldier, _grid, newLocation, orientation, _moveResolutionBag));
         }
 
         private Tuple<int, int> CalculateMovementAlongLine(Tuple<int, int> line, float moveSpeed)
@@ -673,6 +673,26 @@ namespace OnlyWar.Helpers.Battles
                 }
             }
             return new Tuple<int, int> ((int)xDistance, (int)yDistance);
+        }
+
+        private ushort CalculateOrientationFromVector(Tuple<int, int> vector)
+        {
+            if (Math.Abs(vector.Item1) > Math.Abs(vector.Item2))
+            {
+                if (vector.Item1 > 0)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 3;
+                }
+            }
+            else if (vector.Item2 < 0)
+            {
+                return 2;
+            }
+            return 0;
         }
 
         private Tuple<int, int> FindBestLocation(Tuple<int, int> startingPoint, Tuple<int, int> targetPoint, float speed)

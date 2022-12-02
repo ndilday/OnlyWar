@@ -8,13 +8,15 @@ namespace OnlyWar.Helpers.Battles.Resolutions
     {
         public BattleSoldier Soldier { get; private set; }
         public BattleGrid Grid { get; private set; }
-        public List<Tuple<int, int>> NewLocation { get; private set; }
+        public Tuple<int, int> TopLeft { get; private set; }
+        public ushort Orientation { get; private set; }
 
-        public MoveResolution(BattleSoldier soldier, BattleGrid grid, List<Tuple<int, int>> newLocation)
+        public MoveResolution(BattleSoldier soldier, BattleGrid grid, Tuple<int, int> topLeft, ushort orientation)
         {
             Soldier = soldier;
             Grid = grid;
-            NewLocation = newLocation;
+            TopLeft = topLeft;
+            Orientation = orientation;
         }
     }
 }

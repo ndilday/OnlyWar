@@ -10,7 +10,8 @@ namespace OnlyWar.Helpers.Battles
     {
         public ISoldier Soldier { get; private set; }
 
-        public List<Tuple<int, int>> Locations { get; set; }
+        public Tuple<int, int> TopLeft { get; set; }
+        public ushort Orientation { get; set; }
         public BattleSquad BattleSquad { get; private set; }
 
         public List<RangedWeapon> EquippedRangedWeapons { get; private set; }
@@ -49,6 +50,24 @@ namespace OnlyWar.Helpers.Battles
                 return handCount;
             }
         }
+
+        public Tuple<int, int> BottomRight
+        {
+            get
+            {
+                if(Orientation % 2 == 0)
+                {
+                    return new Tuple<int, int>(TopLeft.Item1 + Soldier.Template.Species.Width,
+                                               TopLeft.Item2 - Soldier.Template.Species.Depth);
+                }
+                else
+                {
+                    return new Tuple<int, int>(TopLeft.Item1 + Soldier.Template.Species.Depth,
+                                               TopLeft.Item2 - Soldier.Template.Species.Width);
+                }
+            }
+        }
+
         public Tuple<BattleSoldier, RangedWeapon, int> Aim { get; set; }
 
         public BattleSoldier(ISoldier soldier, BattleSquad squad)
@@ -59,7 +78,7 @@ namespace OnlyWar.Helpers.Battles
             RangedWeapons = new List<RangedWeapon>();
             EquippedMeleeWeapons = new List<MeleeWeapon>();
             EquippedRangedWeapons = new List<RangedWeapon>();
-            Locations = null;
+            TopLeft = null;
             Aim = null;
             IsInMelee = false;
             Stance = Stance.Standing;

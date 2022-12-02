@@ -22,17 +22,11 @@ namespace OnlyWar.Helpers.Battles.Resolutions
             while(!MoveQueue.IsEmpty)
             {
                 MoveQueue.TryTake(out MoveResolution resolution);
-                if(resolution.Grid.IsEmpty(resolution.NewLocation))
+                if(resolution.Grid.IsEmpty(resolution.TopLeft))
                 {
-                    resolution.Grid.MoveSoldier(resolution.Soldier.Soldier.Id, resolution.NewLocation);
-                    resolution.Soldier.Locations = resolution.NewLocation;
-                    /*if(resolution.NewLocation.Item1 < 0 || 
-                       resolution.NewLocation.Item1 > resolution.Grid.GridWidth || 
-                       resolution.NewLocation.Item2 < 0 || 
-                       resolution.NewLocation.Item2 > resolution.Grid.GridHeight)
-                    {
-                        OnRetreat.Invoke(resolution.Soldier);
-                    }*/
+                    resolution.Grid.MoveSoldier(resolution.Soldier, resolution.TopLeft, resolution.Orientation);
+                    resolution.Soldier.TopLeft = resolution.TopLeft;
+                    // TODO: need new retreat logic
                 }
                 else
                 {
