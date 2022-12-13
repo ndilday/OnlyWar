@@ -37,9 +37,10 @@ namespace OnlyWar.Helpers.Battles
             int maxY = 0;
 
             BattleSquadLayout layout = new();
-            int rows = ((squad.Soldiers.Count - 1) / 10) + 1;
-            int soldiersPerRow = squad.Soldiers.Count / rows;
-            foreach (BattleSoldier soldier in squad.Soldiers.OrderBy(s => RNG.GetLinearDouble()))
+            List<BattleSoldier> ableSoldiers = squad.AbleSoldiers;
+            int rows = ((ableSoldiers.Count - 1) / 10) + 1;
+            int soldiersPerRow = ableSoldiers.Count / rows;
+            foreach (BattleSoldier soldier in ableSoldiers.OrderBy(s => RNG.GetLinearDouble()))
             {
                 Tuple<int, int> position = new(x, y);
                 layout.BattleSoldierPositionMap[soldier.Soldier.Id] = position;

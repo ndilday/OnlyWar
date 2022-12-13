@@ -18,8 +18,8 @@ namespace OnlyWar.Helpers.Battles.Placers
                                                             IReadOnlyList<BattleSquad> ambushingSquads)
         {
             Dictionary<BattleSquad, Vector2> result = new Dictionary<BattleSquad, Vector2>();
-            int startingTop = yMid + ((ambushedSquads.Count * 4) / 2);
-            var killZone = PlaceAmbushedSquads(ambushedSquads, 0, startingTop, result);
+            // TODO: prevent crippled soldiers from being deployed
+            var killZone = PlaceAmbushedSquads(ambushedSquads, 0, 0, result);
             PlaceAmbushingSquads(ambushingSquads, killZone, result);
             return result;
         }

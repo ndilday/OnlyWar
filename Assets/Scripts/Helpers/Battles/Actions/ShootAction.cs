@@ -33,8 +33,8 @@ namespace OnlyWar.Helpers.Battles.Actions
 
         public void Execute()
         {
-            float modifier = CalculateToHitModifiers();
-            float skill = _soldier.Soldier.GetTotalSkillValue(_weapon.Template.RelatedSkill); 
+            float skill = _soldier.Soldier.GetTotalSkillValue(_weapon.Template.RelatedSkill);
+            float modifier = CalculateToHitModifiers(skill);
             float roll = 10.5f + (3.0f * (float)RNG.NextGaussianDouble());
             float total = skill + modifier - roll;
             _soldier.Aim = null;
@@ -53,7 +53,7 @@ namespace OnlyWar.Helpers.Battles.Actions
             _soldier.TurnsShooting++;
         }
 
-        private float CalculateToHitModifiers()
+        private float CalculateToHitModifiers(float soldierSkill)
         {
             float totalModifier = 0;
             if (_useBulk)
@@ -62,7 +62,9 @@ namespace OnlyWar.Helpers.Battles.Actions
             }
             if(_soldier.Aim?.Item1 == _target && _soldier.Aim?.Item2 == _weapon)
             {
-                totalModifier += _soldier.Aim.Item3 + _weapon.Template.Accuracy + 1;
+                // accuracy of the weapon is limited by the soldier skill
+                // TODO: take this into account with enemies, rather than using high attribute, low skill
+                totalModifier += _soldier.Aim.Item3 + Math.Min(_weapon.Template.Accuracy, soldierSkill) + 1;
             }
             totalModifier += BattleModifiersUtil.CalculateRateOfFireModifier(_numberOfShots);
             totalModifier += BattleModifiersUtil.CalculateSizeModifier(_target.Soldier.Size);

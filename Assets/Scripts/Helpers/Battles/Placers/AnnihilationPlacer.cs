@@ -24,6 +24,7 @@ namespace OnlyWar.Helpers.Battles.Placers
             // TODO: determine distance between forces
             // we should probably base this on weapon ranges of the respective armies
             // for now, we'll just go with 500 yards
+            // TODO: exclude crippled soldiers from being deployed
             foreach (KeyValuePair<int, BattleSquadLayout> squadLayoutMapItem in topLayout.SquadLayoutMap)
             {
             }

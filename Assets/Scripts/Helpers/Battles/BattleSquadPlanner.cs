@@ -47,10 +47,19 @@ namespace OnlyWar.Helpers.Battles
 
         public void PrepareActions(BattleSquad squad)
         {
+            // retreatng is moving full tilt away from the enemy
+            // TODO: this won't be a valid option when surrounded
             int retreatVotes = 0;
+            // falling back is moving at 1/3 speed away from the enemy,
+            // leaving the possibility of shooting
+            int fallbackVotes = 0;
+            // advancing is sprinting toward the enemy
             int advanceVotes = 0;
+            // standing is not moving
             int standVotes = 0;
+            // charging is moving into hand-to-hand contact with the enemy
             int chargeVotes = 0;
+
             // need some concept of squad disposition... stance, whether they're actively aiming
             // determine closest enemy
             // determine our optimal range
@@ -59,7 +68,8 @@ namespace OnlyWar.Helpers.Battles
             // if we both want to get closer or both want to stay put, it's more interesting
             if (squad.IsInMelee)
             {
-                // it doesn't really matter what the soldiers want to do, it's time to fight
+                // it doesn't really matter what the soldiers want to do, it's time to flee or fight
+                // TODO: evaluate running vs fighting
                 foreach(BattleSoldier soldier in squad.Soldiers)
                 {
                     if (_grid.IsAdjacentToEnemy(soldier.Soldier.Id))
@@ -202,7 +212,7 @@ namespace OnlyWar.Helpers.Battles
             else if (soldier.Aim != null && _opposingSoldierIdSquadMap.ContainsKey(soldier.Aim.Item1.Soldier.Id) && !soldier.Aim.Item1.IsInMelee)
             {
                 // if the aim cannot be improved, go ahead and shoot
-                if (soldier.Aim.Item3 == 2)
+                if (soldier.Aim.Item3 == 3)
                 {
                     float range = _grid.GetDistanceBetweenSoldiers(soldier.Soldier.Id, soldier.Aim.Item1.Soldier.Id);
                     Tuple<float, float> effectEstimate = EstimateHitAndDamage(soldier, soldier.Aim.Item1, soldier.Aim.Item2, range, soldier.Aim.Item2.Template.Accuracy + 3);

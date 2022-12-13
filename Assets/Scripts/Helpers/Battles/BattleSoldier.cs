@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using OnlyWar.Models.Equippables;
 using OnlyWar.Models.Soldiers;
@@ -68,6 +69,7 @@ namespace OnlyWar.Helpers.Battles
             }
         }
 
+        // aim stores the target, aiming weapon, and addiional seconds the aim has been maintained
         public Tuple<BattleSoldier, RangedWeapon, int> Aim { get; set; }
 
         public BattleSoldier(ISoldier soldier, BattleSquad squad)
@@ -85,6 +87,18 @@ namespace OnlyWar.Helpers.Battles
             CurrentSpeed = 0;
             EnemiesTakenDown = 0;
             ReloadingPhase = 0;
+        }
+
+        public bool CanFight
+        {
+            get
+            {
+                bool canWalk = !Soldier.Body.HitLocations.Where(hl => hl.Template.IsMotive)
+                                                        .Any(hl => hl.IsCrippled || hl.IsSevered);
+                bool canFuncion = !Soldier.Body.HitLocations.Where(hl => hl.Template.IsVital)
+                                                           .Any(hl => hl.IsCrippled || hl.IsSevered);
+                return canWalk && canFuncion;
+            }
         }
         
         public void AddWeapons(IReadOnlyCollection<RangedWeapon> rangedWeapons, IReadOnlyCollection<MeleeWeapon> meleeWeapons)
@@ -150,9 +164,15 @@ namespace OnlyWar.Helpers.Battles
 
         public float GetMoveSpeed()
         {
-            // TODO: if leg injuries, slow soldier down
             float baseMoveSpeed = Soldier.MoveSpeed;
-            //soldier.Body.HitLocations.Where(hl => hl)
+            bool isSlow = Soldier.Body.HitLocations.Where(hl => hl.Template.IsMotive)
+                                                       .Any(hl => hl.Wounds.MajorWounds >= 0);
+
+            // if leg/foot injuries, slow soldier down
+            if (isSlow)
+            {
+                return baseMoveSpeed * 0.75f;
+            }
             return baseMoveSpeed;
         }
 

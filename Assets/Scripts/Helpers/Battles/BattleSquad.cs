@@ -19,6 +19,14 @@ namespace OnlyWar.Helpers.Battles
 
         public Squad Squad { get; }
 
+        public List<BattleSoldier> AbleSoldiers
+        {
+            get
+            {
+                return Soldiers.Where(s => s.CanFight).ToList();
+            }
+        }
+
         public BattleSquad(bool isPlayerSquad, Squad squad)
         {
             Id = squad.Id;
@@ -125,10 +133,10 @@ namespace OnlyWar.Helpers.Battles
             float runningTotal = float.MaxValue;
             foreach (BattleSoldier soldier in Soldiers)
             {
-                // TODO: take leg wounds into account
-                if (soldier.GetMoveSpeed() < runningTotal)
+                float currentMaxSpeed = soldier.GetMoveSpeed();
+                if (currentMaxSpeed < runningTotal)
                 {
-                    runningTotal = soldier.Soldier.MoveSpeed;
+                    runningTotal = currentMaxSpeed;
                 }
             }
             return runningTotal;
