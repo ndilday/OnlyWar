@@ -122,7 +122,7 @@ namespace OnlyWar.Controllers
         public void FleetView_OnShipSelected(int shipId)
         {
             _selectedShip = null;
-            foreach(Fleet fleet in _selectedPlanet.Fleets)
+            foreach(TaskForce fleet in _selectedPlanet.Fleets)
             {
                 Ship ship = fleet.Ships.FirstOrDefault(s => s.Id == shipId);
                 if(ship != null)
@@ -484,12 +484,12 @@ namespace OnlyWar.Controllers
             return new Tuple<Color, int>(color, number);
         }
 
-        private void PopulateFleetTree(IReadOnlyList<Fleet> fleets)
+        private void PopulateFleetTree(IReadOnlyList<TaskForce> fleets)
         {
             // foreach ship in fleet, add a company style node
             // if the fleet has any troops, display those as children
             FleetView.ClearTree();
-            foreach (Fleet fleet in fleets)
+            foreach (TaskForce fleet in fleets)
             {
                 foreach (Ship ship in fleet.Ships)
                 {
@@ -519,7 +519,7 @@ namespace OnlyWar.Controllers
             squad.BoardedLocation = _selectedShip;
         }
 
-        private Tuple<Color, int> DetermineShipDisplayValues(Fleet fleet, Ship ship)
+        private Tuple<Color, int> DetermineShipDisplayValues(TaskForce fleet, Ship ship)
         {
             Color color = ship.LoadedSoldierCount == ship.Template.SoldierCapacity 
                 ? Color.yellow : Color.white;
@@ -528,7 +528,7 @@ namespace OnlyWar.Controllers
                                             ? Badge.TAKEOFF : Badge.NORMAL);
         }
 
-        private string DetermineShipText(Fleet fleet, Ship ship)
+        private string DetermineShipText(TaskForce fleet, Ship ship)
         {
             string returnValue = "";
             returnValue += ship.Name + "\n";

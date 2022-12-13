@@ -16,7 +16,7 @@ namespace OnlyWar.Builders
     public static class NewChapterBuilder
     {
         private delegate void TrainingFunction(PlayerSoldier playerSoldier);
-        public static Chapter CreateChapter(Faction faction, 
+        public static Force CreateChapter(Faction faction, 
                                             Date trainingStartDate,
                                             GameSettings gameSettings)
         {
@@ -44,7 +44,7 @@ namespace OnlyWar.Builders
             }
 
             Dictionary<int, PlayerSoldier> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
-            Chapter chapter = BuildChapterFromUnitTemplate(faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
+            Force chapter = BuildChapterFromUnitTemplate(faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
                                                            soldiers);
             PopulateOrderOfBattle(trainingEndDate.ToString(), unassignedSoldierMap, chapter.OrderOfBattle, faction);
             chapter.PopulateSquadMap();
@@ -55,7 +55,7 @@ namespace OnlyWar.Builders
 
             }
 
-            chapter.Fleets.Add(new Fleet(faction, faction.FleetTemplates.First().Value));
+            chapter.TaskForces.Add(new TaskForce(faction, faction.FleetTemplates.First().Value));
             return chapter;
         }
 
@@ -102,9 +102,9 @@ namespace OnlyWar.Builders
             AssignExcessToScouts(unassignedSoldierMap, oob, year, faction);
         }
 
-        private static Chapter BuildChapterFromUnitTemplate(UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)
+        private static Force BuildChapterFromUnitTemplate(UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)
         {
-            Chapter chapter = new Chapter(rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor"), soldiers);
+            Force chapter = new Force(rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor"), soldiers);
             BuildUnitTreeHelper(chapter.OrderOfBattle, rootTemplate);
             return chapter;
         }

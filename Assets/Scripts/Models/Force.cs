@@ -17,23 +17,23 @@ namespace OnlyWar.Models
         }
     }
 
-    public class Chapter
+    public class Force
     {
         private readonly Dictionary<Date, List<EventHistory>> _battleHistory;
         public ushort GeneseedStockpile { get; set; }
         public IReadOnlyDictionary<Date, List<EventHistory>> BattleHistory => _battleHistory;
         public Unit OrderOfBattle { get; }
-        public List<Fleet> Fleets { get; }
+        public List<TaskForce> TaskForces { get; }
         public List<IRequest> Requests { get; }
         public Dictionary<int, PlayerSoldier> PlayerSoldierMap { get; }
         public Dictionary<int, Squad> SquadMap { get; private set; }
-        public Chapter(Unit unit, IEnumerable<PlayerSoldier> soldiers)
+        public Force(Unit unit, IEnumerable<PlayerSoldier> soldiers)
         {
             GeneseedStockpile = 0;
             OrderOfBattle = unit;
             _battleHistory = new Dictionary<Date, List<EventHistory>>();
             PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
-            Fleets = new List<Fleet>();
+            TaskForces = new List<TaskForce>();
             Requests = new List<IRequest>();
         }
 

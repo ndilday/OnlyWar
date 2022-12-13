@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace OnlyWar.Models.Fleets
 {
-    public class Fleet
+    public class TaskForce
     {
-        private static int _nextFleetId = 0;
+        private static int _nextTaskForceId = 0;
         public int Id { get; set; }
         public Faction Faction { get; }
         public Vector2 Position { get; set; }
@@ -15,13 +15,13 @@ namespace OnlyWar.Models.Fleets
         public Planet Planet { get; set; }
         public List<Ship> Ships { get; }
 
-        public Fleet(int id, Faction faction, Vector2 position, 
+        public TaskForce(int id, Faction faction, Vector2 position, 
                      Planet location, Planet destination, List<Ship> ships)
         {
             Id = id;
-            if(_nextFleetId <= id)
+            if(_nextTaskForceId <= id)
             {
-                _nextFleetId = id + 1;
+                _nextTaskForceId = id + 1;
             }
             Faction = faction;
             Position = position;
@@ -34,7 +34,7 @@ namespace OnlyWar.Models.Fleets
             }
         }
 
-        public Fleet(Faction faction, FleetTemplate template) : this(faction)
+        public TaskForce(Faction faction, FleetTemplate template) : this(faction)
         {
             int i = Id * 1000;
             BoatTemplate boatTemplate = faction.BoatTemplates.First().Value;
@@ -49,9 +49,9 @@ namespace OnlyWar.Models.Fleets
             }
         }
 
-        public Fleet(Faction faction)
+        public TaskForce(Faction faction)
         {
-            Id = _nextFleetId++;
+            Id = _nextTaskForceId++;
             Faction = faction;
             Ships = new List<Ship>();
         }

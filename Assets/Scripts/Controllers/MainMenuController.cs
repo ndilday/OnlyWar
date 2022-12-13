@@ -40,7 +40,7 @@ namespace OnlyWar.Controllers
             Dictionary<Faction, List<Unit>> factionUnits = InitalizeUnits(gameData);
             var chapterUnit = factionUnits[GameSettings.Sector.PlayerFaction].First(u => u.ParentUnit == null);
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
-            GameSettings.Chapter = new Chapter(chapterUnit, soldiers);
+            GameSettings.Chapter = new Force(chapterUnit, soldiers);
             GameSettings.Chapter.PopulateSquadMap();
             InitalizeRequests(gameData);
 
@@ -218,7 +218,7 @@ namespace OnlyWar.Controllers
                     planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads
                         .AddRange(GameSettings.Chapter.SquadMap.Values);
                     SetChapterSquadsLocation(planet);
-                    foreach(Fleet fleet in GameSettings.Chapter.Fleets)
+                    foreach(TaskForce fleet in GameSettings.Chapter.TaskForces)
                     {
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;

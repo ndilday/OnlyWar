@@ -38,12 +38,12 @@ namespace OnlyWar.Helpers.Database.GameState
             return fleetShipMap;
         }
 
-        public List<Fleet> GetFleetsByFactionId(IDbConnection connection,
+        public List<TaskForce> GetFleetsByFactionId(IDbConnection connection,
                                                 IReadOnlyDictionary<int, List<Ship>> fleetShipMap,
                                                 IReadOnlyDictionary<int, Faction> factionMap,
                                                 IReadOnlyList<Planet> planetList)
         {
-            List<Fleet> fleetList = new List<Fleet>();
+            List<TaskForce> fleetList = new List<TaskForce>();
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT * FROM Fleet";
@@ -69,7 +69,7 @@ namespace OnlyWar.Helpers.Database.GameState
                     Vector2 location = new Vector2(x, y);
                     Planet planet = planetList.FirstOrDefault(p => p.Position == location);
 
-                    Fleet fleet = new Fleet(id, factionMap[factionId], location, planet,
+                    TaskForce fleet = new TaskForce(id, factionMap[factionId], location, planet,
                                             destination, fleetShipMap[id]);
                     fleetList.Add(fleet);
                 }
@@ -77,7 +77,7 @@ namespace OnlyWar.Helpers.Database.GameState
             return fleetList;
         }
 
-        public void SaveFleet(IDbTransaction transaction, Fleet fleet)
+        public void SaveFleet(IDbTransaction transaction, TaskForce fleet)
         {
             string destination = fleet.Destination == null ? "null" : fleet.Destination.Id.ToString();
             string insert = $@"INSERT INTO Fleet VALUES ({fleet.Id}, {fleet.Faction.Id}, 

@@ -21,7 +21,7 @@ namespace OnlyWar.Helpers.Database.GameState
         public List<Character> Characters { get; set; }
         public List<Planet> Planets { get; set; }
         public List<IRequest> Requests { get; set; }
-        public List<Fleet> Fleets { get; set; }
+        public List<TaskForce> Fleets { get; set; }
         public List<Unit> Units { get; set; }
         public Date CurrentDate { get; set; }
         public Dictionary<Date, List<EventHistory>> History { get; set; }
@@ -114,7 +114,7 @@ namespace OnlyWar.Helpers.Database.GameState
                              IEnumerable<Character> characters,
                              IEnumerable<IRequest> requests,
                              IEnumerable<Planet> planets, 
-                             IEnumerable<Fleet> fleets,
+                             IEnumerable<TaskForce> fleets,
                              IEnumerable<Unit> units,
                              IEnumerable<PlayerSoldier> playerSoldiers,
                              IReadOnlyDictionary<Date, List<EventHistory>> history)
@@ -150,7 +150,7 @@ namespace OnlyWar.Helpers.Database.GameState
                         _requestDataAccess.SaveRequest(transaction, request);
                     }
 
-                    foreach(Fleet fleet in fleets)
+                    foreach(TaskForce fleet in fleets)
                     {
                         _fleetDataAccess.SaveFleet(transaction, fleet);
                     }

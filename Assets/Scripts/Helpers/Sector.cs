@@ -14,7 +14,7 @@ namespace OnlyWar.Helpers
 {
     public class Sector
     {
-        private readonly Dictionary<int, Fleet> _fleets;
+        private readonly Dictionary<int, TaskForce> _fleets;
         private readonly Dictionary<int, Planet> _planets;
         private readonly List<Character> _characters;
         private readonly IReadOnlyList<Faction> _factions;
@@ -25,7 +25,7 @@ namespace OnlyWar.Helpers
         private readonly int _sectorSize;
         public List<Character> Characters { get => _characters; }
         public IReadOnlyDictionary<int, Planet> Planets { get => _planets; }
-        public IReadOnlyDictionary<int, Fleet> Fleets { get => _fleets; }
+        public IReadOnlyDictionary<int, TaskForce> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
         public Faction DefaultFaction { get; }
@@ -53,7 +53,7 @@ namespace OnlyWar.Helpers
             DefaultFaction = _factions.First(f => f.IsDefaultFaction);
             _sectorSize = sectorSize;
             _planets = new Dictionary<int, Planet>();
-            _fleets = new Dictionary<int, Fleet>();
+            _fleets = new Dictionary<int, TaskForce>();
         }
 
         public IReadOnlyList<Faction> GetNonPlayerFactions()
@@ -71,12 +71,12 @@ namespace OnlyWar.Helpers
             return Planets.Values.Where(p => p.Position != null && p.Position == worldPosition).SingleOrDefault();
         }
 
-        public IEnumerable<Fleet> GetFleetsByPosition(Vector2 worldPosition)
+        public IEnumerable<TaskForce> GetFleetsByPosition(Vector2 worldPosition)
         {
             return Fleets.Values.Where(f => f.Position == worldPosition);
         }
 
-        public void GenerateSector(List<Character> characters, List<Planet> planets, List<Fleet> fleets)
+        public void GenerateSector(List<Character> characters, List<Planet> planets, List<TaskForce> fleets)
         {
             _characters.Clear();
             _characters.AddRange(characters);
@@ -88,7 +88,7 @@ namespace OnlyWar.Helpers
             }
 
             _fleets.Clear();
-            foreach (Fleet fleet in fleets)
+            foreach (TaskForce fleet in fleets)
             {
                 _fleets[fleet.Id] = fleet;
                 if (fleet.Planet != null)
@@ -148,7 +148,7 @@ namespace OnlyWar.Helpers
             return PlanetBuilder.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
         }
 
-        public void AddNewFleet(Fleet newFleet)
+        public void AddNewFleet(TaskForce newFleet)
         {
             _fleets[newFleet.Id] = newFleet;
             if(newFleet.Planet != null)
@@ -157,7 +157,7 @@ namespace OnlyWar.Helpers
             }
         }
 
-        public void CombineFleets(Fleet remainingFleet, Fleet mergingFleet)
+        public void CombineFleets(TaskForce remainingFleet, TaskForce mergingFleet)
         {
             if(mergingFleet.Planet != remainingFleet.Planet 
                 || mergingFleet.Position != remainingFleet.Position
@@ -176,10 +176,10 @@ namespace OnlyWar.Helpers
             mergingFleet.Planet.Fleets.Remove(mergingFleet);
         }
 
-        public Fleet SplitOffNewFleet(Fleet originalFleet, 
+        public TaskForce SplitOffNewFleet(TaskForce originalFleet, 
                                       IReadOnlyCollection<Ship> newFleetShipList)
         {
-            Fleet newFleet = new Fleet(originalFleet.Faction)
+            TaskForce newFleet = new TaskForce(originalFleet.Faction)
             {
                 Planet = originalFleet.Planet,
                 Position = originalFleet.Position,

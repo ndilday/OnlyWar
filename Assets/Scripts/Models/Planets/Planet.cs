@@ -18,7 +18,7 @@ namespace OnlyWar.Models.Planets
         public readonly int Size;
         public bool IsUnderAssault { get; set; }
 
-        public List<Fleet> Fleets;
+        public List<TaskForce> Fleets;
         public readonly Dictionary<int, PlanetFaction> PlanetFactionMap;
         public Faction ControllingFaction;
         
@@ -51,7 +51,7 @@ namespace OnlyWar.Models.Planets
             Template = template;
             Importance = importance;
             TaxLevel = taxLevel;
-            Fleets = new List<Fleet>();
+            Fleets = new List<TaskForce>();
             PlanetFactionMap = new Dictionary<int, PlanetFaction>();
         }
 

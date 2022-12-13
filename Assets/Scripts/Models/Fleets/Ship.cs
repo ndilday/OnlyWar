@@ -39,7 +39,7 @@ namespace OnlyWar.Models.Fleets
 
         public int Id { get; }
         public string Name { get; }
-        public Fleet Fleet { get; set; }
+        public TaskForce Fleet { get; set; }
         public ShipTemplate Template { get; }
         public IReadOnlyCollection<Squad> LoadedSquads { get => _loadedSquads; } 
         public List<Boat> Boats { get; }

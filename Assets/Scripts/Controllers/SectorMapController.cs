@@ -45,7 +45,7 @@ namespace OnlyWar.Controllers
                         Map.CenterCameraOnPlanet(planet.Id);
                     }
                 }
-                foreach (Fleet fleet in GameSettings.Sector.Fleets.Values)
+                foreach (TaskForce fleet in GameSettings.Sector.Fleets.Values)
                 {
                     Map.CreateFleet(fleet.Id, fleet.Position, false);
                 }
@@ -81,7 +81,7 @@ namespace OnlyWar.Controllers
         {
             // move fleets
             // doing a copy of the list here so I can delete elements from the underlying collection
-            foreach(Fleet fleet in GameSettings.Sector.Fleets.Values)
+            foreach(TaskForce fleet in GameSettings.Sector.Fleets.Values)
             {
                 UpdateFleetPosition(fleet);
             }
@@ -90,7 +90,7 @@ namespace OnlyWar.Controllers
 
         }
 
-        private void UpdateFleetPosition(Fleet fleet)
+        private void UpdateFleetPosition(TaskForce fleet)
         {
             if (fleet.Destination != null)
             {
@@ -133,7 +133,7 @@ namespace OnlyWar.Controllers
 
         public void FleetView_OnShipSelected(int shipId)
         {
-            Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
+            TaskForce fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
             Ship ship = fleet.Ships.First(s => s.Id == shipId);
             if (!_selectedShips.Contains(ship))
             {
@@ -160,7 +160,7 @@ namespace OnlyWar.Controllers
             // check to see if there's a selected fleet
             if (_selectedShips?.Count > 0)
             {
-                Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
+                TaskForce fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
 
                 // if the fleet has no planet, it's en route, and can't change that route
                 if (fleet.Planet != null)
@@ -250,7 +250,7 @@ namespace OnlyWar.Controllers
 
         private void HandleFleetDestinationClick(RaycastHit2D hitInfo)
         {
-            Fleet fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
+            TaskForce fleet = GameSettings.Sector.Fleets[(int)_selectedFleetId];
             // this is the selected fleet's new target system
             int? destinationPlanetId = Map.GetPlanetIdFromPosition(hitInfo.collider.transform.position);
             if (destinationPlanetId != null)
@@ -264,7 +264,7 @@ namespace OnlyWar.Controllers
                 }
 
                 // doing a copy so I can remove things from the underlying collection
-                foreach(Fleet adjacentFleet in fleet.Planet.Fleets.ToList())
+                foreach(TaskForce adjacentFleet in fleet.Planet.Fleets.ToList())
                 {
                     // if there's another fleet at this planet doing what this fleet
                     // is now doing, just merge them
@@ -380,7 +380,7 @@ namespace OnlyWar.Controllers
 
         private void PopulateFleetView(int fleetId)
         {
-            Fleet fleet = GameSettings.Sector.Fleets[fleetId];
+            TaskForce fleet = GameSettings.Sector.Fleets[fleetId];
             FleetView.ClearTree();
             foreach (Ship ship in fleet.Ships)
             {
