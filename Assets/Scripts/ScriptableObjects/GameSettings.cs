@@ -23,7 +23,7 @@ public class GameSettings : ScriptableObject
     [HideInInspector]
     public Sector Sector;
     [HideInInspector]
-    public Force Chapter;
+    public PlayerForce Chapter;
 
     [Header("Date")]
     public Date Date;

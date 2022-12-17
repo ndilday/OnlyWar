@@ -151,7 +151,7 @@ namespace OnlyWar.Controllers
             {
                 // add death note to soldier history, though we currently just delete it 
                 // we'll probably want it later
-                GameSettings.Chapter.PlayerSoldierMap[casualty.Soldier.Id]
+                GameSettings.Chapter.Army.PlayerSoldierMap[casualty.Soldier.Id]
                     .AddEntryToHistory($"Killed in battle with the {_opposingFaction.Name} by a {weapon.Name}");
             }
             else
@@ -553,7 +553,7 @@ namespace OnlyWar.Controllers
                         historyEntry += $"Was greviously wounded.";
                     }
                 }
-                GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
+                GameSettings.Chapter.Army.PlayerSoldierMap[soldier.Soldier.Id].AddEntryToHistory(historyEntry);
             }
 
         }
@@ -618,12 +618,12 @@ namespace OnlyWar.Controllers
                     {
                         // if a vital part is severed, they're dead
                         PlayerSoldier playerSoldier = 
-                            GameSettings.Chapter.PlayerSoldierMap[soldier.Soldier.Id];
+                            GameSettings.Chapter.Army.PlayerSoldierMap[soldier.Soldier.Id];
                         dead.Add(playerSoldier);
                         Squad squad = playerSoldier.AssignedSquad;
                         playerSoldier.AssignedSquad = null;
                         squad.RemoveSquadMember(playerSoldier);
-                        GameSettings.Chapter.PlayerSoldierMap.Remove(soldier.Soldier.Id);
+                        GameSettings.Chapter.Army.PlayerSoldierMap.Remove(soldier.Soldier.Id);
                         break;
                     }
                 }
@@ -679,12 +679,12 @@ namespace OnlyWar.Controllers
             inflicter.EnemiesTakenDown++;
             if (weapon.RelatedSkill.Category == SkillCategory.Melee)
             {
-                GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
+                GameSettings.Chapter.Army.PlayerSoldierMap[inflicter.Soldier.Id]
                     .AddMeleeKill(_opposingFaction.Id, weapon.Id);
             }
             else if(weapon.RelatedSkill.Category == SkillCategory.Ranged)
             {
-                GameSettings.Chapter.PlayerSoldierMap[inflicter.Soldier.Id]
+                GameSettings.Chapter.Army.PlayerSoldierMap[inflicter.Soldier.Id]
                     .AddRangedKill(_opposingFaction.Id, weapon.Id);
             }
             else

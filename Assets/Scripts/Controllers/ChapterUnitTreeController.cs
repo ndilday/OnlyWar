@@ -4,6 +4,7 @@ using System.Linq;
 
 using UnityEngine;
 
+using OnlyWar.Models;
 using OnlyWar.Models.Soldiers;
 using OnlyWar.Models.Squads;
 using OnlyWar.Models.Units;
@@ -14,40 +15,38 @@ namespace OnlyWar.Controllers
     public class ChapterUnitTreeController : MonoBehaviour
     {
         protected void BuildUnitTree(UnitTreeView unitTreeView,
-                                     Unit chapterRoot,
-                                     Dictionary<int, PlayerSoldier> soldierMap,
-                                     Dictionary<int, Squad> squadMap)
+                                     Army army)
         {
             unitTreeView.ClearTree();
             
-            if (chapterRoot.HQSquad != null)
+            if (army.OrderOfBattle.HQSquad != null)
             {
-                unitTreeView.AddLeafSquad(chapterRoot.HQSquad.Id,
-                                         chapterRoot.HQSquad.Name,
-                                         DetermineDisplayColor(chapterRoot.HQSquad, soldierMap));
-                squadMap[chapterRoot.HQSquad.Id] = chapterRoot.HQSquad;
+                unitTreeView.AddLeafSquad(army.OrderOfBattle.HQSquad.Id,
+                                         army.OrderOfBattle.HQSquad.Name,
+                                         DetermineDisplayColor(army.OrderOfBattle.HQSquad, army.PlayerSoldierMap));
+                army.SquadMap[army.OrderOfBattle.HQSquad.Id] = army.OrderOfBattle.HQSquad;
             }
 
-            foreach (Squad squad in chapterRoot.Squads)
+            foreach (Squad squad in army.OrderOfBattle.Squads)
             {
-                if (chapterRoot.HQSquad == null || squad.Id != chapterRoot.HQSquad.Id)
+                if (army.OrderOfBattle.HQSquad == null || squad.Id != army.OrderOfBattle.HQSquad.Id)
                 {
-                    squadMap[squad.Id] = squad;
-                    unitTreeView.AddLeafSquad(squad.Id, squad.Name, DetermineDisplayColor(squad, soldierMap));
+                    army.SquadMap[squad.Id] = squad;
+                    unitTreeView.AddLeafSquad(squad.Id, squad.Name, DetermineDisplayColor(squad, army.PlayerSoldierMap));
                 }
             }
-            foreach (Unit company in chapterRoot.ChildUnits)
+            foreach (Unit company in army.OrderOfBattle.ChildUnits)
             {
                 if (company.HQSquad != null)
                 {
-                    squadMap[company.HQSquad.Id] = company.HQSquad;
+                    army.SquadMap[company.HQSquad.Id] = company.HQSquad;
                 }
                 if (company.Squads?.Count == 0)
                 {
                     // this is unexpected, currently
                     Debug.Log("We have a company with no squads?");
                     unitTreeView.AddLeafSquad(company.HQSquad.Id, company.HQSquad.Name,
-                                             DetermineDisplayColor(company.HQSquad, soldierMap));
+                                             DetermineDisplayColor(company.HQSquad, army.PlayerSoldierMap));
                 }
                 else
                 {
@@ -58,13 +57,13 @@ namespace OnlyWar.Controllers
                         if (company.HQSquad == null || squad != company.HQSquad)
                         {
                             squadList.Add(new Tuple<int, string, Color, int>(squad.Id, squad.Name,
-                                                                             DetermineDisplayColor(squad, soldierMap),
+                                                                             DetermineDisplayColor(squad, army.PlayerSoldierMap),
                                                                              -1));
-                            squadMap[squad.Id] = squad;
+                            army.SquadMap[squad.Id] = squad;
                         }
                     }
                     unitTreeView.AddTreeUnit(company.Id, company.Name,
-                                             DetermineDisplayColor(company.HQSquad, soldierMap), 
+                                             DetermineDisplayColor(company.HQSquad, army.PlayerSoldierMap), 
                                              -1, squadList);
                 }
             }

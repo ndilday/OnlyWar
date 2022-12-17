@@ -62,13 +62,13 @@ namespace OnlyWar.Controllers
         {
             ClearGroundSelections();
             // populate the SquadArmamentView
-            if (unitId == GameSettings.Chapter.OrderOfBattle.Id)
+            if (unitId == GameSettings.Chapter.Army.OrderOfBattle.Id)
             {
-                _selectedUnit = GameSettings.Chapter.OrderOfBattle;
+                _selectedUnit = GameSettings.Chapter.Army.OrderOfBattle;
             }
             else
             {
-                _selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits
+                _selectedUnit = GameSettings.Chapter.Army.OrderOfBattle.ChildUnits
                     .First(company => company.Id == unitId);
             }
             
@@ -97,14 +97,14 @@ namespace OnlyWar.Controllers
                     }
                 }
             }
-            PlanetView.EnableLoadInShipButton(enableAdd);
+            //PlanetView.EnableLoadInShipButton(enableAdd);
         }
 
         public void UnitView_OnSquadSelected(int squadId)
         {
             ClearGroundSelections();
             // populate the SquadArmamentView
-            _selectedSquad = GameSettings.Chapter.SquadMap[squadId];
+            _selectedSquad = GameSettings.Chapter.Army.SquadMap[squadId];
             SquadArmamentView.Clear();
             Tuple<Color, int> deployData = DetermineSquadDisplayValues(_selectedSquad);
             SquadArmamentView.Initialize(deployData.Item2 < 2,
@@ -116,7 +116,7 @@ namespace OnlyWar.Controllers
             bool enableLoadToShipButton =
                 _selectedShip != null 
                     && _selectedShip.AvailableCapacity >= _selectedSquad.Members.Count;
-            PlanetView.EnableLoadInShipButton(enableLoadToShipButton);
+            //PlanetView.EnableLoadInShipButton(enableLoadToShipButton);
         }
 
         public void FleetView_OnShipSelected(int shipId)
@@ -131,19 +131,19 @@ namespace OnlyWar.Controllers
                     break;
                 }
             }
-            PlanetView.EnableRemoveFromShipButton(false);
+            //PlanetView.EnableRemoveFromShipButton(false);
             if(_selectedSquad != null || _selectedUnit != null)
             {
-                PlanetView.EnableLoadInShipButton(true);
+                //PlanetView.EnableLoadInShipButton(true);
             }
         }
 
         public void FleetView_OnSquadSelected(int squadId)
         {
             ClearGroundSelections();
-            _selectedShipSquad = GameSettings.Chapter.SquadMap[squadId];
-            PlanetView.EnableLoadInShipButton(false);
-            PlanetView.EnableRemoveFromShipButton(true);
+            _selectedShipSquad = GameSettings.Chapter.Army.SquadMap[squadId];
+            //PlanetView.EnableLoadInShipButton(false);
+            //PlanetView.EnableRemoveFromShipButton(true);
         }
 
         public void SquadArmamentView_OnIsFrontLineChanged(bool newVal)
@@ -190,7 +190,7 @@ namespace OnlyWar.Controllers
                 _selectedPlanet.PlanetFactionMap.Remove(GameSettings.Sector.PlayerFaction.Id);
             }
             PopulateFleetTree(_selectedPlanet.Fleets);
-            PlanetView.EnableLoadInShipButton(false);
+            //PlanetView.EnableLoadInShipButton(false);
             ClearGroundSelections();
         }
 
@@ -201,7 +201,7 @@ namespace OnlyWar.Controllers
             _selectedShipSquad.Location = _selectedPlanet;
             PopulateUnitTree();
             PopulateFleetTree(_selectedPlanet.Fleets);
-            PlanetView.EnableRemoveFromShipButton(false);
+            //PlanetView.EnableRemoveFromShipButton(false);
 
             PlanetFaction playerPlanetFaction;
             if (!_selectedShipSquad.Location.PlanetFactionMap.ContainsKey(GameSettings.Sector.PlayerFaction.Id))
@@ -398,7 +398,7 @@ namespace OnlyWar.Controllers
             UnitTreeView.ClearTree();
             // go through the Chapter OOB and see which squads are on this planet
             // TODO: do we still want this one?
-            foreach(Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
+            foreach(Squad squad in GameSettings.Chapter.Army.OrderOfBattle.Squads)
             {
                 if(squad.Location == _selectedPlanet)
                 {
@@ -406,7 +406,7 @@ namespace OnlyWar.Controllers
                     AddSquadToUnitTreeAtRoot(squad);
                 }
             }
-            foreach(Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
+            foreach(Unit company in GameSettings.Chapter.Army.OrderOfBattle.ChildUnits)
             {
                 anySquadsLeft = true;
                 AddCompanyToUnitTree(company);
@@ -452,7 +452,7 @@ namespace OnlyWar.Controllers
 
         private Tuple<Color, int> DetermineSquadDisplayValues(Squad squad)
         {
-            var deployables = squad.Members.Select(s => GameSettings.Chapter.PlayerSoldierMap[s.Id])
+            var deployables = squad.Members.Select(s => GameSettings.Chapter.Army.PlayerSoldierMap[s.Id])
                                                                     .Where(ps => ps.IsDeployable);
             var typeGroups = deployables.GroupBy(ps => ps.Template).ToDictionary(g => g.Key);
             bool isFull = true;

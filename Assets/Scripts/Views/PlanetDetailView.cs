@@ -8,23 +8,30 @@ namespace OnlyWar.Views
         [SerializeField]
         private Text ScoutingReport;
         [SerializeField]
-        private Button LoadToShipButton;
+        private Text GovernmentReport;
         [SerializeField]
-        private Button RemoveFromShipButton;
+        private Text AlliedForcesReport;
+        [SerializeField]
+        private Text OpposingForcesReport;
 
         public void UpdateScoutingReport(string newText)
         {
             ScoutingReport.text = newText;
         }
 
-        public void EnableLoadInShipButton(bool enable)
+        public void UpdateGovernmentReport(string newText)
         {
-            LoadToShipButton.gameObject.SetActive(enable);
+            GovernmentReport.text = newText;
         }
 
-        public void EnableRemoveFromShipButton(bool enable)
+        public void UpdateAlliedForcesReport(string newText)
         {
-            RemoveFromShipButton.gameObject.SetActive(enable);
+            AlliedForcesReport.text = newText;
+        }
+
+        public void UpdateOpposingForcesReport(string newText)
+        {
+            OpposingForcesReport.text = newText;
         }
     }
 }

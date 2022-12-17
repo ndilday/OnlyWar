@@ -98,7 +98,7 @@ namespace OnlyWar.Controllers
                                                   GameSettings.Sector.Planets.Values,
                                                   GameSettings.Sector.Fleets.Values,
                                                   units,
-                                                  GameSettings.Chapter.PlayerSoldierMap.Values,
+                                                  GameSettings.Chapter.Army.PlayerSoldierMap.Values,
                                                   GameSettings.Chapter.BattleHistory);
             StartCoroutine(TemporarySaveButtonUpdateCoroutine());
         }

@@ -140,7 +140,7 @@ I await any further instructions you have on our recruiting and training efforts
             Unit parentUnit = deletedSquad.ParentUnit;
             parentUnit.RemoveSquad(deletedSquad);
             _scoutSquads.Remove(squadId);
-            GameSettings.Chapter.SquadMap.Remove(squadId);
+            GameSettings.Chapter.Army.SquadMap.Remove(squadId);
             PopulateScoutSquadMap();
             ScoutSquadView.ClearTree();
             foreach (Squad squad in _scoutSquads.Values)
@@ -182,7 +182,7 @@ I await any further instructions you have on our recruiting and training efforts
         private void PopulateScoutSquadMap()
         {
             _squadSkillFocusMap.Clear();
-            foreach (Unit company in GameSettings.Chapter.OrderOfBattle.ChildUnits)
+            foreach (Unit company in GameSettings.Chapter.Army.OrderOfBattle.ChildUnits)
             {
                 foreach (Squad squad in company.Squads)
                 {

@@ -35,16 +35,13 @@ namespace OnlyWar.Controllers
         {
             UnitTreeView.gameObject.SetActive(true);
             SquadMemberView.gameObject.SetActive(true);
-            BuildUnitTree(UnitTreeView, 
-                          GameSettings.Chapter.OrderOfBattle,
-                          GameSettings.Chapter.PlayerSoldierMap,
-                          GameSettings.Chapter.SquadMap);
+            BuildUnitTree(UnitTreeView, GameSettings.Chapter.Army);
             UnitTreeView.Initialized = true;
         }
 
         public void UnitTreeView_OnUnitSelected(int unitId)
         {
-            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
+            Unit selectedUnit = GameSettings.Chapter.Army.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             List<Tuple<int, string, string, Color>> memberList = selectedUnit.HQSquad.Members
                 .OrderByDescending(s => s.Template.Rank)
                 .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Template.Name, s.Name, DetermineDisplayColor(s)))
@@ -55,7 +52,7 @@ namespace OnlyWar.Controllers
 
         public void UnitTreeView_OnSquadSelected(int squadId)
         {
-            Squad selectedSquad = GameSettings.Chapter.SquadMap[squadId];
+            Squad selectedSquad = GameSettings.Chapter.Army.SquadMap[squadId];
             List<Tuple<int, string, string, Color>> memberList = selectedSquad.Members
                 .OrderByDescending(s => s.Template.Rank)
                 .Select(s => new Tuple<int, string, string, Color>(s.Id, s.Template.Name, s.Name, DetermineDisplayColor(s)))
@@ -67,13 +64,13 @@ namespace OnlyWar.Controllers
         public void SquadMemberView_OnSoldierSelected(int soldierId)
         {
             string newText = "";
-            _selectedSoldier = GameSettings.Chapter. PlayerSoldierMap[soldierId];
+            _selectedSoldier = GameSettings.Chapter.Army.PlayerSoldierMap[soldierId];
             foreach(string historyLine in _selectedSoldier.SoldierHistory)
             {
                 newText += historyLine + "\n";
             }
             SquadMemberView.ReplaceSelectedUnitText(newText);
-            var openings = GetOpeningsInUnit(GameSettings.Chapter.OrderOfBattle, 
+            var openings = GetOpeningsInUnit(GameSettings.Chapter.Army.OrderOfBattle, 
                                              _selectedSoldier.AssignedSquad,
                                              _selectedSoldier.Template);
             // insert current assignment at top
@@ -96,7 +93,7 @@ namespace OnlyWar.Controllers
                 // if soldier is squad leader and its not an HQ Squad, change name
                 currentSquad.Name = currentSquad.SquadTemplate.Name;
             }
-            Squad newSquad = GameSettings.Chapter.SquadMap[newPosition.Item1];
+            Squad newSquad = GameSettings.Chapter.Army.SquadMap[newPosition.Item1];
             _selectedSoldier.AssignedSquad = newSquad;
             newSquad.AddSquadMember(_selectedSoldier);
 
@@ -125,14 +122,11 @@ namespace OnlyWar.Controllers
                 // delete scout squads when they're emptied out
                 Unit parentUnit = currentSquad.ParentUnit;
                 parentUnit.RemoveSquad(currentSquad);
-                GameSettings.Chapter.SquadMap.Remove(currentSquad.Id);
+                GameSettings.Chapter.Army.SquadMap.Remove(currentSquad.Id);
             }
             
             // refresh the unit layout
-            BuildUnitTree(UnitTreeView,
-                          GameSettings.Chapter.OrderOfBattle,
-                          GameSettings.Chapter.PlayerSoldierMap,
-                          GameSettings.Chapter.SquadMap);
+            BuildUnitTree(UnitTreeView, GameSettings.Chapter.Army);
             if (newSquad.ParentUnit.HQSquad != null
                 && newSquad.Id == newSquad.ParentUnit.HQSquad.Id)
             {
@@ -156,7 +150,7 @@ namespace OnlyWar.Controllers
             // handle work experience
             // "work" is worth 1/4 as much as training. 12 hrs/day, 7 days/week,
             // works out to 21 hours of training equivalent, call it 20, so 0.1 points
-            foreach (PlayerSoldier soldier in GameSettings.Chapter.PlayerSoldierMap.Values)
+            foreach (PlayerSoldier soldier in GameSettings.Chapter.Army.PlayerSoldierMap.Values)
             {
                 _trainingHelper.ApplySoldierWorkExperience(soldier, 0.1f);
             }
@@ -232,7 +226,7 @@ namespace OnlyWar.Controllers
             {
                 // get the members of the squad that match this element
                 var matches = soldiers?.Where(s => element.SoldierTemplate == s.Template);
-                var healthyMatches = matches?.Where(s => GameSettings.Chapter.PlayerSoldierMap[s.Id].IsDeployable);
+                var healthyMatches = matches?.Where(s => GameSettings.Chapter.Army.PlayerSoldierMap[s.Id].IsDeployable);
                 int count = matches == null ? 0 : matches.Count();
                 int healthyCount = healthyMatches == null ? 0 : healthyMatches.Count();
                 entryList.Add(new Tuple<SquadTemplateElement, int, int>(element, count, healthyCount));
@@ -321,7 +315,7 @@ namespace OnlyWar.Controllers
 
         protected Color DetermineDisplayColor(ISoldier soldier)
         {
-            PlayerSoldier playerSoldier = GameSettings.Chapter.PlayerSoldierMap[soldier.Id];
+            PlayerSoldier playerSoldier = GameSettings.Chapter.Army.PlayerSoldierMap[soldier.Id];
             if (!playerSoldier.IsDeployable)
             {
                 return Color.red;

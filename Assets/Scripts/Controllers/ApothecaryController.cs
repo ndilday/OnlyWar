@@ -38,7 +38,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
 
         public void UnitTreeView_OnUnitSelected(int unitId)
         {
-            Unit selectedUnit = GameSettings.Chapter.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
+            Unit selectedUnit = GameSettings.Chapter.Army.OrderOfBattle.ChildUnits.First(u => u.Id == unitId);
             // populate view with members of selected squad
             if (selectedUnit.HQSquad != null)
             {
@@ -46,13 +46,13 @@ It will require approximately {4} weeks before all marines in the squad (other t
             }
             else
             {
-                SquadSelected(GameSettings.Chapter.SquadMap[unitId]);
+                SquadSelected(GameSettings.Chapter.Army.SquadMap[unitId]);
             }
         }
 
         public void UnitTreeView_OnSquadSelected(int squadId)
         {
-            SquadSelected(GameSettings.Chapter.SquadMap[squadId]);
+            SquadSelected(GameSettings.Chapter.Army.SquadMap[squadId]);
         }
 
         public void ApothecaryView_OnSquadMemberSelected(int soldierId)
@@ -66,7 +66,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             ApothecaryView.gameObject.SetActive(false);
 
             // heal wounds by one week
-            foreach(PlayerSoldier soldier in GameSettings.Chapter.OrderOfBattle.GetAllMembers())
+            foreach(PlayerSoldier soldier in GameSettings.Chapter.Army.OrderOfBattle.GetAllMembers())
             {
                 foreach(HitLocation hitLocation in soldier.Body.HitLocations)
                 {
@@ -121,10 +121,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
 
         private void InitializeUnitTree()
         {
-            BuildUnitTree(UnitTreeView,
-                            GameSettings.Chapter.OrderOfBattle,
-                            GameSettings.Chapter.PlayerSoldierMap,
-                            GameSettings.Chapter.SquadMap);
+            BuildUnitTree(UnitTreeView, GameSettings.Chapter.Army);
             UnitTreeView.Initialized = true;
         }
 
@@ -136,7 +133,7 @@ It will require approximately {4} weeks before all marines in the squad (other t
             Date nineYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 9, GameSettings.Date.Week);
             Date tenYearsAgo = new Date(GameSettings.Date.Millenium, GameSettings.Date.Year - 10, GameSettings.Date.Week);
             ushort inAYear = 0;
-            foreach(PlayerSoldier marine in GameSettings.Chapter.PlayerSoldierMap.Values)
+            foreach(PlayerSoldier marine in GameSettings.Chapter.Army.PlayerSoldierMap.Values)
             {
                 Date implantDate = marine.ProgenoidImplantDate;
                 if(implantDate.IsBetweenInclusive(fiveYearsAgo, fourYearsAgo)

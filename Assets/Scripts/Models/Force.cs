@@ -17,24 +17,41 @@ namespace OnlyWar.Models
         }
     }
 
-    public class Force
+    public class MilitaryTopLevel
     {
-        private readonly Dictionary<Date, List<EventHistory>> _battleHistory;
-        public ushort GeneseedStockpile { get; set; }
-        public IReadOnlyDictionary<Date, List<EventHistory>> BattleHistory => _battleHistory;
-        public Unit OrderOfBattle { get; }
+        public string ForceName { get; }
+        public Character Leader { get; }
+        public string LeaderTitle { get; }
+        public MilitaryTopLevel(string forceName, Character leader, string title)
+        {
+            ForceName = forceName;
+            Leader = leader;
+            LeaderTitle = title;
+        }
+    }
+
+    public class Fleet : MilitaryTopLevel
+    {
         public List<TaskForce> TaskForces { get; }
-        public List<IRequest> Requests { get; }
+
+        public Fleet(string fleetName, Character leader, string title)
+            : base(fleetName, leader, title)
+        {
+            TaskForces = new List<TaskForce>();
+        }
+    }
+
+    public class Army : MilitaryTopLevel
+    {
+        public Unit OrderOfBattle { get; }
         public Dictionary<int, PlayerSoldier> PlayerSoldierMap { get; }
         public Dictionary<int, Squad> SquadMap { get; private set; }
-        public Force(Unit unit, IEnumerable<PlayerSoldier> soldiers)
+
+        public Army(string armyName, Character leader, string title, Unit unit, IEnumerable<PlayerSoldier> soldiers)
+            : base(armyName, leader, title)
         {
-            GeneseedStockpile = 0;
-            OrderOfBattle = unit;
-            _battleHistory = new Dictionary<Date, List<EventHistory>>();
             PlayerSoldierMap = soldiers.ToDictionary(s => s.Id);
-            TaskForces = new List<TaskForce>();
-            Requests = new List<IRequest>();
+            OrderOfBattle = unit;
         }
 
         public void PopulateSquadMap()
@@ -55,6 +72,25 @@ namespace OnlyWar.Models
                 }
             }
         }
+    }
+
+    public class SectorForce
+    {
+        private readonly Dictionary<Date, List<EventHistory>> _battleHistory;
+        public IReadOnlyDictionary<Date, List<EventHistory>> BattleHistory => _battleHistory;
+        public Faction Faction { get; }
+        public Army Army { get; }
+        public Character Leader { get; }
+        public Fleet Fleet { get; }
+        public List<IRequest> Requests { get; }
+        public SectorForce(Faction faction, Character leader, Army army)
+        {
+            Faction = faction;
+            Leader = leader;
+            Army = army;
+            _battleHistory = new Dictionary<Date, List<EventHistory>>();
+            Requests = new List<IRequest>();
+        }
 
         public void AddToBattleHistory(Date date, string title, List<string> events)
         {
@@ -68,6 +104,17 @@ namespace OnlyWar.Models
             };
             history.SubEvents.AddRange(events);
             _battleHistory[date].Add(history);
+        }
+    }
+
+    public class PlayerForce : SectorForce
+    {
+        public ushort GeneseedStockpile { get; set; }
+
+        public PlayerForce(Faction faction, Army army) 
+            : base(faction, null, army)
+        {
+            GeneseedStockpile = 0;
         }
     }
 }

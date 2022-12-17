@@ -16,7 +16,7 @@ namespace OnlyWar.Builders
     public static class NewChapterBuilder
     {
         private delegate void TrainingFunction(PlayerSoldier playerSoldier);
-        public static Force CreateChapter(Faction faction, 
+        public static PlayerForce CreateChapter(Faction faction, 
                                             Date trainingStartDate,
                                             GameSettings gameSettings)
         {
@@ -44,10 +44,11 @@ namespace OnlyWar.Builders
             }
 
             Dictionary<int, PlayerSoldier> unassignedSoldierMap = soldiers.ToDictionary(s => s.Id);
-            Force chapter = BuildChapterFromUnitTemplate(faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
-                                                           soldiers);
-            PopulateOrderOfBattle(trainingEndDate.ToString(), unassignedSoldierMap, chapter.OrderOfBattle, faction);
-            chapter.PopulateSquadMap();
+            PlayerForce chapter = BuildChapterFromUnitTemplate(faction,
+                                                               faction.UnitTemplates.Values.First(ut => ut.IsTopLevelUnit), 
+                                                               soldiers);
+            PopulateOrderOfBattle(trainingEndDate.ToString(), unassignedSoldierMap, chapter.Army.OrderOfBattle, faction);
+            chapter.Army.PopulateSquadMap();
             foreach (PlayerSoldier soldier in soldiers)
             {
                 ApplySoldierTypeTraining(soldier);
@@ -55,7 +56,7 @@ namespace OnlyWar.Builders
 
             }
 
-            chapter.TaskForces.Add(new TaskForce(faction, faction.FleetTemplates.First().Value));
+            chapter.Fleet.TaskForces.Add(new TaskForce(faction, faction.FleetTemplates.First().Value));
             return chapter;
         }
 
@@ -102,10 +103,12 @@ namespace OnlyWar.Builders
             AssignExcessToScouts(unassignedSoldierMap, oob, year, faction);
         }
 
-        private static Force BuildChapterFromUnitTemplate(UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)
+        private static PlayerForce BuildChapterFromUnitTemplate(Faction faction, UnitTemplate rootTemplate, IEnumerable<PlayerSoldier> soldiers)
         {
-            Force chapter = new Force(rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor"), soldiers);
-            BuildUnitTreeHelper(chapter.OrderOfBattle, rootTemplate);
+            var unit = rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor");
+            Army army = new Army("Heart of the Emperor Ground Forces", null, null, unit, soldiers);
+            PlayerForce chapter = new PlayerForce(faction, army);
+            BuildUnitTreeHelper(chapter.Army.OrderOfBattle, rootTemplate);
             return chapter;
         }
 

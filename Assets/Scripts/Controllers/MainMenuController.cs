@@ -40,8 +40,9 @@ namespace OnlyWar.Controllers
             Dictionary<Faction, List<Unit>> factionUnits = InitalizeUnits(gameData);
             var chapterUnit = factionUnits[GameSettings.Sector.PlayerFaction].First(u => u.ParentUnit == null);
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
-            GameSettings.Chapter = new Force(chapterUnit, soldiers);
-            GameSettings.Chapter.PopulateSquadMap();
+            Army army = new Army("Chapter Ground Forces", null, null, chapterUnit, soldiers);
+            GameSettings.Chapter = new PlayerForce(GameSettings.Sector.PlayerFaction, army);
+            GameSettings.Chapter.Army.PopulateSquadMap();
             InitalizeRequests(gameData);
 
             foreach (KeyValuePair<Date, List<EventHistory>> kvp in gameData.History)
@@ -170,13 +171,13 @@ namespace OnlyWar.Controllers
                                                 GameSettings);
             List<string> foundingHistoryEntries = new List<string>
             {
-                $"{GameSettings.Chapter.OrderOfBattle.Name} officially forms with its first 1,000 battle brothers."
+                $"{GameSettings.Chapter.Army.OrderOfBattle.Name} officially forms with its first 1,000 battle brothers."
             };
             GameSettings.Chapter.AddToBattleHistory(GameSettings.Date,
                                                     "Chapter Founding",
                                                     foundingHistoryEntries);
             
-            GameSettings.Sector.PlayerFaction.Units.Add(GameSettings.Chapter.OrderOfBattle);
+            GameSettings.Sector.PlayerFaction.Units.Add(GameSettings.Chapter.Army.OrderOfBattle);
             FoundChapterPlanet();
 
         }
@@ -216,9 +217,9 @@ namespace OnlyWar.Controllers
                 if (planet.ControllingFaction == GameSettings.Sector.PlayerFaction)
                 {
                     planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads
-                        .AddRange(GameSettings.Chapter.SquadMap.Values);
+                        .AddRange(GameSettings.Chapter.Army.SquadMap.Values);
                     SetChapterSquadsLocation(planet);
-                    foreach(TaskForce fleet in GameSettings.Chapter.TaskForces)
+                    foreach(TaskForce fleet in GameSettings.Chapter.Fleet.TaskForces)
                     {
                         fleet.Planet = planet;
                         fleet.Position = planet.Position;
@@ -230,14 +231,14 @@ namespace OnlyWar.Controllers
 
         private void SetChapterSquadsLocation(Planet planet)
         {
-            foreach (Squad squad in GameSettings.Chapter.OrderOfBattle.Squads)
+            foreach (Squad squad in GameSettings.Chapter.Army.OrderOfBattle.Squads)
             {
                 if (squad.Members.Count > 0)
                 {
                     squad.Location = planet;
                 }
             }
-            foreach (Unit unit in GameSettings.Chapter.OrderOfBattle.ChildUnits)
+            foreach (Unit unit in GameSettings.Chapter.Army.OrderOfBattle.ChildUnits)
             {
                 foreach (Squad squad in unit.Squads)
                 {
