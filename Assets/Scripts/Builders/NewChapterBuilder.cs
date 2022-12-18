@@ -55,7 +55,6 @@ namespace OnlyWar.Builders
                 trainingHelper.EvaluateSoldier(soldier, gameSettings.Date);
 
             }
-
             chapter.Fleet.TaskForces.Add(new TaskForce(faction, faction.FleetTemplates.First().Value));
             return chapter;
         }
@@ -107,7 +106,8 @@ namespace OnlyWar.Builders
         {
             var unit = rootTemplate.GenerateUnitFromTemplateWithoutChildren("Heart of the Emperor");
             Army army = new Army("Heart of the Emperor Ground Forces", null, null, unit, soldiers);
-            PlayerForce chapter = new PlayerForce(faction, army);
+            Fleet fleet = new Fleet("Heart of the Emperor Fleet", null, null);
+            PlayerForce chapter = new PlayerForce(faction, army, fleet);
             BuildUnitTreeHelper(chapter.Army.OrderOfBattle, rootTemplate);
             return chapter;
         }

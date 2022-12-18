@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace OnlyWar.Views
@@ -6,17 +7,17 @@ namespace OnlyWar.Views
     class PlanetDetailView : MonoBehaviour
     {
         [SerializeField]
-        private Text ScoutingReport;
+        private TextMeshProUGUI PlanetReport;
         [SerializeField]
-        private Text GovernmentReport;
+        private TextMeshProUGUI GovernmentReport;
         [SerializeField]
-        private Text AlliedForcesReport;
+        private TextMeshProUGUI AlliedForcesReport;
         [SerializeField]
-        private Text OpposingForcesReport;
+        private TextMeshProUGUI OpposingForcesReport;
 
-        public void UpdateScoutingReport(string newText)
+        public void UpdatePlanetReport(string newText)
         {
-            ScoutingReport.text = newText;
+            PlanetReport.text = newText;
         }
 
         public void UpdateGovernmentReport(string newText)

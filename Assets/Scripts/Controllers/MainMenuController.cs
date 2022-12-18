@@ -41,7 +41,8 @@ namespace OnlyWar.Controllers
             var chapterUnit = factionUnits[GameSettings.Sector.PlayerFaction].First(u => u.ParentUnit == null);
             var soldiers = chapterUnit.GetAllMembers().Select(s => (PlayerSoldier)s);
             Army army = new Army("Chapter Ground Forces", null, null, chapterUnit, soldiers);
-            GameSettings.Chapter = new PlayerForce(GameSettings.Sector.PlayerFaction, army);
+            Fleet fleet = new Fleet("Chapter Fleet", null, null);
+            GameSettings.Chapter = new PlayerForce(GameSettings.Sector.PlayerFaction, army, fleet);
             GameSettings.Chapter.Army.PopulateSquadMap();
             InitalizeRequests(gameData);
 

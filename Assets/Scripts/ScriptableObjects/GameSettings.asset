@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   debugMode: 0
-  GalaxySize: 30
+  SectorSize: 45
   MapScale: {x: 15, y: 15}
   BattleMapScale: {x: 10, y: 10}
-  ChapterPlanetId: 23
   Date:
     Millenium: 40
     Year: 664

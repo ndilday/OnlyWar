@@ -83,11 +83,12 @@ namespace OnlyWar.Models
         public Character Leader { get; }
         public Fleet Fleet { get; }
         public List<IRequest> Requests { get; }
-        public SectorForce(Faction faction, Character leader, Army army)
+        public SectorForce(Faction faction, Character leader, Army army, Fleet fleet)
         {
             Faction = faction;
             Leader = leader;
             Army = army;
+            Fleet = fleet;
             _battleHistory = new Dictionary<Date, List<EventHistory>>();
             Requests = new List<IRequest>();
         }
@@ -111,8 +112,8 @@ namespace OnlyWar.Models
     {
         public ushort GeneseedStockpile { get; set; }
 
-        public PlayerForce(Faction faction, Army army) 
-            : base(faction, null, army)
+        public PlayerForce(Faction faction, Army army, Fleet fleet) 
+            : base(faction, null, army, fleet)
         {
             GeneseedStockpile = 0;
         }

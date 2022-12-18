@@ -229,7 +229,7 @@ namespace OnlyWar.Controllers
 
         private void PopulateScoutingReport(Planet planet)
         {
-            PlanetView.UpdateScoutingReport("");
+            PlanetView.UpdatePlanetReport("");
             string newReport = CreateBasicPlanetReadout(planet);
             string factionForces = "";
             bool hasMarineForces = false;
@@ -261,7 +261,7 @@ namespace OnlyWar.Controllers
             {
                 newReport += factionForces;
             }
-            PlanetView.UpdateScoutingReport(newReport);
+            PlanetView.UpdatePlanetReport(newReport);
         }
 
         private string CreateBasicPlanetReadout(Planet planet)
@@ -284,6 +284,7 @@ namespace OnlyWar.Controllers
             }
             else
             {
+                planetDescription += $"Type: {planet.Template.Name}\n";
                 planetDescription += planet.ControllingFaction.Name + " Controlled\n\n\n";
             }
             return planetDescription;
