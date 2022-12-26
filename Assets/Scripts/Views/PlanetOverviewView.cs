@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace OnlyWar.Views
 {
-    class PlanetDetailView : MonoBehaviour
+    class PlanetOverviewView : MonoBehaviour
     {
         [SerializeField]
         private TextMeshProUGUI PlanetReport;
@@ -13,11 +13,6 @@ namespace OnlyWar.Views
         private TextMeshProUGUI AlliedForcesReport;
         [SerializeField]
         private TextMeshProUGUI OpposingForcesReport;
-
-        public void Initialize()
-        {
-            
-        }
 
         public void UpdatePlanetReport(string newText)
         {

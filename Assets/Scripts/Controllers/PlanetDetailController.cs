@@ -21,6 +21,12 @@ namespace OnlyWar.Controllers
         [SerializeField]
         private PlanetDetailView PlanetView;
         [SerializeField]
+        private PlanetOverviewView OverviewView;
+        [SerializeField]
+        private PlanetSpaceView SpaceView;
+        [SerializeField]
+        private PlanetGroundView GroundView;
+        [SerializeField]
         private GameSettings GameSettings;
         [SerializeField]
         private UnitTreeView FleetView;
@@ -41,6 +47,10 @@ namespace OnlyWar.Controllers
                     planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads.Count > 0;
             }
             PlanetView.gameObject.SetActive(true);
+            OverviewView.gameObject.SetActive(true);
+            SpaceView.gameObject.SetActive(false);
+            GroundView.gameObject.SetActive(false);
+            
             PopulateScoutingReport(planet);
             if(playerSquadsPresent)
             {

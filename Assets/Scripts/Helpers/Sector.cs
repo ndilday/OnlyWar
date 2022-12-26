@@ -102,16 +102,28 @@ namespace OnlyWar.Helpers
         {
             _planets.Clear();
             RNG.Reset(seed);
-            for(int i = 0; i < _sectorSize; i++)
+            Dictionary<ushort, List<Tuple<ushort, ushort>>> sectorPlanetMap = 
+                new Dictionary<ushort, List<Tuple<ushort, ushort>>>();
+            ushort currentSubsectorId = 1;
+
+            for(ushort i = 0; i < _sectorSize; i++)
             {
-                for (int j = 0; j < _sectorSize; j++)
+                for (ushort j = 0; j < _sectorSize; j++)
                 {
                     double random = RNG.GetLinearDouble();
                     if (random <= 0.05)
                     {
                         Planet planet = GeneratePlanet(new Vector2(i, j));
                         _planets[planet.Id] = planet;
-                        if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
+
+                        // create a subsector with just this planet
+                        // we will use Agglomerative Hierarchical Clustering
+                        // to combine them into reasonable subsectors
+                        sectorPlanetMap[currentSubsectorId] = new List<Tuple<ushort, ushort>>();
+                        sectorPlanetMap[currentSubsectorId].Add(new Tuple<ushort, ushort>(i, j));
+                        currentSubsectorId++;
+
+                        if (planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
                         {
                             Character leader = 
                                 planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader;
@@ -120,32 +132,9 @@ namespace OnlyWar.Helpers
                     }
                 }
             }
-        }
-
-        private Planet GeneratePlanet(Vector2 position)
-        {
-            // TODO: There should be game start config settings for planet ownership by specific factions
-            // TODO: Once genericized, move into planet factory
-            double random = RNG.GetLinearDouble();
-            Faction controllingFaction, infiltratingFaction;
-            if (random <= 0.05)
-            {
-                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
-                infiltratingFaction = null;
-            }
-            else if (random <= 0.25f)
-            {
-                controllingFaction = _factions.First(f => f.Name == "Tyranids");
-                infiltratingFaction = null;
-            }
-            else
-            {
-                controllingFaction = DefaultFaction;
-                random = RNG.GetLinearDouble();
-                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
-            }
-
-            return PlanetBuilder.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
+            // we assume each space on the sector map is approximately 2ly x 2ly
+            // so a max diameter of 10 == 20ly
+            CombineSubsectors(sectorPlanetMap, 10);
         }
 
         public void AddNewFleet(TaskForce newFleet)
@@ -203,5 +192,156 @@ namespace OnlyWar.Helpers
         {
             planet.ControllingFaction = faction;
         }
+
+        private Planet GeneratePlanet(Vector2 position)
+        {
+            // TODO: There should be game start config settings for planet ownership by specific factions
+            // TODO: Once genericized, move into planet factory
+            double random = RNG.GetLinearDouble();
+            Faction controllingFaction, infiltratingFaction;
+            if (random <= 0.05)
+            {
+                controllingFaction = _factions.First(f => f.Name == "Genestealer Cult");
+                infiltratingFaction = null;
+            }
+            else if (random <= 0.25f)
+            {
+                controllingFaction = _factions.First(f => f.Name == "Tyranids");
+                infiltratingFaction = null;
+            }
+            else
+            {
+                controllingFaction = DefaultFaction;
+                random = RNG.GetLinearDouble();
+                infiltratingFaction = random <= 0.1 ? _factions.First(f => f.Name == "Genestealer Cult") : null;
+            }
+
+            return PlanetBuilder.Instance.GenerateNewPlanet(_planetTemplateMap, position, controllingFaction, infiltratingFaction);
+        }
+
+        private void CombineSubsectors(Dictionary<ushort, List<Tuple<ushort, ushort>>> subsectorPlanetMap,
+                                      ushort subsectorMaxDiameter)
+        {
+            int maxDistanceSquared = subsectorMaxDiameter * subsectorMaxDiameter;
+            Dictionary<Tuple<ushort, ushort>, int> subsectorDistanceMap =
+                new Dictionary<Tuple<ushort, ushort>, int>();
+            Dictionary<ushort, List<ushort>> subsectorPairMap =
+                new Dictionary<ushort, List<ushort>>();
+
+            // calculate the distance between each subsector
+            foreach (var kvp in subsectorPlanetMap)
+            {
+                foreach (var kvp2 in subsectorPlanetMap)
+                {
+                    if (kvp.Key >= kvp2.Key) continue;
+                    // find the maximum distance between subsectors
+                    int longestPlanetaryDistance =
+                        CalculateLongestPlanetaryDistance(kvp.Value, kvp2.Value);
+                    // only keep results that could potentially merge
+                    if (longestPlanetaryDistance < maxDistanceSquared)
+                    {
+                        Tuple<ushort, ushort> sectorPairId = new Tuple<ushort, ushort>(kvp.Key, kvp2.Key);
+                        subsectorDistanceMap[sectorPairId] = longestPlanetaryDistance;
+                        if (!subsectorPairMap.ContainsKey(kvp.Key))
+                        {
+                            subsectorPairMap[kvp.Key] = new List<ushort>();
+                        }
+                        if (!subsectorPairMap.ContainsKey(kvp2.Key))
+                        {
+                            subsectorPairMap[kvp2.Key] = new List<ushort>();
+                        }
+                        subsectorPairMap[kvp.Key].Add(kvp2.Key);
+                        subsectorPairMap[kvp2.Key].Add(kvp.Key);
+                    }
+                }
+            }
+            while (subsectorDistanceMap.Count > 0)
+            {
+                var shortestDistance = subsectorDistanceMap.OrderBy(kvp => kvp.Value).First();
+
+                // add the points from the second subsector to the first, and remove the second subsector
+                subsectorPlanetMap[shortestDistance.Key.Item1].AddRange(subsectorPlanetMap[shortestDistance.Key.Item2]);
+                subsectorPlanetMap.Remove(shortestDistance.Key.Item2);
+
+                // remove all kvps involving the second subsector
+                foreach (ushort otherSubsector in subsectorPairMap[shortestDistance.Key.Item2])
+                {
+                    // the smaller subsector id is always the first item
+                    if (otherSubsector < shortestDistance.Key.Item2)
+                    {
+
+                        subsectorDistanceMap.Remove(new Tuple<ushort, ushort>(otherSubsector, shortestDistance.Key.Item2));
+                    }
+                    else
+                    {
+                        subsectorDistanceMap.Remove(new Tuple<ushort, ushort>(shortestDistance.Key.Item2, otherSubsector));
+                    }
+                    subsectorPairMap[otherSubsector].Remove(shortestDistance.Key.Item2);
+                }
+                subsectorPairMap.Remove(shortestDistance.Key.Item2);
+
+                // recalculate distances for the new combined subsector
+                foreach (ushort otherSubsector in subsectorPairMap[shortestDistance.Key.Item1].ToList())
+                {
+                    Tuple<ushort, ushort> pair;
+                    if(otherSubsector < shortestDistance.Key.Item1)
+                    {
+                        pair = new Tuple<ushort, ushort>(otherSubsector, shortestDistance.Key.Item1);
+                    }
+                    else if(otherSubsector > shortestDistance.Key.Item1)
+                    {
+                        pair = new Tuple<ushort, ushort>(shortestDistance.Key.Item1, otherSubsector);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    int newDistanceSquared =
+                        CalculateLongestPlanetaryDistance(subsectorPlanetMap[pair.Item1], subsectorPlanetMap[pair.Item2]);
+
+                    if (newDistanceSquared > maxDistanceSquared)
+                    {
+                        // after combination, the other subsector is no longer in range
+                        if (subsectorDistanceMap.ContainsKey(pair))
+                        {
+                            subsectorDistanceMap.Remove(pair);
+                            subsectorPairMap[pair.Item1].Remove(pair.Item2);
+                            subsectorPairMap[pair.Item2].Remove(pair.Item1);
+                        }
+                    }
+                    else
+                    {
+                        subsectorDistanceMap[pair] = newDistanceSquared;
+                    }
+                }
+            }
+        }
+
+        private int CalculateLongestPlanetaryDistance(List<Tuple<ushort, ushort>> coordinates1, List<Tuple<ushort, ushort>> coordinates2)
+        {
+            int longestPlanetaryDistance = 0;
+            foreach (var coordinate1 in coordinates1)
+            {
+                foreach (var coordinate2 in coordinates2)
+                {
+                    int distance = CalculateDistanceSquared(coordinate1, coordinate2);
+                    if (distance > longestPlanetaryDistance)
+                    {
+                        longestPlanetaryDistance = distance;
+                    }
+                }
+            }
+
+            return longestPlanetaryDistance;
+        }
+
+        private int CalculateDistanceSquared(Tuple<ushort, ushort> coordinate1, Tuple<ushort, ushort> coordinate2)
+        {
+            int xDiff = coordinate1.Item1 - coordinate2.Item1;
+            int yDiff = coordinate1.Item2 - coordinate2.Item2;
+            return (xDiff * xDiff) + (yDiff * yDiff);
+        }
+
     }
 }
