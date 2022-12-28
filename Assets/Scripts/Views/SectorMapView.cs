@@ -58,6 +58,12 @@ namespace OnlyWar.Views
             // add color shading of star based on planet type
         }
 
+        internal void CreateSector(List<Tuple<ushort, ushort>> coordinateList)
+        {
+            Mesh sectorMesh = new Mesh();
+
+        }
+
         public void UpdatePlanetColor(int planetId, Color newColor)
         {
             var tuple = _planetViewMap[planetId];

@@ -19,7 +19,7 @@ namespace OnlyWar.Controllers
         [SerializeField]
         private SquadArmamentView SquadArmamentView;
         [SerializeField]
-        private PlanetDetailView PlanetView;
+        private GameObject PlanetDialog;
         [SerializeField]
         private PlanetOverviewView OverviewView;
         [SerializeField]
@@ -46,26 +46,28 @@ namespace OnlyWar.Controllers
                 playerSquadsPresent = 
                     planet.PlanetFactionMap[GameSettings.Sector.PlayerFaction.Id].LandedSquads.Count > 0;
             }
-            PlanetView.gameObject.SetActive(true);
+            PlanetDialog.SetActive(true);
             OverviewView.gameObject.SetActive(true);
             SpaceView.gameObject.SetActive(false);
             GroundView.gameObject.SetActive(false);
             
             PopulateScoutingReport(planet);
-            if(playerSquadsPresent)
+            PopulateGovernmentReport(planet);
+            PopulateForceSummaries(planet);
+            /*if(playerSquadsPresent)
             {
                 PopulateUnitTree();
             }
             else
             {
                 UnitTreeView.ClearTree();
-            }
-            if(planet.Fleets.Count > 0)
+            }*/
+            /*if(planet.Fleets.Count > 0)
             {
                 FleetView.gameObject.SetActive(true);
                 PopulateFleetTree(planet.Fleets);
             }
-            UnitTreeView.Initialized = true;
+            UnitTreeView.Initialized = true;*/
         }
 
         public void UnitView_OnUnitSelected(int unitId)
@@ -82,7 +84,6 @@ namespace OnlyWar.Controllers
                     .First(company => company.Id == unitId);
             }
             
-            bool enableAdd = false;
             if(_selectedShip != null && _selectedShip.AvailableCapacity > 0)
             {
                 // see if the planetside unit can fit onto the currently selected ship
@@ -100,10 +101,6 @@ namespace OnlyWar.Controllers
                                 break;
                             }
                         }
-                    }
-                    if(runningTotal < _selectedShip.AvailableCapacity)
-                    {
-                        enableAdd = true;
                     }
                 }
             }
@@ -132,7 +129,7 @@ namespace OnlyWar.Controllers
         public void FleetView_OnShipSelected(int shipId)
         {
             _selectedShip = null;
-            foreach(TaskForce fleet in _selectedPlanet.Fleets)
+            foreach(TaskForce fleet in _selectedPlanet.TaskForces)
             {
                 Ship ship = fleet.Ships.FirstOrDefault(s => s.Id == shipId);
                 if(ship != null)
@@ -199,7 +196,7 @@ namespace OnlyWar.Controllers
             {
                 _selectedPlanet.PlanetFactionMap.Remove(GameSettings.Sector.PlayerFaction.Id);
             }
-            PopulateFleetTree(_selectedPlanet.Fleets);
+            PopulateFleetTree(_selectedPlanet.TaskForces);
             //PlanetView.EnableLoadInShipButton(false);
             ClearGroundSelections();
         }
@@ -210,7 +207,7 @@ namespace OnlyWar.Controllers
             _selectedShipSquad.BoardedLocation = null;
             _selectedShipSquad.Location = _selectedPlanet;
             PopulateUnitTree();
-            PopulateFleetTree(_selectedPlanet.Fleets);
+            PopulateFleetTree(_selectedPlanet.TaskForces);
             //PlanetView.EnableRemoveFromShipButton(false);
 
             PlanetFaction playerPlanetFaction;
@@ -239,7 +236,7 @@ namespace OnlyWar.Controllers
 
         private void PopulateScoutingReport(Planet planet)
         {
-            PlanetView.UpdatePlanetReport("");
+            OverviewView.UpdatePlanetReport("");
             string newReport = CreateBasicPlanetReadout(planet);
             string factionForces = "";
             bool hasMarineForces = false;
@@ -262,7 +259,7 @@ namespace OnlyWar.Controllers
                     else factionForces = factionName + " forces on the planet are minimal, and should be easy to deal with.";
                 }
             }
-            if (!hasMarineForces && planet.Fleets.Count == 0)
+            if (!hasMarineForces && planet.TaskForces.Count == 0)
             {
                 newReport +=
                     "With no forces on planet, we have no insight into what xenos or heretics may exist here.";
@@ -271,33 +268,67 @@ namespace OnlyWar.Controllers
             {
                 newReport += factionForces;
             }
-            PlanetView.UpdatePlanetReport(newReport);
+            OverviewView.UpdatePlanetReport(newReport);
         }
 
         private string CreateBasicPlanetReadout(Planet planet)
         {
             string planetDescription = $"{planet.Name}\n";
-            
+            planetDescription += $"Type: {planet.Template.Name}\n";
+            planetDescription += planet.ControllingFaction.Name + " Controlled\n\n\n";
+            return planetDescription;
+        }
+
+        private void PopulateGovernmentReport(Planet planet)
+        {
+            string governmentReport;
             if (planet.ControllingFaction.IsDefaultFaction || planet.ControllingFaction.IsPlayerFaction)
             {
-                planetDescription += $"Type: {planet.Template.Name}\n";
-                planetDescription += $"Population: {planet.Population:#,#}\n";
-                planetDescription += $"PDF Size: {planet.PlanetaryDefenseForces:#,#}\n";
+                governmentReport = $"Type: {planet.Template.Name}\n";
+                governmentReport += $"Population: {planet.Population:#,#}\n";
+                governmentReport += $"PDF Size: {planet.PlanetaryDefenseForces:#,#}\n";
                 string importance = ConvertImportanceToString(planet.Importance);
                 string taxRate = ConvertTaxRangeToString(planet.TaxLevel);
-                planetDescription += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n";
-                if(planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader?.ActiveRequest != null)
+                governmentReport += $"Aestimare: {importance}\nTithe Grade: {taxRate}\n\n";
+                governmentReport += "\n\n";
+
+                Models.Character governor = planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader;
+                if (governor != null)
                 {
-                    planetDescription += "The planetary governor has requested our assistance\n";
+                    governmentReport += "Governor: " + governor.Name + "\n";
+                    if (governor.ActiveRequest != null)
+                    {
+                        governmentReport += "The planetary governor has requested our assistance\n";
+                    }
                 }
-                planetDescription += "\n";
             }
             else
             {
-                planetDescription += $"Type: {planet.Template.Name}\n";
-                planetDescription += planet.ControllingFaction.Name + " Controlled\n\n\n";
+                governmentReport = "No imperial government exists on this planet.\n";
             }
-            return planetDescription;
+            OverviewView.UpdateGovernmentReport(governmentReport);
+        }
+
+        private void PopulateForceSummaries(Planet planet)
+        {
+            int alliedShipCount = 0;
+            int opposingShipCount = 0;
+            foreach(TaskForce taskForce in planet.TaskForces)
+            {
+                if (taskForce.Faction.IsDefaultFaction || taskForce.Faction.IsPlayerFaction)
+                {
+                    alliedShipCount += taskForce.Ships.Count;
+                }
+                else
+                {
+                    opposingShipCount += taskForce.Ships.Count;
+                }
+            }
+
+            string alliedForceReport = $"There are {alliedShipCount} allied ships in orbit.";
+            string opposingForceReport = $"There are {opposingShipCount} opposing ships in orbit.";
+            OverviewView.UpdateAlliedForcesReport(alliedForceReport);
+            OverviewView.UpdateOpposingForcesReport(opposingForceReport);
         }
 
         private string ConvertImportanceToString(int importance)

@@ -49,6 +49,11 @@ namespace OnlyWar.Controllers
                 {
                     Map.CreateFleet(fleet.Id, fleet.Position, false);
                 }
+
+                foreach(List<Tuple<ushort, ushort>> coordinateList in GameSettings.Sector.SubsectorPlanetMap.Values)
+                {
+                    Map.CreateSector(coordinateList);
+                }
             }
         }
 
@@ -106,7 +111,7 @@ namespace OnlyWar.Controllers
                     fleet.Planet = fleet.Destination;
                     fleet.Destination = null;
                     fleet.Position = fleet.Planet.Position;
-                    var mergeFleet = fleet.Planet.Fleets.FirstOrDefault(f => f.Destination == null);
+                    var mergeFleet = fleet.Planet.TaskForces.FirstOrDefault(f => f.Destination == null);
                     if (mergeFleet != null)
                     {
                         GameSettings.Sector.CombineFleets(mergeFleet, fleet);
@@ -114,7 +119,7 @@ namespace OnlyWar.Controllers
                     }
                     else
                     {
-                        fleet.Planet.Fleets.Add(fleet);
+                        fleet.Planet.TaskForces.Add(fleet);
                         Map.MoveFleet(fleet.Id, fleet.Position, false);
                     }
                 }
@@ -264,7 +269,7 @@ namespace OnlyWar.Controllers
                 }
 
                 // doing a copy so I can remove things from the underlying collection
-                foreach(TaskForce adjacentFleet in fleet.Planet.Fleets.ToList())
+                foreach(TaskForce adjacentFleet in fleet.Planet.TaskForces.ToList())
                 {
                     // if there's another fleet at this planet doing what this fleet
                     // is now doing, just merge them

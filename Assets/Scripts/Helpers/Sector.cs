@@ -16,6 +16,8 @@ namespace OnlyWar.Helpers
     {
         private readonly Dictionary<int, TaskForce> _fleets;
         private readonly Dictionary<int, Planet> _planets;
+        private readonly Dictionary<ushort, List<Tuple<ushort, ushort>>> _subsectorPlanetMap;
+        private readonly Dictionary<ushort, Tuple<ushort, ushort>> _subsectorCenterMap;
         private readonly List<Character> _characters;
         private readonly IReadOnlyList<Faction> _factions;
         private readonly IReadOnlyDictionary<int, BaseSkill> _baseSkillMap;
@@ -25,6 +27,8 @@ namespace OnlyWar.Helpers
         private readonly int _sectorSize;
         public List<Character> Characters { get => _characters; }
         public IReadOnlyDictionary<int, Planet> Planets { get => _planets; }
+        public IReadOnlyDictionary<ushort, List<Tuple<ushort, ushort>>> SubsectorPlanetMap { get => _subsectorPlanetMap; }
+        public IReadOnlyDictionary<ushort, Tuple<ushort, ushort>> SubsectorCenterMap { get => _subsectorCenterMap; }
         public IReadOnlyDictionary<int, TaskForce> Fleets { get => _fleets; }
         public IReadOnlyList<Faction> Factions { get => _factions; }
         public Faction PlayerFaction { get; }
@@ -54,6 +58,8 @@ namespace OnlyWar.Helpers
             _sectorSize = sectorSize;
             _planets = new Dictionary<int, Planet>();
             _fleets = new Dictionary<int, TaskForce>();
+            _subsectorPlanetMap = new Dictionary<ushort, List<Tuple<ushort, ushort>>>();
+            _subsectorCenterMap = new Dictionary<ushort, Tuple<ushort, ushort>>();
         }
 
         public IReadOnlyList<Faction> GetNonPlayerFactions()
@@ -93,7 +99,7 @@ namespace OnlyWar.Helpers
                 _fleets[fleet.Id] = fleet;
                 if (fleet.Planet != null)
                 {
-                    fleet.Planet.Fleets.Add(fleet);
+                    fleet.Planet.TaskForces.Add(fleet);
                 }
             }
         }
@@ -102,8 +108,6 @@ namespace OnlyWar.Helpers
         {
             _planets.Clear();
             RNG.Reset(seed);
-            Dictionary<ushort, List<Tuple<ushort, ushort>>> sectorPlanetMap = 
-                new Dictionary<ushort, List<Tuple<ushort, ushort>>>();
             ushort currentSubsectorId = 1;
 
             for(ushort i = 0; i < _sectorSize; i++)
@@ -119,8 +123,8 @@ namespace OnlyWar.Helpers
                         // create a subsector with just this planet
                         // we will use Agglomerative Hierarchical Clustering
                         // to combine them into reasonable subsectors
-                        sectorPlanetMap[currentSubsectorId] = new List<Tuple<ushort, ushort>>();
-                        sectorPlanetMap[currentSubsectorId].Add(new Tuple<ushort, ushort>(i, j));
+                        _subsectorPlanetMap[currentSubsectorId] = new List<Tuple<ushort, ushort>>();
+                        _subsectorPlanetMap[currentSubsectorId].Add(new Tuple<ushort, ushort>(i, j));
                         currentSubsectorId++;
 
                         if (planet.PlanetFactionMap[planet.ControllingFaction.Id].Leader != null)
@@ -134,7 +138,13 @@ namespace OnlyWar.Helpers
             }
             // we assume each space on the sector map is approximately 2ly x 2ly
             // so a max diameter of 10 == 20ly
-            CombineSubsectors(sectorPlanetMap, 10);
+            CombineSubsectors(_subsectorPlanetMap, 10);
+            foreach(var coordinates in _subsectorPlanetMap)
+            {
+                ushort combinedX = (ushort)(coordinates.Value.Sum(t => t.Item1) / coordinates.Value.Count);
+                ushort combinedY = (ushort)(coordinates.Value.Sum(t => t.Item2) / coordinates.Value.Count);
+                _subsectorCenterMap[coordinates.Key] = new Tuple<ushort, ushort>(combinedX, combinedY);
+            }
         }
 
         public void AddNewFleet(TaskForce newFleet)
@@ -142,7 +152,7 @@ namespace OnlyWar.Helpers
             _fleets[newFleet.Id] = newFleet;
             if(newFleet.Planet != null)
             {
-                newFleet.Planet.Fleets.Add(newFleet);
+                newFleet.Planet.TaskForces.Add(newFleet);
             }
         }
 
@@ -162,7 +172,7 @@ namespace OnlyWar.Helpers
             mergingFleet.Ships.Clear();
             remainingFleet.Ships.Sort((x, y) => x.Template.Id.CompareTo(y.Template.Id));
             _fleets.Remove(mergingFleet.Id);
-            mergingFleet.Planet.Fleets.Remove(mergingFleet);
+            mergingFleet.Planet.TaskForces.Remove(mergingFleet);
         }
 
         public TaskForce SplitOffNewFleet(TaskForce originalFleet, 
@@ -182,7 +192,7 @@ namespace OnlyWar.Helpers
             }
             if(newFleet.Planet != null)
             {
-                newFleet.Planet.Fleets.Add(newFleet);
+                newFleet.Planet.TaskForces.Add(newFleet);
             }
             _fleets[newFleet.Id] = newFleet;
             return newFleet;

@@ -6,6 +6,8 @@ namespace OnlyWar.Models
     public class Character
     {
         public int Id { get; set; }
+        public int Age { get; set; }
+        public string Name { get; set; }
         // how likely to discover hidden activity
         public float Investigation { get; set; }
 
